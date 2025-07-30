@@ -70,9 +70,37 @@ setup_directories() {
     print_success "Agents directory ready at $AGENTS_DIR"
 }
 
+# Function to check dependencies
+check_dependencies() {
+    local missing_deps=()
+    
+    # Check for unzip
+    if ! command -v unzip &> /dev/null; then
+        missing_deps+=("unzip")
+    fi
+    
+    # Check for curl or wget
+    if ! command -v curl &> /dev/null && ! command -v wget &> /dev/null; then
+        missing_deps+=("curl or wget")
+    fi
+    
+    if [ ${#missing_deps[@]} -ne 0 ]; then
+        print_error "Missing required dependencies: ${missing_deps[*]}"
+        echo "Please install missing dependencies:"
+        echo "  Ubuntu/Debian: sudo apt-get install -y unzip curl"
+        echo "  RHEL/CentOS: sudo yum install -y unzip curl"
+        echo "  macOS: brew install curl (unzip is pre-installed)"
+        echo "  WSL/Windows: sudo apt-get install -y unzip curl"
+        exit 1
+    fi
+}
+
 # Function to download agent configurations
 download_agents() {
     print_status "Downloading Claude Code Agent System..."
+    
+    # Check dependencies first
+    check_dependencies
     
     # Create temporary directory
     mkdir -p "$TEMP_DIR"

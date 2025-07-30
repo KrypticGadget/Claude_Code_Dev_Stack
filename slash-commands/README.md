@@ -5,13 +5,14 @@ Pre-built slash commands for the Claude Code Agent System that enable rapid deve
 ## 🚀 One-Line Installation
 
 ```bash
-curl -sL https://raw.githubusercontent.com/yourusername/claude-code-agent-system/main/slash-commands/install-commands.sh | bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/slash-commands/install-commands.sh | bash
 ```
 
 ## 📦 Included Commands
 
 ### Project Management
 - `/new-project` - Start a new project with comprehensive analysis
+- `/resume-project` - Resume existing project by analyzing current state
 - `/project-plan` - Create project timeline and resource plan
 - `/go-to-market` - Develop go-to-market strategy
 

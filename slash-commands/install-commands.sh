@@ -34,6 +34,31 @@ check_claude() {
     print_success "Claude Code CLI detected"
 }
 
+# Check dependencies
+check_dependencies() {
+    local missing_deps=()
+    
+    # Check for unzip
+    if ! command -v unzip &> /dev/null; then
+        missing_deps+=("unzip")
+    fi
+    
+    # Check for curl or wget
+    if ! command -v curl &> /dev/null && ! command -v wget &> /dev/null; then
+        missing_deps+=("curl or wget")
+    fi
+    
+    if [ ${#missing_deps[@]} -ne 0 ]; then
+        print_error "Missing required dependencies: ${missing_deps[*]}"
+        echo "Please install missing dependencies:"
+        echo "  Ubuntu/Debian: sudo apt-get install -y unzip curl"
+        echo "  RHEL/CentOS: sudo yum install -y unzip curl"
+        echo "  macOS: brew install curl (unzip is pre-installed)"
+        echo "  WSL/Windows: sudo apt-get install -y unzip curl"
+        exit 1
+    fi
+}
+
 # Create commands directory
 setup_directory() {
     print_status "Setting up commands directory..."
@@ -53,6 +78,10 @@ setup_directory() {
 # Download commands
 download_commands() {
     print_status "Downloading slash commands..."
+    
+    # Check dependencies first
+    check_dependencies
+    
     mkdir -p "$TEMP_DIR"
     cd "$TEMP_DIR"
     
@@ -74,7 +103,8 @@ download_commands() {
                 for cmd in new-project business-analysis technical-feasibility frontend-mockup \
                           database-design api-integration project-plan financial-model \
                           backend-service documentation production-frontend middleware-setup \
-                          site-architecture go-to-market tech-alignment requirements prompt-enhance; do
+                          site-architecture go-to-market tech-alignment requirements prompt-enhance \
+                          resume-project; do
                     curl -sL "${REPO_URL}/raw/main/slash-commands/commands/$cmd.md" \
                          -o "slash-commands/commands/$cmd.md" 2>/dev/null || true
                 done

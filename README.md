@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code Compatible](https://img.shields.io/badge/Claude%20Code-Compatible-blue)](https://docs.anthropic.com/en/docs/claude-code)
 [![Agents: 28](https://img.shields.io/badge/Agents-28-green)](./Config_Files)
-[![Slash Commands: 17](https://img.shields.io/badge/Slash%20Commands-17-blue)](./slash-commands)
+[![Slash Commands: 18](https://img.shields.io/badge/Slash%20Commands-18-blue)](./slash-commands)
 
 ## ⚡ Quick Guide At A Glance
 
@@ -18,10 +18,10 @@
 ### 🚀 Get Started in 30 Seconds
 ```bash
 # 1. Install Agents (Required)
-curl -sL https://raw.githubusercontent.com/yourusername/claude-code-agent-system/main/install.sh | bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install.sh | bash
 
 # 2. Install Slash Commands (Recommended)
-curl -sL https://raw.githubusercontent.com/yourusername/claude-code-agent-system/main/slash-commands/install-commands.sh | bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/slash-commands/install-commands.sh | bash
 
 # 3. Start Building
 /new-project "Your app idea here"
