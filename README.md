@@ -7,6 +7,16 @@
 [![Agents: 28](https://img.shields.io/badge/Agents-28-green)](./Config_Files)
 [![Slash Commands: 18](https://img.shields.io/badge/Slash%20Commands-18-blue)](./slash-commands)
 
+## ⚡ Quick Install (Two Commands)
+
+```bash
+# 1. Install Agents (Required)
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install.sh | bash
+
+# 2. Install Slash Commands (Recommended)
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/slash-commands/install-commands.sh | bash
+```
+
 ## ⚡ Quick Guide At A Glance
 
 ### 🎯 What You Can Build
