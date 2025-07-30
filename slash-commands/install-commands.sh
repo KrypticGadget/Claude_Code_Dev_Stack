@@ -6,7 +6,9 @@ set -e
 
 # Configuration
 CLAUDE_COMMANDS_DIR="$HOME/.claude/commands"
-REPO_URL="https://github.com/yourusername/claude-code-agent-system"
+REPO_OWNER="KrypticGadget"
+REPO_NAME="Claude_Code_Dev_Stack"
+REPO_URL="https://github.com/${REPO_OWNER}/${REPO_NAME}"
 TEMP_DIR="/tmp/claude-commands-install-$$"
 
 # Colors
@@ -54,41 +56,54 @@ download_commands() {
     mkdir -p "$TEMP_DIR"
     cd "$TEMP_DIR"
     
-    # Try git first
-    if command -v git &> /dev/null; then
-        if ! git clone --depth 1 --sparse "$REPO_URL.git" . &> /dev/null; then
-            print_warning "Git clone failed, trying direct download..."
-            USE_CURL=true
+    # Download the entire repository as a zip file (no authentication needed for public repos)
+    if command -v curl &> /dev/null; then
+        print_status "Using curl to download..."
+        if curl -sL -o repo.zip "${REPO_URL}/archive/refs/heads/main.zip"; then
+            unzip -q repo.zip
+            if [ -d "${REPO_NAME}-main/slash-commands/commands" ]; then
+                mkdir -p slash-commands
+                cp -r "${REPO_NAME}-main/slash-commands/commands" slash-commands/
+                print_success "Commands downloaded"
+            else
+                # Fallback to downloading individual files
+                print_warning "Commands directory not found in archive, downloading individual files..."
+                mkdir -p slash-commands/commands
+                
+                # Download individual command files
+                for cmd in new-project business-analysis technical-feasibility frontend-mockup \
+                          database-design api-integration project-plan financial-model \
+                          backend-service documentation production-frontend middleware-setup \
+                          site-architecture go-to-market tech-alignment requirements prompt-enhance; do
+                    curl -sL "${REPO_URL}/raw/main/slash-commands/commands/$cmd.md" \
+                         -o "slash-commands/commands/$cmd.md" 2>/dev/null || true
+                done
+                print_success "Commands downloaded individually"
+            fi
         else
-            git sparse-checkout init --cone &> /dev/null
-            git sparse-checkout set slash-commands/commands &> /dev/null
-            USE_CURL=false
-        fi
-    else
-        USE_CURL=true
-    fi
-    
-    # Fallback to curl
-    if [ "$USE_CURL" = true ]; then
-        if command -v curl &> /dev/null; then
-            mkdir -p slash-commands/commands
-            COMMANDS_URL="${REPO_URL%.git}/tree/main/slash-commands/commands"
-            
-            # Download individual command files
-            for cmd in new-project business-analysis technical-feasibility frontend-mockup \
-                      database-design api-integration project-plan financial-model \
-                      backend-service documentation production-frontend middleware-setup \
-                      site-architecture go-to-market tech-alignment requirements prompt-enhance; do
-                curl -sL "$REPO_URL/raw/main/slash-commands/commands/$cmd.md" \
-                     -o "slash-commands/commands/$cmd.md" 2>/dev/null || true
-            done
-        else
-            print_error "Neither git nor curl found. Cannot download commands."
+            print_error "Failed to download repository"
             exit 1
         fi
+    elif command -v wget &> /dev/null; then
+        print_status "Using wget to download..."
+        if wget -q -O repo.zip "${REPO_URL}/archive/refs/heads/main.zip"; then
+            unzip -q repo.zip
+            if [ -d "${REPO_NAME}-main/slash-commands/commands" ]; then
+                mkdir -p slash-commands
+                cp -r "${REPO_NAME}-main/slash-commands/commands" slash-commands/
+                print_success "Commands downloaded"
+            else
+                print_error "Commands directory not found in download"
+                exit 1
+            fi
+        else
+            print_error "Failed to download repository"
+            exit 1
+        fi
+    else
+        print_error "Neither curl nor wget found. Please install curl or wget."
+        exit 1
     fi
-    
-    print_success "Commands downloaded"
 }
 
 # Install commands

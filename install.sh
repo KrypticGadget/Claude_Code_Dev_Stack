@@ -1,6 +1,6 @@
 #!/bin/bash
 # Claude Code Agent System - One Line Installer
-# https://github.com/yourusername/claude-code-agent-system
+# https://github.com/KrypticGadget/Claude_Code_Dev_Stack
 
 set -e
 
@@ -12,7 +12,9 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Configuration
-REPO_URL="https://github.com/yourusername/claude-code-agent-system.git"
+REPO_OWNER="KrypticGadget"
+REPO_NAME="Claude_Code_Dev_Stack"
+REPO_URL="https://github.com/${REPO_OWNER}/${REPO_NAME}"
 TEMP_DIR="/tmp/claude-agent-install-$$"
 CLAUDE_DIR="$HOME/.claude"
 AGENTS_DIR="$CLAUDE_DIR/agents"
@@ -76,27 +78,31 @@ download_agents() {
     mkdir -p "$TEMP_DIR"
     cd "$TEMP_DIR"
     
-    # Clone repository
-    if ! git clone --depth 1 "$REPO_URL" . &> /dev/null; then
-        print_error "Failed to download agent system"
-        echo "Attempting direct download..."
-        
-        # Fallback to wget/curl
-        if command -v wget &> /dev/null; then
-            wget -q -O agents.zip "${REPO_URL%.git}/archive/main.zip"
+    # Download directly using curl or wget (no authentication needed for public repos)
+    if command -v curl &> /dev/null; then
+        print_status "Using curl to download..."
+        if curl -sL -o agents.zip "${REPO_URL}/archive/refs/heads/main.zip"; then
             unzip -q agents.zip
-            mv claude-code-agent-system-main/* .
-        elif command -v curl &> /dev/null; then
-            curl -sL -o agents.zip "${REPO_URL%.git}/archive/main.zip"
-            unzip -q agents.zip
-            mv claude-code-agent-system-main/* .
+            mv "${REPO_NAME}-main"/* .
+            print_success "Agent system downloaded"
         else
-            print_error "Neither git, wget, nor curl found. Cannot download agents."
+            print_error "Failed to download agent system"
             exit 1
         fi
+    elif command -v wget &> /dev/null; then
+        print_status "Using wget to download..."
+        if wget -q -O agents.zip "${REPO_URL}/archive/refs/heads/main.zip"; then
+            unzip -q agents.zip
+            mv "${REPO_NAME}-main"/* .
+            print_success "Agent system downloaded"
+        else
+            print_error "Failed to download agent system"
+            exit 1
+        fi
+    else
+        print_error "Neither curl nor wget found. Please install curl or wget."
+        exit 1
     fi
-    
-    print_success "Agent system downloaded"
 }
 
 # Function to install agents
@@ -211,7 +217,7 @@ show_next_steps() {
     echo "5. View cheat sheet:"
     echo "   ${GREEN}cat ~/.claude/docs/CHEAT_SHEET.md${NC}"
     echo
-    echo "For more information, visit: https://github.com/yourusername/claude-code-agent-system"
+    echo "For more information, visit: https://github.com/${REPO_OWNER}/${REPO_NAME}"
     echo
 }
 
