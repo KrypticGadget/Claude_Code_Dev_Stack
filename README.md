@@ -7,13 +7,15 @@
 [![Agents: 28](https://img.shields.io/badge/Agents-28-green)](./Config_Files)
 [![Slash Commands: 18](https://img.shields.io/badge/Slash%20Commands-18-blue)](./slash-commands)
 
-## ⚡ Quick Install (Two Commands)
+## ⚡ Quick Install
 
+### 1. Install Agents (Required)
 ```bash
-# 1. Install Agents (Required)
 curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install.sh | bash
+```
 
-# 2. Install Slash Commands (Recommended)
+### 2. Install Slash Commands (Recommended)
+```bash
 curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/slash-commands/install-commands.sh | bash
 ```
 
@@ -25,15 +27,8 @@ curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/m
 - **APIs & Services** → REST, GraphQL, microservices
 - **Enterprise Systems** → CRM, ERP, compliance-ready platforms
 
-### 🚀 Get Started in 30 Seconds
+### 🚀 Get Started
 ```bash
-# 1. Install Agents (Required)
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install.sh | bash
-
-# 2. Install Slash Commands (Recommended)
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/slash-commands/install-commands.sh | bash
-
-# 3. Start Building
 /new-project "Your app idea here"
 ```
 
@@ -286,18 +281,6 @@ curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/m
 ---
 
 <div align="center">
-
-**🚀 Start Building in 30 Seconds**
-
-```bash
-curl -sL https://raw.githubusercontent.com/yourusername/claude-code-agent-system/main/install.sh | bash
-```
-
-**Then:**
-
-```
-/new-project "Your next big idea"
-```
 
 *Transform your ideas into production software with the power of 28 AI agents!*
 
