@@ -30,24 +30,72 @@ curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/m
 For granular control, install individual components:
 
 ### 🤖 Agents Only (28 specialized agents)
-Windows: `iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-agents.ps1 | iex`
-Ubuntu/WSL: `curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-agents.sh | bash`
-macOS: `curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-agents-mac.sh | bash`
+
+**Windows PowerShell:**
+```powershell
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-agents.ps1 | iex
+```
+
+**Ubuntu/WSL:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-agents.sh | bash
+```
+
+**macOS:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-agents-mac.sh | bash
+```
 
 ### 💬 Slash Commands Only (18 commands)
-Windows: `iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-commands.ps1 | iex`
-Ubuntu/WSL: `curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-commands.sh | bash`
-macOS: `curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-commands-mac.sh | bash`
+
+**Windows PowerShell:**
+```powershell
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-commands.ps1 | iex
+```
+
+**Ubuntu/WSL:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-commands.sh | bash
+```
+
+**macOS:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-commands-mac.sh | bash
+```
 
 ### 🔌 MCPs Only (Tier 1: Playwright, Obsidian, Brave Search)
-Windows: `iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-mcps.ps1 | iex`
-Ubuntu/WSL: `curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-mcps.sh | bash`
-macOS: `curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-mcps-mac.sh | bash`
+
+**Windows PowerShell:**
+```powershell
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-mcps.ps1 | iex
+```
+
+**Ubuntu/WSL:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-mcps.sh | bash
+```
+
+**macOS:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-mcps-mac.sh | bash
+```
 
 ### 🪝 Hooks Only (Python automation scripts)
-Windows: `iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-hooks.ps1 | iex`
-Ubuntu/WSL: `curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-hooks.sh | bash`
-macOS: `curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-hooks-mac.sh | bash`
+
+**Windows PowerShell:**
+```powershell
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-hooks.ps1 | iex
+```
+
+**Ubuntu/WSL:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-hooks.sh | bash
+```
+
+**macOS:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-hooks-mac.sh | bash
+```
 
 ## 🆕 What's New in v2.1
 
