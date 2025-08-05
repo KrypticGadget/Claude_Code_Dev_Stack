@@ -1,295 +1,416 @@
 #!/bin/bash
+# Claude Code Dev Stack - Master Installer (macOS)
+# Installs all 4 components: agents, commands, MCPs, and hooks
+# Features: progress tracking, error handling, health checks, rollback, retry logic
 
-# Claude Code Dev Stack v2.1 - macOS Installation Script
-# This script installs the 28 AI agents, hooks system, and v2.1 features
+set -euo pipefail
 
-set -e
+# Script configuration
+SCRIPT_VERSION="2.1.0"
+GITHUB_BASE="https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main"
+INSTALL_DIR="$HOME/.claude-code"
+LOG_DIR="$INSTALL_DIR/.claude/logs"
+BACKUP_DIR="$INSTALL_DIR/.claude/backups"
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+LOG_FILE="$LOG_DIR/install_$TIMESTAMP.log"
 
-echo -e "\033[36m🚀 Claude Code Dev Stack v2.1 - macOS Installation\033[0m"
-echo -e "\033[33mInstalling 28 AI agents with @agent- routing, hooks, and MCP support...\033[0m"
+# Color codes (macOS compatible)
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+GRAY='\033[0;90m'
+NC='\033[0m' # No Color
 
-# Check for required tools
-if ! command -v curl &> /dev/null; then
-    echo "Error: curl is required but not installed."
-    exit 1
-fi
+# Component definitions
+declare -A COMPONENTS
+COMPONENTS[agents]="install-agents.sh|28 AI agents with @agent- routing|$INSTALL_DIR/agents/master-orchestrator-agent.md"
+COMPONENTS[commands]="install-commands.sh|18 slash commands|$INSTALL_DIR/commands/new-project.md"
+COMPONENTS[mcps]="install-mcps.sh|Tier 1 MCP configurations|$INSTALL_DIR/mcp-configs/tier1-universal.json"
+COMPONENTS[hooks]="install-hooks.sh|Hooks execution system|$INSTALL_DIR/.claude/hooks/session_loader.py"
 
-if ! command -v python3 &> /dev/null; then
-    echo "Warning: python3 is required for hooks. Please install it via: brew install python3"
-fi
+# Component order
+COMPONENT_ORDER=("agents" "commands" "mcps" "hooks")
 
-# Set installation directory
-CLAUDE_DIR="$HOME/.claude-code"
-AGENTS_DIR="$CLAUDE_DIR/agents"
-COMMANDS_DIR="$CLAUDE_DIR/commands"
-HOOKS_DIR="$CLAUDE_DIR/.claude/hooks"
-CONFIG_DIR="$CLAUDE_DIR/.claude/config"
-STATE_DIR="$CLAUDE_DIR/.claude/state"
-MCP_DIR="$CLAUDE_DIR/mcp-configs"
-
-# GitHub repository URL
-REPO_URL="https://github.com/KrypticGadget/Claude_Code_Dev_Stack"
-RAW_URL="https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main"
-
-# Create all directories
-echo -e "\n\033[32m📁 Creating v2.1 directory structure...\033[0m"
-mkdir -p "$CLAUDE_DIR" "$AGENTS_DIR" "$COMMANDS_DIR" "$HOOKS_DIR" "$CONFIG_DIR" "$STATE_DIR" "$MCP_DIR"
-
-# Function to download with retry
-download_with_retry() {
-    local url=$1
-    local output=$2
-    local retries=3
+# macOS specific checks
+check_macos_requirements() {
+    # Check for Homebrew
+    if ! command -v brew &> /dev/null; then
+        echo -e "${YELLOW}Warning: Homebrew not found. Some features may require it.${NC}"
+        echo -e "${GRAY}Install from: https://brew.sh${NC}"
+    fi
     
-    for i in $(seq 1 $retries); do
-        if curl -sL "$url" -o "$output"; then
-            return 0
+    # Check for Python 3
+    if ! command -v python3 &> /dev/null; then
+        echo -e "${YELLOW}Warning: Python 3 not found. Required for hooks.${NC}"
+        echo -e "${GRAY}Install with: brew install python3${NC}"
+    fi
+    
+    # Check terminal color support
+    if [[ ! "${TERM:-}" =~ "256color" ]]; then
+        echo -e "${GRAY}Tip: For better colors, add to ~/.zshrc: export TERM=xterm-256color${NC}"
+    fi
+}
+
+# Initialize directories
+initialize_dirs() {
+    mkdir -p "$LOG_DIR" "$BACKUP_DIR"
+}
+
+# Logging function
+log() {
+    local level=$1
+    shift
+    local message="$*"
+    local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+    local log_entry="[$timestamp] [$level] $message"
+    
+    case $level in
+        ERROR)   echo -e "${RED}$log_entry${NC}" ;;
+        WARNING) echo -e "${YELLOW}$log_entry${NC}" ;;
+        SUCCESS) echo -e "${GREEN}$log_entry${NC}" ;;
+        INFO)    echo -e "${CYAN}$log_entry${NC}" ;;
+        *)       echo "$log_entry" ;;
+    esac
+    
+    echo "$log_entry" >> "$LOG_FILE" 2>/dev/null || true
+}
+
+# Check for updates
+check_updates() {
+    log INFO "Checking for updates..."
+    
+    if command -v curl &> /dev/null; then
+        local latest_version=$(curl -sL "$GITHUB_BASE/VERSION" 2>/dev/null || echo "$SCRIPT_VERSION")
+        
+        if [[ "$latest_version" != "$SCRIPT_VERSION" ]]; then
+            log WARNING "New version available: $latest_version (current: $SCRIPT_VERSION)"
+            log INFO "Visit: https://github.com/KrypticGadget/Claude_Code_Dev_Stack"
+        else
+            log SUCCESS "You have the latest version"
         fi
-        sleep 1
-    done
+    else
+        log WARNING "curl not found, skipping update check"
+    fi
+}
+
+# Create backup
+create_backup() {
+    if [[ -d "$INSTALL_DIR" ]]; then
+        log INFO "Creating backup of existing installation..."
+        
+        local backup_path="$BACKUP_DIR/backup_$TIMESTAMP.tar.gz"
+        
+        # macOS tar syntax
+        if tar -czf "$backup_path" -C "$HOME" ".claude-code" 2>/dev/null; then
+            log SUCCESS "Backup created: $backup_path"
+            echo "$backup_path"
+        else
+            log WARNING "Failed to create backup"
+            echo ""
+        fi
+    else
+        echo ""
+    fi
+}
+
+# Restore from backup
+restore_backup() {
+    local backup_path=$1
+    
+    if [[ -f "$backup_path" ]]; then
+        log INFO "Restoring from backup: $backup_path"
+        
+        # Remove current installation
+        rm -rf "$INSTALL_DIR"
+        
+        # Extract backup
+        if tar -xzf "$backup_path" -C "$HOME" 2>/dev/null; then
+            log SUCCESS "Restore completed successfully"
+            return 0
+        else
+            log ERROR "Failed to restore backup"
+            return 1
+        fi
+    fi
     return 1
 }
 
-# Download agent configurations with @agent- support
-echo -e "\n\033[32m📥 Downloading 28 agent configurations with v2.1 features...\033[0m"
+# Download with retry (macOS optimized)
+download_with_retry() {
+    local url=$1
+    local description=$2
+    local max_retries=${3:-3}
+    local output_file=${4:-}
+    
+    for ((i=1; i<=max_retries; i++)); do
+        log INFO "Downloading $description (attempt $i/$max_retries)..."
+        
+        if [[ -n "$output_file" ]]; then
+            # Use -L flag for redirects, common on GitHub
+            if curl -sL "$url" -o "$output_file" --connect-timeout 30 --max-time 60; then
+                return 0
+            fi
+        else
+            local content=$(curl -sL "$url" --connect-timeout 30 --max-time 60 2>/dev/null)
+            if [[ -n "$content" ]]; then
+                echo "$content"
+                return 0
+            fi
+        fi
+        
+        if [[ $i -lt $max_retries ]]; then
+            log WARNING "Download failed, retrying in 2 seconds..."
+            sleep 2
+        fi
+    done
+    
+    log ERROR "Failed to download $description after $max_retries attempts"
+    return 1
+}
 
-agent_files=(
-    "master-orchestrator-agent.md"
-    "usage-guide-agent.md"
-    "api-integration-specialist-agent.md"
-    "backend-services-agent.md"
-    "business-analyst-agent.md"
-    "business-tech-alignment-agent.md"
-    "ceo-strategy-agent.md"
-    "database-architecture-agent.md"
-    "development-prompt-agent.md"
-    "devops-engineering-agent.md"
-    "financial-analyst-agent.md"
-    "frontend-architecture-agent.md"
-    "frontend-mockup-agent.md"
-    "integration-setup-agent.md"
-    "middleware-specialist-agent.md"
-    "performance-optimization-agent.md"
-    "production-frontend-agent.md"
-    "project-manager-agent.md"
-    "prompt-engineer-agent.md"
-    "quality-assurance-agent.md"
-    "script-automation-agent.md"
-    "security-architecture-agent.md"
-    "technical-cto-agent.md"
-    "technical-documentation-agent.md"
-    "technical-specifications-agent.md"
-    "testing-automation-agent.md"
-)
+# Health check function
+health_check() {
+    local check_file=$1
+    [[ -f "$check_file" ]]
+}
 
-total_files=${#agent_files[@]}
-current_file=0
-
-for file in "${agent_files[@]}"; do
-    ((current_file++))
-    printf "\r  Downloading agents: %d/%d" "$current_file" "$total_files"
-    download_with_retry "$RAW_URL/Config_Files/$file" "$AGENTS_DIR/$file" || echo "  ⚠️  Failed: $file"
-done
-echo -e "\n  ✓ Downloaded $total_files agent configurations"
-
-# Download and install hooks
-echo -e "\n\033[32m🔧 Installing v2.1 Hooks System...\033[0m"
-
-hook_files=(
-    "session_loader.py"
-    "session_saver.py"
-    "quality_gate.py"
-    "planning_trigger.py"
-    "agent_orchestrator.py"
-    "agent_mention_parser.py"
-    "model_tracker.py"
-    "mcp_gateway.py"
-)
-
-for file in "${hook_files[@]}"; do
-    echo "  Downloading $file..."
-    if download_with_retry "$RAW_URL/.claude/hooks/$file" "$HOOKS_DIR/$file"; then
-        chmod +x "$HOOKS_DIR/$file"
-        echo -e "  \033[32m✓ Installed $file\033[0m"
+# Install component
+install_component() {
+    local component=$1
+    local index=$2
+    local total=$3
+    
+    local IFS='|'
+    read -r installer description health_file <<< "${COMPONENTS[$component]}"
+    
+    local progress="$index/$total"
+    
+    echo
+    log INFO "[$progress] Installing $component - $description"
+    
+    # Show progress bar
+    local percent=$((index * 100 / total))
+    printf "\rProgress: ["
+    
+    # macOS compatible progress bar
+    for ((j=0; j<$((percent/2)); j++)); do printf "="; done
+    for ((j=$((percent/2)); j<50; j++)); do printf " "; done
+    
+    printf "] %d%%" "$percent"
+    echo
+    
+    # Check if already installed
+    if health_check "$health_file"; then
+        read -p "Component '$component' appears to be already installed. Skip? (Y/n) " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+            log INFO "Skipping $component (already installed)"
+            return 0
+        fi
+    fi
+    
+    # Download and execute installer
+    local temp_installer="/tmp/claude_${component}_installer.sh"
+    
+    if download_with_retry "$GITHUB_BASE/$installer" "$component installer" 3 "$temp_installer"; then
+        chmod +x "$temp_installer"
+        
+        log INFO "Executing $component installer..."
+        
+        # Execute installer and capture output
+        if /bin/bash "$temp_installer" 2>&1 | tee -a "$LOG_FILE"; then
+            # Verify installation with health check
+            sleep 2
+            if health_check "$health_file"; then
+                log SUCCESS "$component installed successfully"
+                rm -f "$temp_installer"
+                return 0
+            else
+                log ERROR "$component health check failed"
+                rm -f "$temp_installer"
+                return 1
+            fi
+        else
+            log ERROR "Failed to execute $component installer"
+            rm -f "$temp_installer"
+            return 1
+        fi
     else
-        echo -e "  \033[33m⚠️  Failed to download $file\033[0m"
+        log ERROR "Failed to download $component installer"
+        return 1
     fi
-done
+}
 
-# Download configuration files
-echo -e "\n\033[32m⚙️  Installing v2.1 configuration files...\033[0m"
+# Clean up old backups
+cleanup_backups() {
+    if [[ -d "$BACKUP_DIR" ]]; then
+        # macOS find syntax
+        local backup_count=$(find "$BACKUP_DIR" -name "backup_*.tar.gz" -type f | wc -l | tr -d ' ')
+        
+        if [[ $backup_count -gt 5 ]]; then
+            log INFO "Cleaning up old backups..."
+            # macOS compatible find and sort
+            find "$BACKUP_DIR" -name "backup_*.tar.gz" -type f -exec stat -f "%m %N" {} \; | \
+                sort -n | head -n $((backup_count - 5)) | cut -d' ' -f2- | \
+                xargs rm -f
+            log SUCCESS "Old backups cleaned up"
+        fi
+    fi
+}
 
-# Download coding standards
-download_with_retry "$RAW_URL/.claude/config/coding_standards.json" "$CONFIG_DIR/coding_standards.json" && \
-    echo -e "  \033[32m✓ Installed coding_standards.json\033[0m"
-
-# Download agent models config
-download_with_retry "$RAW_URL/.claude/config/agent_models.json" "$CONFIG_DIR/agent_models.json" && \
-    echo -e "  \033[32m✓ Installed agent_models.json\033[0m"
-
-# Download settings
-download_with_retry "$RAW_URL/.claude/settings.json" "$CLAUDE_DIR/.claude/settings.json" && \
-    echo -e "  \033[32m✓ Installed settings.json\033[0m"
-
-# Download MCP configurations
-echo -e "\n\033[32m🌐 Installing MCP configuration files...\033[0m"
-
-mcp_files=(
-    "tier1-universal.json"
-    "active-mcps.json"
-    "agent-bindings.json"
-)
-
-for file in "${mcp_files[@]}"; do
-    if download_with_retry "$RAW_URL/mcp-configs/$file" "$MCP_DIR/$file"; then
-        echo -e "  \033[32m✓ Installed $file\033[0m"
+# Main installation
+main() {
+    # Initialize
+    initialize_dirs
+    
+    # Redirect output to log file while still showing on screen
+    exec > >(tee -a "$LOG_FILE")
+    exec 2>&1
+    
+    echo
+    echo -e "${CYAN}🚀 Claude Code Dev Stack - Master Installer v$SCRIPT_VERSION (macOS)${NC}"
+    echo -e "${GRAY}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    
+    log INFO "Installation started at $(date)"
+    log INFO "Install directory: $INSTALL_DIR"
+    log INFO "Platform: macOS $(sw_vers -productVersion)"
+    
+    # macOS specific checks
+    check_macos_requirements
+    
+    # Check for updates
+    check_updates
+    
+    # Create backup
+    local backup_path=$(create_backup)
+    
+    # Install components
+    echo
+    log INFO "Installing ${#COMPONENT_ORDER[@]} components..."
+    
+    local results=()
+    local success_count=0
+    local failed_count=0
+    
+    for i in "${!COMPONENT_ORDER[@]}"; do
+        local component="${COMPONENT_ORDER[$i]}"
+        local index=$((i + 1))
+        
+        if install_component "$component" "$index" "${#COMPONENT_ORDER[@]}"; then
+            results+=("$component:success")
+            ((success_count++))
+        else
+            results+=("$component:failed")
+            ((failed_count++))
+        fi
+    done
+    
+    # Summary
+    echo
+    echo -e "${GRAY}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    log INFO "Installation Summary:"
+    
+    for result in "${results[@]}"; do
+        local component="${result%%:*}"
+        local status="${result##*:}"
+        
+        case $status in
+            success) echo -e "  ${GREEN}✅ $component: Success${NC}" ;;
+            failed)  echo -e "  ${RED}❌ $component: Failed${NC}" ;;
+        esac
+    done
+    
+    echo
+    log INFO "Total: $success_count successful, $failed_count failed"
+    
+    # Handle failures
+    if [[ $failed_count -gt 0 ]]; then
+        log WARNING "Some components failed to install"
+        
+        if [[ -n "$backup_path" ]]; then
+            read -p "Would you like to rollback to the previous installation? (y/N) " -n 1 -r
+            echo
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                if restore_backup "$backup_path"; then
+                    log SUCCESS "Rollback completed successfully"
+                else
+                    log ERROR "Rollback failed"
+                fi
+            fi
+        fi
     else
-        echo -e "  \033[33m⚠️  Failed to download $file\033[0m"
+        log SUCCESS "All components installed successfully!"
+        
+        # Post-installation steps
+        echo
+        echo -e "${YELLOW}🎯 Next Steps:${NC}"
+        echo -e "${NC}1. Install MCPs manually:${NC}"
+        echo -e "${GRAY}   claude mcp add playwright npx @playwright/mcp@latest${NC}"
+        echo -e "${GRAY}   claude mcp add obsidian${NC}"
+        echo -e "${GRAY}   claude mcp add brave-search${NC}"
+        echo -e "${NC}2. Restart Claude Code to activate all features${NC}"
+        echo -e "${NC}3. Try: @agent-master-orchestrator[opus] plan a new project${NC}"
+        echo
+        
+        # macOS specific tips
+        echo -e "${CYAN}🍎 macOS Tips:${NC}"
+        echo -e "${GRAY}- Add to ~/.zshrc: alias cchelp='cat ~/.claude-code/QUICK_REFERENCE_V2.1.txt'${NC}"
+        echo -e "${GRAY}- For Python 3: brew install python3${NC}"
+        echo -e "${GRAY}- For better colors: export TERM=xterm-256color${NC}"
+        echo -e "${GRAY}- Claude settings: ~/Library/Application Support/Claude/${NC}"
+        echo
+        
+        # Create quick access alias for zsh (default macOS shell)
+        if [[ -f "$HOME/.zshrc" ]]; then
+            if ! grep -q "alias cchelp" "$HOME/.zshrc"; then
+                echo "alias cchelp='cat $INSTALL_DIR/QUICK_REFERENCE_V2.1.txt'" >> "$HOME/.zshrc"
+                echo "alias ccds='cd $INSTALL_DIR'" >> "$HOME/.zshrc"
+                log SUCCESS "Added aliases to .zshrc (reload with: source ~/.zshrc)"
+            fi
+        fi
     fi
-done
-
-# Download slash commands
-echo -e "\n\033[32m📋 Installing 18 slash commands...\033[0m"
-
-slash_commands=(
-    "new-project.md" "resume-project.md" "business-analysis.md"
-    "technical-feasibility.md" "project-plan.md" "frontend-mockup.md"
-    "backend-service.md" "database-design.md" "api-integration.md"
-    "middleware-setup.md" "production-frontend.md" "documentation.md"
-    "financial-model.md" "go-to-market.md" "requirements.md"
-    "site-architecture.md" "tech-alignment.md" "prompt-enhance.md"
-)
-
-for cmd in "${slash_commands[@]}"; do
-    download_with_retry "$RAW_URL/slash-commands/commands/$cmd" "$COMMANDS_DIR/$cmd" 2>/dev/null || true
-done
-echo "  ✓ Downloaded slash commands"
-
-# Download master documentation
-echo -e "\n\033[32m📚 Downloading v2.1 documentation...\033[0m"
-
-docs=(
-    "MASTER_PROMPTING_GUIDE.md"
-    "HOOKS_IMPLEMENTATION.md"
-    "MCP_INTEGRATION_GUIDE.md"
-)
-
-for doc in "${docs[@]}"; do
-    if download_with_retry "$RAW_URL/docs/$doc" "$CLAUDE_DIR/$doc" 2>/dev/null; then
-        echo -e "  \033[32m✓ Downloaded $doc\033[0m"
+    
+    # Cleanup
+    cleanup_backups
+    
+    echo
+    log INFO "Installation log saved to: $LOG_FILE"
+    echo -e "${GREEN}🎉 Installation complete!${NC}"
+    
+    # Check if Claude Code is installed
+    if command -v claude &> /dev/null; then
+        echo -e "${GREEN}✅ Claude Code CLI detected${NC}"
+    else
+        echo -e "${YELLOW}⚠️  Claude Code CLI not found. Install from: https://claude.ai/download${NC}"
     fi
-done
+}
 
-# Create v2.1 quick reference
-echo -e "\n\033[32m📋 Creating v2.1 Quick Reference...\033[0m"
-cat > "$CLAUDE_DIR/QUICK_REFERENCE_V2.1.txt" << 'EOF'
-🚀 Claude Code Dev Stack v2.1 - Quick Reference (macOS)
+# Error handler
+error_handler() {
+    local line_no=$1
+    local exit_code=$2
+    
+    # Skip benign errors
+    if [[ $exit_code -eq 141 ]]; then
+        # SIGPIPE - common when piping to head/tail
+        return
+    fi
+    
+    log ERROR "Installation failed at line $line_no (exit code: $exit_code)"
+    
+    # Attempt rollback if backup exists
+    if [[ -n "${backup_path:-}" ]] && [[ -f "$backup_path" ]]; then
+        log WARNING "Attempting automatic rollback..."
+        restore_backup "$backup_path"
+    fi
+    
+    exit $exit_code
+}
 
-✨ New v2.1 Features:
-- @agent- deterministic routing (e.g., @agent-backend-services)
-- Model selection: [opus] for complex, [haiku] for simple
-- Automatic microcompact for extended sessions
-- PDF reading capability
-- Hooks execution layer
-- MCP integration (Playwright, Obsidian, Brave Search)
+# Set error trap
+trap 'error_handler $LINENO $?' ERR
 
-🎯 Quick Start:
-1. Use @agent- mentions: @agent-system-architect[opus] design a system
-2. Cost optimization: @agent-testing-automation[haiku] for simple tests
-3. Install MCPs: claude mcp add playwright npx @playwright/mcp@latest
-4. PDF analysis: "Read requirements from spec.pdf"
-
-📋 Available Agents (28 total):
-- Orchestration: @agent-master-orchestrator[opus], @agent-usage-guide[opus]
-- Business: @agent-business-analyst[opus], @agent-ceo-strategy[opus]
-- Architecture: @agent-system-architect[opus], @agent-database-architecture[opus]
-- Development: @agent-backend-services, @agent-frontend-architecture
-- Testing: @agent-testing-automation[haiku], @agent-quality-assurance[haiku]
-- Documentation: @agent-technical-documentation[haiku]
-
-💰 Cost Optimization:
-- Use [opus] only for complex reasoning (20% of tasks)
-- Use [haiku] for routine tasks (30% of tasks)
-- Default model for standard development (50% of tasks)
-- Result: 40-60% cost reduction
-
-🔧 Hooks Active:
-- Session continuity (automatic state restoration)
-- Quality gates (code standards enforcement)
-- Planning triggers (requirements change detection)
-- Agent routing (@agent- mention parsing)
-- Model tracking (cost optimization monitoring)
-
-🍎 macOS Specific:
-- Ensure python3 is installed: brew install python3
-- For better terminal colors: export TERM=xterm-256color
-- Claude Code settings: ~/Library/Application Support/Claude/
-EOF
-
-# Create example usage file
-cat > "$CLAUDE_DIR/EXAMPLES_V2.1.md" << 'EOF'
-# Claude Code Dev Stack v2.1 - Example Usage (macOS)
-
-## Basic @agent- Routing
-@agent-backend-services create a REST API for user management
-@agent-frontend-architecture[opus] design a complex dashboard
-@agent-testing-automation[haiku] write unit tests
-
-## Project Initialization with Model Optimization
-/new-project "E-commerce Platform" @agent-master-orchestrator[opus] @agent-business-analyst[opus]
-
-## Cost-Optimized Workflow
-# Complex planning (Opus)
-@agent-system-architect[opus] @agent-database-architecture[opus] design the system
-
-# Implementation (Default)
-@agent-backend-services @agent-frontend-architecture implement features
-
-# Testing & Docs (Haiku)
-@agent-testing-automation[haiku] @agent-technical-documentation[haiku] finish up
-
-## PDF Integration
-@agent-business-analyst[opus] analyze requirements from business-plan.pdf
-@agent-technical-specifications review the API spec in api-docs.pdf
-
-## MCP Usage
-"Run browser tests with Playwright for the checkout flow"
-"Document architectural decisions in Obsidian"
-"Research competitor features using Brave Search"
-
-## macOS Terminal Tips
-# Add to ~/.zshrc for better experience:
-alias ccds='cd ~/.claude-code'
-alias cchelp='cat ~/.claude-code/QUICK_REFERENCE_V2.1.txt'
-EOF
-
-# Check for Claude Code installation
-echo -e "\n\033[33m🔍 Checking Claude Code installation...\033[0m"
-if command -v claude &> /dev/null; then
-    echo -e "\033[32m✅ Claude Code is installed\033[0m"
-else
-    echo -e "\033[33m⚠️  Claude Code not found. Install it from: https://claude.ai/download\033[0m"
-fi
-
-echo -e "\n\033[32m✅ Claude Code Dev Stack v2.1 installation complete!\033[0m"
-echo -e "\n\033[36m📍 Installed to: $CLAUDE_DIR\033[0m"
-echo -e "\033[36m📄 Quick reference: $CLAUDE_DIR/QUICK_REFERENCE_V2.1.txt\033[0m"
-echo -e "\033[36m📘 Examples: $CLAUDE_DIR/EXAMPLES_V2.1.md\033[0m"
-
-echo -e "\n\033[33m🎯 Next Steps:\033[0m"
-echo -e "\033[37m1. Install Tier 1 MCPs:\033[0m"
-echo -e "\033[90m   claude mcp add playwright npx @playwright/mcp@latest\033[0m"
-echo -e "\033[90m   claude mcp add obsidian\033[0m"
-echo -e "\033[90m   claude mcp add brave-search\033[0m"
-echo -e "\033[37m2. Copy .claude/settings.json to your Claude Code settings\033[0m"
-echo -e "\033[37m3. Restart Claude Code to activate v2.1 features\033[0m"
-echo -e "\033[37m4. Try: @agent-master-orchestrator[opus] plan a new project\033[0m"
-
-# macOS specific tips
-echo -e "\n\033[36m🍎 macOS Tips:\033[0m"
-echo -e "\033[90m- Add alias to ~/.zshrc: alias cchelp='cat ~/.claude-code/QUICK_REFERENCE_V2.1.txt'\033[0m"
-echo -e "\033[90m- For python3: brew install python3\033[0m"
-echo -e "\033[90m- For better colors: export TERM=xterm-256color\033[0m"
-
-echo -e "\n\033[32m🎉 Ready to use Claude Code Dev Stack v2.1!\033[0m"
-echo -e "\033[37mTry: @agent-backend-services create a user authentication API\033[0m"
+# Run main installation
+main "$@"

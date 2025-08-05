@@ -1,301 +1,341 @@
-# Claude Code Dev Stack v2.1 - Complete Installation Script
-# This script installs the 28 AI agents, hooks system, and v2.1 features
+# Claude Code Dev Stack - Master Installer (Windows PowerShell)
+# Installs all 4 components: agents, commands, MCPs, and hooks
+# Features: progress tracking, error handling, health checks, rollback, retry logic
 
-Write-Host "🚀 Claude Code Dev Stack v2.1 - Complete Installation" -ForegroundColor Cyan
-Write-Host "Installing 28 AI agents with @agent- routing, hooks, and MCP support..." -ForegroundColor Yellow
+$ErrorActionPreference = "Stop"
+$ProgressPreference = "SilentlyContinue"
 
-# Set installation directory
-$CLAUDE_DIR = "$env:USERPROFILE\.claude-code"
-$AGENTS_DIR = "$CLAUDE_DIR\agents"
-$COMMANDS_DIR = "$CLAUDE_DIR\commands"
-$HOOKS_DIR = "$CLAUDE_DIR\.claude\hooks"
-$CONFIG_DIR = "$CLAUDE_DIR\.claude\config"
-$STATE_DIR = "$CLAUDE_DIR\.claude\state"
-$MCP_DIR = "$CLAUDE_DIR\mcp-configs"
+# Script configuration
+$SCRIPT_VERSION = "2.1.0"
+$GITHUB_BASE = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main"
+$INSTALL_DIR = "$env:USERPROFILE\.claude-code"
+$LOG_DIR = "$INSTALL_DIR\.claude\logs"
+$BACKUP_DIR = "$INSTALL_DIR\.claude\backups"
+$TIMESTAMP = Get-Date -Format "yyyyMMdd_HHmmss"
+$LOG_FILE = "$LOG_DIR\install_$TIMESTAMP.log"
 
-# GitHub repository URL
-$REPO_URL = "https://github.com/KrypticGadget/Claude_Code_Dev_Stack"
-$RAW_URL = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main"
-
-try {
-    # Create all directories
-    Write-Host "`n📁 Creating v2.1 directory structure..." -ForegroundColor Green
-    $directories = @(
-        $CLAUDE_DIR, $AGENTS_DIR, $COMMANDS_DIR, $HOOKS_DIR, 
-        $CONFIG_DIR, $STATE_DIR, $MCP_DIR
-    )
-    foreach ($dir in $directories) {
-        New-Item -ItemType Directory -Force -Path $dir | Out-Null
+# Component installers
+$COMPONENTS = @(
+    @{
+        Name = "agents"
+        Installer = "install-agents.ps1"
+        Description = "28 AI agents with @agent- routing"
+        HealthCheck = { Test-Path "$INSTALL_DIR\agents\master-orchestrator-agent.md" }
+    },
+    @{
+        Name = "commands"
+        Installer = "install-commands.ps1"
+        Description = "18 slash commands"
+        HealthCheck = { Test-Path "$INSTALL_DIR\commands\new-project.md" }
+    },
+    @{
+        Name = "mcps"
+        Installer = "install-mcps.ps1"
+        Description = "Tier 1 MCP configurations"
+        HealthCheck = { Test-Path "$INSTALL_DIR\mcp-configs\tier1-universal.json" }
+    },
+    @{
+        Name = "hooks"
+        Installer = "install-hooks.ps1"
+        Description = "Hooks execution system"
+        HealthCheck = { Test-Path "$INSTALL_DIR\.claude\hooks\session_loader.py" }
     }
+)
 
-    # Download agent configurations with @agent- support
-    Write-Host "`n📥 Downloading 28 agent configurations with v2.1 features..." -ForegroundColor Green
+# Initialize logging
+function Initialize-Logging {
+    New-Item -ItemType Directory -Force -Path $LOG_DIR | Out-Null
     
-    $agentFiles = @(
-        "master-orchestrator-agent.md",
-        "usage-guide-agent.md",
-        "api-integration-specialist-agent.md",
-        "backend-services-agent.md",
-        "business-analyst-agent.md",
-        "business-tech-alignment-agent.md",
-        "ceo-strategy-agent.md",
-        "database-architecture-agent.md",
-        "development-prompt-agent.md",
-        "devops-engineering-agent.md",
-        "financial-analyst-agent.md",
-        "frontend-architecture-agent.md",
-        "frontend-mockup-agent.md",
-        "integration-setup-agent.md",
-        "middleware-specialist-agent.md",
-        "performance-optimization-agent.md",
-        "production-frontend-agent.md",
-        "project-manager-agent.md",
-        "prompt-engineer-agent.md",
-        "quality-assurance-agent.md",
-        "script-automation-agent.md",
-        "security-architecture-agent.md",
-        "technical-cto-agent.md",
-        "technical-documentation-agent.md",
-        "technical-specifications-agent.md",
-        "testing-automation-agent.md"
-    )
+    # Start transcript
+    Start-Transcript -Path $LOG_FILE -Force
     
-    $totalFiles = $agentFiles.Count
-    $currentFile = 0
-    
-    foreach ($file in $agentFiles) {
-        $currentFile++
-        $progress = [math]::Round(($currentFile / $totalFiles) * 100)
-        Write-Progress -Activity "Downloading agents" -Status "$file" -PercentComplete $progress
-        
-        $url = "$RAW_URL/Config_Files/$file"
-        $destination = Join-Path $AGENTS_DIR $file
-        
-        try {
-            Invoke-WebRequest -Uri $url -OutFile $destination -UseBasicParsing -ErrorAction Stop
-        } catch {
-            Write-Host "⚠️  Failed to download $file - $($_.Exception.Message)" -ForegroundColor Yellow
-        }
-    }
-    
-    Write-Progress -Activity "Downloading agents" -Completed
-
-    # Download and install hooks
-    Write-Host "`n🔧 Installing v2.1 Hooks System..." -ForegroundColor Green
-    
-    $hookFiles = @{
-        "session_loader.py" = "$HOOKS_DIR\session_loader.py"
-        "session_saver.py" = "$HOOKS_DIR\session_saver.py"
-        "quality_gate.py" = "$HOOKS_DIR\quality_gate.py"
-        "planning_trigger.py" = "$HOOKS_DIR\planning_trigger.py"
-        "agent_orchestrator.py" = "$HOOKS_DIR\agent_orchestrator.py"
-        "agent_mention_parser.py" = "$HOOKS_DIR\agent_mention_parser.py"
-        "model_tracker.py" = "$HOOKS_DIR\model_tracker.py"
-        "mcp_gateway.py" = "$HOOKS_DIR\mcp_gateway.py"
-    }
-    
-    foreach ($file in $hookFiles.GetEnumerator()) {
-        $url = "$RAW_URL/.claude/hooks/$($file.Key)"
-        Write-Host "  Downloading $($file.Key)..." -ForegroundColor Yellow
-        try {
-            Invoke-WebRequest -Uri $url -OutFile $file.Value -UseBasicParsing -ErrorAction Stop
-            Write-Host "  ✓ Installed $($file.Key)" -ForegroundColor Green
-        } catch {
-            Write-Host "  ⚠️  Failed to download $($file.Key)" -ForegroundColor Yellow
-        }
-    }
-
-    # Download configuration files
-    Write-Host "`n⚙️  Installing v2.1 configuration files..." -ForegroundColor Green
-    
-    $configFiles = @{
-        "coding_standards.json" = "$CONFIG_DIR\coding_standards.json"
-        "agent_models.json" = "$CONFIG_DIR\agent_models.json"
-        "settings.json" = "$CLAUDE_DIR\.claude\settings.json"
-    }
-    
-    foreach ($file in $configFiles.GetEnumerator()) {
-        $url = "$RAW_URL/.claude/config/$($file.Key)"
-        try {
-            Invoke-WebRequest -Uri $url -OutFile $file.Value -UseBasicParsing -ErrorAction Stop
-            Write-Host "  ✓ Installed $($file.Key)" -ForegroundColor Green
-        } catch {
-            Write-Host "  ⚠️  Failed to download $($file.Key)" -ForegroundColor Yellow
-        }
-    }
-
-    # Download MCP configurations
-    Write-Host "`n🌐 Installing MCP configuration files..." -ForegroundColor Green
-    
-    $mcpFiles = @{
-        "tier1-universal.json" = "$MCP_DIR\tier1-universal.json"
-        "active-mcps.json" = "$MCP_DIR\active-mcps.json"
-        "agent-bindings.json" = "$MCP_DIR\agent-bindings.json"
-    }
-    
-    foreach ($file in $mcpFiles.GetEnumerator()) {
-        $url = "$RAW_URL/mcp-configs/$($file.Key)"
-        try {
-            Invoke-WebRequest -Uri $url -OutFile $file.Value -UseBasicParsing -ErrorAction Stop
-            Write-Host "  ✓ Installed $($file.Key)" -ForegroundColor Green
-        } catch {
-            Write-Host "  ⚠️  Failed to download $($file.Key)" -ForegroundColor Yellow
-        }
-    }
-
-    # Download slash commands
-    Write-Host "`n📋 Installing 18 slash commands..." -ForegroundColor Green
-    
-    $slashCommands = @(
-        "new-project.md", "resume-project.md", "business-analysis.md",
-        "technical-feasibility.md", "project-plan.md", "frontend-mockup.md",
-        "backend-service.md", "database-design.md", "api-integration.md",
-        "middleware-setup.md", "production-frontend.md", "documentation.md",
-        "financial-model.md", "go-to-market.md", "requirements.md",
-        "site-architecture.md", "tech-alignment.md", "prompt-enhance.md"
-    )
-    
-    foreach ($cmd in $slashCommands) {
-        $url = "$RAW_URL/slash-commands/commands/$cmd"
-        $destination = Join-Path $COMMANDS_DIR $cmd
-        try {
-            Invoke-WebRequest -Uri $url -OutFile $destination -UseBasicParsing -ErrorAction SilentlyContinue
-        } catch {
-            # Silently continue if file doesn't exist
-        }
-    }
-
-    # Download master documentation
-    Write-Host "`n📚 Downloading v2.1 documentation..." -ForegroundColor Green
-    
-    $docs = @{
-        "MASTER_PROMPTING_GUIDE.md" = "$CLAUDE_DIR\MASTER_PROMPTING_GUIDE.md"
-        "HOOKS_IMPLEMENTATION.md" = "$CLAUDE_DIR\HOOKS_IMPLEMENTATION.md"
-        "MCP_INTEGRATION_GUIDE.md" = "$CLAUDE_DIR\MCP_INTEGRATION_GUIDE.md"
-    }
-    
-    foreach ($doc in $docs.GetEnumerator()) {
-        $url = "$RAW_URL/docs/$($doc.Key)"
-        try {
-            Invoke-WebRequest -Uri $url -OutFile $doc.Value -UseBasicParsing -ErrorAction SilentlyContinue
-            Write-Host "  ✓ Downloaded $($doc.Key)" -ForegroundColor Green
-        } catch {
-            # Create if doesn't exist
-        }
-    }
-
-    # Create v2.1 quick reference
-    Write-Host "`n📋 Creating v2.1 Quick Reference..." -ForegroundColor Green
-    $quickRef = @"
-🚀 Claude Code Dev Stack v2.1 - Quick Reference
-
-📁 Installation Locations:
-- Agents: $AGENTS_DIR
-- Commands: $COMMANDS_DIR
-- Hooks: $HOOKS_DIR
-- MCP Configs: $MCP_DIR
-
-✨ New v2.1 Features:
-- @agent- deterministic routing (e.g., @agent-backend-services)
-- Model selection: [opus] for complex, [haiku] for simple
-- Automatic microcompact for extended sessions
-- PDF reading capability
-- Hooks execution layer
-- MCP integration (Playwright, Obsidian, Brave Search)
-
-🎯 Quick Start:
-1. Use @agent- mentions: @agent-system-architect[opus] design a system
-2. Cost optimization: @agent-testing-automation[haiku] for simple tests
-3. Install MCPs: claude mcp add playwright npx @playwright/mcp@latest
-4. PDF analysis: "Read requirements from spec.pdf"
-
-📋 Available Agents (28 total):
-- Orchestration: @agent-master-orchestrator[opus], @agent-usage-guide[opus]
-- Business: @agent-business-analyst[opus], @agent-ceo-strategy[opus]
-- Architecture: @agent-system-architect[opus], @agent-database-architecture[opus]
-- Development: @agent-backend-services, @agent-frontend-architecture
-- Testing: @agent-testing-automation[haiku], @agent-quality-assurance[haiku]
-- Documentation: @agent-technical-documentation[haiku]
-
-💰 Cost Optimization:
-- Use [opus] only for complex reasoning (20% of tasks)
-- Use [haiku] for routine tasks (30% of tasks)
-- Default model for standard development (50% of tasks)
-- Result: 40-60% cost reduction
-
-🔧 Hooks Active:
-- Session continuity (automatic state restoration)
-- Quality gates (code standards enforcement)
-- Planning triggers (requirements change detection)
-- Agent routing (@agent- mention parsing)
-- Model tracking (cost optimization monitoring)
-
-📚 Documentation:
-- Master Guide: $CLAUDE_DIR\MASTER_PROMPTING_GUIDE.md
-- Hooks Guide: $CLAUDE_DIR\HOOKS_IMPLEMENTATION.md
-- MCP Guide: $CLAUDE_DIR\MCP_INTEGRATION_GUIDE.md
-- Repository: https://github.com/KrypticGadget/Claude_Code_Dev_Stack
-"@
-    
-    $quickRef | Out-File -FilePath "$CLAUDE_DIR\QUICK_REFERENCE_V2.1.txt" -Encoding UTF8
-
-    # Create example usage file
-    $examples = @"
-# Claude Code Dev Stack v2.1 - Example Usage
-
-## Basic @agent- Routing
-@agent-backend-services create a REST API for user management
-@agent-frontend-architecture[opus] design a complex dashboard
-@agent-testing-automation[haiku] write unit tests
-
-## Project Initialization with Model Optimization
-/new-project "E-commerce Platform" @agent-master-orchestrator[opus] @agent-business-analyst[opus]
-
-## Cost-Optimized Workflow
-# Complex planning (Opus)
-@agent-system-architect[opus] @agent-database-architecture[opus] design the system
-
-# Implementation (Default)
-@agent-backend-services @agent-frontend-architecture implement features
-
-# Testing & Docs (Haiku)
-@agent-testing-automation[haiku] @agent-technical-documentation[haiku] finish up
-
-## PDF Integration
-@agent-business-analyst[opus] analyze requirements from business-plan.pdf
-@agent-technical-specifications review the API spec in api-docs.pdf
-
-## MCP Usage
-"Run browser tests with Playwright for the checkout flow"
-"Document architectural decisions in Obsidian"
-"Research competitor features using Brave Search"
-
-## Extended Sessions
-# Work all day without context issues - microcompact handles it automatically
-# Hooks preserve your state between sessions
-"@
-
-    $examples | Out-File -FilePath "$CLAUDE_DIR\EXAMPLES_V2.1.md" -Encoding UTF8
-
-    Write-Host "`n✅ Claude Code Dev Stack v2.1 installation complete!" -ForegroundColor Green
-    Write-Host "`n📍 Installed to: $CLAUDE_DIR" -ForegroundColor Cyan
-    Write-Host "📄 Quick reference: $CLAUDE_DIR\QUICK_REFERENCE_V2.1.txt" -ForegroundColor Cyan
-    Write-Host "📘 Examples: $CLAUDE_DIR\EXAMPLES_V2.1.md" -ForegroundColor Cyan
-    
-    Write-Host "`n🎯 Next Steps:" -ForegroundColor Yellow
-    Write-Host "1. Install Tier 1 MCPs:" -ForegroundColor White
-    Write-Host "   claude mcp add playwright npx @playwright/mcp@latest" -ForegroundColor Gray
-    Write-Host "   claude mcp add obsidian" -ForegroundColor Gray
-    Write-Host "   claude mcp add brave-search" -ForegroundColor Gray
-    Write-Host "2. Copy .claude\settings.json to your Claude Code settings" -ForegroundColor White
-    Write-Host "3. Restart Claude Code to activate v2.1 features" -ForegroundColor White
-    Write-Host "4. Try: @agent-master-orchestrator[opus] plan a new project" -ForegroundColor White
-    
-} catch {
-    Write-Host "`n❌ Installation failed: $_" -ForegroundColor Red
-    Write-Host "Error details: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "Please check your internet connection and try again." -ForegroundColor Yellow
+    Write-Log "Claude Code Dev Stack Master Installer v$SCRIPT_VERSION" "INFO"
+    Write-Log "Installation started at $(Get-Date)" "INFO"
+    Write-Log "Install directory: $INSTALL_DIR" "INFO"
 }
 
-Write-Host "`n🎉 Ready to use Claude Code Dev Stack v2.1!" -ForegroundColor Green
-Write-Host "Try: @agent-backend-services create a user authentication API" -ForegroundColor White
+# Logging function
+function Write-Log {
+    param(
+        [string]$Message,
+        [string]$Level = "INFO"
+    )
+    
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logEntry = "[$timestamp] [$Level] $Message"
+    
+    # Color output based on level
+    switch ($Level) {
+        "ERROR" { Write-Host $logEntry -ForegroundColor Red }
+        "WARNING" { Write-Host $logEntry -ForegroundColor Yellow }
+        "SUCCESS" { Write-Host $logEntry -ForegroundColor Green }
+        "INFO" { Write-Host $logEntry -ForegroundColor Cyan }
+        default { Write-Host $logEntry }
+    }
+    
+    # Also write to log file
+    Add-Content -Path $LOG_FILE -Value $logEntry -ErrorAction SilentlyContinue
+}
+
+# Check for updates
+function Check-Updates {
+    Write-Log "Checking for updates..." "INFO"
+    
+    try {
+        $versionUrl = "$GITHUB_BASE/VERSION"
+        $latestVersion = (Invoke-WebRequest -Uri $versionUrl -UseBasicParsing).Content.Trim()
+        
+        if ($latestVersion -ne $SCRIPT_VERSION) {
+            Write-Log "New version available: $latestVersion (current: $SCRIPT_VERSION)" "WARNING"
+            Write-Log "Visit: https://github.com/KrypticGadget/Claude_Code_Dev_Stack" "INFO"
+        } else {
+            Write-Log "You have the latest version" "SUCCESS"
+        }
+    } catch {
+        Write-Log "Failed to check for updates: $_" "WARNING"
+    }
+}
+
+# Create backup
+function Create-Backup {
+    if (Test-Path $INSTALL_DIR) {
+        Write-Log "Creating backup of existing installation..." "INFO"
+        
+        New-Item -ItemType Directory -Force -Path $BACKUP_DIR | Out-Null
+        $backupPath = "$BACKUP_DIR\backup_$TIMESTAMP.zip"
+        
+        try {
+            # Create zip backup (excluding logs and backups)
+            Add-Type -AssemblyName System.IO.Compression.FileSystem
+            [System.IO.Compression.ZipFile]::CreateFromDirectory($INSTALL_DIR, $backupPath)
+            
+            Write-Log "Backup created: $backupPath" "SUCCESS"
+            return $backupPath
+        } catch {
+            Write-Log "Failed to create backup: $_" "WARNING"
+            return $null
+        }
+    }
+    return $null
+}
+
+# Restore from backup
+function Restore-Backup {
+    param([string]$BackupPath)
+    
+    if ($BackupPath -and (Test-Path $BackupPath)) {
+        Write-Log "Restoring from backup: $BackupPath" "INFO"
+        
+        try {
+            # Remove current installation
+            Remove-Item -Path $INSTALL_DIR -Recurse -Force -ErrorAction SilentlyContinue
+            
+            # Extract backup
+            Add-Type -AssemblyName System.IO.Compression.FileSystem
+            [System.IO.Compression.ZipFile]::ExtractToDirectory($BackupPath, $INSTALL_DIR)
+            
+            Write-Log "Restore completed successfully" "SUCCESS"
+            return $true
+        } catch {
+            Write-Log "Failed to restore backup: $_" "ERROR"
+            return $false
+        }
+    }
+    return $false
+}
+
+# Download with retry logic
+function Download-WithRetry {
+    param(
+        [string]$Url,
+        [string]$Description,
+        [int]$MaxRetries = 3
+    )
+    
+    for ($i = 1; $i -le $MaxRetries; $i++) {
+        try {
+            Write-Log "Downloading $Description (attempt $i/$MaxRetries)..." "INFO"
+            $content = Invoke-WebRequest -Uri $Url -UseBasicParsing -TimeoutSec 30
+            return $content.Content
+        } catch {
+            if ($i -eq $MaxRetries) {
+                Write-Log "Failed to download $Description after $MaxRetries attempts: $_" "ERROR"
+                throw
+            }
+            Write-Log "Download failed, retrying in 2 seconds..." "WARNING"
+            Start-Sleep -Seconds 2
+        }
+    }
+}
+
+# Execute component installer
+function Install-Component {
+    param(
+        [hashtable]$Component,
+        [int]$Index,
+        [int]$Total
+    )
+    
+    $componentName = $Component.Name
+    $progress = "$Index/$Total"
+    
+    Write-Host ""
+    Write-Log "[$progress] Installing $componentName - $($Component.Description)" "INFO"
+    Write-Progress -Activity "Installing Claude Code Dev Stack" -Status "Installing $componentName" -PercentComplete (($Index / $Total) * 100)
+    
+    # Skip if already installed and healthy
+    if (& $Component.HealthCheck) {
+        $response = Read-Host "Component '$componentName' appears to be already installed. Skip? (Y/n)"
+        if ($response -ne 'n') {
+            Write-Log "Skipping $componentName (already installed)" "INFO"
+            return @{ Success = $true; Skipped = $true }
+        }
+    }
+    
+    try {
+        # Download installer script
+        $installerContent = Download-WithRetry -Url "$GITHUB_BASE/$($Component.Installer)" -Description "$componentName installer"
+        
+        # Save to temp file
+        $tempInstaller = "$env:TEMP\$($Component.Installer)"
+        Set-Content -Path $tempInstaller -Value $installerContent -Encoding UTF8
+        
+        # Execute installer
+        Write-Log "Executing $componentName installer..." "INFO"
+        & powershell -ExecutionPolicy Bypass -File $tempInstaller
+        
+        # Verify installation with health check
+        Start-Sleep -Seconds 2
+        if (& $Component.HealthCheck) {
+            Write-Log "$componentName installed successfully" "SUCCESS"
+            return @{ Success = $true; Skipped = $false }
+        } else {
+            Write-Log "$componentName health check failed" "ERROR"
+            return @{ Success = $false; Skipped = $false }
+        }
+        
+    } catch {
+        Write-Log "Failed to install $componentName`: $_" "ERROR"
+        return @{ Success = $false; Skipped = $false; Error = $_.Exception.Message }
+    } finally {
+        # Clean up temp file
+        if (Test-Path $tempInstaller -ErrorAction SilentlyContinue) {
+            Remove-Item $tempInstaller -Force -ErrorAction SilentlyContinue
+        }
+    }
+}
+
+# Main installation process
+function Start-Installation {
+    $results = @()
+    $backupPath = $null
+    
+    try {
+        # Initialize
+        Initialize-Logging
+        Write-Host ""
+        Write-Host "🚀 Claude Code Dev Stack - Master Installer v$SCRIPT_VERSION" -ForegroundColor Cyan
+        Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+        
+        # Check for updates
+        Check-Updates
+        
+        # Create backup
+        $backupPath = Create-Backup
+        
+        # Install components
+        Write-Host ""
+        Write-Log "Installing $($COMPONENTS.Count) components..." "INFO"
+        
+        for ($i = 0; $i -lt $COMPONENTS.Count; $i++) {
+            $result = Install-Component -Component $COMPONENTS[$i] -Index ($i + 1) -Total $COMPONENTS.Count
+            $result.Component = $COMPONENTS[$i].Name
+            $results += $result
+        }
+        
+        # Summary
+        Write-Host ""
+        Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+        Write-Log "Installation Summary:" "INFO"
+        
+        $successCount = ($results | Where-Object { $_.Success }).Count
+        $failedCount = ($results | Where-Object { -not $_.Success }).Count
+        $skippedCount = ($results | Where-Object { $_.Skipped }).Count
+        
+        foreach ($result in $results) {
+            if ($result.Success) {
+                if ($result.Skipped) {
+                    Write-Host "  ⏭️  $($result.Component): Skipped (already installed)" -ForegroundColor Yellow
+                } else {
+                    Write-Host "  ✅ $($result.Component): Success" -ForegroundColor Green
+                }
+            } else {
+                Write-Host "  ❌ $($result.Component): Failed" -ForegroundColor Red
+                if ($result.Error) {
+                    Write-Host "     Error: $($result.Error)" -ForegroundColor DarkRed
+                }
+            }
+        }
+        
+        Write-Host ""
+        Write-Log "Total: $successCount successful, $failedCount failed, $skippedCount skipped" "INFO"
+        
+        # Handle failures
+        if ($failedCount -gt 0) {
+            Write-Log "Some components failed to install" "WARNING"
+            
+            if ($backupPath) {
+                $response = Read-Host "Would you like to rollback to the previous installation? (y/N)"
+                if ($response -eq 'y') {
+                    if (Restore-Backup -BackupPath $backupPath) {
+                        Write-Log "Rollback completed successfully" "SUCCESS"
+                    } else {
+                        Write-Log "Rollback failed" "ERROR"
+                    }
+                }
+            }
+        } else {
+            Write-Log "All components installed successfully!" "SUCCESS"
+            
+            # Post-installation steps
+            Write-Host ""
+            Write-Host "🎯 Next Steps:" -ForegroundColor Yellow
+            Write-Host "1. Install MCPs manually:" -ForegroundColor White
+            Write-Host "   claude mcp add playwright npx @playwright/mcp@latest" -ForegroundColor Gray
+            Write-Host "   claude mcp add obsidian" -ForegroundColor Gray
+            Write-Host "   claude mcp add brave-search" -ForegroundColor Gray
+            Write-Host "2. Restart Claude Code to activate all features" -ForegroundColor White
+            Write-Host "3. Try: @agent-master-orchestrator[opus] plan a new project" -ForegroundColor White
+            Write-Host ""
+        }
+        
+    } catch {
+        Write-Log "Installation failed with critical error: $_" "ERROR"
+        
+        # Attempt rollback on critical failure
+        if ($backupPath -and (Test-Path $backupPath)) {
+            Write-Log "Attempting automatic rollback..." "WARNING"
+            Restore-Backup -BackupPath $backupPath
+        }
+    } finally {
+        # Clean up old backups (keep last 5)
+        if (Test-Path $BACKUP_DIR) {
+            $backups = Get-ChildItem $BACKUP_DIR -Filter "backup_*.zip" | Sort-Object CreationTime -Descending
+            if ($backups.Count -gt 5) {
+                $backups | Select-Object -Skip 5 | Remove-Item -Force
+                Write-Log "Cleaned up old backups" "INFO"
+            }
+        }
+        
+        # Stop transcript
+        Stop-Transcript
+        
+        Write-Host ""
+        Write-Log "Installation log saved to: $LOG_FILE" "INFO"
+        Write-Host "Press any key to exit..."
+        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    }
+}
+
+# Run installation
+Start-Installation
