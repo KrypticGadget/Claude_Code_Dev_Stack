@@ -6,40 +6,40 @@
 [![Claude Code Compatible](https://img.shields.io/badge/Claude%20Code-v2.1-blue)](https://docs.anthropic.com/en/docs/claude-code)
 [![Agents: 28](https://img.shields.io/badge/Agents-28-green)](./Config_Files)
 [![Slash Commands: 18](https://img.shields.io/badge/Slash%20Commands-18-blue)](./slash-commands)
-[![Version: 2.1](https://img.shields.io/badge/Version-2.1-purple)](./MASTER_PROMPTING_GUIDE.md)
+[![Version: 2.1](https://img.shields.io/badge/Version-2.1-purple)](./docs/MASTER_PROMPTING_GUIDE_V2.md)
 
 ## ⚡ Quick Install v2.1 (One-Line Complete Installation)
 
 ### Windows PowerShell
 ```powershell
-iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-all.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/windows/install-all.ps1 | iex
 ```
 
 ### Linux/WSL/Ubuntu
 ```bash
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-all.sh | bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/linux/install-all.sh | bash
 ```
 
 ### macOS
 ```bash
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-all-mac.sh | bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/macos/install-all.sh | bash
 ```
 
-## 🗑️ Uninstall (One-Line Uninstaller Download)
+## 🗑️ Uninstall (One-Line Uninstaller)
 
 ### Windows PowerShell
 ```powershell
-iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-uninstallers.ps1 | iex; .\run-uninstaller.ps1
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/uninstallers/uninstall-all.ps1 | iex
 ```
 
 ### Linux/WSL/Ubuntu
 ```bash
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-uninstallers.sh | bash && ./run-uninstaller.sh
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/uninstallers/uninstall-all.sh | bash
 ```
 
 ### macOS
 ```bash
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-uninstallers-mac.sh | bash && ./run-uninstaller.sh
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/uninstallers/uninstall-all-mac.sh | bash
 ```
 
 ## 🔧 Component-Based Installation
@@ -50,83 +50,87 @@ For granular control, install individual components:
 
 **Windows PowerShell:**
 ```powershell
-iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-agents.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/windows/install-agents.ps1 | iex
 ```
 
 **Ubuntu/WSL:**
 ```bash
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-agents.sh | bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/linux/install-agents.sh | bash
 ```
 
 **macOS:**
 ```bash
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-agents-mac.sh | bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/macos/install-agents.sh | bash
 ```
 
 ### 💬 Slash Commands Only (18 commands)
 
 **Windows PowerShell:**
 ```powershell
-iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-commands.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/windows/install-commands.ps1 | iex
 ```
 
 **Ubuntu/WSL:**
 ```bash
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-commands.sh | bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/linux/install-commands.sh | bash
 ```
 
 **macOS:**
 ```bash
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-commands-mac.sh | bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/macos/install-commands.sh | bash
 ```
 
-### 🔌 MCPs Only (Tier 1: Playwright, Obsidian, Brave Search)
+### 🔌 MCPs Only (Model Context Protocol Servers)
 
 **Windows PowerShell:**
 ```powershell
-iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-mcps.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/windows/install-mcps.ps1 | iex
 ```
 
 **Ubuntu/WSL:**
 ```bash
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-mcps.sh | bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/linux/install-mcps.sh | bash
 ```
 
 **macOS:**
 ```bash
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-mcps-mac.sh | bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/macos/install-mcps.sh | bash
 ```
 
 ### 🪝 Hooks Only (Python automation scripts)
 
 **Windows PowerShell:**
 ```powershell
-iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-hooks.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/windows/install-hooks.ps1 | iex
 ```
 
 **Ubuntu/WSL:**
 ```bash
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-hooks.sh | bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/linux/install-hooks.sh | bash
 ```
 
 **macOS:**
 ```bash
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-hooks-mac.sh | bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/macos/install-hooks.sh | bash
 ```
 
 ## ✅ Verify Installation
 
 After running any installer, verify everything is properly installed:
 
+**Windows PowerShell:**
 ```powershell
-# Basic verification
-.\verify-installation.ps1
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/verification/verify-installation.ps1 | iex
+```
 
-# Detailed output (shows all component names)
-.\verify-installation.ps1 -Detailed
+**Linux/WSL:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/verification/verify-installation.sh | bash
+```
 
-# Quiet mode for scripts (returns exit code)
-.\verify-installation.ps1 -Quiet
+**macOS:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/verification/verify-installation-mac.sh | bash
 ```
 
 The verification script will check:

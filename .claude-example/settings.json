@@ -1,0 +1,60 @@
+{
+  "version": "1.0.0",
+  "agents": {
+    "enabled": true,
+    "path": "agents",
+    "prefix": "@",
+    "defaultAgent": "master-orchestrator"
+  },
+  "commands": {
+    "enabled": true,
+    "path": "commands",
+    "prefix": "/"
+  },
+  "hooks": {
+    "enabled": true,
+    "path": "hooks",
+    "pre_project": {
+      "enabled": true,
+      "script": "pre_project.py"
+    },
+    "post_project": {
+      "enabled": true,
+      "script": "post_project.py"
+    },
+    "pre_command": {
+      "enabled": true,
+      "script": "pre_command.py"
+    },
+    "post_command": {
+      "enabled": true,
+      "script": "post_command.py"
+    }
+  },
+  "mcps": {
+    "enabled": true,
+    "servers": {
+      "filesystem": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-filesystem", "~/Documents"]
+      },
+      "github": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-github"],
+        "env": {
+          "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+        }
+      },
+      "google-drive": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-gdrive"]
+      }
+    }
+  },
+  "preferences": {
+    "theme": "dark",
+    "autoSave": true,
+    "formatOnSave": true,
+    "telemetry": false
+  }
+}
