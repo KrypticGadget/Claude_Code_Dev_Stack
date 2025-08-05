@@ -258,3 +258,30 @@ Write-Host "Global Configuration: $mcpConfigPath" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "⚡ MCPs are now available in ALL projects!" -ForegroundColor Green
 Write-Host "Please restart Claude Code to activate the MCPs." -ForegroundColor Yellow
+
+# Clean up and exit
+try {
+    # Close any progress indicators
+    Write-Progress -Activity "Installing MCPs" -Completed
+    
+    # Clean up memory
+    [System.GC]::Collect()
+    
+    # Check if all MCPs were installed successfully
+    if ($installedCount -lt $totalMcps) {
+        Write-Host "`nSome MCPs failed to install." -ForegroundColor Red
+        Write-Host "Press any key to exit..." -ForegroundColor Yellow
+        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+        exit 1
+    }
+    else {
+        Write-Host "`n✅ Installation complete!" -ForegroundColor Green
+        Start-Sleep -Seconds 1  # Brief pause to see message
+        exit 0
+    }
+} catch {
+    Write-Host "`n❌ Installation failed: $_" -ForegroundColor Red
+    Write-Host "Press any key to exit..." -ForegroundColor Yellow
+    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    exit 1
+}

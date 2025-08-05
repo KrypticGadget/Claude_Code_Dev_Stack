@@ -503,9 +503,36 @@ Write-Info "3. Create or open any project - hooks will work globally"
 Write-Info "4. Customize configs in $globalHooksDir\config"
 Write-Host ""
 
-if ($Force) {
-    Write-Success "Installation completed successfully!"
-} else {
-    Write-Host "Press any key to exit..."
-    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+# Clean up and exit
+try {
+    # Close any progress indicators
+    Write-Progress -Activity "Installing Hooks" -Completed
+    
+    # Clean up any background jobs
+    Get-Job | Remove-Job -Force -ErrorAction SilentlyContinue
+    
+    # Clean up memory
+    [System.GC]::Collect()
+    
+    # Check if installation was successful
+    if ($failed -gt 0) {
+        Write-Host "`nSome components failed to install." -ForegroundColor Red
+        if (-not $Force) {
+            Write-Host "Press any key to exit..." -ForegroundColor Yellow
+            $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+        }
+        exit 1
+    }
+    else {
+        Write-Host "`n✅ Installation complete!" -ForegroundColor Green
+        Start-Sleep -Seconds 1  # Brief pause to see message
+        exit 0
+    }
+} catch {
+    Write-Host "`n❌ Installation failed: $_" -ForegroundColor Red
+    if (-not $Force) {
+        Write-Host "Press any key to exit..." -ForegroundColor Yellow
+        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    }
+    exit 1
 }

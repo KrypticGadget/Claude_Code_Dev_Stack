@@ -369,12 +369,28 @@ Write-Host "Usage: Type @agent-[name] in any project" -ForegroundColor Cyan
 Write-Host "Example: @agent-backend-services" -ForegroundColor White
 Write-Host "================================================" -ForegroundColor Cyan
 
-# Only pause if there were errors
-if ($failedAgents.Count -gt 0 -and $successCount -lt $AGENTS.Count) {
-    Write-Host "`nPress any key to exit..." -ForegroundColor Gray
+# Clean up and exit
+try {
+    # Close any progress indicators
+    Write-Progress -Activity "Installing Agents" -Completed
+    
+    # Clean up memory
+    [System.GC]::Collect()
+    
+    # Only pause if there were errors
+    if ($failedAgents.Count -gt 0 -and $successCount -lt $AGENTS.Count) {
+        Write-Host "`nPress any key to exit..." -ForegroundColor Red
+        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+        exit 1
+    }
+    else {
+        Write-Host "`n✅ Installation complete!" -ForegroundColor Green
+        Start-Sleep -Seconds 1  # Brief pause to see message
+        exit 0
+    }
+} catch {
+    Write-Host "`n❌ Installation failed: $_" -ForegroundColor Red
+    Write-Host "Press any key to exit..." -ForegroundColor Yellow
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-}
-else {
-    Write-Host "`nClosing in 3 seconds..." -ForegroundColor Gray
-    Start-Sleep -Seconds 3
+    exit 1
 }

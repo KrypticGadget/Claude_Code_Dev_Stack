@@ -175,6 +175,28 @@ if (Test-Path $testCommand) {
 }
 Write-Host ""
 
-# Pause to show results
-Write-Host "Press any key to exit..." -ForegroundColor Gray
-$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+# Clean up and exit
+try {
+    # Close any progress indicators
+    Write-Progress -Activity "Installing Commands" -Completed
+    
+    # Clean up memory
+    [System.GC]::Collect()
+    
+    # Only pause if there were errors
+    if ($failed -gt 0) {
+        Write-Host "`nPress any key to exit..." -ForegroundColor Red
+        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+        exit 1
+    }
+    else {
+        Write-Host "`n✅ Installation complete!" -ForegroundColor Green
+        Start-Sleep -Seconds 1  # Brief pause to see message
+        exit 0
+    }
+} catch {
+    Write-Host "`n❌ Installation failed: $_" -ForegroundColor Red
+    Write-Host "Press any key to exit..." -ForegroundColor Yellow
+    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    exit 1
+}

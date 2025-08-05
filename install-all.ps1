@@ -202,19 +202,45 @@ function Install-Component {
         $tempInstaller = "$env:TEMP\$($Component.Installer)"
         Set-Content -Path $tempInstaller -Value $installerContent -Encoding UTF8
         
-        # Execute installer
+        # Execute installer with timeout
         Write-Log "Executing $componentName installer..." "INFO"
-        & powershell -ExecutionPolicy Bypass -File $tempInstaller
+        $job = Start-Job -ScriptBlock {
+            param($installerPath)
+            & powershell -ExecutionPolicy Bypass -File $installerPath
+        } -ArgumentList $tempInstaller
         
-        # Verify installation with health check
-        Start-Sleep -Seconds 2
-        if (& $Component.HealthCheck) {
-            Write-Log "$componentName installed successfully" "SUCCESS"
-            Write-Log "GLOBALLY installed at: $INSTALL_DIR\$componentName" "INFO"
-            return @{ Success = $true; Skipped = $false; Component = $componentName }
+        # Wait for job with timeout (5 minutes max)
+        $timeout = 300
+        $completed = Wait-Job $job -Timeout $timeout
+        
+        if ($job.State -eq 'Running') {
+            Write-Log "$componentName installer timed out after $timeout seconds" "WARNING"
+            Stop-Job $job -Force
+            Remove-Job $job -Force
+            
+            # Still check if it partially installed
+            Start-Sleep -Seconds 2
+            if (& $Component.HealthCheck) {
+                Write-Log "$componentName appears to be installed despite timeout" "WARNING"
+                return @{ Success = $true; Skipped = $false; Component = $componentName; Timeout = $true }
+            } else {
+                return @{ Success = $false; Skipped = $false; Component = $componentName; Error = "Installation timed out" }
+            }
         } else {
-            Write-Log "$componentName health check failed" "ERROR"
-            return @{ Success = $false; Skipped = $false; Component = $componentName }
+            # Job completed normally
+            $exitCode = Receive-Job $job
+            Remove-Job $job -Force
+            
+            # Verify installation with health check
+            Start-Sleep -Seconds 2
+            if (& $Component.HealthCheck) {
+                Write-Log "$componentName installed successfully" "SUCCESS"
+                Write-Log "GLOBALLY installed at: $INSTALL_DIR\$componentName" "INFO"
+                return @{ Success = $true; Skipped = $false; Component = $componentName }
+            } else {
+                Write-Log "$componentName health check failed" "ERROR"
+                return @{ Success = $false; Skipped = $false; Component = $componentName }
+            }
         }
         
     } catch {
@@ -392,10 +418,23 @@ function Start-Installation {
         
         Write-Host ""
         Write-Log "Installation log saved to: $LOG_FILE" "INFO"
-        Write-Host "Press any key to exit..."
-        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+        
+        # Only pause if there were errors
+        $hasErrors = $results | Where-Object { -not $_.Success }
+        if ($hasErrors) {
+            Write-Host "Press any key to exit..." -ForegroundColor Yellow
+            $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+        } else {
+            # Auto-exit after success
+            Start-Sleep -Seconds 2
+        }
     }
 }
 
 # Run installation
 Start-Installation
+
+# Ensure script exits properly
+Write-Progress -Activity "Installing Claude Code Dev Stack" -Completed
+[System.GC]::Collect()
+exit 0

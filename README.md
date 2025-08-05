@@ -25,6 +25,23 @@ curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/m
 curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-all-mac.sh | bash
 ```
 
+## 🗑️ Uninstall (One-Line Uninstaller Download)
+
+### Windows PowerShell
+```powershell
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-uninstallers.ps1 | iex; .\run-uninstaller.ps1
+```
+
+### Linux/WSL/Ubuntu
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-uninstallers.sh | bash && ./run-uninstaller.sh
+```
+
+### macOS
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-uninstallers-mac.sh | bash && ./run-uninstaller.sh
+```
+
 ## 🔧 Component-Based Installation
 
 For granular control, install individual components:
@@ -119,6 +136,49 @@ The verification script will check:
 - ✓ Hooks are properly set up
 
 **Exit codes:** 0 = full success, 1 = partial installation, 2 = installation failure
+
+## 🗑️ Uninstallation
+
+Remove all or specific components of the Claude Code Dev Stack:
+
+### Complete Uninstallation (Interactive)
+
+**Windows PowerShell:**
+```powershell
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/uninstall-all.ps1 | iex
+```
+
+**Ubuntu/WSL:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/uninstall-all.sh | bash
+```
+
+**macOS:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/uninstall-all-mac.sh | bash
+```
+
+### Uninstall Options
+
+```powershell
+# Remove everything without prompts
+.\uninstall-all.ps1 -All -Force
+
+# Remove specific components
+.\uninstall-all.ps1 -Agents -Commands
+
+# Dry run - see what would be removed
+.\uninstall-all.ps1 -WhatIf
+
+# Create backup before removal
+.\uninstall-all.ps1 -All -Backup
+```
+
+**Individual component uninstallers** are also available:
+- `uninstall-agents.ps1` - Remove only agents
+- `uninstall-commands.ps1` - Remove only commands
+- `uninstall-mcps.ps1` - Remove only MCPs
+- `uninstall-hooks.ps1` - Remove only hooks
 
 ## 🆕 What's New in v2.1
 
