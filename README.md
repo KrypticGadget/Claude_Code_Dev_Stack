@@ -97,6 +97,29 @@ curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/m
 curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-hooks-mac.sh | bash
 ```
 
+## ✅ Verify Installation
+
+After running any installer, verify everything is properly installed:
+
+```powershell
+# Basic verification
+.\verify-installation.ps1
+
+# Detailed output (shows all component names)
+.\verify-installation.ps1 -Detailed
+
+# Quiet mode for scripts (returns exit code)
+.\verify-installation.ps1 -Quiet
+```
+
+The verification script will check:
+- ✓ All 28 AI agents are installed
+- ✓ All 18 slash commands are available
+- ✓ 3 Tier 1 MCPs are configured
+- ✓ Hooks are properly set up
+
+**Exit codes:** 0 = full success, 1 = partial installation, 2 = installation failure
+
 ## 🆕 What's New in v2.1
 
 - **@agent- Deterministic Routing**: Force specific agents with `@agent-backend-services`

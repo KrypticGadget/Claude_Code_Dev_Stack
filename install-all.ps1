@@ -306,21 +306,34 @@ function Start-Installation {
             
             # Run verification script
             Write-Host ""
-            Write-Log "Running installation verification..." "INFO"
+            Write-Host "🔍 Running Installation Verification..." -ForegroundColor Yellow
+            Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+            
             try {
-                $verifyScript = "$INSTALL_DIR\verification\verify-installation.ps1"
-                if (Test-Path $verifyScript) {
-                    & powershell -ExecutionPolicy Bypass -File $verifyScript
+                # First try local verification script
+                $localVerify = ".\verify-installation.ps1"
+                if (Test-Path $localVerify) {
+                    Write-Log "Running local verification script..." "INFO"
+                    & powershell -ExecutionPolicy Bypass -File $localVerify
                 } else {
-                    # Download and run verification script
-                    $verifyContent = Download-WithRetry -Url "$GITHUB_BASE/verification/verify-installation.ps1" -Description "verification script"
+                    # Download and run verification script from repository root
+                    $verifyUrl = "$GITHUB_BASE/verify-installation.ps1"
+                    Write-Log "Downloading verification script..." "INFO"
+                    $verifyContent = Download-WithRetry -Url $verifyUrl -Description "verification script"
                     $tempVerify = "$env:TEMP\verify-installation.ps1"
                     Set-Content -Path $tempVerify -Value $verifyContent -Encoding UTF8
                     & powershell -ExecutionPolicy Bypass -File $tempVerify
                     Remove-Item $tempVerify -Force -ErrorAction SilentlyContinue
                 }
+                
+                Write-Host ""
+                Write-Host "💡 Tip: Run '.\verify-installation.ps1 -Detailed' anytime to check status" -ForegroundColor Cyan
+                
             } catch {
-                Write-Log "Verification script not available" "WARNING"
+                Write-Log "Could not run verification: $_" "WARNING"
+                Write-Host ""
+                Write-Host "⚠️  Verification script not available" -ForegroundColor Yellow
+                Write-Host "   Download and run manually: .\verify-installation.ps1" -ForegroundColor Gray
             }
             
             # Show global directory structure
