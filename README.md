@@ -1,23 +1,38 @@
-# 🤖 Claude Code Agent System
+# 🤖 Claude Code Dev Stack v2.1
 
-### *Transform Natural Language into Production Software with 28 Specialized AI Agents*
+### *Transform Natural Language into Production Software with 28 Specialized AI Agents - Now with @agent- Deterministic Routing*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Claude Code Compatible](https://img.shields.io/badge/Claude%20Code-Compatible-blue)](https://docs.anthropic.com/en/docs/claude-code)
+[![Claude Code Compatible](https://img.shields.io/badge/Claude%20Code-v2.1-blue)](https://docs.anthropic.com/en/docs/claude-code)
 [![Agents: 28](https://img.shields.io/badge/Agents-28-green)](./Config_Files)
 [![Slash Commands: 18](https://img.shields.io/badge/Slash%20Commands-18-blue)](./slash-commands)
+[![Version: 2.1](https://img.shields.io/badge/Version-2.1-purple)](./MASTER_PROMPTING_GUIDE.md)
 
-## ⚡ Quick Install
+## ⚡ Quick Install v2.1 (One-Line Complete Installation)
 
-### 1. Install Agents (Required)
-```bash
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install.sh | bash
+### Windows PowerShell
+```powershell
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-all.ps1 | iex
 ```
 
-### 2. Install Slash Commands (Recommended)
+### Linux/WSL/Ubuntu
 ```bash
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/slash-commands/install-commands.sh | bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-all.sh | bash
 ```
+
+### macOS
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/install-all-mac.sh | bash
+```
+
+## 🆕 What's New in v2.1
+
+- **@agent- Deterministic Routing**: Force specific agents with `@agent-backend-services`
+- **Model Selection**: Use `[opus]` for complex tasks, `[haiku]` for simple (60% cost savings)
+- **Automatic Microcompact**: Work for hours without context issues
+- **PDF Reading**: Analyze requirements from PDFs directly
+- **Hooks Execution Layer**: Automated session continuity and quality gates
+- **MCP Integration**: Playwright, Obsidian, Brave Search (5 tools max)
 
 ## ⚡ Quick Guide At A Glance
 
@@ -27,9 +42,16 @@ curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/m
 - **APIs & Services** → REST, GraphQL, microservices
 - **Enterprise Systems** → CRM, ERP, compliance-ready platforms
 
-### 🚀 Get Started
+### 🚀 Get Started v2.1
 ```bash
+# Basic (agents choose models)
 /new-project "Your app idea here"
+
+# With @agent- routing (deterministic)
+/new-project "E-commerce platform" @agent-master-orchestrator[opus] @agent-business-analyst[opus]
+
+# Cost-optimized (use Haiku for simple tasks)
+@agent-testing-automation[haiku] @agent-technical-documentation[haiku]
 ```
 
 ### 📍 Quick Navigation Guide
@@ -37,6 +59,9 @@ curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/m
 | I Want To... | Go Here | Quick Command |
 |-------------|---------|---------------|
 | **Start a new project** | [QUICK_START.md](QUICK_START.md) | `/new-project` |
+| **Use @agent- routing** | [MASTER_PROMPTING_GUIDE.md](MASTER_PROMPTING_GUIDE.md) | `@agent-name[model]` |
+| **Install MCPs** | [MCP_INTEGRATION_GUIDE.md](MCP_INTEGRATION_GUIDE.md) | `claude mcp add` |
+| **Setup hooks** | [HOOKS_IMPLEMENTATION.md](HOOKS_IMPLEMENTATION.md) | Auto-installed |
 | **See all commands** | [CHEAT_SHEET.md](CHEAT_SHEET.md) | - |
 | **Copy prompt templates** | [master-prompts/](master-prompts/) | - |
 | **See real examples** | [examples/](examples/) | - |
@@ -48,32 +73,62 @@ curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/m
 
 ### 🔥 For Quick Generation (Copy These!)
 
-#### Start Any Project
+#### Start Any Project (v2.1 Enhanced)
 ```
+# Basic
 /new-project "E-commerce platform with payment processing and inventory management"
+
+# With deterministic routing
+/new-project "SaaS platform" @agent-master-orchestrator[opus] @agent-database-architecture[opus]
+
+# With PDF requirements
+/new-project "Build from requirements" @agent-business-analyst[opus]
+"Read the full requirements from requirements.pdf"
 ```
 
-#### Common Development Tasks
+#### Common Development Tasks (With @agent- Routing)
 ```
-/frontend-mockup "dashboard with charts and analytics"
-/backend-service "REST API with JWT authentication"
-/database-design "multi-tenant SaaS schema"
-/documentation "API reference and deployment guide"
+# Frontend with architect review
+/frontend-mockup "dashboard" @agent-frontend-architecture[opus]
+
+# Backend with security review
+/backend-service "REST API" @agent-backend-services @agent-security-architecture[opus]
+
+# Database with optimization
+/database-design "schema" @agent-database-architecture[opus]
+
+# Cost-optimized documentation
+/documentation "API docs" @agent-technical-documentation[haiku]
 ```
 
-#### Full Workflow Template
+#### Full Workflow Template v2.1
 ```
-/business-analysis
-/technical-feasibility "your idea" scale:"expected users"
-/project-plan "project name" team:size budget:amount
-/new-project "comprehensive project description"
+# Step 1: Business planning (Opus for complex analysis)
+/business-analysis @agent-business-analyst[opus]
+/technical-feasibility "your idea" @agent-technical-cto[opus]
+
+# Step 2: Project setup (Default models)
+/project-plan "project name" @agent-project-manager
+
+# Step 3: Development (Mixed models)
+/new-project "comprehensive description" @agent-master-orchestrator[opus]
+
+# Step 4: Testing & Docs (Haiku for cost savings)
+@agent-testing-automation[haiku] @agent-technical-documentation[haiku]
 ```
 
 ### 📁 For External LLM Usage
 
+**v2.1 Master Guide** → [`MASTER_PROMPTING_GUIDE.md`](MASTER_PROMPTING_GUIDE.md)
+- Complete @agent- mention reference
+- Model selection strategies
+- Cost optimization patterns
+- PDF integration examples
+
 **Agent Configurations** → [`Config_Files/`](Config_Files/)
-- Copy any `.md` file to use agent prompts in ChatGPT, Claude.ai, etc.
-- Each file contains the complete agent personality and instructions
+- All 28 agents updated with @agent- syntax
+- Model recommendations included
+- Copy any `.md` file to use in ChatGPT, Claude.ai, etc.
 
 **Universal Templates** → [`master-prompts/`](master-prompts/)
 - [PROJECT-INITIALIZATION.md](master-prompts/PROJECT-INITIALIZATION.md) - Start projects
@@ -81,159 +136,188 @@ curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/m
 - [OPTIMIZATION-TASKS.md](master-prompts/OPTIMIZATION-TASKS.md) - Improve code
 - [TROUBLESHOOTING.md](master-prompts/TROUBLESHOOTING.md) - Fix issues
 
-**Example-Based Prompts** → [`prompts/`](prompts/)
-- Industry-specific templates
-- Technology-specific workflows
-- Common implementation patterns
+## 🎪 The 28 Agents - Quick Reference v2.1
 
-## 🎪 The 28 Agents - Quick Reference
+### Most Used Commands with @agent- Syntax
 
-### Most Used Commands
+| Command | @agent- Syntax | Model | Example |
+|---------|----------------|-------|---------|
+| `/new-project` | `@agent-master-orchestrator[opus]` | Opus | `"SaaS platform" @agent-master-orchestrator[opus]` |
+| `/frontend-mockup` | `@agent-frontend-mockup` | Default | `"landing page" @agent-frontend-mockup` |
+| `/backend-service` | `@agent-backend-services` | Default | `"REST API" @agent-backend-services` |
+| `/database-design` | `@agent-database-architecture[opus]` | Opus | `"schema" @agent-database-architecture[opus]` |
+| `/business-analysis` | `@agent-business-analyst[opus]` | Opus | `@agent-business-analyst[opus]` |
+| `/documentation` | `@agent-technical-documentation[haiku]` | Haiku | `"API docs" @agent-technical-documentation[haiku]` |
 
-| Command | What It Does | Example |
-|---------|--------------|---------|
-| `/new-project` | Starts complete project with all analysis | `"SaaS platform for team collaboration"` |
-| `/frontend-mockup` | Creates HTML/CSS prototype | `"landing page for startup"` |
-| `/backend-service` | Designs APIs and services | `"REST API with authentication"` |
-| `/database-design` | Creates optimized schemas | `"e-commerce database"` |
-| `/business-analysis` | ROI and market analysis | Just type the command |
-| `/documentation` | Technical documentation | `"API docs" type:"OpenAPI"` |
-
-### All 28 Agents by Category
+### All 28 Agents by Category (With v2.1 @agent- Syntax)
 
 <details>
-<summary>🎯 Orchestration (2) - Click to expand</summary>
+<summary>🎯 Orchestration (3) - Click to expand</summary>
 
-- **master-orchestrator** → Manages entire projects
-- **prompt-engineer** → Enhances your prompts
+- **@agent-master-orchestrator[opus]** → Manages entire projects (complex coordination)
+- **@agent-usage-guide[opus]** → Meta-configuration for optimal workflows
+- **@agent-prompt-engineer** → Enhances your prompts
 </details>
 
 <details>
-<summary>💼 Business & Strategy (4) - Click to expand</summary>
+<summary>💼 Business & Strategy (5) - Click to expand</summary>
 
-- **business-analyst** → Market analysis, ROI
-- **technical-cto** → Tech feasibility
-- **ceo-strategy** → Go-to-market
-- **financial-analyst** → Financial models
+- **@agent-business-analyst[opus]** → Market analysis, ROI calculations
+- **@agent-technical-cto[opus]** → Tech feasibility assessments
+- **@agent-ceo-strategy[opus]** → Go-to-market strategies
+- **@agent-financial-analyst[opus]** → Financial models and projections
+- **@agent-business-tech-alignment[opus]** → Align technology with business goals
 </details>
 
 <details>
-<summary>📋 Project Management (3) - Click to expand</summary>
+<summary>📋 Project Management (2) - Click to expand</summary>
 
-- **project-manager** → Timelines, resources
-- **technical-specifications** → Requirements
-- **business-tech-alignment** → Align tech/business
+- **@agent-project-manager** → Timelines, resources (default model)
+- **@agent-technical-specifications[opus]** → Requirements documentation
 </details>
 
 <details>
-<summary>🏗️ Architecture & Design (8) - Click to expand</summary>
+<summary>🏗️ Architecture & Design (10) - Click to expand</summary>
 
-- **technical-documentation** → System docs
-- **api-integration-specialist** → External APIs
-- **frontend-architecture** → UI/UX structure
-- **frontend-mockup** → Prototypes
-- **production-frontend** → React/Vue/Angular
-- **backend-services** → APIs, services
-- **database-architecture** → Data modeling
-- **middleware-specialist** → Queues, caching
+- **@agent-frontend-architecture[opus]** → UI/UX architecture design
+- **@agent-frontend-mockup** → HTML/CSS prototypes (default)
+- **@agent-production-frontend** → React/Vue/Angular implementation
+- **@agent-backend-services** → APIs and services (default)
+- **@agent-database-architecture[opus]** → Data modeling and optimization
+- **@agent-middleware-specialist** → Message queues, caching
+- **@agent-api-integration-specialist** → External API integration
+- **@agent-security-architecture[opus]** → Security design and compliance
+- **@agent-performance-optimization** → Speed and optimization
+- **@agent-integration-setup** → Environment and dependencies
 </details>
 
 <details>
-<summary>💻 Development Support (6) - Click to expand</summary>
+<summary>💻 Development Support (4) - Click to expand</summary>
 
-- **testing-automation** → Test creation
-- **development-prompt** → Dev workflows
-- **script-automation** → Build scripts
-- **integration-setup** → Environment
-- **security-architecture** → Security
-- **performance-optimization** → Speed
+- **@agent-testing-automation[haiku]** → Test creation (cost-optimized)
+- **@agent-development-prompt** → Development workflows
+- **@agent-script-automation** → Build and deploy scripts
+- **@agent-devops-engineering** → CI/CD pipelines
 </details>
 
 <details>
-<summary>🔧 Specialized (5) - Click to expand</summary>
+<summary>🔧 Quality & Documentation (4) - Click to expand</summary>
 
-- **devops-engineering** → CI/CD
-- **quality-assurance** → Code quality
-- **mobile-development** → iOS/Android
-- **ui-ux-design** → User experience
-- **usage-guide** → Documentation
+- **@agent-quality-assurance[haiku]** → Code quality checks
+- **@agent-technical-documentation[haiku]** → Technical writing
+- **@agent-mobile-development** → iOS/Android apps
+- **@agent-ui-ux-design** → User experience design
 </details>
 
-## 📚 Complete Documentation Map
+## 📚 v2.1 Documentation
 
-### 🚀 Getting Started
+### 🚀 Core v2.1 Guides
+- **[MASTER_PROMPTING_GUIDE.md](MASTER_PROMPTING_GUIDE.md)** → Complete @agent- reference
+- **[HOOKS_IMPLEMENTATION.md](HOOKS_IMPLEMENTATION.md)** → Hooks execution layer
+- **[MCP_INTEGRATION_GUIDE.md](MCP_INTEGRATION_GUIDE.md)** → MCP setup (5 tools max)
+
+### 📖 Getting Started
 - **[QUICK_START.md](QUICK_START.md)** → 2-minute guide to get running
 - **[CHEAT_SHEET.md](CHEAT_SHEET.md)** → All commands at a glance
 - **[REFERENCE_GUIDE.md](REFERENCE_GUIDE.md)** → Comprehensive reference
-
-### 📖 Learning the System
-- **[docs/README.md](docs/README.md)** → Documentation hub
-- **[docs/INSTALLATION.md](docs/INSTALLATION.md)** → Detailed installation
-- **[docs/AGENT_USAGE.md](docs/AGENT_USAGE.md)** → How to use agents
-- **[docs/CUSTOMIZATION.md](docs/CUSTOMIZATION.md)** → Customize for your needs
 
 ### 💡 Templates & Examples
 - **[master-prompts/README.md](master-prompts/README.md)** → Universal templates
 - **[prompts/README.md](prompts/README.md)** → Category-specific prompts
 - **[examples/README.md](examples/README.md)** → Real project walkthroughs
-- **[slash-commands/README.md](slash-commands/README.md)** → Command reference
 
-### 🛠️ For Developers
-- **[docs/architecture/](docs/architecture/)** → System design
-- **[docs/development/](docs/development/)** → Create new agents
-- **[scripts/](scripts/)** → Automation scripts
-- **[Config_Files/](Config_Files/)** → Raw agent configurations
+## 🔄 Common Workflows v2.1
 
-## 🔄 Common Workflows
-
-### Build a SaaS Platform
+### Build a SaaS Platform (v2.1 Style)
 ```bash
+# Automatic routing
 /new-project "B2B SaaS with subscription billing"
-# Or step by step:
-/business-analysis → /technical-feasibility → /project-plan → /frontend-mockup → /backend-service
+
+# Deterministic routing with model optimization
+/new-project "B2B SaaS" @agent-master-orchestrator[opus] @agent-business-analyst[opus]
+# Then: @agent-backend-services @agent-frontend-architecture (default models)
+# Finally: @agent-testing-automation[haiku] @agent-technical-documentation[haiku]
+
+# Step by step with @agent- mentions:
+/business-analysis @agent-business-analyst[opus]
+/technical-feasibility @agent-technical-cto[opus]
+/project-plan @agent-project-manager
+/frontend-mockup @agent-frontend-mockup
+/backend-service @agent-backend-services
 ```
 
-### Create a Mobile App
+### Cost-Optimized Development Flow
 ```bash
-/new-project "Cross-platform mobile app for [your idea]"
-# Includes: React Native setup, API design, deployment
+# Phase 1: Planning (20% of work, use Opus)
+@agent-master-orchestrator[opus] @agent-business-analyst[opus] "Plan the system"
+
+# Phase 2: Implementation (50% of work, use default)
+@agent-backend-services @agent-frontend-architecture "Build core features"
+
+# Phase 3: Testing & Docs (30% of work, use Haiku)
+@agent-testing-automation[haiku] @agent-quality-assurance[haiku] "Test everything"
+@agent-technical-documentation[haiku] "Document the system"
+
+# Result: 60% cost savings while maintaining quality
 ```
 
-### Quick MVP (4-6 weeks)
+### PDF-Driven Development
 ```bash
-/new-project "MVP for [idea] with 6-week deadline, essential features only"
+# Start with existing requirements
+/new-project "Build from specs" @agent-business-analyst[opus]
+"Read the complete requirements from requirements.pdf"
+
+# Architecture from diagrams
+@agent-frontend-architecture[opus] "Implement the UI from design.pdf"
+
+# Database from existing schema
+@agent-database-architecture[opus] "Migrate schema from legacy-db.pdf"
 ```
 
-### Add Feature to Existing Project
+## 💡 Pro Tips v2.1
+
+### 🚀 Speed Tips (v2.1 Enhanced)
+1. **Use @agent- mentions** for deterministic routing
+2. **Apply [haiku] model** for 60% cost savings on simple tasks
+3. **Start with** `/new-project` + @agent- mentions for precision
+4. **Chain commands** with model selection for optimization
+5. **Use PDF reading** for existing requirements
+6. **Let microcompact** handle long sessions automatically
+
+### 💰 Cost Optimization Strategy
 ```bash
-/backend-service "add payment processing with Stripe"
-/frontend-mockup "checkout flow UI"
-/database-design "payment and subscription tables"
+# Expensive tasks (use Opus sparingly)
+@agent-master-orchestrator[opus]  # Complex orchestration
+@agent-business-analyst[opus]      # Deep analysis
+@agent-database-architecture[opus] # Critical schemas
+
+# Standard tasks (use default)
+@agent-backend-services           # General development
+@agent-frontend-mockup            # UI creation
+
+# Simple tasks (use Haiku liberally)
+@agent-testing-automation[haiku]        # Test generation
+@agent-technical-documentation[haiku]   # Documentation
+@agent-quality-assurance[haiku]         # Code reviews
 ```
 
-## 💡 Pro Tips
+### 🔧 Advanced v2.1 Features
+1. **Session Continuity** → Hooks save/restore your context
+2. **Quality Gates** → Automatic code standard enforcement
+3. **MCP Integration** → Playwright, Obsidian, Brave (5 max)
+4. **Extended Sessions** → Work all day without context loss
+5. **Deterministic Control** → Exact agent selection every time
 
-### 🚀 Speed Tips
-1. **Use slash commands** for 75% faster development
-2. **Start with** `/new-project` for complete orchestration
-3. **Chain commands** for complex workflows
-4. **Save successful prompts** for reuse
+## 📊 Why v2.1?
 
-### 🎯 Quality Tips
-1. **Be specific** in your descriptions
-2. **Include constraints** (timeline, budget, tech)
-3. **Mention integrations** upfront
-4. **Define success metrics** clearly
+### New Benefits
+- 🎯 **100% Deterministic** → @agent- mentions guarantee routing
+- 💰 **60% Cost Savings** → Strategic model selection
+- 🔄 **Unlimited Sessions** → Microcompact handles context
+- 📄 **PDF Integration** → Use existing documentation
+- 🔧 **Automated Execution** → Hooks ensure everything runs
 
-### 🔧 Advanced Usage
-1. **Customize agents** → Edit files in `Config_Files/`
-2. **Create workflows** → Combine multiple agents
-3. **Export prompts** → Use in ChatGPT, Claude.ai
-4. **Build templates** → Save in `master-prompts/`
-
-## 📊 Why This System?
-
-### Results
+### Proven Results
 - ⚡ **70% faster** development
 - 🐛 **50% fewer** bugs
 - 📚 **100%** documented code
@@ -241,19 +325,13 @@ curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/m
 - 🔒 **Security** best practices
 - 📈 **Scalable** from day one
 
-### What Users Say
-- "Like having a senior dev team on demand"
-- "Went from idea to MVP in 4 weeks"
-- "Best practices baked in automatically"
-- "Documentation writes itself"
-
 ## 🆘 Getting Help
 
-### Quick Fixes
-- **Agents not found?** → Reinstall: `curl -sL .../install.sh | bash`
-- **Commands not working?** → Check syntax in [CHEAT_SHEET.md](CHEAT_SHEET.md)
-- **Need examples?** → See [examples/](examples/) directory
-- **Custom needs?** → Read [docs/CUSTOMIZATION.md](docs/CUSTOMIZATION.md)
+### v2.1 Specific Issues
+- **@agent- not working?** → Check syntax: `@agent-name` or `@agent-name[model]`
+- **Hooks not running?** → Copy `.claude/settings.json` to Claude Code settings
+- **MCPs not installing?** → Use exact commands from MCP_INTEGRATION_GUIDE.md
+- **Cost tracking?** → Check `.claude/state/model_usage.json`
 
 ### Resources
 - 📚 **Full Documentation** → [docs/](docs/)
@@ -263,25 +341,34 @@ curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/m
 
 ## 🎯 Your Next Step
 
-**Just installed?**
+**Just installed v2.1?**
 ```bash
-/new-project "Your awesome idea here"
+# Try deterministic routing
+/new-project "Your idea" @agent-master-orchestrator[opus] @agent-business-analyst[opus]
+
+# Or cost-optimized workflow
+@agent-backend-services "Build API"
+@agent-testing-automation[haiku] "Write tests"
+@agent-technical-documentation[haiku] "Document everything"
 ```
 
-**Want to explore?**
-- Try different [examples](examples/)
-- Browse [master-prompts](master-prompts/)
-- Read the [QUICK_START.md](QUICK_START.md)
+**Want to optimize costs?**
+- Use `[opus]` only for critical thinking (20%)
+- Use default for standard development (50%)
+- Use `[haiku]` for routine tasks (30%)
+- Result: Premium quality at 40% lower cost
 
-**Ready to customize?**
-- Edit [Config_Files](Config_Files/) for your team
-- Create custom [slash-commands](slash-commands/)
-- Build your own workflows
+**Ready for advanced features?**
+- Install MCPs: Start with Playwright, Obsidian, Brave
+- Configure hooks: Session persistence, quality gates
+- Use PDFs: `"Read requirements from spec.pdf"`
 
 ---
 
 <div align="center">
 
-*Transform your ideas into production software with the power of 28 AI agents!*
+*Transform your ideas into production software with 28 AI agents - Now with @agent- deterministic routing and 60% cost optimization!*
+
+**v2.1** | [Master Guide](MASTER_PROMPTING_GUIDE.md) | [Hooks](HOOKS_IMPLEMENTATION.md) | [MCPs](MCP_INTEGRATION_GUIDE.md)
 
 </div>

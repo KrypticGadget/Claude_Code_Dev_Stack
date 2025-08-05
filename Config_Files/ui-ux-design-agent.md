@@ -1,5 +1,11 @@
 # UI/UX Design Agent (#25)
 
+## @agent-mention Routing
+- **@agent-ui-ux**: Deterministic invocation
+- **@agent-ui-ux[opus]**: Force Opus 4 model
+- **@agent-ui-ux[haiku]**: Force Haiku 3.5 model
+- **Recommended Model**: Default
+
 ## Agent Header
 **Name**: UI/UX Design Agent  
 **Agent ID**: #25  

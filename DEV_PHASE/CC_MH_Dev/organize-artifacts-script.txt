@@ -1,0 +1,293 @@
+# Claude Code Dev Stack v2.1 - Artifact Organization Script
+# This script organizes all downloaded artifacts into the proper structure
+
+Write-Host "🚀 Claude Code Dev Stack v2.1 - File Organizer" -ForegroundColor Cyan
+Write-Host "================================================" -ForegroundColor Cyan
+
+# Define paths
+$SourcePath = "C:\Users\Zach\Downloads\CC_MH_Dev"
+$TargetPath = "C:\Users\Zach\Desktop\Master Code\Claude_Code_Agents\Claude_Code_Dev_Stack\DEV_PHASE"
+$StackPath = Join-Path $TargetPath "claude-code-dev-stack-v21"
+
+# Verify source path exists
+if (-not (Test-Path $SourcePath)) {
+    Write-Host "❌ Source path not found: $SourcePath" -ForegroundColor Red
+    Write-Host "Please ensure artifacts are downloaded to this location." -ForegroundColor Yellow
+    exit 1
+}
+
+Write-Host "📁 Creating directory structure..." -ForegroundColor Green
+
+# Create all required directories
+$directories = @(
+    "implementation-prompts",
+    "master-docs",
+    "implementation-guides",
+    "installation-scripts",
+    "hook-templates",
+    "config-templates",
+    "quick-start"
+)
+
+foreach ($dir in $directories) {
+    $fullPath = Join-Path $StackPath $dir
+    New-Item -ItemType Directory -Force -Path $fullPath | Out-Null
+    Write-Host "  ✓ Created $dir" -ForegroundColor Gray
+}
+
+Write-Host "`n📥 Organizing artifacts..." -ForegroundColor Green
+
+# Define artifact mappings
+# Format: @{SourceName = "artifact-name"; TargetPath = "folder/filename.ext"}
+$artifactMappings = @{
+    # Implementation Prompts
+    "claude-code-integrated-dev-prompt" = @{
+        Target = "implementation-prompts\INTEGRATED_DEV_PROMPT.md"
+        Description = "Main development roadmap"
+    }
+    "claude-code-update-prompt" = @{
+        Target = "implementation-prompts\REPO_UPDATE_PROMPT.md"
+        Description = "Repository update prompt"
+    }
+    "repo-update-plan" = @{
+        Target = "implementation-prompts\REPO_UPDATE_PLAN.md"
+        Description = "Repository update checklist"
+    }
+    
+    # Master Docs
+    "master-prompting-guide-final" = @{
+        Target = "master-docs\MASTER_PROMPTING_GUIDE.md"
+        Description = "Complete meta-prompting guide v2.1"
+    }
+    "v21-feature-summary" = @{
+        Target = "master-docs\V21_FEATURE_SUMMARY.md"
+        Description = "Version 2.1 features overview"
+    }
+    "windows-install-readme" = @{
+        Target = "master-docs\WINDOWS_INSTALL.md"
+        Description = "Windows installation guide"
+    }
+    
+    # Implementation Guides
+    "hooks-implementation-guide" = @{
+        Target = "implementation-guides\HOOKS_IMPLEMENTATION.md"
+        Description = "Hooks setup and code"
+    }
+    "mcp-integration-guide" = @{
+        Target = "implementation-guides\MCP_INTEGRATION_GUIDE.md"
+        Description = "MCP integration patterns"
+    }
+    
+    # Installation Scripts
+    "claude-code-install-ps1" = @{
+        Target = "installation-scripts\install.ps1"
+        Description = "Windows agent installer"
+    }
+    "claude-code-commands-ps1" = @{
+        Target = "installation-scripts\install-commands.ps1"
+        Description = "Slash commands installer"
+    }
+    "claude-code-full-install" = @{
+        Target = "installation-scripts\install-all.ps1"
+        Description = "Complete installation script"
+    }
+    
+    # File Structure Guide
+    "claude-code-file-structure" = @{
+        Target = "quick-start\FILE_STRUCTURE_GUIDE.md"
+        Description = "Organization guide"
+    }
+    "artifact-download-table" = @{
+        Target = "quick-start\ARTIFACT_REFERENCE.md"
+        Description = "Artifact download reference"
+    }
+    "ultimate-action-plan" = @{
+        Target = "quick-start\ACTION_PLAN.md"
+        Description = "30-minute setup guide"
+    }
+}
+
+# Process each artifact
+$successCount = 0
+$notFoundArtifacts = @()
+
+foreach ($artifact in $artifactMappings.GetEnumerator()) {
+    $sourceName = $artifact.Key
+    $targetInfo = $artifact.Value
+    $targetPath = Join-Path $StackPath $targetInfo.Target
+    
+    # Look for files with various extensions
+    $possibleFiles = @(
+        "$sourceName.md",
+        "$sourceName.txt",
+        "$sourceName.ps1",
+        "$sourceName.py",
+        "$sourceName.json",
+        "$sourceName"  # No extension
+    )
+    
+    $found = $false
+    foreach ($file in $possibleFiles) {
+        $sourcePath = Join-Path $SourcePath $file
+        if (Test-Path $sourcePath) {
+            Copy-Item -Path $sourcePath -Destination $targetPath -Force
+            Write-Host "  ✓ $($targetInfo.Description)" -ForegroundColor Green
+            Write-Host "    → $($targetInfo.Target)" -ForegroundColor Gray
+            $successCount++
+            $found = $true
+            break
+        }
+    }
+    
+    if (-not $found) {
+        $notFoundArtifacts += $sourceName
+        Write-Host "  ⚠ Not found: $sourceName" -ForegroundColor Yellow
+    }
+}
+
+Write-Host "`n📝 Creating additional required files..." -ForegroundColor Green
+
+# Create IMPLEMENTATION_ORDER.md
+$implementationOrder = @"
+# Implementation Order for Claude Code Dev Stack v2.1
+
+## Phase 1: Foundation (Day 1-2)
+1. Run Windows PowerShell installation scripts
+2. Set up .claude directory structure
+3. Install foundation hooks (session_loader, session_saver, quality_gate)
+4. Configure agent @-mention routing
+5. Test session continuity
+
+## Phase 2: Agent Enhancement (Day 3-4)
+1. Install agent_mention_parser.py hook
+2. Install model_tracker.py hook
+3. Configure agent_models.json
+4. Test @-mention routing
+5. Verify cost tracking
+
+## Phase 3: MCP Integration (Day 5)
+1. Install Tier 1 MCPs (Playwright, Obsidian, Brave Search)
+2. Configure MCP-agent bindings
+3. Test MCP workflows
+4. Document integration patterns
+
+## Phase 4: Meta-Prompting (Day 6-7)
+1. Deploy MASTER_PROMPTING_GUIDE.md
+2. Test in external LLMs
+3. Configure ultrathink mode
+4. Test PDF integration
+
+## Phase 5: Repository Update (Day 8)
+1. Update GitHub repository structure
+2. Add all new files
+3. Update README with v2.1 features
+4. Create release notes
+5. Tag as v2.1.0
+
+## Verification Checklist
+- [ ] @-mentions work deterministically
+- [ ] Model costs tracked and optimized
+- [ ] Microcompact preserves state
+- [ ] PDFs readable by all agents
+- [ ] Hooks execute reliably
+- [ ] MCPs limited to 5 total
+- [ ] Meta-prompting guide works in other LLMs
+"@
+
+$implementationOrder | Out-File -Path (Join-Path $StackPath "quick-start\IMPLEMENTATION_ORDER.md") -Encoding UTF8
+Write-Host "  ✓ Created IMPLEMENTATION_ORDER.md" -ForegroundColor Green
+
+# Create CLAUDE_CODE_PROMPT.md
+$claudeCodePrompt = @"
+# Master Implementation Prompt for Claude Code Dev Stack v2.1
+
+I have the complete Claude Code Dev Stack v2.1 implementation package in this directory.
+
+Please implement everything by:
+1. Reading the integrated development prompt from `implementation-prompts/INTEGRATED_DEV_PROMPT.md`
+2. Following the implementation order from `quick-start/IMPLEMENTATION_ORDER.md`
+3. Using implementation guides from `implementation-guides/`
+4. Referencing the Master Prompting Guide at `master-docs/MASTER_PROMPTING_GUIDE.md`
+
+Let's start with Phase 1: Foundation Infrastructure
+@ai-architect[opus] @system-architect[opus] @devops-automation
+
+Key features to implement:
+- Windows PowerShell support (scripts in `installation-scripts/`)
+- Hooks execution layer (templates in `hook-templates/`)
+- @-mention deterministic routing
+- Model selection (Opus/Haiku) for cost optimization
+- Microcompact-aware session management
+- PDF reading capability
+- MCP integration (3-5 tools maximum)
+
+Please analyze the complete file structure first, then begin systematic implementation.
+"@
+
+$claudeCodePrompt | Out-File -Path (Join-Path $StackPath "quick-start\CLAUDE_CODE_PROMPT.md") -Encoding UTF8
+Write-Host "  ✓ Created CLAUDE_CODE_PROMPT.md" -ForegroundColor Green
+
+# Create README for implementation-guides
+$guidesReadme = @"
+# Implementation Guides
+
+This directory contains detailed implementation guides for the Claude Code Dev Stack v2.1.
+
+## Available Guides
+
+### 1. HOOKS_IMPLEMENTATION.md
+Complete guide for implementing the hooks execution layer. Contains:
+- Python code for all hooks
+- Configuration examples
+- Testing procedures
+
+### 2. MCP_INTEGRATION_GUIDE.md
+Guide for integrating Model Context Protocol tools. Includes:
+- Tier 1 universal tools setup
+- Agent-MCP binding patterns
+- 3-5 tool limit best practices
+
+## Note on Code Extraction
+The hooks implementation guide contains embedded Python code that needs to be extracted to the `hook-templates/` directory. Look for code blocks and save them as individual `.py` files.
+"@
+
+$guidesReadme | Out-File -Path (Join-Path $StackPath "implementation-guides\README.md") -Encoding UTF8
+Write-Host "  ✓ Created implementation-guides README" -ForegroundColor Green
+
+# Summary
+Write-Host "`n📊 Organization Summary:" -ForegroundColor Cyan
+Write-Host "  ✓ Directories created: $($directories.Count)" -ForegroundColor Green
+Write-Host "  ✓ Artifacts organized: $successCount" -ForegroundColor Green
+Write-Host "  ✓ Additional files created: 3" -ForegroundColor Green
+
+if ($notFoundArtifacts.Count -gt 0) {
+    Write-Host "`n⚠️  Missing artifacts:" -ForegroundColor Yellow
+    foreach ($missing in $notFoundArtifacts) {
+        Write-Host "  - $missing" -ForegroundColor Yellow
+    }
+    Write-Host "`nMake sure these files are in: $SourcePath" -ForegroundColor Yellow
+}
+
+Write-Host "`n✅ Setup complete!" -ForegroundColor Green
+Write-Host "`n📍 Your Claude Code Dev Stack v2.1 is ready at:" -ForegroundColor Cyan
+Write-Host "   $StackPath" -ForegroundColor White
+
+Write-Host "`n🚀 Next steps:" -ForegroundColor Cyan
+Write-Host "1. Open Claude Code in the directory: $StackPath" -ForegroundColor White
+Write-Host "2. Use the prompt from: quick-start\CLAUDE_CODE_PROMPT.md" -ForegroundColor White
+Write-Host "3. Extract Python code from HOOKS_IMPLEMENTATION.md to hook-templates\" -ForegroundColor White
+Write-Host "4. Let Claude Code implement everything!" -ForegroundColor White
+
+Write-Host "`n💡 Pro tip: If any artifacts are missing, download them and run this script again." -ForegroundColor Gray
+
+# Create a simple launcher script
+$launcher = @"
+# Quick Launch Script for Claude Code Dev Stack v2.1
+cd "$StackPath"
+Write-Host "Opening Claude Code Dev Stack v2.1..." -ForegroundColor Cyan
+Write-Host "Copy the prompt from quick-start\CLAUDE_CODE_PROMPT.md" -ForegroundColor Yellow
+code .
+"@
+
+$launcher | Out-File -Path (Join-Path $TargetPath "LAUNCH_CLAUDE_CODE.ps1") -Encoding UTF8
+Write-Host "`n💾 Created launcher script: LAUNCH_CLAUDE_CODE.ps1" -ForegroundColor Green

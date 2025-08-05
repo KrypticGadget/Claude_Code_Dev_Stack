@@ -1,0 +1,157 @@
+# Claude Code Dev Stack - Slash Commands Installation Script for Windows
+# This script installs the slash commands for Claude Code on Windows
+
+Write-Host "🚀 Claude Code Slash Commands - Windows Installation" -ForegroundColor Cyan
+Write-Host "Installing 18 slash commands for quick access..." -ForegroundColor Yellow
+
+# Set installation directory
+$CLAUDE_DIR = "$env:USERPROFILE\.claude-code"
+$COMMANDS_DIR = "$CLAUDE_DIR\commands"
+
+# Create commands directory
+Write-Host "`n📁 Creating commands directory..." -ForegroundColor Green
+New-Item -ItemType Directory -Force -Path $COMMANDS_DIR | Out-Null
+
+# GitHub raw URL
+$RAW_URL = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/slash-commands"
+
+try {
+    # List of slash command files
+    $commandFiles = @(
+        "backend-service.md",
+        "business-analysis.md",
+        "cloud-setup.md",
+        "code-review.md",
+        "database-design.md",
+        "deploy.md",
+        "documentation.md",
+        "frontend-mockup.md",
+        "integration.md",
+        "new-project.md",
+        "optimize.md",
+        "project-plan.md",
+        "refactor.md",
+        "resume-project.md",
+        "security-audit.md",
+        "technical-feasibility.md",
+        "test-suite.md",
+        "ui-design.md"
+    )
+    
+    Write-Host "`n📥 Downloading slash commands..." -ForegroundColor Green
+    
+    $totalFiles = $commandFiles.Count
+    $currentFile = 0
+    
+    foreach ($file in $commandFiles) {
+        $currentFile++
+        $progress = [math]::Round(($currentFile / $totalFiles) * 100)
+        Write-Progress -Activity "Downloading commands" -Status "$file" -PercentComplete $progress
+        
+        $url = "$RAW_URL/$file"
+        $destination = Join-Path $COMMANDS_DIR $file
+        
+        try {
+            Invoke-WebRequest -Uri $url -OutFile $destination -UseBasicParsing
+        } catch {
+            Write-Host "⚠️  Failed to download $file" -ForegroundColor Yellow
+        }
+    }
+    
+    Write-Progress -Activity "Downloading commands" -Completed
+    
+    # Create a commands registry file
+    Write-Host "`n📋 Creating commands registry..." -ForegroundColor Green
+    $registryContent = @"
+# Claude Code Slash Commands Registry
+# Use these commands for quick access to common tasks
+
+## 🚀 Project Management
+/new-project - Start a complete new project with full analysis
+/resume-project - Continue working on an existing project
+/project-plan - Create detailed project plan with timeline
+
+## 💼 Business & Analysis
+/business-analysis - Analyze business viability and ROI
+/technical-feasibility - Assess technical requirements and constraints
+
+## 🎨 Frontend Development
+/frontend-mockup - Create HTML/CSS prototypes
+/ui-design - Design user interfaces and experiences
+
+## 🔧 Backend Development
+/backend-service - Design APIs and backend services
+/database-design - Create optimized database schemas
+/integration - Plan third-party integrations
+
+## 🏗️ Infrastructure & DevOps
+/cloud-setup - Configure cloud infrastructure
+/deploy - Create deployment strategies
+
+## 📊 Quality & Optimization
+/code-review - Review code for best practices
+/security-audit - Perform security analysis
+/optimize - Optimize performance
+/test-suite - Generate comprehensive tests
+/refactor - Refactor existing code
+
+## 📚 Documentation
+/documentation - Create technical documentation
+
+# Usage Examples:
+claude-code "/new-project E-commerce platform with payment processing"
+claude-code "/backend-service REST API with JWT authentication"
+claude-code "/database-design multi-tenant SaaS schema"
+"@
+    
+    $registryContent | Out-File -FilePath "$COMMANDS_DIR\COMMANDS_REGISTRY.md" -Encoding UTF8
+    
+    # Create PowerShell command aliases (optional)
+    Write-Host "`n⚡ Creating PowerShell aliases..." -ForegroundColor Green
+    $aliasesContent = @"
+# Claude Code PowerShell Aliases
+# Add this to your PowerShell profile for quick access
+
+# Quick project commands
+function ccnew { claude-code "/new-project `$args" }
+function ccbackend { claude-code "/backend-service `$args" }
+function ccfrontend { claude-code "/frontend-mockup `$args" }
+function ccdb { claude-code "/database-design `$args" }
+function ccdocs { claude-code "/documentation `$args" }
+function ccplan { claude-code "/project-plan `$args" }
+function ccresume { claude-code "/resume-project `$args" }
+
+# Analysis commands
+function ccbusiness { claude-code "/business-analysis `$args" }
+function ccfeasibility { claude-code "/technical-feasibility `$args" }
+
+# Quality commands
+function ccreview { claude-code "/code-review `$args" }
+function ccsecurity { claude-code "/security-audit `$args" }
+function ccoptimize { claude-code "/optimize `$args" }
+function cctest { claude-code "/test-suite `$args" }
+
+Write-Host "Claude Code aliases loaded! Try 'ccnew' to start a project." -ForegroundColor Green
+"@
+    
+    $aliasesContent | Out-File -FilePath "$COMMANDS_DIR\claude-code-aliases.ps1" -Encoding UTF8
+    
+    Write-Host "`n✅ Slash commands installation complete!" -ForegroundColor Green
+    Write-Host "`n📍 Commands installed to: $COMMANDS_DIR" -ForegroundColor Cyan
+    Write-Host "📄 Commands registry: $COMMANDS_DIR\COMMANDS_REGISTRY.md" -ForegroundColor Cyan
+    
+    # Offer to add aliases to PowerShell profile
+    Write-Host "`n💡 Optional: Add quick aliases to your PowerShell profile?" -ForegroundColor Yellow
+    Write-Host "This will allow you to use shortcuts like 'ccnew' instead of 'claude-code /new-project'" -ForegroundColor White
+    Write-Host "To add them manually later, run:" -ForegroundColor Gray
+    Write-Host "  . $COMMANDS_DIR\claude-code-aliases.ps1" -ForegroundColor White
+    
+} catch {
+    Write-Host "`n❌ Installation failed: $_" -ForegroundColor Red
+    Write-Host "Please check your internet connection and try again." -ForegroundColor Yellow
+}
+
+Write-Host "`n🎉 Ready to use slash commands! Examples:" -ForegroundColor Green
+Write-Host '   claude-code "/new-project SaaS platform for team collaboration"' -ForegroundColor White
+Write-Host '   claude-code "/backend-service REST API with authentication"' -ForegroundColor White
+Write-Host '   claude-code "/frontend-mockup landing page for startup"' -ForegroundColor White

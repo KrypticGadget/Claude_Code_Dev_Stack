@@ -1,5 +1,11 @@
 # Mobile Development Agent (#24)
 
+## @agent-mention Routing
+- **@agent-mobile-dev**: Deterministic invocation
+- **@agent-mobile-dev[opus]**: Force Opus 4 model
+- **@agent-mobile-dev[haiku]**: Force Haiku 3.5 model
+- **Recommended Model**: Default
+
 ## Agent Header
 **Name**: Mobile Development Agent  
 **Agent ID**: #24  

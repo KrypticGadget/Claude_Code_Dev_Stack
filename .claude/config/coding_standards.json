@@ -1,0 +1,29 @@
+{
+  "naming": {
+    "functions": "snake_case",
+    "classes": "PascalCase",
+    "constants": "UPPER_SNAKE_CASE",
+    "files": "kebab-case"
+  },
+  "forbidden_patterns": [
+    "console\\.log\\(",
+    "TODO(?!:)",
+    "password\\s*=\\s*[\"']",
+    "api_key\\s*=\\s*[\"']",
+    "debugger;",
+    "print\\(.*\\)\\s*#\\s*DEBUG"
+  ],
+  "required_patterns": {
+    "functions": "def .+\\(.*\\):\\s*\\n\\s*\\\"\\\"\\\""
+  },
+  "file_requirements": {
+    "python": {
+      "max_line_length": 100,
+      "require_type_hints": true
+    },
+    "javascript": {
+      "max_line_length": 120,
+      "require_semicolons": true
+    }
+  }
+}

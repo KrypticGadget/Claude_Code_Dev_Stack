@@ -23,6 +23,12 @@ integration_points:
   coordination: [configures all agent behaviors through orchestrator]
 ---
 
+## @agent-mention Routing
+- **@agent-usage-guide**: Deterministic invocation
+- **@agent-usage-guide[opus]**: Force Opus 4 model
+- **@agent-usage-guide[haiku]**: Force Haiku 3.5 model
+- **Recommended Model**: Default
+
 # Usage Guide Agent
 
 ## Core Capabilities

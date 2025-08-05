@@ -1,5 +1,11 @@
 # Quality Assurance Agent (#23)
 
+## @agent-mention Routing
+- **@agent-qa**: Deterministic invocation
+- **@agent-qa[opus]**: Force Opus 4 model
+- **@agent-qa[haiku]**: Force Haiku 3.5 model
+- **Recommended Model**: Haiku
+
 ## Agent Header
 **Name**: Quality Assurance Agent  
 **Agent ID**: #23  
