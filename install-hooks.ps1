@@ -7,7 +7,7 @@ param(
     [switch]$Verbose
 )
 
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"  # Continue on errors
 $ProgressPreference = 'SilentlyContinue'
 
 # Colors for output
@@ -165,19 +165,26 @@ $configFiles = @(
 
 Write-Info "Downloading hook scripts..."
 $downloaded = 0
+$failed = 0
 $total = $hookScripts.Count + $configFiles.Count
 
+# Download hook scripts
+$current = 0
 foreach ($script in $hookScripts) {
+    $current++
     $url = "$baseUrl/.claude/hooks/$script"
     $dest = "$globalHooksDir\hooks\$script"
     
+    Write-Host "[$current/$($hookScripts.Count)] Downloading hook: $script..." -NoNewline
+    
     try {
-        if ($Verbose) { Write-Info "  Downloading $script..." }
-        Invoke-WebRequest -Uri $url -OutFile $dest -UseBasicParsing
+        Invoke-WebRequest -Uri $url -OutFile $dest -UseBasicParsing -TimeoutSec 30
         $downloaded++
-        Write-Progress -Activity "Installing Hooks" -Status "Downloaded $script" -PercentComplete (($downloaded / $total) * 100)
+        Write-Host " ✓" -ForegroundColor Green
     } catch {
-        Write-Warning "  Failed to download $script, creating default..."
+        $failed++
+        Write-Host " ✗" -ForegroundColor Red
+        Write-Host "  Error: $($_.Exception.Message)" -ForegroundColor Red
         
         # Special handling for base_hook.py
         if ($script -eq "base_hook.py") {
@@ -246,17 +253,23 @@ if __name__ == "__main__":
 
 Write-Info "Downloading config files..."
 
+# Download config files
+$current = 0
 foreach ($config in $configFiles) {
+    $current++
     $url = "$baseUrl/.claude/config/$config"
     $dest = "$globalHooksDir\config\$config"
     
+    Write-Host "[$current/$($configFiles.Count)] Downloading config: $config..." -NoNewline
+    
     try {
-        if ($Verbose) { Write-Info "  Downloading $config..." }
-        Invoke-WebRequest -Uri $url -OutFile $dest -UseBasicParsing
+        Invoke-WebRequest -Uri $url -OutFile $dest -UseBasicParsing -TimeoutSec 30
         $downloaded++
-        Write-Progress -Activity "Installing Hooks" -Status "Downloaded $config" -PercentComplete (($downloaded / $total) * 100)
+        Write-Host " ✓" -ForegroundColor Green
     } catch {
-        Write-Warning "  Failed to download $config, creating default..."
+        $failed++
+        Write-Host " ✗" -ForegroundColor Red
+        Write-Host "  Error: $($_.Exception.Message)" -ForegroundColor Red
         
         # Create default configs
         $defaultConfig = switch ($config) {
@@ -302,8 +315,6 @@ foreach ($config in $configFiles) {
         $downloaded++
     }
 }
-
-Write-Progress -Activity "Installing Hooks" -Completed
 
 # Set up environment variables
 Write-Info "Setting up environment variables..."
@@ -473,9 +484,13 @@ $duration = [math]::Round(($endTime - $startTime).TotalSeconds, 1)
 Write-Host ""
 Write-Success "=== Global Installation Complete ==="
 Write-Host ""
+Write-Info "Successfully downloaded: $downloaded/$total files"
+if ($failed -gt 0) {
+    Write-Warning "Failed: $failed files"
+}
 Write-Info "Installed to: $globalHooksDir"
 Write-Info "Settings file: $settingsPath"
-Write-Info "Time taken: ${duration}s"
+Write-Info "Time elapsed: ${duration} seconds"
 Write-Host ""
 Write-Info "Environment variables set:"
 Write-Info "  CLAUDE_HOME = $claudeRoot"

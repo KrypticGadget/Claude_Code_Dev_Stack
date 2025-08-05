@@ -190,7 +190,7 @@ function Install-Component {
         $response = Read-Host "Component '$componentName' appears to be already installed. Skip? (Y/n)"
         if ($response -ne 'n') {
             Write-Log "Skipping $componentName (already installed)" "INFO"
-            return @{ Success = $true; Skipped = $true }
+            return @{ Success = $true; Skipped = $true; Component = $componentName }
         }
     }
     
@@ -211,15 +211,15 @@ function Install-Component {
         if (& $Component.HealthCheck) {
             Write-Log "$componentName installed successfully" "SUCCESS"
             Write-Log "GLOBALLY installed at: $INSTALL_DIR\$componentName" "INFO"
-            return @{ Success = $true; Skipped = $false }
+            return @{ Success = $true; Skipped = $false; Component = $componentName }
         } else {
             Write-Log "$componentName health check failed" "ERROR"
-            return @{ Success = $false; Skipped = $false }
+            return @{ Success = $false; Skipped = $false; Component = $componentName }
         }
         
     } catch {
         Write-Log "Failed to install $componentName`: $_" "ERROR"
-        return @{ Success = $false; Skipped = $false; Error = $_.Exception.Message }
+        return @{ Success = $false; Skipped = $false; Component = $componentName; Error = $_.Exception.Message }
     } finally {
         # Clean up temp file
         if (Test-Path $tempInstaller -ErrorAction SilentlyContinue) {
@@ -257,7 +257,6 @@ function Start-Installation {
         
         for ($i = 0; $i -lt $COMPONENTS.Count; $i++) {
             $result = Install-Component -Component $COMPONENTS[$i] -Index ($i + 1) -Total $COMPONENTS.Count
-            $result.Component = $COMPONENTS[$i].Name
             $results += $result
         }
         

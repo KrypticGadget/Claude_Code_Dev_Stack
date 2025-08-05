@@ -2,13 +2,16 @@
 # Installs: Playwright MCP, Obsidian MCP, and Brave Search MCP
 # Global installation at Claude Code root level
 
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"  # Continue on errors
 $ProgressPreference = 'SilentlyContinue'
 
 Write-Host "=== Tier 1 MCP Global Installer for Claude Code ===" -ForegroundColor Cyan
 Write-Host "Installing: Playwright, Obsidian, and Brave Search MCPs" -ForegroundColor Yellow
 Write-Host "Installation Type: GLOBAL (Available in all projects)" -ForegroundColor Green
 Write-Host ""
+
+# Start timer
+$startTime = Get-Date
 
 # Check for Claude CLI
 Write-Host "[1/6] Checking Claude CLI installation..." -ForegroundColor Green
@@ -104,28 +107,51 @@ $mcps = @(
 )
 
 $installedCount = 0
+$totalMcps = $mcps.Count
+$current = 0
+
 foreach ($mcp in $mcps) {
+    $current++
     Write-Host ""
-    Write-Host "  Installing $($mcp.display)..." -ForegroundColor Yellow
-    Write-Host "  Purpose: $($mcp.description)" -ForegroundColor DarkGray
+    Write-Host "  [$current/$totalMcps] Installing $($mcp.display)..." -NoNewline
     try {
-        # Execute Claude MCP add command
-        $output = & cmd /c $mcp.command 2>&1
-        if ($LASTEXITCODE -eq 0) {
-            Write-Host "  ✓ $($mcp.display) installed globally" -ForegroundColor Green
-            $installedCount++
+        # Execute Claude MCP add command with timeout
+        $job = Start-Job -ScriptBlock {
+            param($command)
+            & cmd /c $command 2>&1
+        } -ArgumentList $mcp.command
+        
+        # Wait for completion with timeout (30 seconds)
+        $completed = Wait-Job -Job $job -Timeout 30
+        
+        if ($completed) {
+            $output = Receive-Job -Job $job
+            Remove-Job -Job $job
             
-            # Create subdirectory for this MCP
-            $mcpSubDir = Join-Path $mcpDir $mcp.name
-            if (-not (Test-Path $mcpSubDir)) {
-                New-Item -ItemType Directory -Path $mcpSubDir -Force | Out-Null
+            if ($job.State -eq 'Completed') {
+                Write-Host " ✓" -ForegroundColor Green
+                Write-Host "    Purpose: $($mcp.description)" -ForegroundColor DarkGray
+                $installedCount++
+                
+                # Create subdirectory for this MCP
+                $mcpSubDir = Join-Path $mcpDir $mcp.name
+                if (-not (Test-Path $mcpSubDir)) {
+                    New-Item -ItemType Directory -Path $mcpSubDir -Force | Out-Null
+                }
+            } else {
+                Write-Host " ✗" -ForegroundColor Red
+                Write-Host "    Error: Installation failed" -ForegroundColor Red
             }
         } else {
-            throw "Installation failed: $output"
+            Stop-Job -Job $job
+            Remove-Job -Job $job
+            Write-Host " ✗" -ForegroundColor Red
+            Write-Host "    Error: Installation timed out (30s)" -ForegroundColor Red
         }
     } catch {
-        Write-Host "  ✗ Failed to install $($mcp.display): $_" -ForegroundColor Red
-        Write-Host "  You can manually install with: $($mcp.command)" -ForegroundColor Yellow
+        Write-Host " ✗" -ForegroundColor Red
+        Write-Host "    Error: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "    Manual install: $($mcp.command)" -ForegroundColor Yellow
     }
 }
 
@@ -212,13 +238,20 @@ try {
     Write-Host "  ✗ Failed to update settings: $_" -ForegroundColor Red
 }
 
+# Calculate elapsed time
+$endTime = Get-Date
+$elapsed = $endTime - $startTime
+$elapsedSeconds = [math]::Round($elapsed.TotalSeconds, 1)
+
 Write-Host ""
 Write-Host "✅ Tier 1 MCPs global installation complete!" -ForegroundColor Green
 Write-Host ""
-Write-Host "Installed $installedCount/3 MCPs globally:" -ForegroundColor Cyan
+Write-Host "Installed $installedCount/$totalMcps MCPs globally:" -ForegroundColor Cyan
 Write-Host "  • Playwright MCP - Browser testing and UI automation" -ForegroundColor White
 Write-Host "  • Obsidian MCP - Knowledge management and documentation" -ForegroundColor White
 Write-Host "  • Brave Search MCP - Web research and market analysis" -ForegroundColor White
+Write-Host ""
+Write-Host "Time elapsed: $elapsedSeconds seconds" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Global MCP Directory: $mcpDir" -ForegroundColor Yellow
 Write-Host "Global Configuration: $mcpConfigPath" -ForegroundColor Yellow

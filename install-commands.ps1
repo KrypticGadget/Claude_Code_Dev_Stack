@@ -2,12 +2,15 @@
 # Version: 2.0
 # Installs 18 slash commands globally to Claude Code root directory
 
-$ErrorActionPreference = "Stop"
-$ProgressPreference = 'Continue'
+$ErrorActionPreference = "Continue"  # Continue on errors
+$ProgressPreference = 'SilentlyContinue'  # Suppress built-in progress bars for speed
 
 Write-Host "Claude Code Global Slash Commands Installer" -ForegroundColor Cyan
 Write-Host "===========================================" -ForegroundColor Cyan
 Write-Host ""
+
+# Start timer
+$startTime = Get-Date
 
 # Function to find Claude Code root installation
 function Find-ClaudeCodeRoot {
@@ -85,17 +88,18 @@ $commandRegistry = @{
 
 foreach ($command in $commands) {
     $completed++
-    $percent = [int](($completed / $totalCommands) * 100)
-    Write-Progress -Activity "Installing Claude Code Commands" -Status "Downloading $command" -PercentComplete $percent
+    
+    # Show progress
+    Write-Host "[$completed/$totalCommands] Downloading command: $command..." -NoNewline
     
     try {
         $url = $baseUrl + $command
         $destination = Join-Path $commandsPath $command
         
-        # Download the file
-        Invoke-WebRequest -Uri $url -OutFile $destination -UseBasicParsing
+        # Download the file with timeout
+        Invoke-WebRequest -Uri $url -OutFile $destination -UseBasicParsing -TimeoutSec 30
         
-        Write-Host "[$completed/$totalCommands] ✓ $command" -ForegroundColor Green
+        Write-Host " ✓" -ForegroundColor Green
         
         # Add to registry
         $commandName = [System.IO.Path]::GetFileNameWithoutExtension($command)
@@ -108,11 +112,10 @@ foreach ($command in $commands) {
     }
     catch {
         $failed++
-        Write-Host "[$completed/$totalCommands] ✗ $command - Error: $_" -ForegroundColor Red
+        Write-Host " ✗" -ForegroundColor Red
+        Write-Host "  Error: $($_.Exception.Message)" -ForegroundColor Red
     }
 }
-
-Write-Progress -Activity "Installing Claude Code Commands" -Completed
 
 # Save command registry
 try {
@@ -138,6 +141,11 @@ if (Test-Path $settingsPath) {
     }
 }
 
+# Calculate elapsed time
+$endTime = Get-Date
+$elapsed = $endTime - $startTime
+$elapsedSeconds = [math]::Round($elapsed.TotalSeconds, 1)
+
 # Summary
 Write-Host ""
 Write-Host "Global Installation Complete!" -ForegroundColor Cyan
@@ -146,6 +154,7 @@ Write-Host "Successfully installed: $($totalCommands - $failed) commands" -Foreg
 if ($failed -gt 0) {
     Write-Host "Failed: $failed commands" -ForegroundColor Red
 }
+Write-Host "Time elapsed: $elapsedSeconds seconds" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Installation Details:" -ForegroundColor Yellow
 Write-Host "  • Claude Code Root: $claudeRoot" -ForegroundColor Yellow
