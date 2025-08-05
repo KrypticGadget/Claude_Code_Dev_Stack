@@ -1,15 +1,29 @@
 #!/bin/bash
 # Tier 1 MCP Installer for macOS
 # Installs: Playwright MCP, Obsidian MCP, and Brave Search MCP
+# Global installation at Claude Code root level
 
 set -e
 
-echo -e "\033[36m=== Tier 1 MCP Installer for Claude Code ===\033[0m"
+echo -e "\033[36m=== Tier 1 MCP Global Installer for Claude Code ===\033[0m"
 echo -e "\033[33mInstalling: Playwright, Obsidian, and Brave Search MCPs\033[0m"
+echo -e "\033[32mInstallation Type: GLOBAL (Available in all projects)\033[0m"
 echo ""
 
+# Check for Claude CLI
+echo -e "\033[32m[1/6] Checking Claude CLI installation...\033[0m"
+if command -v claude >/dev/null 2>&1; then
+    CLAUDE_VERSION=$(claude --version 2>&1 || echo "version unknown")
+    echo -e "  \033[90m✓ Claude CLI detected: $CLAUDE_VERSION\033[0m"
+else
+    echo -e "  \033[31m✗ Claude CLI not found. Please install Claude Code first.\033[0m"
+    echo -e "  \033[33mDownload from: https://claude.ai/download\033[0m"
+    exit 1
+fi
+
 # Check for Node.js and npm
-echo -e "\033[32m[1/5] Checking Node.js/npm installation...\033[0m"
+echo ""
+echo -e "\033[32m[2/6] Checking Node.js/npm installation...\033[0m"
 if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
     NODE_VERSION=$(node --version)
     NPM_VERSION=$(npm --version)
@@ -24,7 +38,7 @@ fi
 
 # Detect Claude Code installation path
 echo ""
-echo -e "\033[32m[2/5] Detecting Claude Code installation...\033[0m"
+echo -e "\033[32m[3/6] Detecting Claude Code installation...\033[0m"
 
 # Common paths for Claude Code on macOS
 CLAUDE_CODE_PATHS=(
@@ -54,51 +68,99 @@ fi
 
 echo -e "  \033[90m✓ Found Claude Code at: $CLAUDE_CODE_PATH\033[0m"
 
-# Create MCP directory
+# Create global MCP directory at Claude Code root
 MCP_DIR="$CLAUDE_CODE_PATH/mcp"
 mkdir -p "$MCP_DIR"
+echo -e "  \033[90m✓ Created global MCP directory: $MCP_DIR\033[0m"
 
-# Install Tier 1 MCPs
+# Install Tier 1 MCPs using Claude CLI
 echo ""
-echo -e "\033[32m[3/5] Installing Tier 1 MCPs...\033[0m"
+echo -e "\033[32m[4/6] Installing Tier 1 MCPs globally...\033[0m"
 
-declare -A MCPS=(
-    ["@modelcontextprotocol/server-playwright"]="Playwright MCP"
-    ["@kreateworld/mcp-obsidian"]="Obsidian MCP"
-    ["@modelcontextprotocol/server-brave-search"]="Brave Search MCP"
+# Define MCPs with their commands
+declare -A MCP_COMMANDS=(
+    ["playwright"]="claude mcp add playwright npx @playwright/mcp@latest"
+    ["obsidian"]="claude mcp add obsidian npx @kreateworld/mcp-obsidian@latest"
+    ["brave-search"]="claude mcp add brave-search npx @modelcontextprotocol/server-brave-search@latest"
 )
 
-for package in "${!MCPS[@]}"; do
-    display_name="${MCPS[$package]}"
-    echo -e "  \033[33mInstalling $display_name...\033[0m"
-    if npm install -g "$package" >/dev/null 2>&1; then
-        echo -e "  \033[90m✓ $display_name installed successfully\033[0m"
+declare -A MCP_NAMES=(
+    ["playwright"]="Playwright MCP"
+    ["obsidian"]="Obsidian MCP"
+    ["brave-search"]="Brave Search MCP"
+)
+
+declare -A MCP_DESCRIPTIONS=(
+    ["playwright"]="Browser testing and UI automation"
+    ["obsidian"]="Knowledge management and documentation"
+    ["brave-search"]="Web research and market analysis"
+)
+
+INSTALLED_COUNT=0
+for mcp_id in "playwright" "obsidian" "brave-search"; do
+    echo ""
+    echo -e "  \033[33mInstalling ${MCP_NAMES[$mcp_id]}...\033[0m"
+    echo -e "  \033[90mPurpose: ${MCP_DESCRIPTIONS[$mcp_id]}\033[0m"
+    
+    # Execute Claude MCP add command
+    if ${MCP_COMMANDS[$mcp_id]} >/dev/null 2>&1; then
+        echo -e "  \033[32m✓ ${MCP_NAMES[$mcp_id]} installed globally\033[0m"
+        ((INSTALLED_COUNT++))
+        
+        # Create subdirectory for this MCP
+        mkdir -p "$MCP_DIR/$mcp_id"
     else
-        echo -e "  \033[31m✗ Failed to install $display_name\033[0m"
-        # Continue with other installations
+        echo -e "  \033[31m✗ Failed to install ${MCP_NAMES[$mcp_id]}\033[0m"
+        echo -e "  \033[33mYou can manually install with: ${MCP_COMMANDS[$mcp_id]}\033[0m"
     fi
 done
 
-# Download tier1-universal.json configuration
+# Create global MCP configuration
 echo ""
-echo -e "\033[32m[4/5] Downloading MCP configuration...\033[0m"
-CONFIG_URL="https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/mcp-configs/tier1-universal.json"
-CONFIG_PATH="$MCP_DIR/tier1-universal.json"
+echo -e "\033[32m[5/6] Creating global MCP configuration...\033[0m"
 
-if curl -s -o "$CONFIG_PATH" "$CONFIG_URL"; then
-    echo -e "  \033[90m✓ Configuration downloaded successfully\033[0m"
-else
-    echo -e "  \033[31m✗ Failed to download configuration\033[0m"
-    exit 1
-fi
+# Create mcp-config.json
+MCP_CONFIG_PATH="$CLAUDE_CODE_PATH/mcp-config.json"
+cat > "$MCP_CONFIG_PATH" <<EOF
+{
+  "version": "1.0",
+  "global": true,
+  "mcps": {
+    "playwright": {
+      "name": "playwright",
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"],
+      "description": "Browser testing and UI automation",
+      "enabled": true
+    },
+    "obsidian": {
+      "name": "obsidian",
+      "command": "npx",
+      "args": ["@kreateworld/mcp-obsidian@latest"],
+      "description": "Knowledge management and documentation",
+      "enabled": true
+    },
+    "brave-search": {
+      "name": "brave-search",
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-brave-search@latest"],
+      "description": "Web research and market analysis",
+      "enabled": true
+    }
+  },
+  "installation_date": "$(date +'%Y-%m-%d %H:%M:%S')",
+  "installed_count": $INSTALLED_COUNT
+}
+EOF
+
+echo -e "  \033[90m✓ Created global MCP configuration: $MCP_CONFIG_PATH\033[0m"
 
 # Update Claude Code settings
 echo ""
-echo -e "\033[32m[5/5] Updating Claude Code settings...\033[0m"
+echo -e "\033[32m[6/6] Updating Claude Code global settings...\033[0m"
 
 # Create temporary file for JSON processing
 TEMP_SETTINGS=$(mktemp)
-TEMP_CONFIG=$(mktemp)
 
 # Ensure settings file exists with valid JSON
 if [ -f "$SETTINGS_PATH" ]; then
@@ -107,7 +169,7 @@ else
     echo '{}' > "$TEMP_SETTINGS"
 fi
 
-# Merge configurations using Python (more reliable JSON handling)
+# Update settings using Python (more reliable JSON handling)
 python3 - <<EOF
 import json
 import sys
@@ -118,17 +180,20 @@ try:
         content = f.read().strip()
         settings = json.loads(content) if content else {}
     
-    # Read tier1 configuration
-    with open('$CONFIG_PATH', 'r') as f:
-        tier1_config = json.load(f)
+    # Update global MCP settings
+    if 'globalSettings' not in settings:
+        settings['globalSettings'] = {}
     
-    # Ensure mcpServers section exists
+    settings['globalSettings']['mcpEnabled'] = True
+    settings['globalSettings']['mcpDirectory'] = '$MCP_DIR'
+    settings['globalSettings']['mcpConfigPath'] = '$MCP_CONFIG_PATH'
+    settings['globalSettings']['mcpToolLimit'] = 5
+    
+    # Note: MCPs are now managed globally by Claude CLI
     if 'mcpServers' not in settings:
-        settings['mcpServers'] = {}
-    
-    # Merge MCP configurations
-    if 'mcpServers' in tier1_config:
-        settings['mcpServers'].update(tier1_config['mcpServers'])
+        settings['mcpServers'] = {
+            "_comment": "MCPs are now managed globally via 'claude mcp' commands"
+        }
     
     # Write updated settings
     with open('$SETTINGS_PATH', 'w') as f:
@@ -141,14 +206,13 @@ except Exception as e:
 EOF
 
 if [ $? -eq 0 ]; then
-    echo -e "  \033[90m✓ Claude Code settings updated successfully\033[0m"
+    echo -e "  \033[90m✓ Claude Code global settings updated successfully\033[0m"
 else
     echo -e "  \033[31m✗ Failed to update settings\033[0m"
-    exit 1
 fi
 
 # Cleanup
-rm -f "$TEMP_SETTINGS" "$TEMP_CONFIG"
+rm -f "$TEMP_SETTINGS"
 
 # Check if running on Apple Silicon
 if [[ $(uname -m) == "arm64" ]]; then
@@ -159,11 +223,15 @@ if [[ $(uname -m) == "arm64" ]]; then
 fi
 
 echo ""
-echo -e "\033[32m✅ Tier 1 MCPs installation complete!\033[0m"
+echo -e "\033[32m✅ Tier 1 MCPs global installation complete!\033[0m"
 echo ""
-echo -e "\033[36mInstalled MCPs:\033[0m"
-echo -e "  • Playwright MCP - Web automation and testing"
-echo -e "  • Obsidian MCP - Note-taking integration"
-echo -e "  • Brave Search MCP - Web search capabilities"
+echo -e "\033[36mInstalled $INSTALLED_COUNT/3 MCPs globally:\033[0m"
+echo -e "  • Playwright MCP - Browser testing and UI automation"
+echo -e "  • Obsidian MCP - Knowledge management and documentation"
+echo -e "  • Brave Search MCP - Web research and market analysis"
 echo ""
+echo -e "\033[33mGlobal MCP Directory: $MCP_DIR\033[0m"
+echo -e "\033[33mGlobal Configuration: $MCP_CONFIG_PATH\033[0m"
+echo ""
+echo -e "\033[32m⚡ MCPs are now available in ALL projects!\033[0m"
 echo -e "\033[33mPlease restart Claude Code to activate the MCPs.\033[0m"

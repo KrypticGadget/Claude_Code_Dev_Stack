@@ -1,5 +1,6 @@
-# Claude Code Dev Stack - Master Installer (Windows PowerShell)
-# Installs all 4 components: agents, commands, MCPs, and hooks
+# Claude Code Dev Stack - GLOBAL Master Installer (Windows PowerShell)
+# ONE-TIME GLOBAL installation at Claude Code ROOT directory
+# After installation, ALL components work in ANY project directory
 # Features: progress tracking, error handling, health checks, rollback, retry logic
 
 $ErrorActionPreference = "Stop"
@@ -8,7 +9,7 @@ $ProgressPreference = "SilentlyContinue"
 # Script configuration
 $SCRIPT_VERSION = "2.1.0"
 $GITHUB_BASE = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main"
-$INSTALL_DIR = "$env:USERPROFILE\.claude-code"
+$INSTALL_DIR = "$env:USERPROFILE\.claude-code"  # GLOBAL Claude Code ROOT directory
 $LOG_DIR = "$INSTALL_DIR\.claude\logs"
 $BACKUP_DIR = "$INSTALL_DIR\.claude\backups"
 $TIMESTAMP = Get-Date -Format "yyyyMMdd_HHmmss"
@@ -49,9 +50,10 @@ function Initialize-Logging {
     # Start transcript
     Start-Transcript -Path $LOG_FILE -Force
     
-    Write-Log "Claude Code Dev Stack Master Installer v$SCRIPT_VERSION" "INFO"
-    Write-Log "Installation started at $(Get-Date)" "INFO"
-    Write-Log "Install directory: $INSTALL_DIR" "INFO"
+    Write-Log "Claude Code Dev Stack GLOBAL Master Installer v$SCRIPT_VERSION" "INFO"
+    Write-Log "ONE-TIME GLOBAL installation started at $(Get-Date)" "INFO"
+    Write-Log "GLOBAL install directory (Claude Code ROOT): $INSTALL_DIR" "INFO"
+    Write-Log "After installation, ALL features work in ANY project directory!" "SUCCESS"
 }
 
 # Logging function
@@ -208,6 +210,7 @@ function Install-Component {
         Start-Sleep -Seconds 2
         if (& $Component.HealthCheck) {
             Write-Log "$componentName installed successfully" "SUCCESS"
+            Write-Log "GLOBALLY installed at: $INSTALL_DIR\$componentName" "INFO"
             return @{ Success = $true; Skipped = $false }
         } else {
             Write-Log "$componentName health check failed" "ERROR"
@@ -234,7 +237,12 @@ function Start-Installation {
         # Initialize
         Initialize-Logging
         Write-Host ""
-        Write-Host "🚀 Claude Code Dev Stack - Master Installer v$SCRIPT_VERSION" -ForegroundColor Cyan
+        Write-Host "🚀 Claude Code Dev Stack - GLOBAL Master Installer v$SCRIPT_VERSION" -ForegroundColor Cyan
+        Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+        Write-Host ""
+        Write-Host "🌍 ONE-TIME GLOBAL INSTALLATION" -ForegroundColor Yellow
+        Write-Host "   Installing to Claude Code ROOT: $INSTALL_DIR" -ForegroundColor White
+        Write-Host "   After installation, ALL components work in ANY project!" -ForegroundColor Green
         Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
         
         # Check for updates
@@ -297,15 +305,55 @@ function Start-Installation {
         } else {
             Write-Log "All components installed successfully!" "SUCCESS"
             
+            # Run verification script
+            Write-Host ""
+            Write-Log "Running installation verification..." "INFO"
+            try {
+                $verifyScript = "$INSTALL_DIR\verification\verify-installation.ps1"
+                if (Test-Path $verifyScript) {
+                    & powershell -ExecutionPolicy Bypass -File $verifyScript
+                } else {
+                    # Download and run verification script
+                    $verifyContent = Download-WithRetry -Url "$GITHUB_BASE/verification/verify-installation.ps1" -Description "verification script"
+                    $tempVerify = "$env:TEMP\verify-installation.ps1"
+                    Set-Content -Path $tempVerify -Value $verifyContent -Encoding UTF8
+                    & powershell -ExecutionPolicy Bypass -File $tempVerify
+                    Remove-Item $tempVerify -Force -ErrorAction SilentlyContinue
+                }
+            } catch {
+                Write-Log "Verification script not available" "WARNING"
+            }
+            
+            # Show global directory structure
+            Write-Host ""
+            Write-Host "📁 GLOBAL Installation Directory Structure:" -ForegroundColor Cyan
+            Write-Host "   $INSTALL_DIR\" -ForegroundColor White
+            Write-Host "   ├── agents\           # 28 AI agents (@agent- commands)" -ForegroundColor Gray
+            Write-Host "   ├── commands\         # 18 slash commands" -ForegroundColor Gray
+            Write-Host "   ├── mcp-configs\      # MCP configurations" -ForegroundColor Gray
+            Write-Host "   └── .claude\          # Hooks and settings" -ForegroundColor Gray
+            Write-Host "       └── hooks\        # Execution hooks" -ForegroundColor Gray
+            
             # Post-installation steps
+            Write-Host ""
+            Write-Host "✅ GLOBAL INSTALLATION COMPLETE!" -ForegroundColor Green
+            Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
             Write-Host ""
             Write-Host "🎯 Next Steps:" -ForegroundColor Yellow
             Write-Host "1. Install MCPs manually:" -ForegroundColor White
             Write-Host "   claude mcp add playwright npx @playwright/mcp@latest" -ForegroundColor Gray
             Write-Host "   claude mcp add obsidian" -ForegroundColor Gray
             Write-Host "   claude mcp add brave-search" -ForegroundColor Gray
+            Write-Host ""
             Write-Host "2. Restart Claude Code to activate all features" -ForegroundColor White
-            Write-Host "3. Try: @agent-master-orchestrator[opus] plan a new project" -ForegroundColor White
+            Write-Host ""
+            Write-Host "3. Test from ANY directory:" -ForegroundColor White
+            Write-Host "   cd C:\MyProject" -ForegroundColor Gray
+            Write-Host "   # Then use any command:" -ForegroundColor DarkGray
+            Write-Host "   @agent-master-orchestrator[opus] plan a new project" -ForegroundColor Gray
+            Write-Host "   /new-project MyApp" -ForegroundColor Gray
+            Write-Host ""
+            Write-Host "🌍 All components are GLOBALLY available - work from ANY project!" -ForegroundColor Green
             Write-Host ""
         }
         

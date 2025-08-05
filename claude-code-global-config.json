@@ -1,0 +1,213 @@
+{
+  "claude_code_config": {
+    "version": "2.1",
+    "installation_type": "global",
+    "last_updated": "${timestamp}",
+    "global_components": {
+      "agents": {
+        "enabled": true,
+        "path": "${CLAUDE_HOME}/agents",
+        "count": 28,
+        "registry": "${CLAUDE_HOME}/agent-config.yaml",
+        "features": {
+          "auto_complete": true,
+          "show_in_menu": true,
+          "deterministic_routing": true,
+          "model_selection": ["opus", "haiku", "default"]
+        },
+        "installed_agents": [
+          "api-integration-specialist",
+          "backend-services",
+          "business-analyst",
+          "business-tech-alignment",
+          "ceo-strategy",
+          "database-architecture",
+          "development-prompt",
+          "financial-analyst",
+          "frontend-architecture",
+          "frontend-mockup",
+          "integration-setup",
+          "master-orchestrator",
+          "middleware-specialist",
+          "performance-optimization",
+          "production-frontend",
+          "project-manager",
+          "prompt-engineer",
+          "quality-assurance",
+          "script-automation",
+          "security-architecture",
+          "technical-cto",
+          "technical-documentation",
+          "technical-specifications",
+          "testing-automation",
+          "ui-ux-design",
+          "usage-guide-agent"
+        ]
+      },
+      "commands": {
+        "enabled": true,
+        "path": "${CLAUDE_HOME}/commands",
+        "count": 18,
+        "registry": "${CLAUDE_HOME}/commands-registry.json",
+        "features": {
+          "global_access": true,
+          "auto_suggest": true,
+          "inline_help": true
+        },
+        "installed_commands": [
+          "/api-integration",
+          "/backend-service",
+          "/business-analysis",
+          "/database-design",
+          "/documentation",
+          "/financial-model",
+          "/frontend-mockup",
+          "/go-to-market",
+          "/middleware-setup",
+          "/new-project",
+          "/production-frontend",
+          "/project-plan",
+          "/prompt-enhance",
+          "/requirements",
+          "/resume-project",
+          "/site-architecture",
+          "/tech-alignment",
+          "/technical-feasibility"
+        ]
+      },
+      "mcps": {
+        "enabled": true,
+        "path": "${CLAUDE_HOME}/mcp",
+        "config": "${CLAUDE_HOME}/mcp-config.json",
+        "desktop_config": "${CLAUDE_HOME}/claude_desktop_config.json",
+        "limit": 5,
+        "tier1_installed": [
+          {
+            "name": "playwright",
+            "command": "npx -y @modelcontextprotocol/server-playwright",
+            "status": "active"
+          },
+          {
+            "name": "obsidian",
+            "command": "npx -y @marcode.studio/mcp-obsidian",
+            "vault_path": "${OBSIDIAN_VAULT_PATH}",
+            "status": "active"
+          },
+          {
+            "name": "brave-search",
+            "command": "npx -y @modelcontextprotocol/server-brave-search",
+            "api_key": "${BRAVE_SEARCH_API_KEY}",
+            "status": "active"
+          }
+        ],
+        "global_settings": {
+          "mcpToolLimit": 5,
+          "autoStart": true,
+          "errorHandling": "graceful"
+        }
+      },
+      "hooks": {
+        "enabled": true,
+        "path": "${CLAUDE_HOME}/.claude-global/hooks",
+        "config": "${CLAUDE_HOME}/.claude-global/config",
+        "state": "${CLAUDE_HOME}/.claude-global/state",
+        "logs": "${CLAUDE_HOME}/.claude-global/logs",
+        "settings_path": "${CLAUDE_HOME}/settings.json",
+        "features": {
+          "session_persistence": true,
+          "quality_gates": true,
+          "agent_routing": true,
+          "model_tracking": true,
+          "mcp_gateway": true,
+          "microcompact_aware": true
+        },
+        "installed_hooks": [
+          "base_hook.py",
+          "agent_mention_parser.py",
+          "session_loader.py",
+          "session_saver.py",
+          "quality_gate.py",
+          "planning_trigger.py",
+          "agent_orchestrator.py",
+          "model_tracker.py",
+          "mcp_gateway.py"
+        ],
+        "environment_variables": {
+          "CLAUDE_HOME": "${CLAUDE_HOME}",
+          "CLAUDE_PYTHON": "${CLAUDE_PYTHON}",
+          "CLAUDE_PROJECT_DIR": "${dynamic}",
+          "CLAUDE_SESSION_ID": "${dynamic}",
+          "CLAUDE_HOOKS_DIR": "${CLAUDE_HOME}/.claude-global/hooks"
+        }
+      }
+    },
+    "verification": {
+      "installation_tests": {
+        "agents": {
+          "test_command": "@agent-backend-services",
+          "expected_result": "agent routing successful"
+        },
+        "commands": {
+          "test_command": "/new-project",
+          "expected_result": "command recognized"
+        },
+        "mcps": {
+          "test_command": "claude mcp list",
+          "expected_result": "3 MCPs installed"
+        },
+        "hooks": {
+          "test_command": "session persistence",
+          "expected_result": "hooks active"
+        }
+      },
+      "health_checks": {
+        "check_interval": 3600,
+        "auto_repair": true,
+        "notify_on_failure": true
+      }
+    },
+    "deployment": {
+      "github_repo": "https://github.com/KrypticGadget/Claude_Code_Dev_Stack",
+      "branch": "main",
+      "auto_update": {
+        "enabled": false,
+        "check_interval": 86400,
+        "notify_before_update": true
+      }
+    },
+    "platform_specific": {
+      "windows": {
+        "claude_paths": [
+          "%LOCALAPPDATA%\\Programs\\Claude",
+          "%APPDATA%\\Claude",
+          "%USERPROFILE%\\.claude"
+        ],
+        "python_commands": ["python", "py", "python3"]
+      },
+      "macos": {
+        "claude_paths": [
+          "~/Library/Application Support/Claude",
+          "/Applications/Claude.app",
+          "~/.claude"
+        ],
+        "python_commands": ["python3", "python"]
+      },
+      "linux": {
+        "claude_paths": [
+          "~/.config/Claude",
+          "~/.claude",
+          "/opt/Claude"
+        ],
+        "python_commands": ["python3", "python"]
+      },
+      "wsl": {
+        "claude_paths": [
+          "/mnt/c/Users/$USER/AppData/Roaming/Claude",
+          "/mnt/c/Users/$USER/.claude",
+          "~/.claude"
+        ],
+        "python_commands": ["python3", "python"]
+      }
+    }
+  }
+}

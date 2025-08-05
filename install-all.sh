@@ -1,6 +1,7 @@
 #!/bin/bash
-# Claude Code Dev Stack - Master Installer (Ubuntu/WSL)
-# Installs all 4 components: agents, commands, MCPs, and hooks
+# Claude Code Dev Stack - GLOBAL Master Installer (Ubuntu/WSL)
+# ONE-TIME GLOBAL installation at Claude Code ROOT directory
+# After installation, ALL components work in ANY project directory
 # Features: progress tracking, error handling, health checks, rollback, retry logic
 
 set -euo pipefail
@@ -8,7 +9,7 @@ set -euo pipefail
 # Script configuration
 SCRIPT_VERSION="2.1.0"
 GITHUB_BASE="https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main"
-INSTALL_DIR="$HOME/.claude-code"
+INSTALL_DIR="$HOME/.claude-code"  # GLOBAL Claude Code ROOT directory
 LOG_DIR="$INSTALL_DIR/.claude/logs"
 BACKUP_DIR="$INSTALL_DIR/.claude/backups"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
@@ -201,6 +202,7 @@ install_component() {
             sleep 2
             if health_check "$health_file"; then
                 log SUCCESS "$component installed successfully"
+                log INFO "GLOBALLY installed at: $INSTALL_DIR/$component"
                 rm -f "$temp_installer"
                 return 0
             else
@@ -244,11 +246,17 @@ main() {
     exec 2>&1
     
     echo
-    echo -e "${CYAN}🚀 Claude Code Dev Stack - Master Installer v$SCRIPT_VERSION${NC}"
+    echo -e "${CYAN}🚀 Claude Code Dev Stack - GLOBAL Master Installer v$SCRIPT_VERSION${NC}"
+    echo -e "${GRAY}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo
+    echo -e "${YELLOW}🌍 ONE-TIME GLOBAL INSTALLATION${NC}"
+    echo -e "   Installing to Claude Code ROOT: ${WHITE}$INSTALL_DIR${NC}"
+    echo -e "   ${GREEN}After installation, ALL components work in ANY project!${NC}"
     echo -e "${GRAY}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     
-    log INFO "Installation started at $(date)"
-    log INFO "Install directory: $INSTALL_DIR"
+    log INFO "ONE-TIME GLOBAL installation started at $(date)"
+    log INFO "GLOBAL install directory (Claude Code ROOT): $INSTALL_DIR"
+    log SUCCESS "After installation, ALL features work in ANY project directory!"
     
     # Check for updates
     check_updates
@@ -315,15 +323,53 @@ main() {
     else
         log SUCCESS "All components installed successfully!"
         
+        # Run verification script
+        echo
+        log INFO "Running installation verification..."
+        if [[ -f "$INSTALL_DIR/verification/verify-installation.sh" ]]; then
+            bash "$INSTALL_DIR/verification/verify-installation.sh"
+        else
+            # Download and run verification script
+            local verify_script="/tmp/verify-installation.sh"
+            if download_with_retry "$GITHUB_BASE/verification/verify-installation.sh" "verification script" 3 "$verify_script"; then
+                chmod +x "$verify_script"
+                bash "$verify_script"
+                rm -f "$verify_script"
+            else
+                log WARNING "Verification script not available"
+            fi
+        fi
+        
+        # Show global directory structure
+        echo
+        echo -e "${CYAN}📁 GLOBAL Installation Directory Structure:${NC}"
+        echo -e "   ${WHITE}$INSTALL_DIR/${NC}"
+        echo -e "   ${GRAY}├── agents/           # 28 AI agents (@agent- commands)${NC}"
+        echo -e "   ${GRAY}├── commands/         # 18 slash commands${NC}"
+        echo -e "   ${GRAY}├── mcp-configs/      # MCP configurations${NC}"
+        echo -e "   ${GRAY}└── .claude/          # Hooks and settings${NC}"
+        echo -e "       ${GRAY}└── hooks/        # Execution hooks${NC}"
+        
         # Post-installation steps
+        echo
+        echo -e "${GREEN}✅ GLOBAL INSTALLATION COMPLETE!${NC}"
+        echo -e "${GRAY}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
         echo
         echo -e "${YELLOW}🎯 Next Steps:${NC}"
         echo -e "${NC}1. Install MCPs manually:${NC}"
         echo -e "${GRAY}   claude mcp add playwright npx @playwright/mcp@latest${NC}"
         echo -e "${GRAY}   claude mcp add obsidian${NC}"
         echo -e "${GRAY}   claude mcp add brave-search${NC}"
+        echo
         echo -e "${NC}2. Restart Claude Code to activate all features${NC}"
-        echo -e "${NC}3. Try: @agent-master-orchestrator[opus] plan a new project${NC}"
+        echo
+        echo -e "${NC}3. Test from ANY directory:${NC}"
+        echo -e "${GRAY}   cd ~/my-project${NC}"
+        echo -e "${GRAY}   # Then use any command:${NC}"
+        echo -e "${GRAY}   @agent-master-orchestrator[opus] plan a new project${NC}"
+        echo -e "${GRAY}   /new-project MyApp${NC}"
+        echo
+        echo -e "${GREEN}🌍 All components are GLOBALLY available - work from ANY project!${NC}"
         echo
         
         # Create quick access alias
@@ -331,6 +377,7 @@ main() {
             if ! grep -q "alias cchelp" "$HOME/.bashrc"; then
                 echo "alias cchelp='cat $INSTALL_DIR/QUICK_REFERENCE_V2.1.txt'" >> "$HOME/.bashrc"
                 log SUCCESS "Added 'cchelp' alias to .bashrc"
+                echo -e "${GRAY}   Type 'cchelp' for quick reference guide${NC}"
             fi
         fi
     fi
