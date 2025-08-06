@@ -1,45 +1,20 @@
 {
   "mcpServers": {
-    "filesystem": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "~/Documents"]
-    },
-    "github": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+    "_comment": "MCP servers must be installed using 'claude mcp add' commands",
+    "_instructions": {
+      "playwright": {
+        "unix": "claude mcp add playwright npx '@playwright/mcp@latest'",
+        "windows": "claude mcp add playwright -- cmd /c npx '@playwright/mcp@latest'"
+      },
+      "brave-search": {
+        "unix": "claude mcp add brave-search --env BRAVE_API_KEY=YOUR_KEY -- npx -y @modelcontextprotocol/server-brave-search",
+        "windows": "claude mcp add brave-search --env BRAVE_API_KEY=YOUR_KEY -- cmd /c npx -y @modelcontextprotocol/server-brave-search"
+      },
+      "obsidian": {
+        "setup": "Install Obsidian plugin from Community Plugins, enable HTTP server",
+        "connect": "Run Obsidian desktop, then in Claude Code use /ide to connect"
       }
     },
-    "google-drive": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-gdrive"]
-    },
-    "postgres": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-postgres"],
-      "env": {
-        "DATABASE_URL": "${DATABASE_URL}"
-      }
-    },
-    "memory": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-memory"]
-    },
-    "puppeteer": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-puppeteer"]
-    },
-    "brave-search": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
-      "env": {
-        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
-      }
-    },
-    "fetch": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-fetch"]
-    }
+    "_note": "This file is for reference only. Actual MCP configuration is managed by Claude Code CLI."
   }
 }

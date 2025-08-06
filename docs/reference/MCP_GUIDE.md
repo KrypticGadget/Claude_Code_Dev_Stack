@@ -1,437 +1,253 @@
-# MCP (Model Context Protocol) Integration Guide
-
-Complete guide to the 3 MCP integrations in Claude Code Dev Stack: Playwright, Obsidian, and Brave Search.
+# MCP (Model Context Protocol) Guide - Claude Code Dev Stack
 
 ## Overview
 
-MCPs extend Claude's capabilities with specialized tools for web automation, knowledge management, and internet search.
+The Claude Code Dev Stack uses a minimal set of 3 essential MCPs that cover 95% of development needs:
+- **Playwright** - Browser automation and testing
+- **Obsidian** - Knowledge management
+- **Brave Search** - Web research
 
-### Available MCPs
+## Why Only 3 MCPs?
 
-1. **Playwright** - Web automation and testing
-2. **Obsidian** - Knowledge base integration
-3. **Brave Search** - Web search capabilities
+### The 3-5 MCP Rule
+Based on real-world usage patterns:
+- **90% of tasks** need only these 3 MCPs
+- **More MCPs = More complexity** without proportional benefit
+- **Agents handle the logic**, MCPs handle external connections
 
-## Playwright MCP
+### What These 3 Cover
+- **Testing**: Playwright handles all browser-based testing
+- **Knowledge**: Obsidian manages your documentation and notes
+- **Research**: Brave Search provides current information
 
-### Purpose
-Automate web browsers for testing, scraping, and interaction with web applications.
+### What You DON'T Need
+❌ File system MCP - Claude Code already has file access
+❌ Git MCP - Use Claude Code's built-in git integration
+❌ Multiple database MCPs - Your agents handle SQL generation
+❌ Dozens of API MCPs - Most APIs work better through agents
 
-### Capabilities
-- Browser automation (Chrome, Firefox, Safari)
-- Web scraping and data extraction
-- Automated testing of web applications
-- Screenshot capture and visual regression
-- Form filling and interaction
-- Multi-page workflows
+## Installation
 
-### Installation
+### Quick Start (All Platforms)
 ```bash
-# Install Playwright MCP
-npm install @anthropic/mcp-playwright
+# 1. Playwright
+claude mcp add playwright npx '@playwright/mcp@latest'
 
-# Install browsers
-npx playwright install
+# 2. Brave Search (requires API key)
+claude mcp add brave-search --env BRAVE_API_KEY=YOUR_KEY \
+  -- npx -y @modelcontextprotocol/server-brave-search
+
+# 3. Obsidian (requires desktop app)
+# In Claude Code:
+/ide
+# Select "Obsidian" from the list
 ```
 
-### Usage Examples
-
-#### Basic Web Automation
-```javascript
-// Navigate and interact with a website
-await playwright.navigate('https://example.com');
-await playwright.click('button#submit');
-await playwright.fill('input#email', 'user@example.com');
-```
-
-#### Web Scraping
-```javascript
-// Extract data from a webpage
-const data = await playwright.evaluate(() => {
-  return {
-    title: document.title,
-    headers: Array.from(document.querySelectorAll('h1')).map(h => h.textContent),
-    links: Array.from(document.querySelectorAll('a')).map(a => ({
-      text: a.textContent,
-      href: a.href
-    }))
-  };
-});
-```
-
-#### Visual Testing
-```javascript
-// Capture screenshots for comparison
-await playwright.screenshot({ path: 'homepage.png' });
-await playwright.screenshot({ 
-  path: 'mobile-view.png',
-  viewport: { width: 375, height: 812 }
-});
-```
-
-### Integration with Agents
-
-Playwright MCP works seamlessly with:
-- **testing-automation**: Automated E2E testing
-- **frontend-mockup**: Visual verification
-- **quality-assurance**: Cross-browser testing
-- **api-integration-specialist**: Web API testing
-
-### Best Practices
-1. Use page objects for maintainable tests
-2. Implement proper wait strategies
-3. Handle errors gracefully
-4. Clean up browser instances
-5. Use headless mode for CI/CD
-
-## Obsidian MCP
-
-### Purpose
-Integrate with Obsidian knowledge bases for documentation, note-taking, and knowledge management.
-
-### Capabilities
-- Read and write Markdown notes
-- Search across knowledge base
-- Create linked documentation
-- Manage project notes
-- Build documentation wikis
-- Sync with code repositories
-
-### Installation
+### Windows-Specific Commands
 ```bash
-# Install Obsidian MCP
-npm install @anthropic/mcp-obsidian
+# Windows users must use cmd wrapper:
+claude mcp add playwright -- cmd /c npx '@playwright/mcp@latest'
 
-# Configure vault path
-export OBSIDIAN_VAULT_PATH="/path/to/your/vault"
+claude mcp add brave-search --env BRAVE_API_KEY=YOUR_KEY \
+  -- cmd /c npx -y @modelcontextprotocol/server-brave-search
 ```
 
-### Configuration
-```json
-{
-  "mcp": {
-    "obsidian": {
-      "vaultPath": "/path/to/vault",
-      "defaultFolder": "Projects",
-      "fileExtension": ".md",
-      "frontmatterTemplate": {
-        "created": "{{date}}",
-        "tags": [],
-        "project": ""
-      }
-    }
-  }
-}
+## The 3 Essential MCPs
+
+### 1. Playwright 🎭
+**Purpose**: Browser automation, web scraping, UI testing
+**When it activates**: Testing web apps, scraping data, automating browser tasks
+**Documentation**: https://github.com/microsoft/playwright-mcp
+
+**Example usage**:
+```
+"Use playwright mcp to test the login flow on our staging site"
+"Open example.com and take a screenshot of the homepage"
+"Fill out the contact form and verify the success message"
 ```
 
-### Usage Examples
+**Key features**:
+- Visible browser mode for manual authentication
+- Cross-browser testing (Chrome, Firefox, Safari)
+- Network interception and console access
+- Screenshot and video recording
+- Mobile device emulation
+- 25 available tools for complete browser control
 
-#### Create Project Documentation
-```javascript
-// Create a new project note
-await obsidian.createNote({
-  title: "Project: E-commerce Platform",
-  folder: "Projects/2024",
-  content: `# E-commerce Platform
-
-## Overview
-Multi-vendor marketplace with real-time inventory
-
-## Architecture
-- Frontend: React + Next.js
-- Backend: Node.js + PostgreSQL
-- Cache: Redis
-- Queue: RabbitMQ
-
-## Progress
-- [x] Initial setup
-- [ ] User authentication
-- [ ] Product catalog
-- [ ] Payment integration`
-});
+**Authentication tip**: Since the browser is visible, you can manually log in when needed:
+```
+"Open the admin panel"
+# Manually enter credentials in the browser
+"Now test the dashboard features"
 ```
 
-#### Search Knowledge Base
-```javascript
-// Search for related documentation
-const results = await obsidian.search({
-  query: "authentication OAuth2",
-  folder: "Technical Docs",
-  limit: 10
-});
+### 2. Obsidian 📝
+**Purpose**: Access your knowledge base, project documentation, notes
+**When it activates**: Retrieving project context, updating documentation
+**Documentation**: https://github.com/iansinnott/obsidian-claude-code-mcp
+
+**Example usage**:
+```
+"Find my notes about the API architecture in Obsidian"
+"Update the project roadmap in my Obsidian vault"
+"What did I document about the authentication flow?"
 ```
 
-#### Link Related Notes
-```javascript
-// Create interconnected documentation
-await obsidian.linkNotes({
-  from: "API Documentation",
-  to: ["Architecture Overview", "Security Guidelines"],
-  bidirectional: true
-});
+**Requirements**:
+- Obsidian desktop app must be running
+- Install plugin from Community Plugins
+- HTTP API server enabled (default port: 22360)
+- Vault must be open
+
+**Multiple vaults**: Configure unique ports for each vault in Obsidian settings
+
+### 3. Brave Search 🔍
+**Purpose**: Real-time web research, finding current information
+**When it activates**: Researching solutions, checking documentation, finding packages
+**Documentation**: https://docs.brave.com/search-api/mcp
+
+**Example usage**:
+```
+"Search for the latest React best practices using brave search"
+"Find recent security vulnerabilities for package X"
+"What's the current recommended way to implement OAuth2?"
 ```
 
-### Integration with Agents
+**Setup**:
+1. Get API key from https://brave.com/search/api/
+2. Free tier includes 2,000 queries/month
+3. Data for AI plans available for higher usage
 
-Obsidian MCP enhances:
-- **technical-documentation**: Structured docs
-- **usage-guide**: User manuals
-- **project-manager**: Project wikis
-- **business-analyst**: Research notes
-- **technical-specifications**: Spec documents
-
-### Templates
-
-#### Project Template
-```markdown
----
-created: {{date}}
-tags: [project, active]
-status: planning
----
-
-# {{title}}
-
-## Project Overview
-[Brief description]
-
-## Objectives
-1. 
-2. 
-3. 
-
-## Technical Stack
-- Frontend: 
-- Backend: 
-- Database: 
-- Infrastructure: 
-
-## Timeline
-- [ ] Phase 1: 
-- [ ] Phase 2: 
-- [ ] Phase 3: 
-
-## Resources
-- [[Architecture Diagram]]
-- [[API Documentation]]
-- [[Deployment Guide]]
-```
-
-### Best Practices
-1. Use consistent naming conventions
-2. Leverage tags for organization
-3. Create template notes
-4. Regular backups
-5. Use wikilinks for navigation
-
-## Brave Search MCP
-
-### Purpose
-Access real-time web search results for research, validation, and current information.
-
-### Capabilities
-- Web search with filters
-- News and current events
-- Technical documentation lookup
-- Package/library research
-- Competitor analysis
-- Market research
-
-### Installation
-```bash
-# Install Brave Search MCP
-npm install @anthropic/mcp-brave-search
-
-# Set API key
-export BRAVE_SEARCH_API_KEY="your-api-key"
-```
-
-### Configuration
-```json
-{
-  "mcp": {
-    "braveSearch": {
-      "apiKey": "${BRAVE_SEARCH_API_KEY}",
-      "defaultCountry": "US",
-      "safeSearch": "moderate",
-      "resultCount": 10
-    }
-  }
-}
-```
-
-### Usage Examples
-
-#### Technical Research
-```javascript
-// Search for technical documentation
-const results = await braveSearch.search({
-  query: "React Server Components best practices 2024",
-  type: "web",
-  freshness: "month"
-});
-```
-
-#### Market Analysis
-```javascript
-// Research competitors
-const competitors = await braveSearch.search({
-  query: "B2B SaaS collaboration tools market leaders",
-  type: "news",
-  count: 20
-});
-```
-
-#### Package Research
-```javascript
-// Find npm packages
-const packages = await braveSearch.search({
-  query: "site:npmjs.com real-time websocket library",
-  type: "web"
-});
-```
-
-### Search Operators
-- `site:` - Search within specific site
+**Search operators**:
+- `site:` - Search specific sites
 - `filetype:` - Find specific file types
-- `"exact phrase"` - Exact match search
+- `"exact phrase"` - Exact match
 - `-exclude` - Exclude terms
-- `OR` - Either term
-- `*` - Wildcard
 
-### Integration with Agents
+## Integration with the 4-Stack System
 
-Brave Search MCP supports:
-- **business-analyst**: Market research
-- **technical-cto**: Tech evaluation
-- **security-architecture**: Vulnerability research
-- **mobile-development**: Platform updates
-- **api-integration-specialist**: API documentation
-
-### Best Practices
-1. Use specific search queries
-2. Apply appropriate filters
-3. Verify information freshness
-4. Cross-reference multiple sources
-5. Cache frequent searches
-
-## MCP Orchestration
-
-### Combining MCPs
-```javascript
-// Example: Research and document a new technology
-
-// 1. Search for information
-const research = await braveSearch.search({
-  query: "WebAssembly performance benchmarks 2024"
-});
-
-// 2. Create documentation
-await obsidian.createNote({
-  title: "WebAssembly Performance Analysis",
-  content: formatResearchResults(research)
-});
-
-// 3. Test example implementations
-await playwright.navigate('https://webassembly.org/demo/');
-const performance = await playwright.evaluate(() => {
-  // Measure performance metrics
-});
+### How MCPs Work with Agents
+```
+User: "Test our checkout flow"
+↓
+@agent-testing-automation: "I'll test the checkout"
+↓
+Playwright MCP: Opens browser, runs tests
+↓
+@agent-quality-assurance: "3 issues found"
 ```
 
-### MCP + Agent Workflows
+### Automatic Activation
+You don't invoke MCPs directly. They activate when needed:
+- Mention "test the website" → Playwright activates
+- Ask about "my notes" → Obsidian activates  
+- Request "search for" → Brave activates
 
-#### Automated Documentation
+### With Hooks
+Hooks can monitor MCP usage:
+```json
+{
+  "PreToolUse": [{
+    "matcher": "mcp__playwright__.*",
+    "hooks": [{
+      "command": "echo 'Browser test started' >> test.log"
+    }]
+  }]
+}
+```
+
+## Configuration Management
+
+### Check Status
 ```bash
-# 1. Research topic
-business-analyst + Brave Search → Market analysis
+# List all MCPs
+claude mcp list
 
-# 2. Document findings  
-technical-documentation + Obsidian → Structured docs
+# Within Claude Code
+/mcp
 
-# 3. Verify examples
-testing-automation + Playwright → Validate code samples
+# Get details
+claude mcp get playwright
 ```
 
-#### Competitive Analysis
+### Remove and Reinstall
 ```bash
-# 1. Find competitors
-Brave Search → Competitor list
+# Remove
+claude mcp remove playwright
 
-# 2. Analyze websites
-Playwright → Feature extraction
-
-# 3. Document analysis
-Obsidian → Competitive matrix
+# Reinstall
+claude mcp add playwright npx '@playwright/mcp@latest'
 ```
+
+### Scopes
+- **Local** (default): Project-specific, private
+- **Project**: Shared via `.mcp.json`
+- **User**: Available across all projects
+
+```bash
+# Add globally
+claude mcp add --scope user playwright npx '@playwright/mcp@latest'
+```
+
+## Best Practices
+
+### 1. Let Context Guide MCP Usage
+Don't force MCP mentions. Natural language works:
+- ✅ "Test the login page"
+- ❌ "Use playwright mcp to test login"
+
+### 2. Combine with Agents
+MCPs work best with agent expertise:
+```
+@agent-testing-automation @agent-security-architect
+"Run security tests on our web app"
+# Playwright MCP will activate automatically
+```
+
+### 3. Use for External Tasks Only
+- ✅ Browser automation (Playwright)
+- ✅ Searching the web (Brave)
+- ✅ Accessing notes (Obsidian)
+- ❌ File operations (use Claude Code)
+- ❌ Code analysis (use agents)
 
 ## Troubleshooting
 
 ### Common Issues
 
-#### Playwright
-- **Browser not found**: Run `npx playwright install`
-- **Timeout errors**: Increase timeout or add wait conditions
-- **Selector not found**: Verify element exists and is visible
+**MCP not found**:
+- Ensure Claude Code CLI is in PATH
+- Restart terminal after installation
+- Check `claude mcp list`
 
-#### Obsidian
-- **Vault not found**: Check OBSIDIAN_VAULT_PATH
-- **Permission denied**: Ensure write permissions
-- **Note conflicts**: Use unique titles or timestamps
+**Playwright Issues**:
+- Browser not opening: Check headless mode setting
+- Timeouts: Increase timeout values
+- Elements not found: Add wait conditions
 
-#### Brave Search
-- **API key invalid**: Verify BRAVE_SEARCH_API_KEY
-- **Rate limited**: Implement caching and throttling
-- **No results**: Broaden search terms
+**Obsidian Connection Failed**:
+- Is Obsidian desktop running?
+- HTTP server enabled in plugin?
+- Port 22360 available?
+- Firewall blocking local connections?
 
-### Debug Mode
-```bash
-# Enable MCP debug logging
-export MCP_DEBUG=true
+**Brave Search No Results**:
+- API key valid and has quota?
+- Rate limits exceeded?
+- Try more specific search terms
 
-# Check MCP status
-npm run mcp:status
+**Windows Specific**:
+- Always use `cmd /c` wrapper for npx
+- Consider WSL for better compatibility
+- Use nvm instead of node installer
 
-# Test individual MCPs
-npm run mcp:test playwright
-npm run mcp:test obsidian
-npm run mcp:test brave-search
-```
+## Summary
 
-## Security Considerations
+The Claude Code Dev Stack's 3-MCP approach:
+- **Playwright** - All browser automation needs
+- **Obsidian** - Your knowledge management
+- **Brave Search** - Current information lookup
 
-### API Keys
-- Store in environment variables
-- Never commit to version control
-- Rotate regularly
-- Use separate keys for dev/prod
+This minimal set integrates perfectly with your 28 agents, 18 commands, and 13 hooks to create a powerful yet simple development environment.
 
-### Data Handling
-- Sanitize search queries
-- Validate Obsidian file paths
-- Secure Playwright sessions
-- Handle sensitive data carefully
-
-### Rate Limiting
-- Brave Search: 2000 queries/month (free tier)
-- Implement caching layer
-- Queue requests appropriately
-- Monitor usage
-
-## Future Enhancements
-
-### Planned MCPs
-- GitHub integration
-- Slack workspace
-- Notion databases
-- Linear issues
-- Figma designs
-
-### Upcoming Features
-- MCP chaining workflows
-- Automated sync between MCPs
-- Enhanced error handling
-- Performance monitoring
-- Usage analytics
-
-Remember: MCPs are powerful tools that extend Claude's capabilities. Use them wisely to enhance productivity while maintaining security and efficiency.
+Remember: **Agents think, MCPs connect, Hooks automate, Commands accelerate.**

@@ -12,44 +12,80 @@
     "prefix": "/"
   },
   "hooks": {
-    "enabled": true,
-    "path": "hooks",
-    "pre_project": {
-      "enabled": true,
-      "script": "pre_project.py"
-    },
-    "post_project": {
-      "enabled": true,
-      "script": "post_project.py"
-    },
-    "pre_command": {
-      "enabled": true,
-      "script": "pre_command.py"
-    },
-    "post_command": {
-      "enabled": true,
-      "script": "post_command.py"
-    }
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/session_loader.py\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/agent_mention_parser.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/quality_gate.py\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/post_command.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/session_saver.py\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/model_tracker.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
   },
   "mcps": {
+    "_comment": "MCPs must be installed via Claude Code CLI - see docs/MCP_INSTALLATION.md",
+    "_note": "Only 3 essential MCPs are recommended: Playwright, Obsidian, and Brave Search",
     "enabled": true,
-    "servers": {
-      "filesystem": {
-        "command": "npx",
-        "args": ["-y", "@modelcontextprotocol/server-filesystem", "~/Documents"]
-      },
-      "github": {
-        "command": "npx",
-        "args": ["-y", "@modelcontextprotocol/server-github"],
-        "env": {
-          "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
-        }
-      },
-      "google-drive": {
-        "command": "npx",
-        "args": ["-y", "@modelcontextprotocol/server-gdrive"]
-      }
-    }
+    "servers": {}
   },
   "preferences": {
     "theme": "dark",
