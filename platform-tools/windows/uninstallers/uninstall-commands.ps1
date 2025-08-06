@@ -1,125 +1,50 @@
-# Claude Code Dev Stack v2.1 - Commands Uninstaller
-# Removes only command files from project and user directories
+#!/usr/bin/env pwsh
+# Claude Code Dev Stack - Commands Uninstaller for Windows
+# Removes command utilities
 
-param(
-    [switch]$Force,
-    [switch]$WhatIf
-)
+Write-Host "`n=== Claude Code Dev Stack - Commands Uninstaller ===" -ForegroundColor Cyan
 
-$ErrorActionPreference = "Stop"
+# Define path
+$commandsPath = "$HOME\.claude-commands"
 
-# Colors
-function Write-Header { param($Text) Write-Host "`n=== $Text ===" -ForegroundColor Cyan }
-function Write-Success { param($Text) Write-Host "✓ $Text" -ForegroundColor Green }
-function Write-Warning { param($Text) Write-Host "⚠ $Text" -ForegroundColor Yellow }
-function Write-Error { param($Text) Write-Host "✗ $Text" -ForegroundColor Red }
-function Write-Info { param($Text) Write-Host "ℹ $Text" -ForegroundColor Blue }
-
-Write-Host "`n⚡ Claude Code Commands Uninstaller" -ForegroundColor Red
-
-# Define paths
-$projectClaudeDir = Join-Path $PWD ".claude"
-$userClaudeDir = Join-Path $env:USERPROFILE ".claude"
-
-# Command files to remove
-$commandFiles = @(
-    "commands/build-frontend.md",
-    "commands/build-backend.md",
-    "commands/setup-database.md",
-    "commands/deploy-app.md",
-    "commands/run-tests.md",
-    "commands/generate-docs.md",
-    "commands/analyze-security.md",
-    "commands/optimize-performance.md",
-    "commands/create-api.md",
-    "commands/design-ui.md"
-)
-
-# Confirmation
-if (-not $Force) {
-    Write-Warning "This will remove 10 command files from:"
-    if (Test-Path $projectClaudeDir) { Write-Host "  • $projectClaudeDir" }
-    if (Test-Path $userClaudeDir) { Write-Host "  • $userClaudeDir" }
-    
-    $confirm = Read-Host "`nProceed? (y/n)"
-    if ($confirm -ne 'y') {
-        Write-Info "Uninstall cancelled"
-        exit 0
-    }
+# Check if commands exist
+if (-not (Test-Path $commandsPath)) {
+    Write-Host "`nCommands directory not found." -ForegroundColor Yellow
+    Write-Host "Nothing to uninstall." -ForegroundColor Green
+    return
 }
 
-Write-Header "Removing Commands"
-$removedCount = 0
-$failedCount = 0
+# Show what will be removed
+Write-Host "`nThis will remove:" -ForegroundColor Yellow
+Write-Host "  - All command utilities at: $commandsPath"
 
-foreach ($file in $commandFiles) {
-    # Check project directory
-    $projectPath = Join-Path $projectClaudeDir $file
-    if (Test-Path $projectPath) {
-        try {
-            if ($WhatIf) {
-                Write-Host "Would remove: $projectPath" -ForegroundColor DarkGray
-            } else {
-                Remove-Item -Path $projectPath -Force
-                Write-Success "Removed: $file (project)"
-            }
-            $removedCount++
-        }
-        catch {
-            Write-Error "Failed to remove: $file (project) - $_"
-            $failedCount++
-        }
-    }
-    
-    # Check user directory
-    $userPath = Join-Path $userClaudeDir $file
-    if (Test-Path $userPath) {
-        try {
-            if ($WhatIf) {
-                Write-Host "Would remove: $userPath" -ForegroundColor DarkGray
-            } else {
-                Remove-Item -Path $userPath -Force
-                Write-Success "Removed: $file (user)"
-            }
-            $removedCount++
-        }
-        catch {
-            Write-Error "Failed to remove: $file (user) - $_"
-            $failedCount++
-        }
-    }
+# Ask for confirmation
+Write-Host "`nThis action cannot be undone!" -ForegroundColor Red
+$confirmation = Read-Host "Are you sure you want to uninstall commands? (yes/no)"
+
+if ($confirmation -ne 'yes') {
+    Write-Host "`nUninstall cancelled." -ForegroundColor Yellow
+    return
 }
 
-# Clean up empty commands directories
-if (-not $WhatIf) {
-    $commandsDirs = @(
-        (Join-Path $projectClaudeDir "commands"),
-        (Join-Path $userClaudeDir "commands")
-    )
-    
-    foreach ($dir in $commandsDirs) {
-        if ((Test-Path $dir) -and (Get-ChildItem $dir -Force).Count -eq 0) {
-            try {
-                Remove-Item -Path $dir -Force
-                Write-Success "Removed empty directory: $dir"
-            }
-            catch {
-                Write-Warning "Could not remove directory: $dir"
-            }
-        }
-    }
+# Remove commands
+Write-Host "`nRemoving commands..." -ForegroundColor Cyan
+try {
+    Remove-Item -Path $commandsPath -Recurse -Force
+    Write-Host "Commands removed successfully!" -ForegroundColor Green
+}
+catch {
+    Write-Host "Error removing commands: $_" -ForegroundColor Red
+    return
 }
 
-# Summary
-Write-Header "Summary"
-Write-Host "Commands removed: $removedCount" -ForegroundColor Green
-if ($failedCount -gt 0) {
-    Write-Host "Failed: $failedCount" -ForegroundColor Red
-    exit 1
-}
+# Clean PATH
+Write-Host "Cleaning PATH environment variable..." -ForegroundColor Yellow
+$currentPath = [Environment]::GetEnvironmentVariable("PATH", [EnvironmentVariableTarget]::User)
+$paths = $currentPath -split ';' | Where-Object { $_ -ne $commandsPath }
+$newPath = $paths -join ';'
+[Environment]::SetEnvironmentVariable("PATH", $newPath, [EnvironmentVariableTarget]::User)
+Write-Host "  PATH cleaned" -ForegroundColor Green
 
-if ($WhatIf) {
-    Write-Info "This was a dry run. No changes were made."
-}
-
-exit 0
+Write-Host "`n=== Commands Uninstall Complete ===" -ForegroundColor Green
+Write-Host "Please restart your terminal for PATH changes to take effect." -ForegroundColor Yellow

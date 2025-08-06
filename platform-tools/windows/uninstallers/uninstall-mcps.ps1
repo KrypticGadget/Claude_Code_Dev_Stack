@@ -1,149 +1,64 @@
-# Claude Code Dev Stack v2.1 - MCPs Uninstaller
-# Removes Tier 1 Model Context Protocol packages
+#!/usr/bin/env pwsh
+# Claude Code Dev Stack - MCP Uninstaller for Windows
+# Removes MCP server configurations
 
-param(
-    [switch]$Force,
-    [switch]$WhatIf
-)
+Write-Host "`n=== Claude Code Dev Stack - MCP Uninstaller ===" -ForegroundColor Cyan
 
-$ErrorActionPreference = "Stop"
+# Define MCP config path
+$mcpConfigPath = "$env:APPDATA\Claude\claude_desktop_config.json"
 
-# Colors
-function Write-Header { param($Text) Write-Host "`n=== $Text ===" -ForegroundColor Cyan }
-function Write-Success { param($Text) Write-Host "✓ $Text" -ForegroundColor Green }
-function Write-Warning { param($Text) Write-Host "⚠ $Text" -ForegroundColor Yellow }
-function Write-Error { param($Text) Write-Host "✗ $Text" -ForegroundColor Red }
-function Write-Info { param($Text) Write-Host "ℹ $Text" -ForegroundColor Blue }
-
-Write-Host "`n🔌 Claude Code MCPs Uninstaller" -ForegroundColor Red
-
-# Tier 1 MCPs to remove
-$mcpNames = @(
-    "playwright-mcp",
-    "obsidian-mcp",
-    "brave-search-mcp"
-)
-
-# Check if claude CLI is available
-$claudeAvailable = Get-Command claude -ErrorAction SilentlyContinue
-
-if (-not $claudeAvailable) {
-    Write-Error "Claude CLI not found. Please install Claude Desktop first."
-    Write-Info "MCPs can only be managed through the Claude CLI."
-    exit 2
+# Check if config exists
+if (-not (Test-Path $mcpConfigPath)) {
+    Write-Host "`nMCP configuration file not found." -ForegroundColor Yellow
+    Write-Host "Nothing to uninstall." -ForegroundColor Green
+    return
 }
 
-# Get list of installed MCPs
-Write-Header "Checking Installed MCPs"
+# Show what will be removed
+Write-Host "`nThis will remove MCP server configurations for:" -ForegroundColor Yellow
+Write-Host "  - filesystem"
+Write-Host "  - github"
+Write-Host "  - git"
+Write-Host "  - postgres"
+Write-Host "  - sqlite"
+
+# Ask for confirmation
+Write-Host "`nThis action cannot be undone!" -ForegroundColor Red
+$confirmation = Read-Host "Are you sure you want to uninstall MCP configurations? (yes/no)"
+
+if ($confirmation -ne 'yes') {
+    Write-Host "`nUninstall cancelled." -ForegroundColor Yellow
+    return
+}
+
+# Clean MCP configuration
+Write-Host "`nCleaning MCP configuration..." -ForegroundColor Cyan
 try {
-    $installedMCPs = & claude mcp list 2>$null | Out-String
-    $foundMCPs = @()
+    $config = Get-Content $mcpConfigPath -Raw | ConvertFrom-Json
     
-    foreach ($mcp in $mcpNames) {
-        if ($installedMCPs -match $mcp) {
-            $foundMCPs += $mcp
-            Write-Info "Found: $mcp"
+    # Remove our MCP servers
+    $servers = @("filesystem", "github", "git", "postgres", "sqlite")
+    $removedCount = 0
+    
+    foreach ($server in $servers) {
+        if ($config.mcpServers.PSObject.Properties[$server]) {
+            $config.mcpServers.PSObject.Properties.Remove($server)
+            Write-Host "  Removed: $server" -ForegroundColor Green
+            $removedCount++
         }
     }
     
-    if ($foundMCPs.Count -eq 0) {
-        Write-Warning "No Tier 1 MCPs found to uninstall"
-        exit 0
+    if ($removedCount -gt 0) {
+        $config | ConvertTo-Json -Depth 10 | Set-Content $mcpConfigPath
+        Write-Host "`nMCP configurations cleaned successfully!" -ForegroundColor Green
+    }
+    else {
+        Write-Host "`nNo MCP configurations found to remove." -ForegroundColor Yellow
     }
 }
 catch {
-    Write-Error "Failed to list MCPs: $_"
-    exit 2
+    Write-Host "Error cleaning MCP configuration: $_" -ForegroundColor Red
+    return
 }
 
-# Confirmation
-if (-not $Force) {
-    Write-Warning "This will remove the following MCPs:"
-    foreach ($mcp in $foundMCPs) {
-        Write-Host "  • $mcp" -ForegroundColor Yellow
-    }
-    
-    $confirm = Read-Host "`nProceed? (y/n)"
-    if ($confirm -ne 'y') {
-        Write-Info "Uninstall cancelled"
-        exit 0
-    }
-}
-
-Write-Header "Removing MCPs"
-$removedCount = 0
-$failedCount = 0
-
-foreach ($mcp in $foundMCPs) {
-    try {
-        if ($WhatIf) {
-            Write-Host "Would remove MCP: $mcp" -ForegroundColor DarkGray
-            $removedCount++
-        } else {
-            Write-Host "Removing $mcp..." -NoNewline
-            $output = & claude mcp remove $mcp 2>&1
-            
-            # Check if removal was successful
-            $checkList = & claude mcp list 2>$null | Out-String
-            if ($checkList -notmatch $mcp) {
-                Write-Host " Done" -ForegroundColor Green
-                Write-Success "Removed: $mcp"
-                $removedCount++
-            } else {
-                Write-Host " Failed" -ForegroundColor Red
-                Write-Error "Failed to remove: $mcp"
-                $failedCount++
-            }
-        }
-    }
-    catch {
-        Write-Error "Failed to remove $mcp`: $_"
-        $failedCount++
-    }
-}
-
-# Additional cleanup for MCP configurations
-if (-not $WhatIf -and $removedCount -gt 0) {
-    Write-Header "Cleaning MCP Configurations"
-    
-    $configPaths = @(
-        "$env:APPDATA\Claude\mcp-configs",
-        "$env:LOCALAPPDATA\Claude\mcp-data"
-    )
-    
-    foreach ($path in $configPaths) {
-        if (Test-Path $path) {
-            foreach ($mcp in $foundMCPs) {
-                $mcpConfig = Join-Path $path $mcp
-                if (Test-Path $mcpConfig) {
-                    try {
-                        Remove-Item -Path $mcpConfig -Recurse -Force
-                        Write-Success "Cleaned config: $mcp"
-                    }
-                    catch {
-                        Write-Warning "Could not clean config for: $mcp"
-                    }
-                }
-            }
-        }
-    }
-}
-
-# Summary
-Write-Header "Summary"
-Write-Host "MCPs removed: $removedCount" -ForegroundColor Green
-if ($failedCount -gt 0) {
-    Write-Host "Failed: $failedCount" -ForegroundColor Red
-    exit 1
-}
-
-if ($WhatIf) {
-    Write-Info "This was a dry run. No changes were made."
-}
-
-# Restart recommendation
-if ($removedCount -gt 0 -and -not $WhatIf) {
-    Write-Info "Please restart Claude Desktop to complete the uninstall."
-}
-
-exit 0
+Write-Host "`n=== MCP Uninstall Complete ===" -ForegroundColor Green

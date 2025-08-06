@@ -1,350 +1,102 @@
 #!/bin/bash
+# Simple Claude Code Agents Installer for macOS
+# Just downloads agent files from GitHub to ~/.claude/agents
 
-# Claude Code Agents Installer for macOS - GLOBAL Installation
-# Downloads and installs 28 AI agents to Claude Code ROOT directory
-# Enables @agent- mentions from ANY project
+# Logging
+LOG_FILE="$HOME/claude_agents.log"
+log() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
+}
 
-set -e
+log "Claude Code Agents Installer"
+log "============================="
+log "Log file: $LOG_FILE"
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-CYAN='\033[0;36m'
-BLUE='\033[0;34m'
-PURPLE='\033[0;35m'
-NC='\033[0m' # No Color
+# Setup paths
+CLAUDE_DIR="$HOME/.claude"
+AGENTS_DIR="$CLAUDE_DIR/agents"
+log "Target directory: $AGENTS_DIR"
 
-# Configuration
-REPO_BASE="https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/Config_Files"
+# Create directories
+log "Setting up directories..."
+if [ ! -d "$CLAUDE_DIR" ]; then
+    log "Creating $CLAUDE_DIR"
+    mkdir -p "$CLAUDE_DIR"
+fi
+if [ ! -d "$AGENTS_DIR" ]; then
+    log "Creating $AGENTS_DIR"
+    mkdir -p "$AGENTS_DIR"
+fi
+log "Directory ready: $AGENTS_DIR"
+
+# List of agent files (NO -agent suffix!)
 AGENTS=(
-    "api-integration-specialist-agent.md"
-    "backend-services-agent.md"
-    "business-analyst-agent.md"
-    "business-tech-alignment-agent.md"
-    "ceo-strategy-agent.md"
-    "database-architecture-agent.md"
-    "development-prompt-agent.md"
-    "devops-engineering-agent.md"
-    "financial-analyst-agent.md"
-    "frontend-architecture-agent.md"
-    "frontend-mockup-agent.md"
-    "integration-setup-agent.md"
-    "master-orchestrator-agent.md"
-    "middleware-specialist-agent.md"
-    "mobile-development-agent.md"
-    "performance-optimization-agent.md"
-    "production-frontend-agent.md"
-    "project-manager-agent.md"
-    "prompt-engineer-agent.md"
-    "quality-assurance-agent.md"
-    "script-automation-agent.md"
-    "security-architecture-agent.md"
-    "technical-cto-agent.md"
-    "technical-documentation-agent.md"
-    "technical-specifications-agent.md"
-    "testing-automation-agent.md"
-    "ui-ux-design-agent.md"
-    "usage-guide-agent.md"
+    "api-integration-specialist.md"
+    "backend-services.md"
+    "business-analyst.md"
+    "business-tech-alignment.md"
+    "ceo-strategy.md"
+    "database-architecture.md"
+    "development-prompt.md"
+    "devops-engineering.md"
+    "financial-analyst.md"
+    "frontend-architecture.md"
+    "frontend-mockup.md"
+    "integration-setup.md"
+    "master-orchestrator.md"
+    "middleware-specialist.md"
+    "mobile-development.md"
+    "performance-optimization.md"
+    "production-frontend.md"
+    "project-manager.md"
+    "prompt-engineer.md"
+    "quality-assurance.md"
+    "script-automation.md"
+    "security-architecture.md"
+    "technical-cto.md"
+    "technical-documentation.md"
+    "technical-specifications.md"
+    "testing-automation.md"
+    "ui-ux-design.md"
+    "usage-guide.md"
 )
 
-echo -e "${CYAN}Claude Code Agents Installer v2.0 for macOS - GLOBAL Installation${NC}"
-echo -e "${CYAN}================================================================${NC}"
-echo -e "${YELLOW}This will install agents GLOBALLY for use in ANY project${NC}"
+BASE_URL="https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/agents"
 
-# Function to detect Claude Code ROOT installation path (not project-specific)
-find_claude_code_root_path() {
-    # Check environment variable first
-    if [ -n "$CLAUDE_CODE_ROOT" ]; then
-        echo -e "${GREEN}Using CLAUDE_CODE_ROOT environment variable: $CLAUDE_CODE_ROOT${NC}"
-        echo "$CLAUDE_CODE_ROOT"
-        return 0
-    fi
-    
-    # Common Claude Code root paths on macOS (NOT project-specific)
-    local possible_paths=(
-        "$HOME/Library/Application Support/Claude"
-        "$HOME/.claude"
-        "$HOME/.claude-code"
-        "$HOME/Library/Application Support/claude-code"
-        "$HOME/.config/Claude"
-        "/Applications/Claude.app/Contents/Resources/app"
-    )
-    
-    for path in "${possible_paths[@]}"; do
-        if [ -d "$path" ]; then
-            # Verify this is the root by checking for config files
-            if [ -f "$path/settings.json" ] || [ -f "$path/config.json" ] || [ -f "$path/.claude" ]; then
-                echo -e "${GREEN}Found Claude Code root directory at: $path${NC}"
-                echo "$path"
-                return 0
-            fi
-        fi
-    done
-    
-    # Create default if not found
-    local default_path="$HOME/Library/Application Support/Claude"
-    echo -e "${YELLOW}Claude Code root not found. Creating at: $default_path${NC}"
-    mkdir -p "$default_path"
-    echo "$default_path"
-}
+log "Downloading ${#AGENTS[@]} agents..."
+SUCCESS=0
+FAILED=0
+COUNT=0
 
-# Check for required commands
-check_requirements() {
-    if ! command -v curl &> /dev/null; then
-        echo -e "${RED}Error: curl is not installed${NC}"
-        echo -e "${YELLOW}Please install with: brew install curl${NC}"
-        exit 1
-    fi
-}
-
-# Show progress with macOS style
-show_progress() {
-    local current=$1
-    local total=$2
-    local width=50
-    local percent=$((current * 100 / total))
-    local filled=$((width * current / total))
+for agent in "${AGENTS[@]}"; do
+    COUNT=$((COUNT + 1))
+    log "[$COUNT/${#AGENTS[@]}] Downloading: $agent"
+    URL="$BASE_URL/$agent"
+    DEST="$AGENTS_DIR/$agent"
     
-    printf "\r${BLUE}Progress: [${NC}"
-    printf "%${filled}s" | tr ' ' '▓'
-    printf "%$((width - filled))s" | tr ' ' '░'
-    printf "${BLUE}] %d%% (%d/%d)${NC}" $percent $current $total
-}
-
-# Function to download with macOS optimizations
-download_agent() {
-    local url=$1
-    local destination=$2
-    local max_retries=3
-    local retry_count=0
+    log "  URL: $URL"
+    log "  Dest: $DEST"
     
-    while [ $retry_count -lt $max_retries ]; do
-        # Use macOS specific curl options for better performance
-        if curl -sL --fail \
-            --connect-timeout 10 \
-            --max-time 30 \
-            --retry 2 \
-            --retry-delay 1 \
-            -H "Accept: text/plain" \
-            -H "User-Agent: Claude-Code-Agent-Installer/1.0 (macOS)" \
-            "$url" -o "$destination" 2>/dev/null; then
-            return 0
-        else
-            ((retry_count++))
-            if [ $retry_count -lt $max_retries ]; then
-                sleep 0.5
-            fi
-        fi
-    done
-    
-    return 1
-}
-
-# Main installation
-main() {
-    check_requirements
-    
-    local claude_root_path=$(find_claude_code_root_path)
-    local agents_dir="$claude_root_path/agents"
-    
-    echo -e "${GREEN}Installing to Claude Code ROOT: $claude_root_path${NC}"
-    
-    # Create agents directory if it doesn't exist
-    if [ ! -d "$agents_dir" ]; then
-        echo -e "${YELLOW}Creating agents directory...${NC}"
-        mkdir -p "$agents_dir"
-    fi
-    
-    # Check disk space
-    local available_space=$(df -k "$claude_path" | awk 'NR==2 {print $4}')
-    if [ "$available_space" -lt 10240 ]; then  # Less than 10MB
-        echo -e "${RED}Warning: Low disk space available${NC}"
-    fi
-    
-    # Download agents with parallel processing for speed
-    local total_agents=${#AGENTS[@]}
-    local downloaded=0
-    local failed_agents=()
-    local start_time=$(date +%s)
-    
-    echo -e "\n${YELLOW}Downloading $total_agents agents...${NC}"
-    
-    # Create temporary directory for parallel downloads
-    local temp_dir=$(mktemp -d)
-    trap "rm -rf $temp_dir" EXIT
-    
-    # Download in batches for better performance
-    local batch_size=5
-    local batch_count=0
-    
-    for agent in "${AGENTS[@]}"; do
-        ((downloaded++))
-        show_progress $downloaded $total_agents
-        
-        local url="$REPO_BASE/$agent"
-        local destination="$agents_dir/$agent"
-        
-        if download_agent "$url" "$destination"; then
-            # Verify file was downloaded
-            if [ -f "$destination" ] && [ -s "$destination" ]; then
-                :  # Success
-            else
-                failed_agents+=("$agent")
-                rm -f "$destination"
-            fi
-        else
-            failed_agents+=("$agent")
-            echo -e "\n${RED}Failed to download: $agent${NC}"
-        fi
-        
-        # Small delay every batch to prevent rate limiting
-        ((batch_count++))
-        if [ $((batch_count % batch_size)) -eq 0 ]; then
-            sleep 0.2
-        fi
-    done
-    
-    # Calculate elapsed time
-    local end_time=$(date +%s)
-    local elapsed=$((end_time - start_time))
-    
-    echo -e "\n\n${CYAN}Installation Summary${NC}"
-    echo -e "${CYAN}===================${NC}"
-    echo -e "Total agents: $total_agents"
-    echo -e "${GREEN}Successfully installed: $((total_agents - ${#failed_agents[@]}))${NC}"
-    echo -e "Time elapsed: ${elapsed}s"
-    
-    if [ ${#failed_agents[@]} -gt 0 ]; then
-        echo -e "${RED}Failed: ${#failed_agents[@]}${NC}"
-        echo -e "${RED}Failed agents:${NC}"
-        for agent in "${failed_agents[@]}"; do
-            echo -e "${RED}  - $agent${NC}"
-        done
-    fi
-    
-    echo -e "\n${GREEN}Agents installed to: $agents_dir${NC}"
-    
-    # Create agent-config.yaml for global agent registry
-    local config_file="$claude_root_path/agent-config.yaml"
-    echo -e "\n${YELLOW}Creating global agent registry...${NC}"
-    
-    cat > "$config_file" << EOF
-# Claude Code Global Agent Registry
-# Auto-generated by install-agents-mac.sh
-# This file enables @agent- mentions from ANY project
-
-version: 2.0
-global_agents_path: $agents_dir
-enabled: true
-
-agents:
-EOF
-    
-    for agent in "${AGENTS[@]}"; do
-        local agent_name=$(echo "$agent" | sed 's/\.md$//' | sed 's/-agent$//')
-        cat >> "$config_file" << EOF
-  - name: $agent_name
-    file: $agent
-    trigger: "@agent-$agent_name"
-EOF
-    done
-    
-    echo -e "${GREEN}Created agent registry: $config_file${NC}"
-    
-    # Update Claude Code settings.json to include agent configuration
-    local settings_file="$claude_root_path/settings.json"
-    if [ -f "$settings_file" ]; then
-        echo -e "${YELLOW}Updating Claude Code settings...${NC}"
-        
-        # Backup original settings
-        cp "$settings_file" "$settings_file.bak"
-        
-        # Update settings using jq if available, otherwise use python
-        if command -v jq &> /dev/null; then
-            jq '.agents = {
-                "enabled": true,
-                "globalPath": "'"$agents_dir"'",
-                "configFile": "'"$config_file"'",
-                "autoComplete": true,
-                "showInMenu": true
-            }' "$settings_file" > "$settings_file.tmp" && mv "$settings_file.tmp" "$settings_file"
-            echo -e "${GREEN}Updated settings.json with agent configuration${NC}"
-        elif command -v python3 &> /dev/null; then
-            python3 -c "
-import json
-with open('$settings_file', 'r') as f:
-    settings = json.load(f)
-settings['agents'] = {
-    'enabled': True,
-    'globalPath': '$agents_dir',
-    'configFile': '$config_file',
-    'autoComplete': True,
-    'showInMenu': True
-}
-with open('$settings_file', 'w') as f:
-    json.dump(settings, f, indent=2)
-"
-            echo -e "${GREEN}Updated settings.json with agent configuration${NC}"
-        else
-            echo -e "${YELLOW}Warning: Could not update settings.json automatically${NC}"
-            echo -e "${YELLOW}Please add the following to your settings.json:${NC}"
-            echo -e "${CYAN}{
-  \"agents\": {
-    \"enabled\": true,
-    \"globalPath\": \"$agents_dir\",
-    \"configFile\": \"$config_file\",
-    \"autoComplete\": true,
-    \"showInMenu\": true
-  }
-}${NC}"
-        fi
+    if curl -sL "$URL" -o "$DEST"; then
+        FILE_SIZE=$(stat -f%z "$DEST" 2>/dev/null || echo "0")
+        log "  Response size: $FILE_SIZE bytes"
+        log "  SUCCESS"
+        SUCCESS=$((SUCCESS + 1))
     else
-        # Create minimal settings.json
-        echo -e "${YELLOW}Creating new settings.json...${NC}"
-        cat > "$settings_file" << EOF
-{
-  "agents": {
-    "enabled": true,
-    "globalPath": "$agents_dir",
-    "configFile": "$config_file",
-    "autoComplete": true,
-    "showInMenu": true
-  }
-}
-EOF
-        echo -e "${GREEN}Created settings.json with agent configuration${NC}"
+        log "  ERROR: Failed to download"
+        FAILED=$((FAILED + 1))
     fi
     
-    # Set proper permissions for macOS
-    chmod -R 755 "$agents_dir" 2>/dev/null || true
-    
-    echo -e "\n${GREEN}Installation complete!${NC}"
-    echo -e "${GREEN}Agents are now available GLOBALLY in ANY project!${NC}"
-    echo -e "${CYAN}Use @agent-[name] to mention an agent (e.g., @agent-backend-services)${NC}"
-    
-    # Test agent availability
-    echo -e "\n${YELLOW}Testing agent availability...${NC}"
-    local test_agent="$agents_dir/backend-services-agent.md"
-    if [ -f "$test_agent" ]; then
-        echo -e "${GREEN}✓ Agent files accessible${NC}"
-        echo -e "${GREEN}✓ Ready to use in any project!${NC}"
-    else
-        echo -e "${YELLOW}⚠ Warning: Could not verify agent files${NC}"
-    fi
-    
-    # Notify user if using macOS notification center
-    if command -v osascript &> /dev/null && [ ${#failed_agents[@]} -eq 0 ]; then
-        osascript -e 'display notification "All 28 agents installed globally! Use @agent-[name] in any project" with title "Claude Code Agents"' 2>/dev/null || true
-    fi
-    
-    # Set environment variable suggestion
-    echo -e "\n${BLUE}Tip: To make this installation permanent, add to your ~/.zshrc or ~/.bash_profile:${NC}"
-    echo -e "${CYAN}export CLAUDE_CODE_ROOT=\"$claude_root_path\"${NC}"
-}
+    sleep 0.2
+done
 
-# Run main function
-main
+log "Complete!"
+log "Success: $SUCCESS"
+if [ $FAILED -gt 0 ]; then
+    log "Failed: $FAILED"
+fi
+log "Location: $AGENTS_DIR"
+log "Agents installer finished"
 
-# Make script executable
-chmod +x "$0" 2>/dev/null || true
+# Return instead of exit to avoid killing terminal
+return 0 2>/dev/null || true
