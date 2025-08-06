@@ -19,9 +19,9 @@ Examples: Shopify (merchants → shoppers), Uber for Business (companies → emp
 ```
 
 The system will coordinate:
-- **Database Architecture Agent**: Design tenant isolation strategy
-- **Security Architecture Agent**: Implement data security boundaries
-- **Backend Services Agent**: Create tenant-aware APIs
+- **@agent-database-architecture Agent**: Design tenant isolation strategy
+- **@agent-security-architecture Agent**: Implement data security boundaries
+- **@agent-backend-services Agent**: Create tenant-aware APIs
 
 ### 2. Platform Components
 

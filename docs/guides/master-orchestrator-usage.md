@@ -1,17 +1,17 @@
 # Master Orchestrator Usage Guide
 
-The Master Orchestrator is the central command system that coordinates all 28 specialized agents to deliver complete software projects from conception to deployment.
+The @agent-master-orchestrator is the central command system that coordinates all 28 specialized agents to deliver complete software projects from conception to deployment.
 
 ## Quick Start
 
 ### Basic Project Initiation
 ```bash
-> Use the master-orchestrator agent to begin new project: "E-commerce platform with inventory management"
+> @agent-master-orchestrator Begin new project: "E-commerce platform with inventory management"
 ```
 
 ### Detailed Project Initiation
 ```bash
-> Use the master-orchestrator agent to begin new project: "B2B2C SaaS platform for healthcare providers with HIPAA compliance, multi-tenant architecture, real-time analytics, and mobile applications supporting 10,000 concurrent users"
+> @agent-master-orchestrator Begin new project: "B2B2C SaaS platform for healthcare providers with HIPAA compliance, multi-tenant architecture, real-time analytics, and mobile applications supporting 10,000 concurrent users"
 ```
 
 ## Orchestrator Response Flow
@@ -23,10 +23,10 @@ The orchestrator immediately invokes business strategy agents:
 Initiating Strategic Analysis Phase...
 
 Invoking agents:
-→ Business Analyst: Market opportunity assessment
-→ Technical CTO: Feasibility and technology evaluation  
-→ CEO Strategy: Positioning and pricing strategy
-→ Financial Analyst: ROI and financial projections
+→ @agent-business-analyst: Market opportunity assessment
+→ @agent-technical-cto: Feasibility and technology evaluation  
+→ @agent-ceo-strategy: Positioning and pricing strategy
+→ @agent-financial-analyst: ROI and financial projections
 
 Estimated completion: 2-3 hours
 ```
@@ -86,18 +86,18 @@ PARALLEL EXECUTION - PHASE 3
 ═══════════════════════════
 
 Track A - Backend Development
-├─ Database Architecture (Active)
-├─ Backend Services (Active)
-└─ API Integration (Queued)
+├─ @agent-database-architecture (Active)
+├─ @agent-backend-services (Active)
+└─ @agent-api-integration-specialist (Queued)
 
 Track B - Frontend Development  
-├─ Frontend Architecture (Active)
-├─ UI/UX Design (Active)
-└─ Frontend Mockup (Queued)
+├─ @agent-frontend-architecture (Active)
+├─ @agent-ui-ux-design (Active)
+└─ @agent-frontend-mockup (Queued)
 
 Track C - Infrastructure
-├─ DevOps Engineering (Active)
-├─ Security Architecture (Active)
+├─ @agent-devops-engineering (Active)
+├─ @agent-security-architecture (Active)
 └─ Performance Optimization (Queued)
 
 Synchronization Point: 4 hours
@@ -110,7 +110,7 @@ The orchestrator adjusts based on project needs:
 ADAPTIVE WORKFLOW ACTIVATED
 ══════════════════════════
 Detected: Compliance Requirements
-Adding: Security Architecture Agent (Priority)
+Adding: @agent-security-architecture Agent (Priority)
 Adding: Technical Documentation Agent (Compliance Focus)
 Adjusting: Timeline +2 weeks for compliance validation
 ```
@@ -290,10 +290,10 @@ Phase 5: Deployment (2 days)
 > Use the master-orchestrator agent to begin new project: "Cross-platform fitness tracking app"
 
 # Orchestrator automatically adjusts for mobile:
-- Prioritizes Mobile Development Agent
-- Includes UI/UX Design Agent early
+- Prioritizes @agent-mobile-development Agent
+- Includes @agent-ui-ux-design Agent early
 - Adds app store optimization planning
-- Coordinates with Backend Services for API
+- Coordinates with @agent-backend-services for API
 ```
 
 ### Example 3: API-Only Service
@@ -302,9 +302,9 @@ Phase 5: Deployment (2 days)
 > Use the master-orchestrator agent to begin new project: "Payment processing API service"
 
 # Orchestrator optimizes for API focus:
-- Skips Frontend Mockup Agent
-- Prioritizes API Integration Specialist
-- Emphasizes Security Architecture
+- Skips @agent-frontend-mockup Agent
+- Prioritizes @agent-api-integration-specialist Specialist
+- Emphasizes @agent-security-architecture
 - Focuses on Documentation Agent
 ```
 

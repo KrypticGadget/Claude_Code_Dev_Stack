@@ -68,7 +68,7 @@ Some agents activate automatically based on keywords:
 
 ### 💼 Business & Strategy Agents
 
-#### Business Analyst
+#### @agent-business-analyst
 **When to use:**
 - Need market analysis
 - ROI calculations
@@ -92,7 +92,7 @@ Some agents activate automatically based on keywords:
 > Use the business-analyst agent to analyze market opportunity for a B2B analytics platform
 ```
 
-#### Technical CTO
+#### @agent-technical-cto
 **When to use:**
 - Technology stack decisions
 - Scalability planning
@@ -115,21 +115,21 @@ Some agents activate automatically based on keywords:
 
 ### 📋 Planning & Management Agents
 
-#### Project Manager
+#### @agent-project-manager
 **When to use:**
 - Creating timelines
 - Resource allocation
 - Sprint planning
 - Risk management
 
-#### Technical Specifications
+#### @agent-technical-specifications
 **When to use:**
 - Documenting requirements
 - API specifications
 - System design documents
 - Integration planning
 
-#### Business-Tech Alignment
+#### @agent-business-tech-alignment
 **When to use:**
 - Ensuring tech serves business goals
 - ROI-driven decisions
@@ -138,7 +138,7 @@ Some agents activate automatically based on keywords:
 
 ### 🏗️ Architecture & Design Agents
 
-#### Frontend Architecture
+#### @agent-frontend-architecture
 **When to use:**
 - Information architecture
 - Site mapping
@@ -159,14 +159,14 @@ Some agents activate automatically based on keywords:
 - Design systems
 - Usability improvements
 
-#### Database Architecture
+#### @agent-database-architecture
 **When to use:**
 - Schema design
 - Query optimization
 - Data modeling
 - Migration planning
 
-#### API Integration Specialist
+#### @agent-api-integration-specialist
 **When to use:**
 - Third-party integrations
 - Webhook implementation
@@ -182,14 +182,14 @@ Some agents activate automatically based on keywords:
 - Component development
 - Performance optimization
 
-#### Backend Services
+#### @agent-backend-services
 **When to use:**
 - API development
 - Business logic implementation
 - Service architecture
 - Microservices design
 
-#### Mobile Development
+#### @agent-mobile-development
 **When to use:**
 - iOS/Android apps
 - React Native development
@@ -205,7 +205,7 @@ Some agents activate automatically based on keywords:
 
 ### 🔧 DevOps & Operations Agents
 
-#### DevOps Engineering
+#### @agent-devops-engineering
 **When to use:**
 - CI/CD pipelines
 - Infrastructure as Code
@@ -234,7 +234,7 @@ Some agents activate automatically based on keywords:
 
 ### 🛡️ Quality & Security Agents
 
-#### Security Architecture
+#### @agent-security-architecture
 **When to use:**
 - Security audits
 - Compliance implementation
@@ -255,7 +255,7 @@ Some agents activate automatically based on keywords:
 - Technical debt assessment
 - Code quality metrics
 
-#### Testing Automation
+#### @agent-testing-automation
 **When to use:**
 - Test strategy design
 - Test implementation

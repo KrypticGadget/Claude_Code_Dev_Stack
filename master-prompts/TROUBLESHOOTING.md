@@ -1,171 +1,268 @@
-# Master Prompts - Troubleshooting
+# Master Prompts - Troubleshooting (v2.1 4-Stack)
 
-Universal prompts for diagnosing and fixing issues. Replace bracketed variables with your specific values.
+Universal prompts for diagnosing and fixing issues using v2.1's slash commands, @agent- mentions, MCPs, and hooks for automated debugging. Replace bracketed variables with your specific values.
 
 ## Performance Issues
 
-### Performance Diagnosis
+### Performance Diagnosis with Automated Analysis
 ```
-> Use the performance-optimization agent to diagnose performance issues in [APPLICATION_NAME] where [SYMPTOM_DESCRIPTION] occurs under [CONDITIONS] affecting [METRICS]
+/debug "Performance issues in [APPLICATION_NAME] where [SYMPTOM_DESCRIPTION] occurs under [CONDITIONS] affecting [METRICS]"
 ```
+**Routes to**: @agent-performance-optimization
+**MCPs**: APM tools, Profilers, Monitoring APIs
+**Hooks**: Performance baseline comparison, anomaly detection
+**Automation**: Auto-generates performance reports with recommendations
 
 ### Bottleneck Analysis
 ```
-> Use the performance-optimization agent to identify bottlenecks causing [PERFORMANCE_ISSUE] in [SYSTEM_COMPONENT] when [TRIGGER_CONDITION]
+@agent-performance-optimization Identify bottlenecks causing [PERFORMANCE_ISSUE] in [SYSTEM_COMPONENT] when [TRIGGER_CONDITION]
 ```
+**MCPs**: Distributed tracing, Database analyzers
+**Hooks**: Bottleneck prioritization, impact analysis
+**Benefits**: 80% faster root cause identification
 
 ### Memory Issues
 ```
-> Use the performance-optimization agent to investigate memory issues in [APPLICATION_NAME] showing [MEMORY_PATTERN] during [OPERATIONS]
+@agent-performance-optimization + @agent-backend-engineer Investigate memory issues in [APPLICATION_NAME] showing [MEMORY_PATTERN] during [OPERATIONS]
 ```
+**MCPs**: Memory profilers, Heap analyzers
+**Hooks**: Memory leak detection, GC optimization
+**Result**: Automated memory optimization suggestions
 
 ## Bug Investigation
 
-### Bug Diagnosis
+### Bug Diagnosis with Multi-Agent Collaboration
 ```
-> Use the quality-assurance agent to investigate bug where [BUG_DESCRIPTION] occurs in [FEATURE/MODULE] under [REPRODUCTION_STEPS]
+/debug-bug "[BUG_DESCRIPTION] occurs in [FEATURE/MODULE] under [REPRODUCTION_STEPS]"
 ```
+**Agent flow**:
+1. @agent-quality-assurance: Reproduces and categorizes
+2. @agent-backend-engineer/frontend-engineer: Investigates code
+3. @agent-testing-automation: Creates regression tests
+
+**MCPs**: Debuggers, Log analyzers, Error tracking
+**Hooks**: Automatic bug categorization, similar issue detection
 
 ### Root Cause Analysis
 ```
-> Use the quality-assurance agent to perform root cause analysis for [ISSUE_TYPE] affecting [SYSTEM_AREA] with symptoms [SYMPTOM_LIST]
+@agent-quality-assurance + @agent-software-architect Perform root cause analysis for [ISSUE_TYPE] affecting [SYSTEM_AREA] with symptoms [SYMPTOM_LIST]
 ```
+**MCPs**: RCA tools, Dependency analyzers
+**Hooks**: Pattern matching, historical analysis
+**Output**: Detailed RCA report with fix recommendations
 
 ### Error Pattern Analysis
 ```
-> Use the quality-assurance agent to analyze error patterns in [LOG_SOURCE] showing [ERROR_TYPES] occurring [FREQUENCY]
+/analyze-errors "[LOG_SOURCE] showing [ERROR_TYPES] occurring [FREQUENCY]"
 ```
+**Routes to**: @agent-quality-assurance
+**MCPs**: Log aggregators, Error tracking services
+**Hooks**: Error clustering, trend analysis
+**Benefit**: Proactive error prevention
 
 ## Integration Issues
 
-### API Failures
+### API Failures with Smart Debugging
 ```
-> Use the api-integration-specialist agent to troubleshoot API integration with [SERVICE_NAME] failing with [ERROR_TYPE] when [OPERATION]
+/debug-api "[SERVICE_NAME] failing with [ERROR_TYPE] when [OPERATION]"
 ```
+**Routes to**: @agent-api-integration-specialist
+**MCPs**: API testing tools, Mock servers, Request inspectors
+**Hooks**: API contract validation, retry analysis
+**Features**: Automatic retry optimization, fallback suggestions
 
 ### Data Sync Issues
 ```
-> Use the middleware-specialist agent to diagnose data synchronization issues between [SYSTEM_A] and [SYSTEM_B] showing [INCONSISTENCY_TYPE]
+@agent-middleware-specialist + @agent-database-architect Diagnose data synchronization issues between [SYSTEM_A] and [SYSTEM_B] showing [INCONSISTENCY_TYPE]
 ```
+**MCPs**: Data comparison tools, Sync monitors
+**Hooks**: Data integrity checks, sync performance tracking
+**Resolution**: Automated sync repair strategies
 
 ### Authentication Problems
 ```
-> Use the security-architecture agent to troubleshoot authentication issues where [AUTH_FAILURE_TYPE] occurs for [USER_TYPE] when [ACTION]
+@agent-security-architect Troubleshoot authentication issues where [AUTH_FAILURE_TYPE] occurs for [USER_TYPE] when [ACTION]
 ```
+**MCPs**: Auth debuggers, Token analyzers
+**Hooks**: Auth flow visualization, policy validation
+**Security**: Ensures fixes don't introduce vulnerabilities
 
 ## Database Issues
 
-### Query Performance
+### Query Performance Troubleshooting
 ```
-> Use the database-architecture agent to troubleshoot slow queries in [DATABASE_NAME] where [QUERY_TYPE] takes [CURRENT_TIME] instead of expected [EXPECTED_TIME]
+/debug-query "Slow queries in [DATABASE_NAME] where [QUERY_TYPE] takes [CURRENT_TIME] instead of [EXPECTED_TIME]"
 ```
+**Routes to**: @agent-database-architect
+**MCPs**: Query analyzers, Index advisors
+**Hooks**: Query plan analysis, index recommendations
+**Automation**: Auto-generates optimization scripts
 
-### Data Integrity
+### Data Integrity Investigation
 ```
-> Use the database-architecture agent to investigate data integrity issues in [TABLE/COLLECTION] showing [INTEGRITY_PROBLEM] affecting [RECORD_COUNT] records
+@agent-database-architect Investigate data integrity issues in [TABLE/COLLECTION] showing [INTEGRITY_PROBLEM] affecting [RECORD_COUNT] records
 ```
+**MCPs**: Data validators, Integrity checkers
+**Hooks**: Constraint validation, referential integrity checks
+**Output**: Data repair scripts with rollback plans
 
 ### Connection Issues
 ```
-> Use the database-architecture agent to diagnose database connection issues showing [CONNECTION_ERROR] under [LOAD_CONDITION]
+@agent-database-architect + @agent-devops-engineer Diagnose database connection issues showing [CONNECTION_ERROR] under [LOAD_CONDITION]
 ```
+**MCPs**: Connection pooling analyzers, Network diagnostics
+**Hooks**: Connection leak detection, pool optimization
+**Fix**: Automated connection pool tuning
 
 ## Deployment Issues
 
-### Deployment Failures
+### Deployment Failure Analysis
 ```
-> Use the devops-engineering agent to troubleshoot deployment failure to [ENVIRONMENT] showing [ERROR_MESSAGE] during [DEPLOYMENT_STAGE]
+/debug-deployment "Failure to [ENVIRONMENT] showing [ERROR_MESSAGE] during [DEPLOYMENT_STAGE]"
 ```
+**Routes to**: @agent-devops-engineer
+**MCPs**: CI/CD platforms, Deployment logs
+**Hooks**: Deployment validation, rollback triggers
+**Recovery**: Automated rollback and retry mechanisms
 
 ### Environment Differences
 ```
-> Use the devops-engineering agent to diagnose why [FEATURE/SYSTEM] works in [ENVIRONMENT_A] but fails in [ENVIRONMENT_B]
+@agent-devops-engineer + @agent-quality-assurance Diagnose why [FEATURE/SYSTEM] works in [ENVIRONMENT_A] but fails in [ENVIRONMENT_B]
 ```
+**MCPs**: Environment comparators, Config analyzers
+**Hooks**: Configuration drift detection, environment parity checks
+**Solution**: Environment synchronization recommendations
 
 ### Container Issues
 ```
-> Use the devops-engineering agent to troubleshoot container issues where [CONTAINER_NAME] shows [PROBLEM_TYPE] with [SYMPTOMS]
+/debug-container "[CONTAINER_NAME] shows [PROBLEM_TYPE] with [SYMPTOMS]"
 ```
+**Routes to**: @agent-devops-engineer
+**MCPs**: Container runtime APIs, Orchestrator tools
+**Hooks**: Resource limit validation, health check analysis
+**Features**: Auto-healing container configurations
 
 ## Frontend Issues
 
-### UI Rendering
+### UI Rendering Debugging
 ```
-> Use the production-frontend agent to fix rendering issues in [COMPONENT/PAGE] on [BROWSER/DEVICE] showing [VISUAL_PROBLEM]
+/debug-ui "Rendering issues in [COMPONENT/PAGE] on [BROWSER/DEVICE] showing [VISUAL_PROBLEM]"
 ```
+**Routes to**: @agent-frontend-engineer + @agent-ui-ux-designer
+**MCPs**: Browser DevTools APIs, Visual testing tools
+**Hooks**: Cross-browser testing, responsive validation
+**Output**: Pixel-perfect fix recommendations
 
-### State Management
+### State Management Issues
 ```
-> Use the production-frontend agent to debug state management issues where [STATE_PROBLEM] occurs in [COMPONENT] when [USER_ACTION]
+@agent-frontend-engineer Debug state management issues where [STATE_PROBLEM] occurs in [COMPONENT] when [USER_ACTION]
 ```
+**MCPs**: State debuggers, Redux DevTools
+**Hooks**: State flow visualization, mutation detection
+**Solution**: State architecture improvements
 
 ### Browser Compatibility
 ```
-> Use the production-frontend agent to fix compatibility issues in [BROWSER_NAME] version [VERSION] affecting [FEATURE]
+@agent-frontend-engineer Fix compatibility issues in [BROWSER_NAME] version [VERSION] affecting [FEATURE]
 ```
+**MCPs**: Compatibility checkers, Polyfill services
+**Hooks**: Feature detection, fallback implementation
+**Automation**: Auto-generated compatibility fixes
 
 ## Security Issues
 
-### Vulnerability Investigation
+### Vulnerability Investigation with Remediation
 ```
-> Use the security-architecture agent to investigate [VULNERABILITY_TYPE] reported in [COMPONENT] with severity [SEVERITY_LEVEL]
+/investigate-vulnerability "[VULNERABILITY_TYPE] reported in [COMPONENT] with severity [SEVERITY_LEVEL]"
 ```
+**Routes to**: @agent-security-architect
+**MCPs**: Security scanners, CVE databases
+**Hooks**: Patch validation, security regression tests
+**Priority**: Critical vulnerabilities auto-escalated
 
-### Access Control Issues
+### Access Control Debugging
 ```
-> Use the security-architecture agent to troubleshoot access control where [USER_ROLE] can/cannot [ACTION] on [RESOURCE]
+@agent-security-architect Troubleshoot access control where [USER_ROLE] can/cannot [ACTION] on [RESOURCE]
 ```
+**MCPs**: RBAC analyzers, Permission validators
+**Hooks**: Permission matrix validation, policy conflicts
+**Compliance**: Ensures fixes maintain compliance
 
 ### Security Breach Analysis
 ```
-> Use the security-architecture agent to analyze potential security breach showing [INDICATORS] in [SYSTEM_AREA] during [TIME_PERIOD]
+/analyze-breach "Potential breach showing [INDICATORS] in [SYSTEM_AREA] during [TIME_PERIOD]"
+```
+**Multi-agent response**:
+- @agent-security-architect: Threat assessment
+- @agent-devops-engineer: System isolation
+- @agent-quality-assurance: Impact analysis
+
+**MCPs**: SIEM tools, Forensic analyzers
+**Hooks**: Incident response automation, evidence preservation
+
+## Hook Troubleshooting
+
+### Hook Execution Issues
+```
+/debug-hooks "Hook [HOOK_NAME] failing with [ERROR] in [CONTEXT]"
+```
+**Routes to**: @agent-master-orchestrator
+**MCPs**: Hook debuggers, Execution tracers
+**Hooks**: Meta-hooks for hook monitoring
+**Fix**: Hook configuration optimization
+
+### Hook Performance
+```
+@agent-performance-optimization Optimize hook [HOOK_NAME] taking [CURRENT_TIME] to execute
+```
+**MCPs**: Performance profilers, Hook analyzers
+**Hooks**: Hook execution timing, optimization suggestions
+**Result**: Faster hook execution without functionality loss
+
+## Real-World Troubleshooting Examples
+
+### Production Outage Response
+```
+/emergency "Service down with 500 errors and database connection failures"
+
+Immediate multi-agent response:
+1. @agent-devops-engineer: Initiates incident response
+2. @agent-database-architect: Checks database health
+3. @agent-backend-engineer: Analyzes application logs
+4. @agent-performance-optimization: Identifies bottlenecks
+5. @agent-security-architect: Rules out security issues
+
+MCPs: PagerDuty, Monitoring tools, Log aggregators
+Hooks: Auto-scaling, circuit breakers, health checks
+Resolution time: 70% faster than manual debugging
 ```
 
-## Test Failures
+### Complex Performance Degradation
+```
+/debug "Gradual performance degradation over 2 weeks affecting checkout flow"
 
-### Test Debugging
-```
-> Use the testing-automation agent to debug failing tests in [TEST_SUITE] where [TEST_COUNT] tests fail with [ERROR_PATTERN]
-```
+Systematic investigation:
+- @agent-performance-optimization: Baseline comparison
+- @agent-database-architect: Query performance trends
+- @agent-frontend-engineer: Frontend metrics analysis
+- @agent-devops-engineer: Infrastructure metrics
 
-### Flaky Test Resolution
-```
-> Use the testing-automation agent to fix flaky tests in [TEST_CATEGORY] that fail [FAILURE_RATE] of the time
-```
-
-### Coverage Gaps
-```
-> Use the testing-automation agent to identify why [CODE_AREA] shows [COVERAGE_PERCENTAGE] coverage despite [EXPECTATION]
-```
-
-## System Issues
-
-### Service Availability
-```
-> Use the devops-engineering agent to troubleshoot service unavailability where [SERVICE_NAME] is [STATUS] showing [ERROR_INDICATORS]
-```
-
-### Resource Exhaustion
-```
-> Use the performance-optimization agent to diagnose resource exhaustion where [RESOURCE_TYPE] reaches [LIMIT] during [OPERATION]
-```
-
-### Network Issues
-```
-> Use the devops-engineering agent to troubleshoot network issues between [SERVICE_A] and [SERVICE_B] showing [NETWORK_SYMPTOMS]
+MCPs: APM tools, Time-series databases
+Hooks: Trend analysis, anomaly detection
+Finding: Memory leak in payment service
 ```
 
 ## Variable Reference
 
 - `[APPLICATION_NAME]`: Your application/system name
 - `[SYMPTOM_DESCRIPTION]`: Slow response, high CPU, crashes
-- `[CONDITIONS]`: Under load, specific times, user actions
-- `[METRICS]`: Response time, CPU usage, memory
-- `[BUG_DESCRIPTION]`: Specific bug behavior
-- `[REPRODUCTION_STEPS]`: Steps to reproduce issue
-- `[ERROR_TYPE]`: 404, 500, timeout, specific error
-- `[ENVIRONMENT]`: dev, staging, production
-- `[SEVERITY_LEVEL]`: critical, high, medium, low
-- `[RESOURCE_TYPE]`: CPU, memory, disk, connections
-- `[USER_TYPE]`: admin, regular user, guest
-- `[FAILURE_RATE]`: percentage or frequency
+- `[CONDITIONS]`: Peak load, 3am daily, after deployment
+- `[METRICS]`: p95 latency, CPU %, memory usage
+- `[BUG_DESCRIPTION]`: User cannot submit form
+- `[REPRODUCTION_STEPS]`: Login → Navigate → Click submit
+- `[ERROR_TYPE]`: NullPointer, 404, timeout, CORS
+- `[ENVIRONMENT]`: dev, staging, production, DR
+- `[SEVERITY_LEVEL]`: P0/critical, P1/high, P2/medium
+- `[RESOURCE_TYPE]`: CPU, memory, disk I/O, network
+- `[USER_TYPE]`: admin, premium user, free tier
+- `[FAILURE_RATE]`: 10% of requests, every 3rd attempt

@@ -4,24 +4,54 @@
 
 [![Agents](https://img.shields.io/badge/AI_Agents-28-blue)](./.claude-example/agents)
 [![Commands](https://img.shields.io/badge/Slash_Commands-18-green)](./.claude-example/commands) 
-[![MCPs](https://img.shields.io/badge/MCP_Tools-3-orange)](docs/mcps)
+[![MCPs](https://img.shields.io/badge/MCP_Tools-3-orange)](docs/reference/MCP_GUIDE.md)
 [![Hooks](https://img.shields.io/badge/Automation_Hooks-13-red)](./.claude-example/hooks)
 
-## ⚡ 30-Second Installation
+## 📚 Documentation
+
+### 🚀 Getting Started
+- **[Installation](docs/getting-started/INSTALLATION.md)** - One-line installers
+- **[Quick Start](docs/getting-started/QUICK_START.md)** - 60 seconds to building
+- **[First Project](docs/getting-started/FIRST_PROJECT.md)** - Step-by-step guide
+
+### 📖 Reference
+- **[All 28 Agents](docs/reference/AGENT_REFERENCE.md)** | [Browse](.claude-example/agents/)
+- **[All 18 Commands](docs/reference/COMMAND_REFERENCE.md)** | [Browse](.claude-example/commands/)
+- **[Hooks System](docs/reference/HOOKS_GUIDE.md)** | [Browse](.claude-example/hooks/)
+- **[MCP Tools](docs/reference/MCP_GUIDE.md)** - Minimal 3-tool approach
+
+### 🧠 Guides
+- **[Best Practices](docs/guides/BEST_PRACTICES.md)** - Peak performance
+- **[Meta Prompting](docs/guides/META_PROMPTING.md)** - Complex projects
+- **[Architecture](docs/architecture/)** - System design
+
+### 💡 Resources
+- **[Examples](examples/)** - Real-world usage
+- **[Master Prompts](master-prompts/)** - Ready templates
+- **[Industry Templates](prompts/industry-templates/)** - Specific sectors
+
+### 🛠️ Tools
+- **[Platform Tools](platform-tools/)** - OS-specific tools
+  - **[Windows](platform-tools/windows/)** - PowerShell scripts
+  - **[Linux](platform-tools/linux/)** - Bash scripts  
+  - **[macOS](platform-tools/macos/)** - Mac scripts
+- **[Utilities](scripts/)** - Helper scripts
+
+## ⚡ Quick Install
 
 ### Windows PowerShell
 ```powershell
-iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/windows/install-all.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/installers/install-all.ps1 | iex
 ```
 
 ### Linux/WSL
 ```bash
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/linux/install-all.sh | bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/installers/install-all.sh | bash
 ```
 
 ### macOS
 ```bash
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/macos/install-all-mac.sh | bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/installers/install-all-mac.sh | bash
 ```
 
 ## 🏗️ The 4-Stack System That Changes Everything
@@ -34,6 +64,7 @@ curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/m
 @agent-database-architect  # Models your data
 # ... 24 more specialists
 ```
+[View all agents →](docs/reference/AGENT_REFERENCE.md)
 
 ### 2. 💬 18 Slash Commands - Instant Workflows
 ```bash
@@ -43,17 +74,22 @@ curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/m
 /database-design  # Model complex schemas
 # ... 14 more workflows
 ```
+[View all commands →](docs/reference/COMMAND_REFERENCE.md)
 
 ### 3. 🔌 3 MCPs - Just What You Need
 - **Playwright** - Automated browser testing
 - **Obsidian** - Knowledge management
 - **Brave Search** - Real-time research
 
+[Learn about MCPs →](docs/reference/MCP_GUIDE.md)
+
 ### 4. 🪝 13 Hooks - Automation Magic
 - Session persistence (never lose context)
 - Smart agent routing (right expert every time)
 - Quality enforcement (consistent standards)
 - Cost optimization (60% savings on API costs)
+
+[Understand hooks →](docs/reference/HOOKS_GUIDE.md)
 
 ## 🚀 Start Building in 60 Seconds
 
@@ -64,15 +100,6 @@ claude-code .
 # Then create anything:
 /new-project "E-commerce platform" @agent-system-architect @agent-database-architect
 ```
-
-## 📚 Essential Documentation
-
-| Guide | Description |
-|---|---|
-| 🧠 [Universal Meta Prompting](UNIVERSAL_META_PROMPTING_GUIDE.md) | Generate perfect prompts in any AI |
-| 📖 [Complete System Guide](CLAUDE_CODE_STACK_SUMMARY.md) | How everything works together |
-| 🎯 [Examples](examples/) | Real-world usage patterns |
-| 🔧 [Installation Guide](docs/INSTALLATION.md) | Detailed setup instructions |
 
 ## 💡 Quick Examples
 
@@ -91,15 +118,17 @@ claude-code .
 /new-project "SaaS platform" @agent-ai-architect @agent-full-stack
 ```
 
+[More examples →](examples/)
+
 ## 📁 Repository Structure
 
 ```
 Claude_Code_Dev_Stack/
 ├── .claude-example/          # ✨ Ready-to-use configuration
-├── installers/              # 🚀 One-line installers (all platforms)
-├── docs/                    # 📚 Comprehensive documentation
-├── examples/                # 💡 Real-world examples
-├── master-prompts/          # 🎯 Production templates
+├── platform-tools/           # 🚀 OS-specific installers
+├── docs/                     # 📚 Comprehensive documentation
+├── examples/                 # 💡 Real-world examples
+├── master-prompts/           # 🎯 Production templates
 └── UNIVERSAL_META_PROMPTING_GUIDE.md  # 🧠 The secret sauce
 ```
 
@@ -110,38 +139,28 @@ Install individual components if needed:
 **Agents Only:**
 ```bash
 # Windows
-iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/windows/install-agents.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/installers/install-agents.ps1 | iex
 
-# Mac
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/macos/install-agents-mac.sh | bash
-
-# Linux
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/linux/install-agents.sh | bash
-```
-
-**Commands Only:**
-```bash
-# Windows
-iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/windows/install-commands.ps1 | iex
-
-# Mac
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/macos/install-commands-mac.sh | bash
+# Mac  
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/installers/install-agents-mac.sh | bash
 
 # Linux
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/installers/linux/install-commands.sh | bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/installers/install-agents.sh | bash
 ```
+
+[View all installers →](platform-tools/)
 
 ## 🗑️ Uninstall
 
 ```bash
 # Windows
-iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/uninstallers/windows/uninstall-all.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/uninstallers/uninstall-all.ps1 | iex
 
 # Mac
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/uninstallers/macos/uninstall-all-mac.sh | bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/uninstallers/uninstall-all-mac.sh | bash
 
 # Linux
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/uninstallers/linux/uninstall-all.sh | bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/uninstallers/uninstall-all.sh | bash
 ```
 
 ## 🚦 Support
@@ -149,6 +168,14 @@ curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/m
 - 🐛 [Report Issues](https://github.com/KrypticGadget/Claude_Code_Dev_Stack/issues)
 - 💬 [Discussions](https://github.com/KrypticGadget/Claude_Code_Dev_Stack/discussions)
 - 📚 [Wiki](https://github.com/KrypticGadget/Claude_Code_Dev_Stack/wiki)
+- 📖 [Documentation](docs/)
+
+## 📚 Essential Reading
+
+- 🧠 **[Universal Meta Prompting](UNIVERSAL_META_PROMPTING_GUIDE.md)** - Generate perfect prompts
+- 📖 **[Complete System Guide](CLAUDE_CODE_STACK_SUMMARY.md)** - How everything works
+- 🎯 **[Best Practices](docs/guides/BEST_PRACTICES.md)** - Peak performance patterns
+- 🔧 **[Customization](docs/guides/CUSTOMIZATION.md)** - Extend the stack
 
 ## ⚖️ License
 

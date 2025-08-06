@@ -1,140 +1,42 @@
-# OS files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-*.swp
-*.swo
-*~
+# Claude Code Dev Stack .gitignore
 
-# Editor files
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor directories
 .vscode/
 .idea/
-*.sublime-project
-*.sublime-workspace
-.project
-.settings/
-*.iml
+*.swp
+*.swo
 
-# Environment files
-.env
-.env.local
-.env.*.local
-.env.development
-.env.test
-.env.production
+# Claude runtime (user's config - not the example)
+.claude/
+!.claude-example/
 
-# Dependencies
-node_modules/
-vendor/
-bower_components/
-
-# Build outputs
-dist/
-build/
-out/
-*.min.js
-*.min.css
+# Python cache (from hooks)
+__pycache__/
+*.pyc
 
 # Logs
-logs/
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-.pnpm-debug.log*
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Testing
-coverage/
-.nyc_output/
-*.lcov
-.coverage
-htmlcov/
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-ENV/
-pip-log.txt
-pip-delete-this-directory.txt
 
 # Temporary files
 *.tmp
 *.temp
-*.cache
-.cache/
-tmp/
-temp/
-
-# Backup files
-*.bak
 *.backup
-*_backup
-*_old
-*.orig
+*~
 
-# Package files
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
+# Test outputs
+test-installer.ps1
+test-oneliner.ps1
+validation-report.json
+validation-output.txt
 
-# Claude specific
-.claude/
-!.claude-example/
+# Keep archive for now (uncomment to exclude from git)
+# archive/
 
-# Old directories (should not exist)
-Config_Files/
-hooks/
-slash-commands/
-
-# Archive directory
-archive/
-
-# Development phase files (temporary)
-# DEV_PHASE/
-
-# Project specific
-/private/
-/secrets/
-/local-only/
-
-# Installation logs
-agent-install-errors.log
-command-install-errors.log
-hook-install-errors.log
-installation.log
-uninstall.log
-
-# Desktop files
-desktop.ini
-
-# Test and verification files
-test-*.ps1
-verify-*.sh
-
-# Keep important files
-!.gitignore
-!.gitattributes
-!README.md
-!LICENSE
-!UNIVERSAL_META_PROMPTING_GUIDE.md
-!UNIVERSAL_META_PROMPTING_GUIDE_V21.md
+# Environment files (if any)
+.env
+.env.local

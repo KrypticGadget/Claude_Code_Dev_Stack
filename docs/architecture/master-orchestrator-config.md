@@ -1,45 +1,50 @@
-# Master Orchestrator - Architecture Documentation
+# Master Orchestrator - Architecture Documentation (v2.1)
 
-This document describes the Master Orchestrator agent's architecture, capabilities, and integration within the Claude Code Agent System.
+This document describes the @agent-master-orchestrator's architecture, capabilities, and integration within the Claude Code Agent System v2.1 using the 4-stack architecture.
 
 ## Overview
 
-The Master Orchestrator is the central command and control agent that coordinates all 28 specialized agents to deliver complete software projects from conception to deployment. It serves as the single entry point for complex projects and manages the entire development lifecycle.
+The @agent-master-orchestrator is the central command and control agent that coordinates all 28 specialized agents across the 4-stack system to deliver complete software projects from conception to deployment. It serves as the single entry point for complex projects, activated through slash commands like `/start-project`.
 
 ## Agent Configuration
 
 ### Metadata
 ```yaml
-name: master-orchestrator
-description: Project orchestration commander that manages the complete logical flow of all development agents from project conception to production deployment. Use IMMEDIATELY for any new project or when comprehensive project management is needed. MUST BE USED to coordinate multi-agent workflows and drive projects from start to finish.
+name: @agent-master-orchestrator
+description: Project orchestration commander that manages the complete logical flow of all development agents from project conception to production deployment. Activated with /start-project or similar slash commands. Coordinates all 28 agents across the 4-stack system with 60% cost optimization.
 tools: Read, Write, Edit, Bash, Grep, Glob
+stack: Orchestration Layer
+routing: @agent-prefix (deterministic)
+activation: /start-project, /fullstack, /enterprise
 ```
 
 ### Key Characteristics
-- **Type**: Meta-coordination agent
-- **Activation**: Immediate for new projects
-- **Authority**: Can invoke all other agents
+- **Type**: Meta-coordination agent with @agent- routing
+- **Activation**: Slash commands (/start-project)
+- **Authority**: Orchestrates all 28 agents across 4 stacks
 - **Tools**: Full access for maximum capability
+- **Cost Optimization**: 60% reduction through efficient routing
 
 ## Architectural Role
 
-### System Position
+### System Position in 4-Stack Architecture
 ```
-User Input
+User Input → Slash Commands (/start-project)
     ↓
-Prompt Engineer (Optional)
+@agent-prompt-engineer (Optional Enhancement)
     ↓
-MASTER ORCHESTRATOR ← You are here
+@agent-master-orchestrator ← Central Orchestration
     ↓
 ┌─────────────────────────────────────┐
-│      28 Specialized Agents           │
+│    4-Stack System (28 Agents)       │
 ├─────────────────────────────────────┤
-│ Business    Technical    Development │
-│ Planning    Architecture  Operations │
-│ Quality     Security     Deployment  │
+│ Stack 1: Business & Strategy        │
+│ Stack 2: Technical Architecture     │
+│ Stack 3: Implementation             │
+│ Stack 4: Operations & Quality       │
 └─────────────────────────────────────┘
     ↓
-Production Software
+Production Software (60% Cost Optimized)
 ```
 
 ### Core Responsibilities
@@ -93,37 +98,37 @@ Dynamically adjusts based on project requirements:
 
 ## Phase Structure
 
-### Phase 1: Strategic Foundation
-**Agents**: Business Analyst, Technical CTO, CEO Strategy, Financial Analyst
+### Stack 1: Business & Strategic Foundation
+**Agents**: @agent-business-analyst, @agent-technical-cto, @agent-ceo-strategy, @agent-financial-analyst
+**Commands**: /analyze-business, /market-research
 **Purpose**: Validate business opportunity and feasibility
 **Output**: Strategic approval decision
 
-### Phase 2: Technical Planning  
-**Agents**: Project Manager, Technical Specifications, Business-Tech Alignment
-**Purpose**: Define technical approach and timeline
-**Output**: Technical architecture approval
+### Stack 2: Technical Architecture & Planning
+**Agents**: @agent-project-manager, @agent-technical-specifications, @agent-business-tech-alignment
+**Commands**: /technical-design, /architecture
+**Parallel Execution**:
+- @agent-frontend-architecture
+- @agent-database-architecture
+- @agent-api-integration-specialist
+- @agent-technical-documentation
+**Output**: Complete technical design
 
-### Phase 3: Architecture & Design
+### Stack 3: Implementation & Development
+**Agents**: @agent-production-frontend, @agent-backend-services, @agent-mobile-development
+**Commands**: /build, /frontend, /backend, /mobile
 **Parallel Tracks**:
-- Backend: Database, Services, API, Middleware
-- Frontend: Architecture, Mockup, UI/UX, Mobile
-- Documentation: Technical Documentation
-**Output**: Complete system design
-
-### Phase 4: Development Preparation
-**Agents**: Development Prompt, Script Automation, Integration Setup, Testing
-**Purpose**: Prepare development environment
-**Output**: Development readiness
-
-### Phase 5: Production Development
-**Primary**: Production Frontend, Backend Services, Database
-**Support**: Security, Performance, Quality Assurance
+- Frontend: @agent-production-frontend
+- Backend: @agent-backend-services
+- Mobile: @agent-mobile-development
+- Integration: @agent-middleware-specialist
 **Output**: Working software
 
-### Phase 6: Production Deployment
-**Agents**: DevOps, Security, Performance, Testing, Usage Guide
-**Purpose**: Deploy to production
-**Output**: Live system
+### Stack 4: Operations & Quality
+**Agents**: @agent-devops-engineering, @agent-security-architecture, @agent-performance-optimization, @agent-testing-automation
+**Commands**: /deploy, /test, /security-audit
+**Purpose**: Production readiness and deployment
+**Output**: Live, optimized system
 
 ## Decision Points
 
@@ -141,28 +146,35 @@ Dynamically adjusts based on project requirements:
 
 ## Integration Specifications
 
-### Agent Invocation Protocol
+### Agent Invocation Protocol (v2.1)
 ```python
-# Pattern for invoking agents
+# Pattern for invoking agents with @agent- prefix
 invoke_agent(
-    agent_name="business-analyst",
+    agent_name="@agent-business-analyst",
+    stack=1,
+    slash_command="/analyze-business",
     context=project_context,
     requirements=specific_requirements,
-    constraints=project_constraints
+    constraints=project_constraints,
+    cost_optimization=True
 )
 ```
 
-### Data Flow Management
+### Data Flow Management with 4-Stack System
 ```yaml
 agent_output:
-  source: business-analyst
+  source: "@agent-business-analyst"
+  stack: 1
   data: market_analysis
   format: structured_report
+  routing: deterministic
   
 handoff:
-  to: technical-cto
+  to: "@agent-technical-cto"
+  to_stack: 1
   includes: market_data, requirements
   expects: feasibility_assessment
+  optimization: "60% cost reduction"
 ```
 
 ### Coordination Mechanisms
@@ -228,21 +240,21 @@ handoff:
 - Alternative workflows
 - Manual intervention
 
-## Best Practices
+## Best Practices (v2.1)
 
-### For Orchestration
-1. Always start with business validation
-2. Enforce quality gates strictly
-3. Maintain clear audit trails
-4. Optimize for parallel execution
-5. Handle failures gracefully
+### For Orchestration with 4-Stack System
+1. Use slash commands for workflow initiation
+2. Follow stack progression (1→2→3→4)
+3. Maximize parallel execution within stacks
+4. Leverage @agent- prefix for deterministic routing
+5. Monitor cost optimization metrics (target: 60% reduction)
 
-### For Integration
-1. Use structured data formats
-2. Validate inputs and outputs
-3. Maintain backward compatibility
-4. Document dependencies clearly
-5. Test integration points
+### For Integration with Agent System
+1. Always use @agent- prefix for agent names
+2. Specify stack number in communications
+3. Use slash commands for common workflows
+4. Enable parallel processing within stacks
+5. Maintain context across stack transitions
 
 ## Future Enhancements
 
@@ -260,20 +272,42 @@ handoff:
 - Workflow templates
 - Domain-specific orchestration
 
-## Configuration Reference
+## Configuration Reference (v2.1)
 
-### Current Agent Version
-The Master Orchestrator currently coordinates **28 specialized agents** across six functional layers:
+### Current 4-Stack System
+The @agent-master-orchestrator coordinates **28 specialized agents** across the 4-stack architecture:
 
-1. **Business Strategy Layer** (4 agents)
-2. **Planning & Management Layer** (3 agents)  
-3. **Architecture & Design Layer** (8 agents)
-4. **Development Support Layer** (6 agents)
-5. **Specialized Expertise Layer** (5 agents)
-6. **Meta-Coordination Layer** (2 agents)
+1. **Stack 1: Business & Strategy** (7 agents)
+   - @agent-business-analyst, @agent-technical-cto, @agent-ceo-strategy
+   - @agent-financial-analyst, @agent-project-manager
+   - @agent-technical-specifications, @agent-business-tech-alignment
+
+2. **Stack 2: Technical Architecture** (8 agents)
+   - @agent-frontend-architecture, @agent-database-architecture
+   - @agent-api-integration-specialist, @agent-technical-documentation
+   - @agent-frontend-mockup, @agent-ui-ux-design
+   - @agent-middleware-specialist, @agent-integration-setup
+
+3. **Stack 3: Implementation** (5 agents)
+   - @agent-production-frontend, @agent-backend-services
+   - @agent-mobile-development, @agent-script-automation
+   - @agent-development-prompt
+
+4. **Stack 4: Operations & Quality** (6 agents)
+   - @agent-devops-engineering, @agent-security-architecture
+   - @agent-performance-optimization, @agent-testing-automation
+   - @agent-quality-assurance, @agent-usage-guide
+
+5. **Orchestration Layer** (2 agents)
+   - @agent-master-orchestrator, @agent-prompt-engineer
+
+### Slash Commands
+- `/start-project` - Full project workflow
+- `/frontend`, `/backend`, `/api`, `/mobile` - Specific workflows
+- `/deploy`, `/test`, `/security-audit` - Operations workflows
 
 ### Agent List
-See [Agent Catalog](agent-catalog.md) for the complete list of all 28 agents.
+See [Agent Catalog](agent-catalog.md) for the complete list of all 28 agents with @agent- syntax.
 
 ## Related Documentation
 
@@ -284,4 +318,4 @@ See [Agent Catalog](agent-catalog.md) for the complete list of all 28 agents.
 
 ---
 
-*Note: This document describes the architecture and design of the Master Orchestrator. For practical usage instructions, see the [Master Orchestrator Usage Guide](../guides/master-orchestrator-usage.md). The actual agent configuration file is located at `/Config_Files/master-orchestrator-agent.md`.*
+*Note: This document describes the v2.1 architecture and design of the @agent-master-orchestrator using the 4-stack system. For practical usage instructions, see the [Master Orchestrator Usage Guide](../guides/master-orchestrator-usage.md). The actual agent configuration file is located at `/Config_Files/master-orchestrator-agent.md`. All agents use @agent- prefix for deterministic routing and can be activated via slash commands.*

@@ -1,70 +1,124 @@
-# Master Prompts - Project Initialization
+# Master Prompts - Project Initialization (v2.1 4-Stack)
 
-These universal prompts help you start any type of project using the Claude Code Agent System. Replace all variables in square brackets with your specific values.
+These universal prompts help you start any type of project using the Claude Code Agent System v2.1 with slash commands, @agent- mentions, MCPs, and hooks automation. Replace all variables in square brackets with your specific values.
 
-## Full Project Initialization
-
-```
-> Use the master-orchestrator agent to begin new project: "[PROJECT_TYPE] for [TARGET_AUDIENCE] that [CORE_FUNCTIONALITY]. Key requirements: [REQUIREMENT_1], [REQUIREMENT_2], [REQUIREMENT_3]. Technology preferences: [TECH_STACK]. Budget: [BUDGET_RANGE]. Timeline: [TIMELINE]. Success metrics: [METRIC_1], [METRIC_2]"
-```
-
-## Business Analysis
+## Full Project Initialization with Slash Commands
 
 ```
-> Use the business-analyst agent to analyze market opportunity for [PRODUCT/SERVICE] targeting [MARKET_SEGMENT] with [VALUE_PROPOSITION]. Include TAM analysis, competitive landscape, pricing models, and [SPECIFIC_ANALYSIS_FOCUS]
+/new-project "[PROJECT_TYPE] for [TARGET_AUDIENCE] that [CORE_FUNCTIONALITY]. Key requirements: [REQUIREMENT_1], [REQUIREMENT_2], [REQUIREMENT_3]. Technology preferences: [TECH_STACK]. Budget: [BUDGET_RANGE]. Timeline: [TIMELINE]. Success metrics: [METRIC_1], [METRIC_2]"
 ```
 
-## Technical Feasibility
+**MCPs Activated**: GitHub API, Docker, Cloud platforms (based on tech stack)
+**Hooks**: Pre-project validation, dependency check, cost estimation
+
+## Business Analysis with @agent- Routing
 
 ```
-> Use the technical-cto agent to assess feasibility of [PROJECT_CONCEPT] supporting [USER_COUNT] users with [PERFORMANCE_REQUIREMENT]. Evaluate [TECHNOLOGY_OPTIONS] for [SPECIFIC_CONSTRAINTS]
+@agent-business-analyst Analyze market opportunity for [PRODUCT/SERVICE] targeting [MARKET_SEGMENT] with [VALUE_PROPOSITION]. Include TAM analysis, competitive landscape, pricing models, and [SPECIFIC_ANALYSIS_FOCUS]
 ```
 
-## Project Planning
+**MCPs Activated**: Market data APIs, Analytics tools
+**Hooks**: Market validation, competitor analysis automation
+
+## Technical Feasibility Assessment
 
 ```
-> Use the project-manager agent to create project plan for [PROJECT_NAME] with [TEAM_SIZE] developers, [BUDGET] budget, and [DEADLINE] deadline. Include [METHODOLOGY] methodology and [DELIVERABLE_FREQUENCY] deliverables
+@agent-technical-cto Assess feasibility of [PROJECT_CONCEPT] supporting [USER_COUNT] users with [PERFORMANCE_REQUIREMENT]. Evaluate [TECHNOLOGY_OPTIONS] for [SPECIFIC_CONSTRAINTS]
 ```
+
+**MCPs Activated**: Performance benchmarking tools, Cloud calculators
+**Hooks**: Infrastructure cost optimization, scalability validation
+
+## Project Planning with Automation
+
+```
+@agent-project-manager Create project plan for [PROJECT_NAME] with [TEAM_SIZE] developers, [BUDGET] budget, and [DEADLINE] deadline. Include [METHODOLOGY] methodology and [DELIVERABLE_FREQUENCY] deliverables
+```
+
+**MCPs Activated**: Jira/Linear API, Calendar integrations
+**Hooks**: Sprint automation, milestone tracking
 
 ## Financial Projections
 
 ```
-> Use the financial-analyst agent to create financial model for [BUSINESS_MODEL] with [PRICING_STRUCTURE] serving [CUSTOMER_SEGMENT]. Project [TIME_HORIZON] with [GROWTH_ASSUMPTIONS]
+@agent-financial-analyst Create financial model for [BUSINESS_MODEL] with [PRICING_STRUCTURE] serving [CUSTOMER_SEGMENT]. Project [TIME_HORIZON] with [GROWTH_ASSUMPTIONS]
 ```
+
+**MCPs Activated**: Financial modeling tools, Market data APIs
+**Hooks**: Sensitivity analysis, scenario planning
 
 ## Strategic Positioning
 
 ```
-> Use the ceo-strategy agent to develop go-to-market strategy for [PRODUCT/SERVICE] differentiating through [UNIQUE_VALUE]. Target market: [MARKET]. Competition: [COMPETITORS]. Distribution: [CHANNELS]
+@agent-ceo-strategy Develop go-to-market strategy for [PRODUCT/SERVICE] differentiating through [UNIQUE_VALUE]. Target market: [MARKET]. Competition: [COMPETITORS]. Distribution: [CHANNELS]
 ```
 
-## Requirements Gathering
+**MCPs Activated**: Market intelligence APIs, CRM integrations
+**Hooks**: Strategy validation, market fit analysis
+
+## Requirements Gathering with MCPs
 
 ```
-> Use the technical-specifications agent to document requirements for [SYSTEM_NAME] supporting [USE_CASES]. Include [FUNCTIONAL_REQUIREMENTS], [NON_FUNCTIONAL_REQUIREMENTS], and [INTEGRATION_REQUIREMENTS]
+@agent-technical-specifications Document requirements for [SYSTEM_NAME] supporting [USE_CASES]. Include [FUNCTIONAL_REQUIREMENTS], [NON_FUNCTIONAL_REQUIREMENTS], and [INTEGRATION_REQUIREMENTS]
 ```
+
+**MCPs Activated**: Documentation tools, Diagram generators
+**Hooks**: Requirements validation, traceability matrix
 
 ## Architecture Design
 
 ```
-> Use the technical-specifications agent to design architecture for [APPLICATION_TYPE] handling [SCALE_REQUIREMENTS] with [PERFORMANCE_TARGETS]. Consider [CONSTRAINTS] and integrate with [EXISTING_SYSTEMS]
+@agent-software-architect Design architecture for [APPLICATION_TYPE] handling [SCALE_REQUIREMENTS] with [PERFORMANCE_TARGETS]. Consider [CONSTRAINTS] and integrate with [EXISTING_SYSTEMS]
 ```
 
-## Quick Start Templates
+**MCPs Activated**: Architecture diagramming tools, Cloud design tools
+**Hooks**: Architecture validation, cost optimization
 
-### Minimal Project Start
+## Quick Start Templates (v2.1)
+
+### Minimal Project Start with Slash Command
 ```
-> Use the master-orchestrator agent to begin new project: "[PROJECT_TYPE] that [CORE_FUNCTION]"
+/new-project "[PROJECT_TYPE] that [CORE_FUNCTION]"
 ```
+*Automatically routes to @agent-master-orchestrator with basic MCPs*
 
 ### Business-First Approach
 ```
-> Use the business-analyst agent to validate [BUSINESS_IDEA] for [TARGET_MARKET]
+/validate-idea "[BUSINESS_IDEA] for [TARGET_MARKET]"
 ```
+*Routes to @agent-business-analyst → @agent-financial-analyst*
 
 ### Technical-First Approach
 ```
-> Use the technical-cto agent to design [TECHNICAL_SOLUTION] for [PROBLEM_STATEMENT]
+/design-solution "[TECHNICAL_SOLUTION] for [PROBLEM_STATEMENT]"
+```
+*Routes to @agent-technical-cto → @agent-software-architect*
+
+## Multi-Agent Collaboration Examples
+
+### Complete Project Setup
+```
+/new-project "SaaS platform for project management"
+
+This triggers:
+1. @agent-master-orchestrator coordinates overall flow
+2. @agent-business-analyst validates market opportunity
+3. @agent-technical-cto designs technical approach
+4. @agent-project-manager creates implementation plan
+5. @agent-devops-engineer sets up CI/CD pipeline
+
+MCPs activated: GitHub, Docker, AWS/GCP, Jira
+Hooks: Cost monitoring, progress tracking, quality gates
+```
+
+### Rapid Prototyping
+```
+/rapid-prototype "[APP_IDEA] using [TECH_STACK]"
+
+Agent flow:
+@agent-frontend-engineer + @agent-backend-engineer collaborate
+MCPs: Framework CLIs, Database tools, Deploy buttons
+Hooks: Auto-testing, performance monitoring
 ```
 
 ## Variable Reference

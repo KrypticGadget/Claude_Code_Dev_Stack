@@ -101,7 +101,7 @@ Add industry or technology-specific knowledge:
 
 ### Scenario 2: Technology Stack Preferences
 
-**For Backend Services Agent:**
+**For @agent-backend-services Agent:**
 ```markdown
 ## Technology Preferences
 - Primary Language: Python 3.11+
@@ -113,7 +113,7 @@ Add industry or technology-specific knowledge:
 
 ### Scenario 3: Industry-Specific Requirements
 
-**For Security Architecture Agent (Healthcare):**
+**For @agent-security-architecture Agent (Healthcare):**
 ```markdown
 ## Compliance Requirements
 - HIPAA compliance mandatory
@@ -125,7 +125,7 @@ Add industry or technology-specific knowledge:
 
 ### Scenario 4: Workflow Integration
 
-**For Project Manager Agent:**
+**For @agent-project-manager Agent:**
 ```markdown
 ## Workflow Integration
 - Create JIRA epics for major features
@@ -154,7 +154,7 @@ tools: Read, Write, Edit, Bash, Grep, Glob
 ### Step 3: Customize Content
 Add domain-specific expertise:
 ```markdown
-# FinTech Business Analyst
+# FinTech @agent-business-analyst
 
 You are a business analyst specializing in financial technology...
 

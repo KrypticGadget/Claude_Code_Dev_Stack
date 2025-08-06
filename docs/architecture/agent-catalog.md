@@ -1,10 +1,24 @@
-# Claude Code Agent System - Complete Agent Catalog
+# Claude Code Agent System - Complete Agent Catalog (v2.1)
 
-This document provides a comprehensive overview of all 28 specialized agents in the Claude Code Agent System.
+This document provides a comprehensive overview of all 28 specialized agents in the Claude Code Agent System using the v2.1 4-stack architecture.
 
-## Agent Organization
+## Agent Organization - 4-Stack System
 
-The 28 agents are organized into functional layers that work together to deliver complete software solutions:
+The 28 agents are organized into the Claude Code 4-stack system that delivers complete software solutions:
+
+### Stack 1: Business & Strategic Layer
+**Business viability and strategic planning agents**
+
+### Stack 2: Technical Architecture Layer
+**System design, documentation, and technical planning agents**
+
+### Stack 3: Implementation Layer
+**Development, coding, and building agents**
+
+### Stack 4: Operations & Quality Layer
+**Deployment, testing, security, and optimization agents**
+
+## Agent Categories
 
 ### 🎯 Orchestration & Coordination (2 agents)
 Agents that manage and coordinate the entire system.
@@ -33,7 +47,7 @@ Agents ensuring code quality, security, and performance.
 
 ### 🎯 Orchestration & Coordination Layer
 
-#### 1. Master Orchestrator Agent
+#### 1. @agent-master-orchestrator
 - **File**: `master-orchestrator-agent.md`
 - **Purpose**: Manages complete project lifecycle from conception to deployment
 - **Key Responsibilities**:
@@ -43,7 +57,7 @@ Agents ensuring code quality, security, and performance.
   - Handle human interaction points
 - **Activation**: Use immediately for any new project
 
-#### 2. Prompt Engineer Agent
+#### 2. @agent-prompt-engineer
 - **File**: `prompt-engineer-agent.md`
 - **Purpose**: Enhances and optimizes prompts for maximum effectiveness
 - **Key Responsibilities**:
@@ -55,7 +69,7 @@ Agents ensuring code quality, security, and performance.
 
 ### 💼 Business Strategy & Analysis Layer
 
-#### 3. Business Analyst Agent
+#### 3. @agent-business-analyst
 - **File**: `business-analyst-agent.md`
 - **Purpose**: Market analysis and business viability assessment
 - **Key Responsibilities**:
@@ -65,7 +79,7 @@ Agents ensuring code quality, security, and performance.
   - Business case development
 - **Activation**: Use for all new projects requiring business justification
 
-#### 4. Technical CTO Agent
+#### 4. @agent-technical-cto
 - **File**: `technical-cto-agent.md`
 - **Purpose**: Technical feasibility and competitive technology assessment
 - **Key Responsibilities**:
@@ -75,7 +89,7 @@ Agents ensuring code quality, security, and performance.
   - Architecture decisions
 - **Activation**: Use for technical feasibility studies
 
-#### 5. CEO Strategy Agent
+#### 5. @agent-ceo-strategy
 - **File**: `ceo-strategy-agent.md`
 - **Purpose**: Strategic vision and market positioning
 - **Key Responsibilities**:
@@ -85,7 +99,7 @@ Agents ensuring code quality, security, and performance.
   - Competitive differentiation
 - **Activation**: Use for strategic decisions
 
-#### 6. Financial Analyst Agent
+#### 6. @agent-financial-analyst
 - **File**: `financial-analyst-agent.md`
 - **Purpose**: Financial modeling and projections
 - **Key Responsibilities**:
@@ -97,7 +111,7 @@ Agents ensuring code quality, security, and performance.
 
 ### 📋 Project Management & Planning Layer
 
-#### 7. Project Manager Agent
+#### 7. @agent-project-manager
 - **File**: `project-manager-agent.md`
 - **Purpose**: Project planning and execution orchestration
 - **Key Responsibilities**:
@@ -107,7 +121,7 @@ Agents ensuring code quality, security, and performance.
   - Sprint planning
 - **Activation**: Use for project timeline and resource planning
 
-#### 8. Technical Specifications Agent
+#### 8. @agent-technical-specifications
 - **File**: `technical-specifications-agent.md`
 - **Purpose**: Technical requirements and specifications
 - **Key Responsibilities**:
@@ -117,7 +131,7 @@ Agents ensuring code quality, security, and performance.
   - Integration requirements
 - **Activation**: Must be used for technical design
 
-#### 9. Business-Tech Alignment Agent
+#### 9. @agent-business-tech-alignment
 - **File**: `business-tech-alignment-agent.md`
 - **Purpose**: Align technical decisions with business objectives
 - **Key Responsibilities**:
@@ -129,7 +143,7 @@ Agents ensuring code quality, security, and performance.
 
 ### 🏗️ Architecture & Documentation Layer
 
-#### 10. Technical Documentation Agent
+#### 10. @agent-technical-documentation
 - **File**: `technical-documentation-agent.md`
 - **Purpose**: Comprehensive technical documentation
 - **Key Responsibilities**:
@@ -139,7 +153,7 @@ Agents ensuring code quality, security, and performance.
   - Code documentation
 - **Activation**: Use for all documentation needs
 
-#### 11. API Integration Specialist Agent
+#### 11. @agent-api-integration-specialist
 - **File**: `api-integration-specialist-agent.md`
 - **Purpose**: External API integrations and webhooks
 - **Key Responsibilities**:
@@ -149,7 +163,7 @@ Agents ensuring code quality, security, and performance.
   - Partner API connections
 - **Activation**: Must be used for external integrations
 
-#### 12. Frontend Architecture Agent
+#### 12. @agent-frontend-architecture
 - **File**: `frontend-architecture-agent.md`
 - **Purpose**: Frontend system architecture
 - **Key Responsibilities**:
@@ -159,7 +173,7 @@ Agents ensuring code quality, security, and performance.
   - User flow mapping
 - **Activation**: Use before frontend development
 
-#### 13. Frontend Mockup Agent
+#### 13. @agent-frontend-mockup
 - **File**: `frontend-mockup-agent.md`
 - **Purpose**: UI/UX prototyping and mockups
 - **Key Responsibilities**:
@@ -169,7 +183,7 @@ Agents ensuring code quality, security, and performance.
   - Wireframe creation
 - **Activation**: Must be used before production frontend
 
-#### 14. UI/UX Design Agent
+#### 14. @agent-ui-ux-design
 - **File**: `ui-ux-design-agent.md`
 - **Purpose**: User experience design and usability
 - **Key Responsibilities**:
@@ -181,7 +195,7 @@ Agents ensuring code quality, security, and performance.
 
 ### 💻 Development & Implementation Layer
 
-#### 15. Production Frontend Agent
+#### 15. @agent-production-frontend
 - **File**: `production-frontend-agent.md`
 - **Purpose**: Production-ready frontend development
 - **Key Responsibilities**:
@@ -191,7 +205,7 @@ Agents ensuring code quality, security, and performance.
   - Production builds
 - **Activation**: Use for final frontend implementation
 
-#### 16. Backend Services Agent
+#### 16. @agent-backend-services
 - **File**: `backend-services-agent.md`
 - **Purpose**: Backend API and service development
 - **Key Responsibilities**:
@@ -201,7 +215,7 @@ Agents ensuring code quality, security, and performance.
   - Database operations
 - **Activation**: Must be used for backend development
 
-#### 17. Database Architecture Agent
+#### 17. @agent-database-architecture
 - **File**: `database-architecture-agent.md`
 - **Purpose**: Database design and optimization
 - **Key Responsibilities**:
@@ -211,7 +225,7 @@ Agents ensuring code quality, security, and performance.
   - Performance tuning
 - **Activation**: Must be used for database work
 
-#### 18. Middleware Specialist Agent
+#### 18. @agent-middleware-specialist
 - **File**: `middleware-specialist-agent.md`
 - **Purpose**: Message queues and service integration
 - **Key Responsibilities**:
@@ -221,7 +235,7 @@ Agents ensuring code quality, security, and performance.
   - Cache implementation
 - **Activation**: Use for middleware design
 
-#### 19. Mobile Development Agent
+#### 19. @agent-mobile-development
 - **File**: `mobile-development-agent.md`
 - **Purpose**: iOS and Android app development
 - **Key Responsibilities**:
@@ -233,7 +247,7 @@ Agents ensuring code quality, security, and performance.
 
 ### 🔧 DevOps & Infrastructure Layer
 
-#### 20. DevOps Engineering Agent
+#### 20. @agent-devops-engineering
 - **File**: `devops-engineering-agent.md`
 - **Purpose**: CI/CD and infrastructure automation
 - **Key Responsibilities**:
@@ -243,7 +257,7 @@ Agents ensuring code quality, security, and performance.
   - Infrastructure as Code
 - **Activation**: Must be used for deployment
 
-#### 21. Integration Setup Agent
+#### 21. @agent-integration-setup
 - **File**: `integration-setup-agent.md`
 - **Purpose**: Development environment and dependencies
 - **Key Responsibilities**:
@@ -253,7 +267,7 @@ Agents ensuring code quality, security, and performance.
   - Troubleshooting
 - **Activation**: Use for environment issues
 
-#### 22. Script Automation Agent
+#### 22. @agent-script-automation
 - **File**: `script-automation-agent.md`
 - **Purpose**: Automation scripts and tooling
 - **Key Responsibilities**:
@@ -263,7 +277,7 @@ Agents ensuring code quality, security, and performance.
   - Automation workflows
 - **Activation**: Use for automation needs
 
-#### 23. Development Prompt Agent
+#### 23. @agent-development-prompt
 - **File**: `development-prompt-agent.md`
 - **Purpose**: Generate development command sequences
 - **Key Responsibilities**:
@@ -275,7 +289,7 @@ Agents ensuring code quality, security, and performance.
 
 ### 🛡️ Quality & Optimization Layer
 
-#### 24. Security Architecture Agent
+#### 24. @agent-security-architecture
 - **File**: `security-architecture-agent.md`
 - **Purpose**: Security implementation and auditing
 - **Key Responsibilities**:
@@ -285,7 +299,7 @@ Agents ensuring code quality, security, and performance.
   - Threat modeling
 - **Activation**: Must be used for security
 
-#### 25. Performance Optimization Agent
+#### 25. @agent-performance-optimization
 - **File**: `performance-optimization-agent.md`
 - **Purpose**: Performance analysis and optimization
 - **Key Responsibilities**:
@@ -295,7 +309,7 @@ Agents ensuring code quality, security, and performance.
   - Scalability improvements
 - **Activation**: Use for performance issues
 
-#### 26. Quality Assurance Agent
+#### 26. @agent-quality-assurance
 - **File**: `quality-assurance-agent.md`
 - **Purpose**: Code quality and standards enforcement
 - **Key Responsibilities**:
@@ -305,7 +319,7 @@ Agents ensuring code quality, security, and performance.
   - Standards compliance
 - **Activation**: Use after significant development
 
-#### 27. Testing Automation Agent
+#### 27. @agent-testing-automation
 - **File**: `testing-automation-agent.md`
 - **Purpose**: Comprehensive testing implementation
 - **Key Responsibilities**:
@@ -315,7 +329,7 @@ Agents ensuring code quality, security, and performance.
   - Test maintenance
 - **Activation**: Must be used for testing
 
-#### 28. Usage Guide Agent
+#### 28. @agent-usage-guide
 - **File**: `usage-guide-agent.md`
 - **Purpose**: Generate usage documentation and guides
 - **Key Responsibilities**:
@@ -329,69 +343,107 @@ Agents ensuring code quality, security, and performance.
 
 ## Agent Interaction Patterns
 
-### Sequential Flow
-Agents often work in sequence, with outputs from one feeding into the next:
+### Sequential Flow with Slash Commands
+Agents work in sequence using slash commands:
 ```
-Business Analyst → Technical CTO → Project Manager → Development Agents
-```
-
-### Parallel Execution
-Multiple agents can work simultaneously on independent tasks:
-```
-Frontend Architecture ═╦═ Backend Services ═╦═ Database Architecture
-                      ║                     ║
-                      ╚═════════╬═══════════╝
-                                ▼
-                          Integration Phase
+/analyze-business → @agent-business-analyst → @agent-technical-cto → @agent-project-manager → Development Agents
 ```
 
-### Hub and Spoke
-The Master Orchestrator acts as a central hub coordinating specialized agents:
+### Parallel Execution in 4-Stack System
+Multiple agents work simultaneously across stacks:
 ```
-                    ┌─── Business Analyst
-                    ├─── Technical CTO
-Master Orchestrator ┼─── Frontend Agents
-                    ├─── Backend Agents
-                    └─── DevOps Agents
+Stack 2: Architecture          Stack 3: Implementation
+@agent-frontend-architecture   @agent-backend-services
+@agent-database-architecture   @agent-production-frontend
+@agent-api-integration        @agent-mobile-development
+        ↓                              ↓
+        └──────── Integration Phase ───┘
 ```
 
-## Best Practices for Agent Usage
+### Hub and Spoke with Agent Routing
+The @agent-master-orchestrator routes to specialized agents:
+```
+/start-project → @agent-master-orchestrator
+                          │
+    ┌─────────────────────┼─────────────────────┐
+    │                     │                     │
+Stack 1: Business    Stack 2: Technical    Stack 3: Implementation
+@agent-business-analyst  @agent-technical-cto    @agent-backend-services
+@agent-financial-analyst @agent-frontend-architecture @agent-production-frontend
+@agent-ceo-strategy     @agent-database-architecture @agent-mobile-development
+```
 
-1. **Always Start with the Master Orchestrator** for new projects
-2. **Use Specific Agents** for focused tasks to avoid overhead
-3. **Follow the Natural Flow** - business → technical → implementation
-4. **Leverage Parallel Execution** when tasks are independent
-5. **Document Decision Points** at each phase transition
-6. **Monitor Agent Outputs** for quality and completeness
-7. **Chain Agents Effectively** by passing context between them
+## Best Practices for Agent Usage (v2.1)
 
-## Common Agent Combinations
+1. **Use Slash Commands** - Start with `/start-project` or specific commands like `/analyze-business`
+2. **Follow 4-Stack Flow** - Stack 1 (Business) → Stack 2 (Architecture) → Stack 3 (Implementation) → Stack 4 (Operations)
+3. **Leverage @agent- Syntax** - All agents use @agent- prefix for deterministic routing
+4. **Parallel Execution** - Run independent agents simultaneously across stacks
+5. **Cost Optimization** - Agents are automatically optimized for 60% cost reduction
+6. **Context Preservation** - Agents maintain context across the entire workflow
+7. **Use Specific Commands** - `/frontend`, `/backend`, `/api` for targeted development
+
+## Common Agent Combinations with Slash Commands
 
 ### Full Stack Web Application
-```
-Master Orchestrator → Business Analyst → Technical CTO → 
-Frontend Architecture → Backend Services → Database Architecture →
-DevOps Engineering → Testing Automation
+```bash
+/start-project "SaaS Platform"
+→ @agent-master-orchestrator coordinates:
+  Stack 1: @agent-business-analyst → @agent-financial-analyst
+  Stack 2: @agent-technical-cto → @agent-frontend-architecture → @agent-database-architecture
+  Stack 3: @agent-production-frontend → @agent-backend-services
+  Stack 4: @agent-devops-engineering → @agent-testing-automation
 ```
 
 ### Mobile Application
-```
-Master Orchestrator → Business Analyst → Mobile Development →
-Backend Services → API Integration Specialist → DevOps Engineering
+```bash
+/mobile-app "iOS/Android App"
+→ @agent-master-orchestrator coordinates:
+  Stack 1: @agent-business-analyst → @agent-ceo-strategy
+  Stack 2: @agent-ui-ux-design → @agent-mobile-development
+  Stack 3: @agent-backend-services → @agent-api-integration-specialist
+  Stack 4: @agent-devops-engineering → @agent-security-architecture
 ```
 
 ### API Service
-```
-Master Orchestrator → Technical Specifications → Backend Services →
-Database Architecture → API Integration Specialist → Security Architecture
+```bash
+/api-service "REST API"
+→ @agent-master-orchestrator coordinates:
+  Stack 2: @agent-technical-specifications → @agent-api-integration-specialist
+  Stack 3: @agent-backend-services → @agent-database-architecture
+  Stack 4: @agent-security-architecture → @agent-performance-optimization
 ```
 
 ### Enterprise System
+```bash
+/enterprise "ERP System"
+→ @agent-master-orchestrator coordinates:
+  Stack 1: @agent-business-analyst → @agent-technical-cto → @agent-business-tech-alignment
+  Stack 2: @agent-technical-specifications → All Architecture Agents
+  Stack 3: All Development Agents in parallel
+  Stack 4: All Quality & Operations Agents
 ```
-Master Orchestrator → Business Analyst → Technical CTO →
-Business-Tech Alignment → Technical Specifications → [Multiple Development Agents]
-```
+
+## Available Slash Commands (v2.1)
+
+### Project Initiation
+- `/start-project` - Begin full project with @agent-master-orchestrator
+- `/analyze-business` - Business analysis only
+- `/quick-prototype` - Rapid prototyping workflow
+
+### Development Commands
+- `/frontend` - Frontend development workflow
+- `/backend` - Backend development workflow
+- `/api` - API development workflow
+- `/mobile` - Mobile app workflow
+- `/fullstack` - Complete full-stack workflow
+
+### Specialized Commands
+- `/security-audit` - Security analysis workflow
+- `/performance` - Performance optimization workflow
+- `/deploy` - Deployment workflow
+- `/documentation` - Documentation generation
 
 ---
 
-This catalog serves as your comprehensive reference for understanding and utilizing all 28 agents in the Claude Code Agent System. Each agent is a specialist in its domain, and together they form a complete software development team.
+This catalog serves as your comprehensive reference for the v2.1 Claude Code Agent System. All 28 agents work together through the 4-stack architecture, using @agent- syntax for deterministic routing and slash commands for easy activation.
