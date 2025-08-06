@@ -37,9 +37,9 @@ $components = @{
     "MCPs" = @{ Enabled = !$SkipMCPs; Status = "Pending"; Script = "install-mcps.ps1" }
 }
 
-# Get script directory
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$rootDir = Split-Path -Parent (Split-Path -Parent $scriptDir)
+# When running from iwr | iex, we need to use GitHub URLs directly
+$baseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main"
+$installersUrl = "$baseUrl/platform-tools/windows/installers"
 
 # Function to run component installer
 function Install-Component {
@@ -53,24 +53,18 @@ function Install-Component {
     Write-Host "Installing $Name..." -ForegroundColor Cyan
     Write-Host "══════════════════════════════════════════════════" -ForegroundColor DarkGray
     
-    $scriptPath = Join-Path $scriptDir $ScriptName
-    
-    if (-not (Test-Path $scriptPath)) {
-        Write-Host "✗ Script not found: $scriptPath" -ForegroundColor Red
-        return $false
-    }
+    # Download and execute script from GitHub
+    $scriptUrl = "$installersUrl/$ScriptName"
     
     try {
-        # Execute the installer script
-        & $scriptPath
+        Write-Host "Downloading from: $scriptUrl" -ForegroundColor DarkGray
+        $scriptContent = Invoke-WebRequest -Uri $scriptUrl -UseBasicParsing -TimeoutSec 30
         
-        if ($LASTEXITCODE -eq 0) {
-            Write-Host "✓ $Name installed successfully!" -ForegroundColor Green
-            return $true
-        } else {
-            Write-Host "✗ $Name installation failed (exit code: $LASTEXITCODE)" -ForegroundColor Red
-            return $false
-        }
+        # Execute the downloaded script
+        Invoke-Expression $scriptContent.Content
+        
+        Write-Host "✓ $Name installed successfully!" -ForegroundColor Green
+        return $true
     } catch {
         Write-Host "✗ Error installing $Name`: $_" -ForegroundColor Red
         return $false
@@ -89,25 +83,43 @@ if (-not $isAdmin) {
 
 # Check for required tools
 $requiredTools = @{
-    "git" = "Git version control"
-    "node" = "Node.js runtime"
-    "npm" = "Node package manager"
-    "python" = "Python 3.8+"
+    "git" = @{ Description = "Git version control"; Required = $false }
+    "node" = @{ Description = "Node.js runtime"; Required = $false }
+    "npm" = @{ Description = "Node package manager"; Required = $false }
 }
 
-$missingTools = @()
+$optionalTools = @{
+    "python" = @{ Description = "Python 3.8+ (needed for hooks)"; Required = $false }
+}
+
+$missingCritical = @()
 foreach ($tool in $requiredTools.Keys) {
     try {
         $null = Get-Command $tool -ErrorAction Stop
         Write-Host "✓ Found $tool" -ForegroundColor Green
     } catch {
-        $missingTools += $tool
-        Write-Host "✗ Missing $tool - $($requiredTools[$tool])" -ForegroundColor Red
+        if ($requiredTools[$tool].Required) {
+            $missingCritical += $tool
+        }
+        Write-Host "⚠ Missing $tool - $($requiredTools[$tool].Description)" -ForegroundColor Yellow
     }
 }
 
-if ($missingTools.Count -gt 0 -and -not $Force) {
-    Write-Host "`n⚠ Missing required tools: $($missingTools -join ', ')" -ForegroundColor Red
+foreach ($tool in $optionalTools.Keys) {
+    try {
+        $null = Get-Command $tool -ErrorAction Stop
+        Write-Host "✓ Found $tool" -ForegroundColor Green
+    } catch {
+        Write-Host "⚠ Optional: $tool - $($optionalTools[$tool].Description)" -ForegroundColor DarkYellow
+        if ($tool -eq "python" -and -not $SkipHooks) {
+            Write-Host "  Note: Hooks will not be installed without Python" -ForegroundColor DarkGray
+            $SkipHooks = $true
+        }
+    }
+}
+
+if ($missingCritical.Count -gt 0 -and -not $Force) {
+    Write-Host "`n✗ Missing critical tools: $($missingCritical -join ', ')" -ForegroundColor Red
     Write-Host "Please install missing tools or use -Force to continue anyway" -ForegroundColor Yellow
     exit 1
 }
