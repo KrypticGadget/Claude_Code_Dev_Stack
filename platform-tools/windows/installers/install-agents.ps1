@@ -33,7 +33,7 @@ try {
     Write-Log "Directory ready: $agentsDir"
 } catch {
     Write-Log "ERROR creating directories: $_"
-    exit 1
+    return 1
 }
 
 # List of agent files
@@ -110,4 +110,5 @@ if ($failed -gt 0) {
 Write-Log "Location: $agentsDir"
 Write-Log "Agents installer finished"
 
-exit 0
+# Return instead of exit to avoid killing terminal
+return 0

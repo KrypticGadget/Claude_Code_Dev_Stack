@@ -81,4 +81,6 @@ Write-Host "2. Type @ to see agents" -ForegroundColor White
 Write-Host "3. Type / to see commands" -ForegroundColor White
 Write-Host ""
 
-exit 0
+# Don't use exit when running via iwr | iex as it kills the terminal
+# Just return instead
+return

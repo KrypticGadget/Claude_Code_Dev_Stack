@@ -48,4 +48,5 @@ Write-Host "`nComplete!" -ForegroundColor Cyan
 Write-Host "MCPs configured in: $claudeDir" -ForegroundColor White
 Write-Host "`nNote: MCPs (Playwright, Obsidian, Brave Search) need to be installed separately" -ForegroundColor Yellow
 
-exit 0
+# Return instead of exit to avoid killing terminal
+return 0

@@ -86,4 +86,5 @@ if (-not $hasPython) {
     Write-Host "Install Python from: https://python.org" -ForegroundColor Yellow
 }
 
-exit 0
+# Return instead of exit to avoid killing terminal
+return 0

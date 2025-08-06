@@ -33,7 +33,7 @@ try {
     Write-Log "Directory ready: $commandsDir"
 } catch {
     Write-Log "ERROR creating directories: $_"
-    exit 1
+    return 1
 }
 
 # List of command files
@@ -100,4 +100,5 @@ if ($failed -gt 0) {
 Write-Log "Location: $commandsDir"
 Write-Log "Commands installer finished"
 
-exit 0
+# Return instead of exit to avoid killing terminal
+return 0
