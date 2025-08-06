@@ -158,7 +158,7 @@ foreach ($command in $commands) {
         
         # Log error
         $errorLog = Join-Path $claudeRoot "command-install-errors.log"
-        $errorEntry = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - Failed to download $command: $errorMsg`n"
+        $errorEntry = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - Failed to download ${command}: ${errorMsg}`n"
         Add-Content -Path $errorLog -Value $errorEntry -Force
     }
     

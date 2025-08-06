@@ -41,8 +41,10 @@ foreach ($cmd in $pythonCmds) {
 }
 
 if (-not $pythonCmd) {
-    Write-Host "✗ Python 3.8+ not found. Please install from python.org" -ForegroundColor Red
-    exit 1
+    Write-Host "⚠ Python 3.8+ not found" -ForegroundColor Yellow
+    Write-Host "  Hooks require Python. Please install from python.org" -ForegroundColor DarkGray
+    Write-Host "  Skipping hooks installation (agents and commands will still work)" -ForegroundColor DarkGray
+    exit 0
 }
 
 # Find Claude Code root directory

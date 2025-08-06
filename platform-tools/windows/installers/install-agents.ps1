@@ -150,7 +150,7 @@ function Download-Agent {
         
         # Log detailed error for debugging
         $errorLog = Join-Path $claudeRootPath "agent-install-errors.log"
-        $errorEntry = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - Failed to download $AgentName: $errorMsg`n"
+        $errorEntry = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - Failed to download ${AgentName}: ${errorMsg}`n"
         Add-Content -Path $errorLog -Value $errorEntry -Force
         
         return $false
