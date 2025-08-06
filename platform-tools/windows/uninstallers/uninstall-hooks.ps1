@@ -1,46 +1,53 @@
-#!/usr/bin/env pwsh
-# Claude Code Dev Stack - Git Hooks Uninstaller for Windows
-# Removes Git hooks configuration
+# Simple Claude Code Hooks Uninstaller for Windows
+# Removes hooks from ~/.claude/hooks
 
-Write-Host "`n=== Claude Code Dev Stack - Git Hooks Uninstaller ===" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Claude Code Hooks Uninstaller" -ForegroundColor Red
+Write-Host "==============================" -ForegroundColor Red
+Write-Host ""
 
 # Define path
-$hooksPath = "$HOME\.claude-code-dev-stack\hooks"
+$claudeDir = "$env:USERPROFILE\.claude"
+$hooksDir = "$claudeDir\hooks"
 
-# Show what will be removed
-Write-Host "`nThis will remove:" -ForegroundColor Yellow
-Write-Host "  - Git hooks directory at: $hooksPath"
-Write-Host "  - Git global hooks configuration"
+Write-Host "Looking for hooks in: $hooksDir" -ForegroundColor Gray
+Write-Host ""
 
-# Ask for confirmation
-Write-Host "`nThis action cannot be undone!" -ForegroundColor Red
-$confirmation = Read-Host "Are you sure you want to uninstall Git hooks? (yes/no)"
-
-if ($confirmation -ne 'yes') {
-    Write-Host "`nUninstall cancelled." -ForegroundColor Yellow
+# Check if hooks exist
+if (-not (Test-Path $hooksDir)) {
+    Write-Host "No hooks found to uninstall." -ForegroundColor Yellow
     return
 }
 
-Write-Host "`nUninstalling..." -ForegroundColor Cyan
+# Count files
+$hookFiles = Get-ChildItem $hooksDir -Filter "*.py" -File
+$count = $hookFiles.Count
 
-# Remove hooks directory
-if (Test-Path $hooksPath) {
-    Write-Host "Removing hooks directory..." -ForegroundColor Yellow
-    try {
-        Remove-Item -Path $hooksPath -Recurse -Force
-        Write-Host "  Hooks directory removed" -ForegroundColor Green
-    }
-    catch {
-        Write-Host "  Error removing hooks: $_" -ForegroundColor Red
-    }
+Write-Host "Found $count hook files to remove:" -ForegroundColor Yellow
+Write-Host "  - $hooksDir" -ForegroundColor White
+Write-Host ""
+Write-Host "This action cannot be undone!" -ForegroundColor Red
+Write-Host ""
+$confirmation = Read-Host "Type 'yes' to confirm uninstallation"
+
+if ($confirmation -ne 'yes') {
+    Write-Host ""
+    Write-Host "Uninstall cancelled." -ForegroundColor Yellow
+    return
 }
-else {
-    Write-Host "  Hooks directory not found" -ForegroundColor Yellow
+
+Write-Host ""
+Write-Host "Uninstalling hooks..." -ForegroundColor Yellow
+
+try {
+    Remove-Item -Path $hooksDir -Recurse -Force -ErrorAction Stop
+    Write-Host "  Removed: $count hook files" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "Hooks uninstalled successfully!" -ForegroundColor Green
+} catch {
+    Write-Host "  Failed to remove hooks" -ForegroundColor Red
+    Write-Host "  Error: $_" -ForegroundColor Red
 }
 
-# Clean Git configuration
-Write-Host "Cleaning Git configuration..." -ForegroundColor Yellow
-git config --global --unset core.hooksPath 2>$null
-Write-Host "  Git configuration cleaned" -ForegroundColor Green
-
-Write-Host "`n=== Git Hooks Uninstall Complete ===" -ForegroundColor Green
+Write-Host ""
+return

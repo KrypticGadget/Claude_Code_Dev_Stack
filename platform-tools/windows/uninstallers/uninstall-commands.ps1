@@ -1,50 +1,53 @@
-#!/usr/bin/env pwsh
-# Claude Code Dev Stack - Commands Uninstaller for Windows
-# Removes command utilities
+# Simple Claude Code Commands Uninstaller for Windows
+# Removes commands from ~/.claude/commands
 
-Write-Host "`n=== Claude Code Dev Stack - Commands Uninstaller ===" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Claude Code Commands Uninstaller" -ForegroundColor Red
+Write-Host "=================================" -ForegroundColor Red
+Write-Host ""
 
 # Define path
-$commandsPath = "$HOME\.claude-commands"
+$claudeDir = "$env:USERPROFILE\.claude"
+$commandsDir = "$claudeDir\commands"
+
+Write-Host "Looking for commands in: $commandsDir" -ForegroundColor Gray
+Write-Host ""
 
 # Check if commands exist
-if (-not (Test-Path $commandsPath)) {
-    Write-Host "`nCommands directory not found." -ForegroundColor Yellow
-    Write-Host "Nothing to uninstall." -ForegroundColor Green
+if (-not (Test-Path $commandsDir)) {
+    Write-Host "No commands found to uninstall." -ForegroundColor Yellow
     return
 }
 
-# Show what will be removed
-Write-Host "`nThis will remove:" -ForegroundColor Yellow
-Write-Host "  - All command utilities at: $commandsPath"
+# Count files
+$commandFiles = Get-ChildItem $commandsDir -Filter "*.md" -File
+$count = $commandFiles.Count
 
-# Ask for confirmation
-Write-Host "`nThis action cannot be undone!" -ForegroundColor Red
-$confirmation = Read-Host "Are you sure you want to uninstall commands? (yes/no)"
+Write-Host "Found $count command files to remove:" -ForegroundColor Yellow
+Write-Host "  - $commandsDir" -ForegroundColor White
+Write-Host ""
+Write-Host "This action cannot be undone!" -ForegroundColor Red
+Write-Host ""
+$confirmation = Read-Host "Type 'yes' to confirm uninstallation"
 
 if ($confirmation -ne 'yes') {
-    Write-Host "`nUninstall cancelled." -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "Uninstall cancelled." -ForegroundColor Yellow
     return
 }
 
-# Remove commands
-Write-Host "`nRemoving commands..." -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Uninstalling commands..." -ForegroundColor Yellow
+
 try {
-    Remove-Item -Path $commandsPath -Recurse -Force
-    Write-Host "Commands removed successfully!" -ForegroundColor Green
-}
-catch {
-    Write-Host "Error removing commands: $_" -ForegroundColor Red
-    return
+    Remove-Item -Path $commandsDir -Recurse -Force -ErrorAction Stop
+    Write-Host "  Removed: $count command files" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "Commands uninstalled successfully!" -ForegroundColor Green
+} catch {
+    Write-Host "  Failed to remove commands" -ForegroundColor Red
+    Write-Host "  Error: $_" -ForegroundColor Red
 }
 
-# Clean PATH
-Write-Host "Cleaning PATH environment variable..." -ForegroundColor Yellow
-$currentPath = [Environment]::GetEnvironmentVariable("PATH", [EnvironmentVariableTarget]::User)
-$paths = $currentPath -split ';' | Where-Object { $_ -ne $commandsPath }
-$newPath = $paths -join ';'
-[Environment]::SetEnvironmentVariable("PATH", $newPath, [EnvironmentVariableTarget]::User)
-Write-Host "  PATH cleaned" -ForegroundColor Green
-
-Write-Host "`n=== Commands Uninstall Complete ===" -ForegroundColor Green
-Write-Host "Please restart your terminal for PATH changes to take effect." -ForegroundColor Yellow
+Write-Host ""
+return
