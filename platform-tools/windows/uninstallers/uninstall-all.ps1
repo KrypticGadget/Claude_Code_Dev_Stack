@@ -1,84 +1,107 @@
-#!/usr/bin/env pwsh
-# Claude Code Dev Stack - Complete Uninstaller for Windows
-# Removes all installed components with confirmation
+# Simple Claude Code Dev Stack Uninstaller for Windows
+# Removes all components from ~/.claude
 
-Write-Host "`n=== Claude Code Dev Stack - Complete Uninstaller ===" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Claude Code Dev Stack - Complete Uninstaller" -ForegroundColor Red
+Write-Host "============================================" -ForegroundColor Red
+Write-Host ""
 
-# Define paths
-$basePath = "$HOME\.claude-code-dev-stack"
-$commandsPath = "$HOME\.claude-commands"
-$mcpConfigPath = "$env:APPDATA\Claude\claude_desktop_config.json"
+# Define what will be removed
+$claudeDir = "$env:USERPROFILE\.claude"
+Write-Host "Looking for files in: $claudeDir" -ForegroundColor Gray
+$componentsToRemove = @(
+    "$claudeDir\agents",
+    "$claudeDir\commands",
+    "$claudeDir\hooks",
+    "$claudeDir\settings.json",
+    "$claudeDir\.mcp.json"
+)
 
-# Show what will be removed
-Write-Host "`nThis will remove:" -ForegroundColor Yellow
-Write-Host "  - Agent libraries at: $basePath"
-Write-Host "  - Command utilities at: $commandsPath"
-Write-Host "  - Git hooks configuration"
-Write-Host "  - MCP server configurations"
-Write-Host "  - PATH environment entries"
+# Check if anything is installed
+$foundSomething = $false
+foreach ($component in $componentsToRemove) {
+    if (Test-Path $component) {
+        $foundSomething = $true
+        break
+    }
+}
 
-# Ask for confirmation
-Write-Host "`nThis action cannot be undone!" -ForegroundColor Red
-$confirmation = Read-Host "Are you sure you want to uninstall? (yes/no)"
-
-if ($confirmation -ne 'yes') {
-    Write-Host "`nUninstall cancelled." -ForegroundColor Yellow
+if (-not $foundSomething) {
+    Write-Host "Nothing to uninstall - no components found." -ForegroundColor Yellow
     return
 }
 
-Write-Host "`nUninstalling..." -ForegroundColor Cyan
-
-# Remove agent libraries
-if (Test-Path $basePath) {
-    Write-Host "Removing agent libraries..." -ForegroundColor Yellow
-    Remove-Item -Path $basePath -Recurse -Force
-    Write-Host "  Agent libraries removed" -ForegroundColor Green
-}
-
-# Remove commands
-if (Test-Path $commandsPath) {
-    Write-Host "Removing command utilities..." -ForegroundColor Yellow
-    Remove-Item -Path $commandsPath -Recurse -Force
-    Write-Host "  Commands removed" -ForegroundColor Green
-}
-
-# Clean Git configuration
-Write-Host "Cleaning Git configuration..." -ForegroundColor Yellow
-git config --global --unset core.hooksPath 2>$null
-Write-Host "  Git configuration cleaned" -ForegroundColor Green
-
-# Clean MCP configuration
-if (Test-Path $mcpConfigPath) {
-    Write-Host "Cleaning MCP configuration..." -ForegroundColor Yellow
-    try {
-        $config = Get-Content $mcpConfigPath -Raw | ConvertFrom-Json
-        
-        # Remove our MCP servers
-        $servers = @("filesystem", "github", "git", "postgres", "sqlite")
-        foreach ($server in $servers) {
-            if ($config.mcpServers.PSObject.Properties[$server]) {
-                $config.mcpServers.PSObject.Properties.Remove($server)
-            }
+# Show what will be removed
+Write-Host "This will remove:" -ForegroundColor Yellow
+foreach ($component in $componentsToRemove) {
+    if (Test-Path $component) {
+        if (Test-Path -Path $component -PathType Container) {
+            $count = (Get-ChildItem $component -Recurse -File).Count
+            Write-Host "  - $component ($count files)" -ForegroundColor White
+        } else {
+            Write-Host "  - $component" -ForegroundColor White
         }
-        
-        $config | ConvertTo-Json -Depth 10 | Set-Content $mcpConfigPath
-        Write-Host "  MCP configuration cleaned" -ForegroundColor Green
-    }
-    catch {
-        Write-Host "  Warning: Could not clean MCP configuration" -ForegroundColor Yellow
     }
 }
 
-# Remove from PATH
-Write-Host "Cleaning PATH environment variable..." -ForegroundColor Yellow
-$currentPath = [Environment]::GetEnvironmentVariable("PATH", [EnvironmentVariableTarget]::User)
-$paths = $currentPath -split ';' | Where-Object { 
-    $_ -ne $commandsPath -and $_ -ne $basePath 
-}
-$newPath = $paths -join ';'
-[Environment]::SetEnvironmentVariable("PATH", $newPath, [EnvironmentVariableTarget]::User)
-Write-Host "  PATH cleaned" -ForegroundColor Green
+Write-Host ""
+Write-Host "This action cannot be undone!" -ForegroundColor Red
+Write-Host ""
+$confirmation = Read-Host "Type 'yes' to confirm uninstallation"
 
-Write-Host "`n=== Uninstall Complete ===" -ForegroundColor Green
-Write-Host "Please restart your terminal for all changes to take effect." -ForegroundColor Yellow
-Write-Host "Thank you for using Claude Code Dev Stack!" -ForegroundColor Cyan
+if ($confirmation -ne 'yes') {
+    Write-Host ""
+    Write-Host "Uninstall cancelled." -ForegroundColor Yellow
+    return
+}
+
+Write-Host ""
+Write-Host "Uninstalling..." -ForegroundColor Yellow
+
+# Remove components
+$removed = 0
+$failed = 0
+
+foreach ($component in $componentsToRemove) {
+    if (Test-Path $component) {
+        try {
+            Remove-Item -Path $component -Recurse -Force -ErrorAction Stop
+            Write-Host "  Removed: $(Split-Path $component -Leaf)" -ForegroundColor Green
+            $removed++
+        } catch {
+            Write-Host "  Failed to remove: $(Split-Path $component -Leaf)" -ForegroundColor Red
+            Write-Host "    Error: $_" -ForegroundColor Red
+            $failed++
+        }
+    }
+}
+
+# Clean up empty .claude directory if it exists
+if (Test-Path $claudeDir) {
+    $remaining = Get-ChildItem $claudeDir -Force
+    if ($remaining.Count -eq 0) {
+        try {
+            Remove-Item -Path $claudeDir -Force
+            Write-Host "  Removed empty .claude directory" -ForegroundColor Green
+        } catch {
+            Write-Host "  Could not remove .claude directory (may have other files)" -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host ""
+        Write-Host "Note: .claude directory still contains other files and was preserved" -ForegroundColor Yellow
+    }
+}
+
+Write-Host ""
+Write-Host "============================================" -ForegroundColor Green
+Write-Host "Uninstall Summary:" -ForegroundColor Green
+Write-Host "  Components removed: $removed" -ForegroundColor White
+if ($failed -gt 0) {
+    Write-Host "  Components failed: $failed" -ForegroundColor Red
+}
+Write-Host ""
+Write-Host "Claude Code Dev Stack has been uninstalled." -ForegroundColor Green
+Write-Host ""
+
+# Return instead of exit
+return
