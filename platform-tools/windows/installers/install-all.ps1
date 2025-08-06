@@ -1,20 +1,28 @@
 # Simple Claude Code Dev Stack Installer
 # Downloads all components from GitHub to ~/.claude
 
-Write-Host "`n========================================" -ForegroundColor Cyan
-Write-Host "  Claude Code Dev Stack Installer v2.1" -ForegroundColor Cyan  
-Write-Host "========================================" -ForegroundColor Cyan
-Write-Host ""
+# Setup logging
+$logFile = "$env:USERPROFILE\claude_installer.log"
+function Write-Log {
+    param($Message)
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    "$timestamp - $Message" | Out-File -FilePath $logFile -Append
+    Write-Host $Message
+}
+
+Write-Log "========================================="
+Write-Log "Claude Code Dev Stack Installer v2.1"
+Write-Log "========================================="
+Write-Log "Log file: $logFile"
 
 # Base URLs
 $baseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/installers"
 
-Write-Host "Installing 4 components:" -ForegroundColor Yellow
-Write-Host "1. Agents (28 files)" -ForegroundColor White
-Write-Host "2. Commands (18 files)" -ForegroundColor White
-Write-Host "3. Hooks (13 files)" -ForegroundColor White
-Write-Host "4. MCP configs" -ForegroundColor White
-Write-Host ""
+Write-Log "Installing 4 components:"
+Write-Log "1. Agents (28 files)"
+Write-Log "2. Commands (18 files)" 
+Write-Log "3. Hooks (13 files)"
+Write-Log "4. MCP configs"
 
 # Component installers
 $components = @(
@@ -25,25 +33,40 @@ $components = @(
 )
 
 foreach ($component in $components) {
-    Write-Host "----------------------------------------" -ForegroundColor DarkGray
-    Write-Host "Installing $($component.Name)..." -ForegroundColor Cyan
-    Write-Host "----------------------------------------" -ForegroundColor DarkGray
+    Write-Log "----------------------------------------"
+    Write-Log "Installing $($component.Name)..."
     
     $scriptUrl = "$baseUrl/$($component.Script)"
+    Write-Log "Downloading from: $scriptUrl"
     
     try {
         # Download and run the component installer
+        Write-Log "Fetching script content..."
         $scriptContent = Invoke-WebRequest -Uri $scriptUrl -UseBasicParsing -TimeoutSec 30 -ErrorAction Stop
+        
         if ($scriptContent -and $scriptContent.Content) {
-            Invoke-Expression $scriptContent.Content
+            Write-Log "Script downloaded, size: $($scriptContent.Content.Length) bytes"
+            Write-Log "Executing $($component.Name) installer..."
+            
+            # Save script to temp file and execute it separately to prevent crashes
+            $tempScript = "$env:TEMP\claude_$($component.Script)"
+            Write-Log "Saving to temp: $tempScript"
+            $scriptContent.Content | Out-File -FilePath $tempScript -Encoding UTF8
+            
+            Write-Log "Running script..."
+            & powershell.exe -ExecutionPolicy Bypass -File $tempScript
+            Write-Log "Script completed with exit code: $LASTEXITCODE"
+            
+            Remove-Item $tempScript -Force -ErrorAction SilentlyContinue
         } else {
-            Write-Host "Warning: Empty response for $($component.Name)" -ForegroundColor Yellow
+            Write-Log "ERROR: Empty response for $($component.Name)"
         }
     } catch {
-        Write-Host "Failed to install $($component.Name): $($_.Exception.Message)" -ForegroundColor Red
+        Write-Log "ERROR installing $($component.Name): $($_.Exception.Message)"
+        Write-Log "Stack trace: $($_.ScriptStackTrace)"
     }
     
-    Write-Host ""
+    Write-Log ""
 }
 
 Write-Host "========================================" -ForegroundColor Green

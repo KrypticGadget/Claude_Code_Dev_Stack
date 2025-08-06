@@ -33,8 +33,11 @@ foreach ($config in $configs) {
     }
     
     try {
-        $response = Invoke-WebRequest -Uri $config.Url -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop
-        [System.IO.File]::WriteAllBytes($dest, $response.Content)
+        # Download file using .NET WebClient for proper byte handling  
+        $webClient = New-Object System.Net.WebClient
+        $bytes = $webClient.DownloadData($config.Url)
+        [System.IO.File]::WriteAllBytes($dest, $bytes)
+        $webClient.Dispose()
         Write-Host "OK" -ForegroundColor Green
     } catch {
         Write-Host "FAILED" -ForegroundColor Red

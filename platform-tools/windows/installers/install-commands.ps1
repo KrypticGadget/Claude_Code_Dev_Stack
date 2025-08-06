@@ -1,22 +1,40 @@
 # Simple Claude Code Commands Installer
 # Just downloads command files from GitHub to ~/.claude/commands
 
-Write-Host "Claude Code Commands Installer" -ForegroundColor Cyan
-Write-Host "===============================" -ForegroundColor Cyan
+# Logging
+$logFile = "$env:USERPROFILE\claude_commands.log"
+function Write-Log {
+    param($Message)
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    "$timestamp - $Message" | Out-File -FilePath $logFile -Append
+    Write-Host $Message
+}
+
+Write-Log "Claude Code Commands Installer"
+Write-Log "==============================="
+Write-Log "Log file: $logFile"
 
 # Setup paths
 $claudeDir = "$env:USERPROFILE\.claude"
 $commandsDir = "$claudeDir\commands"
+Write-Log "Target directory: $commandsDir"
 
 # Create directories (Force creates even if exists)
-Write-Host "Setting up directories..." -ForegroundColor Yellow
-if (-not (Test-Path $claudeDir)) {
-    New-Item -ItemType Directory -Path $claudeDir -Force | Out-Null
+Write-Log "Setting up directories..."
+try {
+    if (-not (Test-Path $claudeDir)) {
+        Write-Log "Creating $claudeDir"
+        New-Item -ItemType Directory -Path $claudeDir -Force | Out-Null
+    }
+    if (-not (Test-Path $commandsDir)) {
+        Write-Log "Creating $commandsDir"
+        New-Item -ItemType Directory -Path $commandsDir -Force | Out-Null
+    }
+    Write-Log "Directory ready: $commandsDir"
+} catch {
+    Write-Log "ERROR creating directories: $_"
+    exit 1
 }
-if (-not (Test-Path $commandsDir)) {
-    New-Item -ItemType Directory -Path $commandsDir -Force | Out-Null
-}
-Write-Host "Directory ready: $commandsDir" -ForegroundColor Green
 
 # List of command files
 $commands = @(
@@ -42,33 +60,44 @@ $commands = @(
 
 $baseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/commands"
 
-Write-Host "Downloading $($commands.Count) commands..." -ForegroundColor Yellow
+Write-Log "Downloading $($commands.Count) commands..."
 $success = 0
 $failed = 0
+$count = 0
 
 foreach ($command in $commands) {
-    Write-Host "Downloading: $command... " -NoNewline
+    $count++
+    Write-Log "[$count/$($commands.Count)] Downloading: $command"
     $url = "$baseUrl/$command"
     $dest = "$commandsDir\$command"
     
     try {
-        $response = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop
-        [System.IO.File]::WriteAllBytes($dest, $response.Content)
-        Write-Host "OK" -ForegroundColor Green
+        Write-Log "  URL: $url"
+        Write-Log "  Dest: $dest"
+        
+        # Download file using .NET WebClient for proper byte handling
+        $webClient = New-Object System.Net.WebClient
+        $bytes = $webClient.DownloadData($url)
+        Write-Log "  Response size: $($bytes.Length) bytes"
+        
+        [System.IO.File]::WriteAllBytes($dest, $bytes)
+        $webClient.Dispose()
+        Write-Log "  SUCCESS"
         $success++
     } catch {
-        Write-Host "FAILED" -ForegroundColor Red
+        Write-Log "  ERROR: $_"
         $failed++
     }
     
     Start-Sleep -Milliseconds 200
 }
 
-Write-Host "`nComplete!" -ForegroundColor Cyan
-Write-Host "Success: $success" -ForegroundColor Green
+Write-Log "Complete!"
+Write-Log "Success: $success"
 if ($failed -gt 0) {
-    Write-Host "Failed: $failed" -ForegroundColor Red
+    Write-Log "Failed: $failed"
 }
-Write-Host "Location: $commandsDir" -ForegroundColor White
+Write-Log "Location: $commandsDir"
+Write-Log "Commands installer finished"
 
 exit 0

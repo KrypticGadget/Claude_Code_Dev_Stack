@@ -1,22 +1,40 @@
 # Simple Claude Code Agents Installer
 # Just downloads agent files from GitHub to ~/.claude/agents
 
-Write-Host "Claude Code Agents Installer" -ForegroundColor Cyan
-Write-Host "=============================" -ForegroundColor Cyan
+# Logging
+$logFile = "$env:USERPROFILE\claude_agents.log"
+function Write-Log {
+    param($Message)
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    "$timestamp - $Message" | Out-File -FilePath $logFile -Append
+    Write-Host $Message
+}
+
+Write-Log "Claude Code Agents Installer"
+Write-Log "============================="
+Write-Log "Log file: $logFile"
 
 # Setup paths
 $claudeDir = "$env:USERPROFILE\.claude"
 $agentsDir = "$claudeDir\agents"
+Write-Log "Target directory: $agentsDir"
 
 # Create directories (Force creates even if exists)
-Write-Host "Setting up directories..." -ForegroundColor Yellow
-if (-not (Test-Path $claudeDir)) {
-    New-Item -ItemType Directory -Path $claudeDir -Force | Out-Null
+Write-Log "Setting up directories..."
+try {
+    if (-not (Test-Path $claudeDir)) {
+        Write-Log "Creating $claudeDir"
+        New-Item -ItemType Directory -Path $claudeDir -Force | Out-Null
+    }
+    if (-not (Test-Path $agentsDir)) {
+        Write-Log "Creating $agentsDir"
+        New-Item -ItemType Directory -Path $agentsDir -Force | Out-Null
+    }
+    Write-Log "Directory ready: $agentsDir"
+} catch {
+    Write-Log "ERROR creating directories: $_"
+    exit 1
 }
-if (-not (Test-Path $agentsDir)) {
-    New-Item -ItemType Directory -Path $agentsDir -Force | Out-Null
-}
-Write-Host "Directory ready: $agentsDir" -ForegroundColor Green
 
 # List of agent files
 $agents = @(
@@ -52,33 +70,44 @@ $agents = @(
 
 $baseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/agents"
 
-Write-Host "Downloading $($agents.Count) agents..." -ForegroundColor Yellow
+Write-Log "Downloading $($agents.Count) agents..."
 $success = 0
 $failed = 0
+$count = 0
 
 foreach ($agent in $agents) {
-    Write-Host "Downloading: $agent... " -NoNewline
+    $count++
+    Write-Log "[$count/$($agents.Count)] Downloading: $agent"
     $url = "$baseUrl/$agent"
     $dest = "$agentsDir\$agent"
     
     try {
-        $response = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop
-        [System.IO.File]::WriteAllBytes($dest, $response.Content)
-        Write-Host "OK" -ForegroundColor Green
+        Write-Log "  URL: $url"
+        Write-Log "  Dest: $dest"
+        
+        # Download file using .NET WebClient for proper byte handling
+        $webClient = New-Object System.Net.WebClient
+        $bytes = $webClient.DownloadData($url)
+        Write-Log "  Response size: $($bytes.Length) bytes"
+        
+        [System.IO.File]::WriteAllBytes($dest, $bytes)
+        $webClient.Dispose()
+        Write-Log "  SUCCESS"
         $success++
     } catch {
-        Write-Host "FAILED" -ForegroundColor Red
+        Write-Log "  ERROR: $_"
         $failed++
     }
     
     Start-Sleep -Milliseconds 200
 }
 
-Write-Host "`nComplete!" -ForegroundColor Cyan
-Write-Host "Success: $success" -ForegroundColor Green
+Write-Log "Complete!"
+Write-Log "Success: $success"
 if ($failed -gt 0) {
-    Write-Host "Failed: $failed" -ForegroundColor Red
+    Write-Log "Failed: $failed"
 }
-Write-Host "Location: $agentsDir" -ForegroundColor White
+Write-Log "Location: $agentsDir"
+Write-Log "Agents installer finished"
 
 exit 0

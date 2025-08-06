@@ -59,8 +59,11 @@ foreach ($hook in $hooks) {
     $dest = "$hooksDir\$hook"
     
     try {
-        $response = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop
-        [System.IO.File]::WriteAllBytes($dest, $response.Content)
+        # Download file using .NET WebClient for proper byte handling
+        $webClient = New-Object System.Net.WebClient
+        $bytes = $webClient.DownloadData($url)
+        [System.IO.File]::WriteAllBytes($dest, $bytes)
+        $webClient.Dispose()
         Write-Host "OK" -ForegroundColor Green
         $success++
     } catch {
