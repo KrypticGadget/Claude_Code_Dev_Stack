@@ -13,7 +13,7 @@ platform-tools/
 
 ## ⚡ One-Liner Commands
 
-### 🚀 Installation
+### 🚀 Complete Installation (All Components)
 
 #### Windows PowerShell
 ```powershell
@@ -28,6 +28,76 @@ curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/m
 #### macOS
 ```bash
 curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/installers/install-all-mac.sh | bash
+```
+
+### 📦 Individual Component Installation
+
+#### 1️⃣ Agents Only (28 AI Agents)
+
+**Windows PowerShell:**
+```powershell
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/installers/install-agents.ps1 | iex
+```
+
+**Linux/WSL:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/installers/install-agents.sh | bash
+```
+
+**macOS:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/installers/install-agents-mac.sh | bash
+```
+
+#### 2️⃣ Commands Only (18 Slash Commands)
+
+**Windows PowerShell:**
+```powershell
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/installers/install-commands.ps1 | iex
+```
+
+**Linux/WSL:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/installers/install-commands.sh | bash
+```
+
+**macOS:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/installers/install-commands-mac.sh | bash
+```
+
+#### 3️⃣ Hooks Only (13 Automation Hooks)
+
+**Windows PowerShell:**
+```powershell
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/installers/install-hooks.ps1 | iex
+```
+
+**Linux/WSL:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/installers/install-hooks.sh | bash
+```
+
+**macOS:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/installers/install-hooks-mac.sh | bash
+```
+
+#### 4️⃣ MCP Configs Only (Model Context Protocol)
+
+**Windows PowerShell:**
+```powershell
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/installers/install-mcps.ps1 | iex
+```
+
+**Linux/WSL:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/installers/install-mcps.sh | bash
+```
+
+**macOS:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/installers/install-mcps-mac.sh | bash
 ```
 
 ### ✅ Verification
@@ -47,7 +117,7 @@ curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/m
 curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/verifiers/verify-installation-mac.sh | bash
 ```
 
-### 🗑️ Complete Uninstallation
+### 🗑️ Complete Uninstallation (All Components)
 
 #### Windows PowerShell
 ```powershell
@@ -62,6 +132,76 @@ curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/m
 #### macOS
 ```bash
 curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/uninstallers/uninstall-all-mac.sh | bash
+```
+
+### 🧹 Individual Component Uninstallation
+
+#### 1️⃣ Uninstall Agents Only
+
+**Windows PowerShell:**
+```powershell
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/uninstallers/uninstall-agents.ps1 | iex
+```
+
+**Linux/WSL:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/uninstallers/uninstall-agents.sh | bash
+```
+
+**macOS:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/uninstallers/uninstall-agents-mac.sh | bash
+```
+
+#### 2️⃣ Uninstall Commands Only
+
+**Windows PowerShell:**
+```powershell
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/uninstallers/uninstall-commands.ps1 | iex
+```
+
+**Linux/WSL:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/uninstallers/uninstall-commands.sh | bash
+```
+
+**macOS:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/uninstallers/uninstall-commands-mac.sh | bash
+```
+
+#### 3️⃣ Uninstall Hooks Only
+
+**Windows PowerShell:**
+```powershell
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/uninstallers/uninstall-hooks.ps1 | iex
+```
+
+**Linux/WSL:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/uninstallers/uninstall-hooks.sh | bash
+```
+
+**macOS:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/uninstallers/uninstall-hooks-mac.sh | bash
+```
+
+#### 4️⃣ Uninstall MCP Configs Only
+
+**Windows PowerShell:**
+```powershell
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/uninstallers/uninstall-mcps.ps1 | iex
+```
+
+**Linux/WSL:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/uninstallers/uninstall-mcps.sh | bash
+```
+
+**macOS:**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/uninstallers/uninstall-mcps-mac.sh | bash
 ```
 
 ## 📦 Tool Categories
