@@ -52,9 +52,27 @@ def update_agent_routing(mentions):
 
 if __name__ == "__main__":
     import sys
-    if len(sys.argv) > 1:
-        content = sys.argv[1]
-        mentions = parse_agent_mentions(content)
+    try:
+        # Read input from Claude Code via stdin
+        input_data = json.load(sys.stdin)
+        prompt = input_data.get("prompt", "")
+        
+        mentions = parse_agent_mentions(prompt)
         if mentions:
             update_agent_routing(mentions)
-            print(f"📍 Routed to: {', '.join(m['agent'] for m in mentions)}")
+            print(f"[UserPromptSubmit] Detected agents: {', '.join(m['agent'] for m in mentions)}")
+            
+            # Add context about detected agents
+            context = f"Routing to agents: {', '.join(m['agent'] for m in mentions)}"
+            output = {
+                "hookSpecificOutput": {
+                    "hookEventName": "UserPromptSubmit",
+                    "additionalContext": context
+                }
+            }
+            print(json.dumps(output))
+        
+        sys.exit(0)
+    except Exception as e:
+        print(f"Error in agent parser: {e}", file=sys.stderr)
+        sys.exit(1)

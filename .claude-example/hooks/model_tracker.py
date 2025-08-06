@@ -72,7 +72,40 @@ def track_model_usage(agent, model="default"):
 
 if __name__ == "__main__":
     import sys
-    if len(sys.argv) > 2:
-        agent = sys.argv[1]
-        model = sys.argv[2]
-        track_model_usage(agent, model)
+    try:
+        # Read input from Claude Code via stdin
+        input_data = json.load(sys.stdin)
+        session_id = input_data.get("session_id", "")
+        
+        print("[SubagentStop] Recording agent metrics...")
+        
+        # Track subagent usage (simplified - you'd parse more details in production)
+        metrics_file = STATE_DIR / "agent_metrics.json"
+        metrics_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        metrics = {}
+        if metrics_file.exists():
+            with open(metrics_file) as f:
+                metrics = json.load(f)
+        
+        # Update metrics
+        timestamp = datetime.now().isoformat()
+        if session_id not in metrics:
+            metrics[session_id] = []
+        
+        metrics[session_id].append({
+            "timestamp": timestamp,
+            "event": "subagent_stop"
+        })
+        
+        with open(metrics_file, 'w') as f:
+            json.dump(metrics, f, indent=2)
+        
+        # Track model usage for cost optimization
+        # In production, you'd extract the actual agent and model from input_data
+        track_model_usage("default-agent", "default")
+        
+        sys.exit(0)
+    except Exception as e:
+        print(f"Error in model tracker: {e}", file=sys.stderr)
+        sys.exit(1)

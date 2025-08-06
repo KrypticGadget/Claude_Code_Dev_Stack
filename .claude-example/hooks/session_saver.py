@@ -2,6 +2,7 @@
 """Session state persistence hook with microcompact awareness"""
 import json
 import os
+import sys
 import re
 from datetime import datetime
 from pathlib import Path
@@ -117,6 +118,39 @@ def save_session_state():
 
 if __name__ == "__main__":
     try:
+        # Read input from Claude Code via stdin
+        input_data = json.load(sys.stdin)
+        session_id = input_data.get("session_id", "")
+        transcript_path = input_data.get("transcript_path", "")
+        stop_hook_active = input_data.get("stop_hook_active", False)
+        
+        # Don't save if already in a stop hook loop
+        if stop_hook_active:
+            sys.exit(0)
+        
+        print("[Stop] Saving session state...")
+        
+        # Set session ID in environment for save_session_state
+        os.environ["SESSION_ID"] = session_id
+        
         save_session_state()
+        
+        # Save session data for next session
+        session_data = {
+            "session_id": session_id,
+            "timestamp": datetime.now().isoformat(),
+            "transcript": transcript_path,
+            "status": "completed"
+        }
+        
+        session_file = STATE_DIR / "session.json"
+        session_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(session_file, 'w') as f:
+            json.dump(session_data, f, indent=2)
+        
+        print(f"Session saved: {session_id}")
+        sys.exit(0)
     except Exception as e:
-        print(f"❌ Session save failed: {e}")
+        print(f"❌ Session save failed: {e}", file=sys.stderr)
+        sys.exit(1)

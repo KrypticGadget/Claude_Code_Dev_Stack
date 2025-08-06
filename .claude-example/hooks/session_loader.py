@@ -96,8 +96,26 @@ def load_session_state():
 
 if __name__ == "__main__":
     try:
+        # Read input from Claude Code via stdin
+        input_data = json.load(sys.stdin)
+        session_id = input_data.get("session_id", "")
+        hook_event = input_data.get("hook_event_name", "")
+        source = input_data.get("source", "startup")
+        
+        print(f"[SessionStart] Loading session (source: {source})...")
+        
         STATE_DIR.mkdir(parents=True, exist_ok=True)
         load_session_state()
+        
+        # Output additional context for Claude
+        output = {
+            "hookSpecificOutput": {
+                "hookEventName": "SessionStart",
+                "additionalContext": f"Session context restored from {OUTPUT_FILE}"
+            }
+        }
+        print(json.dumps(output))
+        sys.exit(0)
     except Exception as e:
-        print(f"❌ Session restoration failed: {e}")
+        print(f"❌ Session restoration failed: {e}", file=sys.stderr)
         sys.exit(1)

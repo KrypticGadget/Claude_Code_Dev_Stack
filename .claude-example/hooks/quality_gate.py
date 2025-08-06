@@ -72,39 +72,62 @@ def check_file_quality(file_path, content):
 
 def main():
     """Main quality gate execution"""
-    # Get file being edited from environment or args
-    file_path = sys.argv[1] if len(sys.argv) > 1 else os.getenv("EDITING_FILE", "")
-    
-    if not file_path or not Path(file_path).exists():
-        print("⚠️  No file to check")
+    try:
+        # Read input from Claude Code via stdin
+        input_data = json.load(sys.stdin)
+        tool_name = input_data.get("tool_name", "")
+        tool_input = input_data.get("tool_input", {})
+        
+        # Check for dangerous operations on sensitive files
+        if tool_name in ["Write", "Edit", "MultiEdit"]:
+            file_path = tool_input.get("file_path", "")
+            
+            # Block sensitive files
+            sensitive_patterns = [
+                ".env", ".git/", "credentials", "secrets",
+                "password", "token", "key", ".ssh/"
+            ]
+            
+            if any(pattern in file_path.lower() for pattern in sensitive_patterns):
+                # Block with JSON output
+                output = {
+                    "hookSpecificOutput": {
+                        "hookEventName": "PreToolUse",
+                        "permissionDecision": "deny",
+                        "permissionDecisionReason": f"Blocked: Attempting to modify sensitive file {file_path}"
+                    }
+                }
+                print(json.dumps(output))
+                return 0
+            
+            # Auto-approve safe files
+            safe_extensions = [".md", ".txt", ".json", ".py", ".js", ".ts"]
+            if any(file_path.endswith(ext) for ext in safe_extensions):
+                # Check quality if it's a code file
+                if file_path.endswith(('.py', '.js', '.ts')) and Path(file_path).exists():
+                    with open(file_path) as f:
+                        content = f.read()
+                    
+                    issues = check_file_quality(file_path, content)
+                    
+                    if issues:
+                        print(f"[PreToolUse] Quality issues found in {file_path}")
+                        for issue in issues:
+                            print(f"  - {issue}")
+                
+                output = {
+                    "hookSpecificOutput": {
+                        "hookEventName": "PreToolUse",
+                        "permissionDecision": "allow",
+                        "permissionDecisionReason": "Safe file type auto-approved"
+                    }
+                }
+                print(json.dumps(output))
+        
         return 0
-    
-    with open(file_path) as f:
-        content = f.read()
-    
-    issues = check_file_quality(file_path, content)
-    
-    if issues:
-        print(f"❌ Quality gate failed for {file_path}:")
-        for issue in issues:
-            print(f"  - {issue}")
-        
-        # Create quality report
-        report = {
-            "file": file_path,
-            "timestamp": datetime.now().isoformat(),
-            "issues": issues
-        }
-        
-        report_file = CLAUDE_DIR / "state" / "quality_report.json"
-        report_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(report_file, 'w') as f:
-            json.dump(report, f, indent=2)
-        
+    except Exception as e:
+        print(f"Error in quality gate: {e}", file=sys.stderr)
         return 1
-    else:
-        print(f"✅ Quality gate passed for {file_path}")
-        return 0
 
 if __name__ == "__main__":
     sys.exit(main())

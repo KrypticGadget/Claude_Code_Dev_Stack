@@ -59,7 +59,29 @@ This file will be automatically removed once planning is complete.
     print(f"🎯 Planning phase triggered by {file_path}")
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        file_path = sys.argv[1]
-        if should_trigger_planning(file_path):
-            create_planning_trigger(file_path)
+    try:
+        # Read input from Claude Code via stdin
+        input_data = json.load(sys.stdin)
+        tool_name = input_data.get("tool_name", "")
+        tool_input = input_data.get("tool_input", {})
+        
+        # Check if this is a file modification
+        if tool_name in ["Write", "Edit", "MultiEdit"]:
+            file_path = tool_input.get("file_path", "")
+            
+            if file_path and should_trigger_planning(file_path):
+                create_planning_trigger(file_path)
+                
+                # Output for Claude Code
+                output = {
+                    "hookSpecificOutput": {
+                        "hookEventName": "PostToolUse",
+                        "additionalContext": f"Planning phase triggered by {file_path}. Run /technical-feasibility"
+                    }
+                }
+                print(json.dumps(output))
+        
+        sys.exit(0)
+    except Exception as e:
+        print(f"Error in planning trigger: {e}", file=sys.stderr)
+        sys.exit(1)

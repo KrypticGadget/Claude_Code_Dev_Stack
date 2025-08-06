@@ -119,7 +119,26 @@ def create_routing_suggestion(prompt, agents):
             print(f"🤖 Suggested agents: {', '.join('@agent-' + a['agent'] for a in agents)}")
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        prompt = sys.argv[1]
-        agents = analyze_prompt(prompt)
-        create_routing_suggestion(prompt, agents)
+    try:
+        # Read input from Claude Code via stdin
+        input_data = json.load(sys.stdin)
+        prompt = input_data.get("prompt", "")
+        
+        if prompt:
+            agents = analyze_prompt(prompt)
+            create_routing_suggestion(prompt, agents)
+            
+            # Output for Claude Code
+            if agents:
+                output = {
+                    "hookSpecificOutput": {
+                        "hookEventName": "UserPromptSubmit",
+                        "additionalContext": f"Suggested agents: {', '.join('@agent-' + a['agent'] for a in agents)}"
+                    }
+                }
+                print(json.dumps(output))
+        
+        sys.exit(0)
+    except Exception as e:
+        print(f"Error in agent orchestrator: {e}", file=sys.stderr)
+        sys.exit(1)

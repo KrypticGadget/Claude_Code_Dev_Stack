@@ -61,10 +61,39 @@ def validate_mcp_usage(mcp_tool):
     return True
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        mcp_tool = sys.argv[1].replace("mcp__", "")
-        if validate_mcp_usage(mcp_tool):
-            print(f"✅ MCP '{mcp_tool}' validated")
-            sys.exit(0)
-        else:
-            sys.exit(1)
+    try:
+        # Read input from Claude Code via stdin
+        input_data = json.load(sys.stdin)
+        tool_name = input_data.get("tool_name", "")
+        
+        # Check if this is an MCP tool
+        if tool_name.startswith("mcp__"):
+            mcp_tool = tool_name.replace("mcp__", "")
+            
+            if validate_mcp_usage(mcp_tool):
+                print(f"[PreToolUse] MCP '{mcp_tool}' validated")
+                output = {
+                    "hookSpecificOutput": {
+                        "hookEventName": "PreToolUse",
+                        "permissionDecision": "allow",
+                        "permissionDecisionReason": f"MCP tool '{mcp_tool}' is approved"
+                    }
+                }
+                print(json.dumps(output))
+                sys.exit(0)
+            else:
+                output = {
+                    "hookSpecificOutput": {
+                        "hookEventName": "PreToolUse",
+                        "permissionDecision": "deny",
+                        "permissionDecisionReason": f"MCP tool '{mcp_tool}' not approved or limit reached"
+                    }
+                }
+                print(json.dumps(output))
+                sys.exit(0)
+        
+        # Not an MCP tool, allow it
+        sys.exit(0)
+    except Exception as e:
+        print(f"Error in MCP gateway: {e}", file=sys.stderr)
+        sys.exit(1)
