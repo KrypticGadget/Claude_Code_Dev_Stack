@@ -5,39 +5,42 @@
 Write-Host "`n=== Claude Code Dev Stack - Installation Verifier ===" -ForegroundColor Cyan
 
 # Define paths to check
-$basePath = "$HOME\.claude-code-dev-stack"
-$commandsPath = "$HOME\.claude-commands"
-$mcpConfigPath = "$env:APPDATA\Claude\claude_desktop_config.json"
+$claudeDir = "$env:USERPROFILE\.claude"
+$agentsPath = "$claudeDir\agents"
+$commandsPath = "$claudeDir\commands"
+$hooksPath = "$claudeDir\hooks"
+$settingsPath = "$claudeDir\settings.json"
+$mcpPath = "$claudeDir\.mcp.json"
 
 # Check results
 $results = @{
-    AgentLibraries = $false
+    Agents = $false
     Commands = $false
-    GitHooks = $false
+    Hooks = $false
+    Settings = $false
     MCPConfig = $false
-    PathConfig = $false
 }
 
 Write-Host "`nChecking installation..." -ForegroundColor Yellow
 
-# Check agent libraries
-if (Test-Path "$basePath\agents") {
-    $agentCount = (Get-ChildItem "$basePath\agents" -File -ErrorAction SilentlyContinue).Count
+# Check agents
+if (Test-Path $agentsPath) {
+    $agentCount = (Get-ChildItem $agentsPath -Filter "*.md" -File -ErrorAction SilentlyContinue).Count
     if ($agentCount -gt 0) {
-        Write-Host "  Agent libraries: Found ($agentCount files)" -ForegroundColor Green
-        $results.AgentLibraries = $true
+        Write-Host "  Agents: Found ($agentCount files)" -ForegroundColor Green
+        $results.Agents = $true
     }
     else {
-        Write-Host "  Agent libraries: Empty directory" -ForegroundColor Yellow
+        Write-Host "  Agents: Empty directory" -ForegroundColor Yellow
     }
 }
 else {
-    Write-Host "  Agent libraries: Not installed" -ForegroundColor Red
+    Write-Host "  Agents: Not installed" -ForegroundColor Red
 }
 
 # Check commands
 if (Test-Path $commandsPath) {
-    $cmdCount = (Get-ChildItem $commandsPath -File -ErrorAction SilentlyContinue).Count
+    $cmdCount = (Get-ChildItem $commandsPath -Filter "*.md" -File -ErrorAction SilentlyContinue).Count
     if ($cmdCount -gt 0) {
         Write-Host "  Commands: Found ($cmdCount files)" -ForegroundColor Green
         $results.Commands = $true
@@ -50,53 +53,37 @@ else {
     Write-Host "  Commands: Not installed" -ForegroundColor Red
 }
 
-# Check Git hooks
-$gitHooksPath = git config --global --get core.hooksPath 2>$null
-if ($gitHooksPath -and (Test-Path "$basePath\hooks")) {
-    Write-Host "  Git hooks: Configured" -ForegroundColor Green
-    $results.GitHooks = $true
+# Check hooks
+if (Test-Path $hooksPath) {
+    $hookCount = (Get-ChildItem $hooksPath -Filter "*.py" -File -ErrorAction SilentlyContinue).Count
+    if ($hookCount -gt 0) {
+        Write-Host "  Hooks: Found ($hookCount files)" -ForegroundColor Green
+        $results.Hooks = $true
+    }
+    else {
+        Write-Host "  Hooks: Empty directory" -ForegroundColor Yellow
+    }
 }
 else {
-    Write-Host "  Git hooks: Not configured" -ForegroundColor Red
+    Write-Host "  Hooks: Not installed" -ForegroundColor Red
+}
+
+# Check settings.json
+if (Test-Path $settingsPath) {
+    Write-Host "  Settings: Found" -ForegroundColor Green
+    $results.Settings = $true
+}
+else {
+    Write-Host "  Settings: Not installed" -ForegroundColor Red
 }
 
 # Check MCP configuration
-if (Test-Path $mcpConfigPath) {
-    try {
-        $config = Get-Content $mcpConfigPath -Raw | ConvertFrom-Json
-        $mcpServers = @("filesystem", "github", "git", "postgres", "sqlite")
-        $foundServers = @()
-        
-        foreach ($server in $mcpServers) {
-            if ($config.mcpServers.PSObject.Properties[$server]) {
-                $foundServers += $server
-            }
-        }
-        
-        if ($foundServers.Count -gt 0) {
-            Write-Host "  MCP servers: Found ($($foundServers.Count) configured)" -ForegroundColor Green
-            $results.MCPConfig = $true
-        }
-        else {
-            Write-Host "  MCP servers: None configured" -ForegroundColor Red
-        }
-    }
-    catch {
-        Write-Host "  MCP servers: Error reading config" -ForegroundColor Red
-    }
+if (Test-Path $mcpPath) {
+    Write-Host "  MCP Config: Found" -ForegroundColor Green
+    $results.MCPConfig = $true
 }
 else {
-    Write-Host "  MCP servers: Config file not found" -ForegroundColor Red
-}
-
-# Check PATH
-$currentPath = [Environment]::GetEnvironmentVariable("PATH", [EnvironmentVariableTarget]::User)
-if ($currentPath -like "*$commandsPath*") {
-    Write-Host "  PATH: Commands directory included" -ForegroundColor Green
-    $results.PathConfig = $true
-}
-else {
-    Write-Host "  PATH: Commands directory not in PATH" -ForegroundColor Red
+    Write-Host "  MCP Config: Not installed" -ForegroundColor Red
 }
 
 # Summary
