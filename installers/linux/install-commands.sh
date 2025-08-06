@@ -93,7 +93,7 @@ commands=(
     "technical-feasibility.md"
 )
 
-BASE_URL="https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/slash-commands/commands/"
+BASE_URL="https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/commands/"
 TOTAL_COMMANDS=${#commands[@]}
 COMPLETED=0
 FAILED=0

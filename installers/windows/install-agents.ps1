@@ -9,7 +9,7 @@ $ProgressPreference = "SilentlyContinue"  # Disable built-in progress bars that 
 $startTime = Get-Date
 
 # Configuration
-$REPO_BASE = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/Config_Files"
+$REPO_BASE = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/agents"
 $AGENTS = @(
     "api-integration-specialist-agent.md",
     "backend-services-agent.md",

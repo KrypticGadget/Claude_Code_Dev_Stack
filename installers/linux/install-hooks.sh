@@ -235,7 +235,7 @@ DOWNLOADED=0
 TOTAL=$((${#HOOK_SCRIPTS[@]} + ${#CONFIG_FILES[@]}))
 
 for script in "${HOOK_SCRIPTS[@]}"; do
-    URL="$BASE_URL/.claude/hooks/$script"
+    URL="$BASE_URL/.claude-example/hooks/$script"
     DEST="$GLOBAL_HOOKS_DIR/hooks/$script"
     
     if curl -sS -f -o "$DEST" "$URL" 2>/dev/null; then
@@ -317,7 +317,7 @@ echo # New line after progress bar
 log_info "Downloading config files..."
 
 for config in "${CONFIG_FILES[@]}"; do
-    URL="$BASE_URL/.claude/config/$config"
+    URL="$BASE_URL/.claude-example/config/$config"
     DEST="$GLOBAL_HOOKS_DIR/config/$config"
     
     if curl -sS -f -o "$DEST" "$URL" 2>/dev/null; then

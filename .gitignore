@@ -98,11 +98,43 @@ temp/
 *.rar
 
 # Claude specific
-.claude/cache/
-.claude/tmp/
-.claude/logs/
+.claude/
+!.claude-example/
+
+# Old directories (should not exist)
+Config_Files/
+hooks/
+slash-commands/
+
+# Archive directory
+archive/
+
+# Development phase files (temporary)
+# DEV_PHASE/
 
 # Project specific
 /private/
 /secrets/
 /local-only/
+
+# Installation logs
+agent-install-errors.log
+command-install-errors.log
+hook-install-errors.log
+installation.log
+uninstall.log
+
+# Desktop files
+desktop.ini
+
+# Test and verification files
+test-*.ps1
+verify-*.sh
+
+# Keep important files
+!.gitignore
+!.gitattributes
+!README.md
+!LICENSE
+!UNIVERSAL_META_PROMPTING_GUIDE.md
+!UNIVERSAL_META_PROMPTING_GUIDE_V21.md

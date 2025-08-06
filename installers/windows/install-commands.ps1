@@ -87,7 +87,7 @@ $commands = @(
     "technical-feasibility.md"
 )
 
-$baseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/slash-commands/commands/"
+$baseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/commands/"
 $totalCommands = $commands.Count
 $completed = 0
 $failed = 0
