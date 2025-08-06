@@ -7,9 +7,12 @@ Write-Host "===========================" -ForegroundColor Cyan
 # Setup paths
 $claudeDir = "$env:USERPROFILE\.claude"
 
-# Create directory
-Write-Host "Creating directories..." -ForegroundColor Yellow
-New-Item -ItemType Directory -Force -Path $claudeDir | Out-Null
+# Create directory (Force creates even if exists)
+Write-Host "Setting up directories..." -ForegroundColor Yellow
+if (-not (Test-Path $claudeDir)) {
+    New-Item -ItemType Directory -Path $claudeDir -Force | Out-Null
+}
+Write-Host "Directory ready: $claudeDir" -ForegroundColor Green
 
 # Download MCP config files
 $configs = @(
@@ -30,7 +33,8 @@ foreach ($config in $configs) {
     }
     
     try {
-        Invoke-WebRequest -Uri $config.Url -OutFile $dest -UseBasicParsing -TimeoutSec 10
+        $response = Invoke-WebRequest -Uri $config.Url -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop
+        [System.IO.File]::WriteAllBytes($dest, $response.Content)
         Write-Host "OK" -ForegroundColor Green
     } catch {
         Write-Host "FAILED" -ForegroundColor Red

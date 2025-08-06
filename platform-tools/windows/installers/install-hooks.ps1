@@ -20,9 +20,15 @@ try {
 $claudeDir = "$env:USERPROFILE\.claude"
 $hooksDir = "$claudeDir\hooks"
 
-# Create directories
-Write-Host "Creating directories..." -ForegroundColor Yellow
-New-Item -ItemType Directory -Force -Path $hooksDir | Out-Null
+# Create directories (Force creates even if exists)
+Write-Host "Setting up directories..." -ForegroundColor Yellow
+if (-not (Test-Path $claudeDir)) {
+    New-Item -ItemType Directory -Path $claudeDir -Force | Out-Null
+}
+if (-not (Test-Path $hooksDir)) {
+    New-Item -ItemType Directory -Path $hooksDir -Force | Out-Null
+}
+Write-Host "Directory ready: $hooksDir" -ForegroundColor Green
 
 # List of hook files
 $hooks = @(
@@ -53,7 +59,8 @@ foreach ($hook in $hooks) {
     $dest = "$hooksDir\$hook"
     
     try {
-        Invoke-WebRequest -Uri $url -OutFile $dest -UseBasicParsing -TimeoutSec 10
+        $response = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop
+        [System.IO.File]::WriteAllBytes($dest, $response.Content)
         Write-Host "OK" -ForegroundColor Green
         $success++
     } catch {

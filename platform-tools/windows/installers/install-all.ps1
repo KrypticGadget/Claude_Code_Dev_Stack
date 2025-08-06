@@ -33,10 +33,14 @@ foreach ($component in $components) {
     
     try {
         # Download and run the component installer
-        $scriptContent = Invoke-WebRequest -Uri $scriptUrl -UseBasicParsing -TimeoutSec 30
-        Invoke-Expression $scriptContent.Content
+        $scriptContent = Invoke-WebRequest -Uri $scriptUrl -UseBasicParsing -TimeoutSec 30 -ErrorAction Stop
+        if ($scriptContent -and $scriptContent.Content) {
+            Invoke-Expression $scriptContent.Content
+        } else {
+            Write-Host "Warning: Empty response for $($component.Name)" -ForegroundColor Yellow
+        }
     } catch {
-        Write-Host "Failed to install $($component.Name): $_" -ForegroundColor Red
+        Write-Host "Failed to install $($component.Name): $($_.Exception.Message)" -ForegroundColor Red
     }
     
     Write-Host ""

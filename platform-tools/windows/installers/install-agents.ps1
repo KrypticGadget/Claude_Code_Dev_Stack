@@ -8,9 +8,15 @@ Write-Host "=============================" -ForegroundColor Cyan
 $claudeDir = "$env:USERPROFILE\.claude"
 $agentsDir = "$claudeDir\agents"
 
-# Create directories
-Write-Host "Creating directories..." -ForegroundColor Yellow
-New-Item -ItemType Directory -Force -Path $agentsDir | Out-Null
+# Create directories (Force creates even if exists)
+Write-Host "Setting up directories..." -ForegroundColor Yellow
+if (-not (Test-Path $claudeDir)) {
+    New-Item -ItemType Directory -Path $claudeDir -Force | Out-Null
+}
+if (-not (Test-Path $agentsDir)) {
+    New-Item -ItemType Directory -Path $agentsDir -Force | Out-Null
+}
+Write-Host "Directory ready: $agentsDir" -ForegroundColor Green
 
 # List of agent files
 $agents = @(
@@ -56,7 +62,8 @@ foreach ($agent in $agents) {
     $dest = "$agentsDir\$agent"
     
     try {
-        Invoke-WebRequest -Uri $url -OutFile $dest -UseBasicParsing -TimeoutSec 10
+        $response = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop
+        [System.IO.File]::WriteAllBytes($dest, $response.Content)
         Write-Host "OK" -ForegroundColor Green
         $success++
     } catch {
