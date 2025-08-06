@@ -7,6 +7,34 @@
 [![MCPs](https://img.shields.io/badge/MCP_Tools-3-orange)](docs/reference/MCP_GUIDE.md)
 [![Hooks](https://img.shields.io/badge/Automation_Hooks-13-red)](./.claude-example/hooks)
 
+## 🧠 Universal Meta Prompting Guide
+
+**Generate perfect Claude Code prompts in any AI!** The [Universal Meta Prompting Guide](UNIVERSAL_META_PROMPTING_GUIDE.md) is your secret weapon for complex projects.
+
+**How to use:**
+1. Open any AI (ChatGPT, Claude.ai, Gemini, etc.)
+2. Copy & paste the entire [UNIVERSAL_META_PROMPTING_GUIDE.md](UNIVERSAL_META_PROMPTING_GUIDE.md)
+3. Describe your project requirements
+4. Receive a perfectly orchestrated Claude Code prompt
+5. Run it in Claude Code and watch the magic happen!
+
+**Example:** Turn "I need a SaaS platform" into a complete development plan with the right agents, commands, and workflow.
+
+## 📖 Complete System Guide
+
+**Master the 4-Stack System!** The [Claude Code Stack Summary](CLAUDE_CODE_STACK_SUMMARY.md) is your comprehensive guide to understanding how everything works together.
+
+**What's inside:**
+- **The 4-Stack System Explained** - How agents, commands, MCPs, and hooks integrate
+- **All 28 Agents Detailed** - Complete list with examples and power combinations
+- **All 18 Commands Explained** - Every workflow at your fingertips
+- **Performance Patterns** - Achieve 10x speed and 60% cost savings
+- **Real Metrics** - Proven results from production usage
+
+**Perfect for:** Understanding the system, training your team, maximizing performance, and building like a pro.
+
+[Read the Complete System Guide →](CLAUDE_CODE_STACK_SUMMARY.md)
+
 ## 📚 Documentation
 
 ### 🚀 Getting Started
