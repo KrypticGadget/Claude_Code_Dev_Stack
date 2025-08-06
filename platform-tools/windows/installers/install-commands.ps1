@@ -162,8 +162,11 @@ foreach ($command in $commands) {
         Add-Content -Path $errorLog -Value $errorEntry -Force
     }
     
-    # Small delay to avoid rate limiting
-    Start-Sleep -Milliseconds 300
+    # Longer delay to prevent overwhelming the system
+    Start-Sleep -Milliseconds 1000
+    
+    # Clear variables to prevent memory buildup
+    [System.GC]::Collect()
 }
 
 # Save command registry

@@ -11,34 +11,34 @@ $startTime = Get-Date
 # Configuration
 $REPO_BASE = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/agents"
 $AGENTS = @(
-    "api-integration-specialist-agent.md",
-    "backend-services-agent.md",
-    "business-analyst-agent.md",
-    "business-tech-alignment-agent.md",
-    "ceo-strategy-agent.md",
-    "database-architecture-agent.md",
-    "development-prompt-agent.md",
-    "devops-engineering-agent.md",
-    "financial-analyst-agent.md",
-    "frontend-architecture-agent.md",
-    "frontend-mockup-agent.md",
-    "integration-setup-agent.md",
-    "master-orchestrator-agent.md",
-    "middleware-specialist-agent.md",
-    "mobile-development-agent.md",
-    "performance-optimization-agent.md",
-    "production-frontend-agent.md",
-    "project-manager-agent.md",
-    "prompt-engineer-agent.md",
-    "quality-assurance-agent.md",
-    "script-automation-agent.md",
-    "security-architecture-agent.md",
-    "technical-cto-agent.md",
-    "technical-documentation-agent.md",
-    "technical-specifications-agent.md",
-    "testing-automation-agent.md",
-    "ui-ux-design-agent.md",
-    "usage-guide-agent.md"
+    "api-integration-specialist.md",
+    "backend-services.md",
+    "business-analyst.md",
+    "business-tech-alignment.md",
+    "ceo-strategy.md",
+    "database-architecture.md",
+    "development-prompt.md",
+    "devops-engineering.md",
+    "financial-analyst.md",
+    "frontend-architecture.md",
+    "frontend-mockup.md",
+    "integration-setup.md",
+    "master-orchestrator.md",
+    "middleware-specialist.md",
+    "mobile-development.md",
+    "performance-optimization.md",
+    "production-frontend.md",
+    "project-manager.md",
+    "prompt-engineer.md",
+    "quality-assurance.md",
+    "script-automation.md",
+    "security-architecture.md",
+    "technical-cto.md",
+    "technical-documentation.md",
+    "technical-specifications.md",
+    "testing-automation.md",
+    "ui-ux-design.md",
+    "usage-guide.md"
 )
 
 Write-Host "`nClaude Code Agents Installer v3.1 - Fixed Edition" -ForegroundColor Cyan
@@ -179,8 +179,11 @@ for ($i = 0; $i -lt $AGENTS.Count; $i++) {
         $failedAgents += $agent
     }
     
-    # Small delay to avoid rate limiting
-    Start-Sleep -Milliseconds 500
+    # Longer delay to prevent overwhelming the system
+    Start-Sleep -Milliseconds 1000
+    
+    # Clear variables to prevent memory buildup
+    [System.GC]::Collect()
 }
 
 # Calculate total time
