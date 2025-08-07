@@ -138,8 +138,8 @@ $hooks = @(
 $installedCount = 0
 $failedCount = 0
 
-# Try local source first
-if (Test-Path $sourceHooksDir) {
+# Try local source first (only works when running locally)
+if ($sourceHooksDir -and (Test-Path $sourceHooksDir)) {
     Write-Host "  Installing from local source..." -ForegroundColor Cyan
     
     foreach ($hook in $hooks) {
@@ -276,15 +276,20 @@ if ($sourceSettingsFile -and (Test-Path $sourceSettingsFile)) {
     # Replace $HOME with actual Windows path
     $settingsContent = $sourceContent -replace '\$HOME', $env:USERPROFILE.Replace('\', '/')
     
-    # Replace python command based on what we detected
+    # Fix Python commands - add python/python3 where needed
     if ($pythonCmd -eq "python3") {
-        $settingsContent = $settingsContent -replace '("command":\s*")([^"]*\.py")', '$1python3 $2'
+        # Add python3 to commands that don't have it
+        $settingsContent = $settingsContent -replace '"command":\s*"(/[^"]+\.py)', '"command": "python3 $1'
+        $settingsContent = $settingsContent -replace '"command":\s*"(C:/[^"]+\.py)', '"command": "python3 $1'
+        # Keep existing python3 commands
+        $settingsContent = $settingsContent -replace '"command":\s*"python\s+', '"command": "python3 '
     } else {
-        $settingsContent = $settingsContent -replace '("command":\s*")([^"]*\.py")', '$1python $2'
+        # Add python to commands that don't have it
+        $settingsContent = $settingsContent -replace '"command":\s*"(/[^"]+\.py)', '"command": "python $1'
+        $settingsContent = $settingsContent -replace '"command":\s*"(C:/[^"]+\.py)', '"command": "python $1'
+        # Keep existing python commands, change python3 to python
+        $settingsContent = $settingsContent -replace '"command":\s*"python3\s+', '"command": "python '
     }
-    
-    # Ensure proper path format for Windows
-    $settingsContent = $settingsContent -replace '(python[3]?\s+)([^"]+)', '$1"$2"'
     
     # Save the modified settings
     $settingsContent | Out-File "$claudeDir\settings.json" -Encoding UTF8
@@ -303,15 +308,20 @@ if ($sourceSettingsFile -and (Test-Path $sourceSettingsFile)) {
         # Replace $HOME with actual Windows path
         $settingsContent = $sourceContent -replace '\$HOME', $env:USERPROFILE.Replace('\', '/')
         
-        # Replace python command based on what we detected
+        # Fix Python commands - add python/python3 where needed
         if ($pythonCmd -eq "python3") {
-            $settingsContent = $settingsContent -replace '("command":\s*")([^"]*\.py")', '$1python3 $2'
+            # Add python3 to commands that don't have it
+            $settingsContent = $settingsContent -replace '"command":\s*"(/[^"]+\.py)', '"command": "python3 $1'
+            $settingsContent = $settingsContent -replace '"command":\s*"(C:/[^"]+\.py)', '"command": "python3 $1'
+            # Keep existing python3 commands
+            $settingsContent = $settingsContent -replace '"command":\s*"python\s+', '"command": "python3 '
         } else {
-            $settingsContent = $settingsContent -replace '("command":\s*")([^"]*\.py")', '$1python $2'
+            # Add python to commands that don't have it
+            $settingsContent = $settingsContent -replace '"command":\s*"(/[^"]+\.py)', '"command": "python $1'
+            $settingsContent = $settingsContent -replace '"command":\s*"(C:/[^"]+\.py)', '"command": "python $1'
+            # Keep existing python commands, change python3 to python
+            $settingsContent = $settingsContent -replace '"command":\s*"python3\s+', '"command": "python '
         }
-        
-        # Ensure proper path format for Windows
-        $settingsContent = $settingsContent -replace '(python[3]?\s+)([^"]+)', '$1"$2"'
         
         # Save the modified settings
         $settingsContent | Out-File "$claudeDir\settings.json" -Encoding UTF8
