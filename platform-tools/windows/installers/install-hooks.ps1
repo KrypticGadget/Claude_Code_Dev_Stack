@@ -3,14 +3,14 @@
 
 Write-Host @"
 ╔════════════════════════════════════════════════════════════════╗
-║     Claude Code Enhanced Hooks Installer v2.1 - FINAL FIX      ║
-║        Properly installs hooks into .claude.json file          ║
+║     Claude Code Enhanced Hooks Installer v2.1 - CORRECT FIX    ║
+║      Properly installs hooks into ~/.claude/settings.json      ║
 ╚════════════════════════════════════════════════════════════════╝
 "@ -ForegroundColor Cyan
 
 # Configuration
 $claudeDir = "$env:USERPROFILE\.claude"
-$claudeJsonPath = "$env:USERPROFILE\.claude.json"
+$settingsPath = "$claudeDir\settings.json"  # Hooks go in settings.json, not .claude.json!
 $hooksDir = "$claudeDir\hooks"
 $audioDir = "$claudeDir\audio"
 $logsDir = "$claudeDir\logs"
@@ -67,13 +67,13 @@ foreach ($dir in $directories) {
     }
 }
 
-# Step 3: Backup existing .claude.json
+# Step 3: Backup existing settings.json
 Write-Host "`n💾 Backing up existing configuration..." -ForegroundColor Yellow
 
-if (Test-Path $claudeJsonPath) {
-    $backupPath = "$backupsDir\.claude_$timestamp.json"
-    Copy-Item $claudeJsonPath $backupPath -Force
-    Write-Host "  ✓ Backed up .claude.json to: $backupPath" -ForegroundColor Green
+if (Test-Path $settingsPath) {
+    $backupPath = "$backupsDir\settings_$timestamp.json"
+    Copy-Item $settingsPath $backupPath -Force
+    Write-Host "  ✓ Backed up settings.json to: $backupPath" -ForegroundColor Green
 }
 
 # Step 4: Install enhanced hooks
@@ -212,11 +212,11 @@ if ($audioDownloaded -gt 0) {
     Write-Host "  Downloaded: $audioDownloaded audio files" -ForegroundColor Green
 }
 
-# Step 6: Download and merge hook configuration into .claude.json
-Write-Host "`n⚙️ Configuring hooks in .claude.json..." -ForegroundColor Yellow
+# Step 6: Download and merge hook configuration into settings.json
+Write-Host "`n⚙️ Configuring hooks in ~/.claude/settings.json..." -ForegroundColor Yellow
 
 # Download the hook configuration template
-$hooksConfigUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/.claude.json"
+$hooksConfigUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/settings.json"
 
 try {
     Write-Host "  Downloading hook configuration..." -ForegroundColor Cyan
@@ -251,10 +251,10 @@ try {
         }
     }
     
-    # Load existing .claude.json or create new
-    if (Test-Path $claudeJsonPath) {
-        Write-Host "  Merging with existing .claude.json..." -ForegroundColor Cyan
-        $existingConfig = Get-Content $claudeJsonPath -Raw | ConvertFrom-Json
+    # Load existing settings.json or create new
+    if (Test-Path $settingsPath) {
+        Write-Host "  Merging with existing settings.json..." -ForegroundColor Cyan
+        $existingConfig = Get-Content $settingsPath -Raw | ConvertFrom-Json
         
         # Add or update hooks section
         if ($existingConfig.PSObject.Properties["hooks"]) {
@@ -279,28 +279,28 @@ try {
         
         $finalConfig = $existingConfig
     } else {
-        Write-Host "  Creating new .claude.json..." -ForegroundColor Cyan
+        Write-Host "  Creating new settings.json..." -ForegroundColor Cyan
         $finalConfig = $hooksConfig
     }
     
-    # Save the merged configuration without BOM
+    # Save the merged configuration without BOM to settings.json
     $jsonContent = $finalConfig | ConvertTo-Json -Depth 10
-    [System.IO.File]::WriteAllText($claudeJsonPath, $jsonContent, [System.Text.UTF8Encoding]::new($false))
-    Write-Host "  ✓ Successfully configured hooks in .claude.json" -ForegroundColor Green
+    [System.IO.File]::WriteAllText($settingsPath, $jsonContent, [System.Text.UTF8Encoding]::new($false))
+    Write-Host "  ✓ Successfully configured hooks in settings.json" -ForegroundColor Green
     
 } catch {
-    Write-Host "  ✗ Failed to configure .claude.json: $_" -ForegroundColor Red
+    Write-Host "  ✗ Failed to configure settings.json: $_" -ForegroundColor Red
     Write-Host "    Please manually add hook configuration" -ForegroundColor Yellow
 }
 
 # Step 7: Validate configuration
 Write-Host "`n🔍 Validating installation..." -ForegroundColor Yellow
 
-# Check .claude.json
+# Check settings.json
 try {
-    $testConfig = Get-Content $claudeJsonPath -Raw | ConvertFrom-Json
+    $testConfig = Get-Content $settingsPath -Raw | ConvertFrom-Json
     if ($testConfig.hooks) {
-        Write-Host "  ✓ .claude.json has hooks configuration" -ForegroundColor Green
+        Write-Host "  ✓ settings.json has hooks configuration" -ForegroundColor Green
         
         # Count configured hooks
         $hookCount = 0
@@ -313,10 +313,10 @@ try {
         }
         Write-Host "  ✓ $hookCount hook commands configured" -ForegroundColor Green
     } else {
-        Write-Host "  ⚠ .claude.json missing hooks configuration" -ForegroundColor Yellow
+        Write-Host "  ⚠ settings.json missing hooks configuration" -ForegroundColor Yellow
     }
 } catch {
-    Write-Host "  ✗ .claude.json has JSON errors!" -ForegroundColor Red
+    Write-Host "  ✗ settings.json has JSON errors!" -ForegroundColor Red
 }
 
 # Test Python execution
@@ -345,7 +345,7 @@ Write-Host "`n📊 Installation Summary:" -ForegroundColor Cyan
 Write-Host "  • Hooks installed: $installedCount/20" -ForegroundColor White
 Write-Host "  • Audio files: $audioDownloaded/5" -ForegroundColor White
 Write-Host "  • Python command: $pythonCmd" -ForegroundColor White
-Write-Host "  • Configuration: .claude.json (properly configured)" -ForegroundColor White
+Write-Host "  • Configuration: ~/.claude/settings.json" -ForegroundColor White
 
 Write-Host "`n🚀 Key Features Enabled:" -ForegroundColor Cyan
 Write-Host "  • 28 Agents orchestration" -ForegroundColor White
