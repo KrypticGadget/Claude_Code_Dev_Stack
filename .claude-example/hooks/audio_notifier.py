@@ -53,9 +53,20 @@ class AudioNotifier:
                 # Method 2: Use winsound for WAV files - built-in, no console issues
                 try:
                     import winsound
-                    winsound.PlaySound(str(audio_file), winsound.SND_FILENAME | winsound.SND_ASYNC)
+                    # Verify file exists
+                    if not audio_file.exists():
+                        print(f"[AUDIO ERROR] File not found: {audio_file}", file=sys.stderr)
+                        return
+                    
+                    # Use synchronous playback to ensure it works
+                    print(f"[AUDIO DEBUG] Playing: {str(audio_file)}", file=sys.stderr)
+                    winsound.PlaySound(str(audio_file), winsound.SND_FILENAME)
+                    print(f"[AUDIO SUCCESS] Played: {audio_filename}", file=sys.stderr)
                     return
-                except:
+                except ImportError as e:
+                    print(f"[AUDIO ERROR] winsound not available: {e}", file=sys.stderr)
+                except Exception as e:
+                    print(f"[AUDIO ERROR] Playback failed: {e}", file=sys.stderr)
                     pass
                 
             elif self.system == "Darwin":  # macOS

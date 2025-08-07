@@ -61,13 +61,21 @@ class AudioPlayer:
                 # Method 2: Use winsound for WAV files - built-in, no windows, no console issues
                 try:
                     import winsound
-                    # SND_ASYNC plays sound asynchronously (non-blocking)
-                    # SND_FILENAME specifies that the sound parameter is a filename
-                    winsound.PlaySound(str(audio_path), winsound.SND_FILENAME | winsound.SND_ASYNC)
-                    print(f"[AUDIO DEBUG] Playing with winsound: {audio_file}", file=sys.stderr)
+                    # Verify file exists and is readable
+                    if not audio_path.exists():
+                        print(f"[AUDIO ERROR] File does not exist: {audio_path}", file=sys.stderr)
+                        return False
+                    
+                    # Try synchronous first to ensure it works
+                    print(f"[AUDIO DEBUG] Attempting winsound.PlaySound with: {str(audio_path)}", file=sys.stderr)
+                    winsound.PlaySound(str(audio_path), winsound.SND_FILENAME)
+                    print(f"[AUDIO SUCCESS] Sound played successfully: {audio_file}", file=sys.stderr)
                     return True
+                except ImportError as e:
+                    print(f"[AUDIO ERROR] winsound module not available: {e}", file=sys.stderr)
                 except Exception as e:
-                    print(f"[AUDIO DEBUG] winsound error: {e}", file=sys.stderr)
+                    print(f"[AUDIO ERROR] winsound playback failed: {e}", file=sys.stderr)
+                    print(f"[AUDIO ERROR] File path was: {audio_path}", file=sys.stderr)
                     pass
                 
                 # Method 3: Fallback to simple Windows command
