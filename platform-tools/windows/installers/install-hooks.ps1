@@ -76,41 +76,22 @@ if (Test-Path $settingsPath) {
     Write-Host "  ✓ Backed up settings.json to: $backupPath" -ForegroundColor Green
 }
 
-# Step 4: Install enhanced hooks
-Write-Host "`n📝 Installing enhanced hooks..." -ForegroundColor Yellow
+# Step 4: Install optimized hooks (only essential ones)
+Write-Host "`n📝 Installing optimized hooks (8 essential)..." -ForegroundColor Yellow
 
-# Complete list of enhanced hooks
+# Only install hooks that provide real value without performance issues
 $hooks = @(
-    # Core integration hooks
-    "agent_mention_parser.py",
-    "agent_orchestrator.py",
-    "agent_orchestrator_integrated.py",
-    "slash_command_router.py",
-    "mcp_gateway.py",
-    "mcp_gateway_enhanced.py",
-    "mcp_initializer.py",
+    # Core functionality (5 hooks)
+    "agent_mention_parser.py",    # Routes @agent- mentions
+    "slash_command_router.py",    # Handles /commands
+    "audio_player.py",            # Audio notifications
+    "audio_notifier.py",          # Alternative audio system
+    "planning_trigger.py",        # Todo management
     
-    # Audio and notification
-    "audio_player.py",
-    "audio_notifier.py",
-    
-    # Session management
-    "session_loader.py",
-    "session_saver.py",
-    
-    # Quality and tracking
-    "quality_gate.py",
-    "model_tracker.py",
-    "planning_trigger.py",
-    
-    # Pre/Post hooks
-    "pre_command.py",
-    "post_command.py",
-    "pre_project.py",
-    "post_project.py",
-    
-    # Base utilities
-    "base_hook.py"
+    # Minimal session management (3 hooks - lightweight versions)
+    "session_loader.py",          # Minimal - just acknowledges
+    "session_saver.py",          # Minimal - just timestamp
+    "model_tracker.py"           # Minimal - daily count only
 )
 
 $installedCount = 0
@@ -347,18 +328,18 @@ Write-Host "  ENHANCED HOOKS INSTALLATION COMPLETE" -ForegroundColor Green
 Write-Host "═" * 60 -ForegroundColor Cyan
 
 Write-Host "`n📊 Installation Summary:" -ForegroundColor Cyan
-Write-Host "  • Hooks installed: $installedCount/20" -ForegroundColor White
+Write-Host "  • Hooks installed: $installedCount/8" -ForegroundColor White
 Write-Host "  • Audio files: $audioDownloaded/5" -ForegroundColor White
 Write-Host "  • Python command: $pythonCmd" -ForegroundColor White
 Write-Host "  • Configuration: ~/.claude/settings.json" -ForegroundColor White
 
 Write-Host "`n🚀 Key Features Enabled:" -ForegroundColor Cyan
-Write-Host "  • 28 Agents orchestration" -ForegroundColor White
-Write-Host "  • 18 Slash commands" -ForegroundColor White
-Write-Host "  • MCP services integration" -ForegroundColor White
+Write-Host "  • Agent routing (@agent- mentions)" -ForegroundColor White
+Write-Host "  • Slash command handling" -ForegroundColor White
 Write-Host "  • Audio notifications" -ForegroundColor White
-Write-Host "  • Session persistence" -ForegroundColor White
-Write-Host "  • Quality gates" -ForegroundColor White
+Write-Host "  • Todo management" -ForegroundColor White
+Write-Host "  • Minimal session tracking (no bloat)" -ForegroundColor White
+Write-Host "  • Optimized for performance" -ForegroundColor White
 
 Write-Host "`n⚠️ CRITICAL NEXT STEPS:" -ForegroundColor Yellow
 Write-Host "  1. EXIT Claude Code completely" -ForegroundColor Red
