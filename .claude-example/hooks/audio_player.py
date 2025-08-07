@@ -46,9 +46,11 @@ class AudioPlayer:
         
         try:
             if self.system == "Windows":
-                # Use os.startfile - most reliable method for Windows
-                import os
-                os.startfile(str(audio_path))
+                # Play audio silently in background using Windows Media Player
+                import subprocess
+                # Using wmplayer with /play and /close to play and exit
+                cmd = ['C:\\Program Files\\Windows Media Player\\wmplayer.exe', '/play', '/close', str(audio_path)]
+                subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             elif self.system == "Darwin":  # macOS
                 subprocess.run(["afplay", str(audio_path)], capture_output=True, timeout=2)
             else:  # Linux

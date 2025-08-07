@@ -39,8 +39,10 @@ class AudioNotifier:
         
         try:
             if self.system == "Windows":
-                # Use os.startfile - simplest and most reliable for Windows
-                os.startfile(str(audio_file))
+                # Play audio silently in background using Windows Media Player
+                import subprocess
+                cmd = ['C:\\Program Files\\Windows Media Player\\wmplayer.exe', '/play', '/close', str(audio_file)]
+                subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             elif self.system == "Darwin":  # macOS
                 os.system(f'afplay "{audio_file}" &')
             else:  # Linux
