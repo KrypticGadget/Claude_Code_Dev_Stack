@@ -52,19 +52,19 @@ class MCPInitializer:
             for server_id, server_info in self.mcp_servers.items():
                 if server_id in output.lower():
                     server_info["status"] = "installed"
-                    results[server_id] = "✅ Active"
+                    results[server_id] = "[OK] Active"
                 else:
                     server_info["status"] = "not_found"
-                    results[server_id] = "❌ Not found"
+                    results[server_id] = "[ERROR] Not found"
             
         except subprocess.TimeoutExpired:
             for server_id in self.mcp_servers:
                 self.mcp_servers[server_id]["status"] = "timeout"
-                results[server_id] = "⚠️ Check timeout"
+                results[server_id] = "[WARNING] Check timeout"
         except Exception as e:
             for server_id in self.mcp_servers:
                 self.mcp_servers[server_id]["status"] = "error"
-                results[server_id] = f"❌ Error: {e}"
+                results[server_id] = f"[ERROR] Error: {e}"
         
         return results
     
@@ -119,7 +119,7 @@ class MCPInitializer:
                           if info["status"] != "installed"]
         
         if missing_servers:
-            context += "\n## ⚠️ Missing Servers\n"
+            context += "\n## [WARNING] Missing Servers\n"
             context += "The following MCP servers are not installed:\n"
             for server_id in missing_servers:
                 server_info = self.mcp_servers[server_id]
@@ -133,7 +133,7 @@ class MCPInitializer:
                     context += "Install with the web-search setup script\n"
         
         # Add integration tips
-        context += "\n## 💡 Integration Tips\n"
+        context += "\n## Integration Tips\n"
         context += "- Combine MCP services for complex workflows\n"
         context += "- Example: Search web → Visit with Playwright → Save to Obsidian\n"
         context += "- MCP services work seamlessly with agents and slash commands\n"
@@ -170,22 +170,22 @@ class MCPInitializer:
             result = subprocess.run(["node", "--version"], 
                                   capture_output=True, text=True, timeout=5)
             if result.returncode == 0:
-                prereqs.append("✅ Node.js installed")
+                prereqs.append("[OK] Node.js installed")
             else:
-                prereqs.append("❌ Node.js not found (required for Playwright/Web-search)")
+                prereqs.append("[ERROR] Node.js not found (required for Playwright/Web-search)")
         except:
-            prereqs.append("❌ Node.js not found")
+            prereqs.append("[ERROR] Node.js not found")
         
         # Check Python for Obsidian
         try:
             result = subprocess.run(["python", "--version"], 
                                   capture_output=True, text=True, timeout=5)
             if result.returncode == 0:
-                prereqs.append("✅ Python installed")
+                prereqs.append("[OK] Python installed")
             else:
-                prereqs.append("⚠️ Python not found (required for Obsidian MCP)")
+                prereqs.append("[WARNING] Python not found (required for Obsidian MCP)")
         except:
-            prereqs.append("⚠️ Python not found")
+            prereqs.append("[WARNING] Python not found")
         
         return prereqs
 

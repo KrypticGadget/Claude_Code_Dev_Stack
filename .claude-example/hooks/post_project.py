@@ -36,12 +36,12 @@ def main():
                 with open(metadata_path, 'w') as f:
                     json.dump(metadata, f, indent=2)
                 
-                print(f"  ✓ Updated project metadata")
+                print(f"  [OK] Updated project metadata")
         except Exception as e:
-            print(f"  ⚠ Warning: Could not update metadata: {e}")
+            print(f"  [WARNING] Could not update metadata: {e}")
         
         # Generate project summary
-        print(f"\n📊 Project Summary:")
+        print(f"\n[PROJECT SUMMARY]:")
         print(f"  Path: {project_path}")
         print(f"  Session: {session_id}")
         
@@ -58,7 +58,7 @@ def main():
         }
         print(json.dumps(output))
         
-        print("\n✨ Post-project hook completed!")
+        print("\n[COMPLETE] Post-project hook completed!")
         return 0
     except Exception as e:
         print(f"Error in post-project hook: {e}", file=sys.stderr)

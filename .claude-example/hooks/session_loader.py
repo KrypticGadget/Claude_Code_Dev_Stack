@@ -90,9 +90,9 @@ def load_session_state():
     with open(OUTPUT_FILE, 'w') as f:
         f.write('\n'.join(context_parts))
     
-    print(f"✅ Session context restored to {OUTPUT_FILE}")
-    print(f"📊 Model tracking enabled for cost optimization")
-    print(f"🎯 @agent- deterministic routing active")
+    print(f"[OK] Session context restored to {OUTPUT_FILE}")
+    print(f"[INFO] Model tracking enabled for cost optimization")
+    print(f"[INFO] @agent- deterministic routing active")
 
 if __name__ == "__main__":
     try:
@@ -117,5 +117,5 @@ if __name__ == "__main__":
         print(json.dumps(output))
         sys.exit(0)
     except Exception as e:
-        print(f"❌ Session restoration failed: {e}", file=sys.stderr)
+        print(f"[ERROR] Session restoration failed: {e}", file=sys.stderr)
         sys.exit(1)

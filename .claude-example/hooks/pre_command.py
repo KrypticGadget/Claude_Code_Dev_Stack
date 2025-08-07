@@ -37,9 +37,9 @@ def main():
         try:
             with open(log_file, 'a') as f:
                 f.write(json.dumps(log_entry) + '\n')
-            print(f"  ✓ Tool usage logged")
+            print(f"  [OK] Tool usage logged")
         except Exception as e:
-            print(f"  ⚠ Warning: Could not log tool usage: {e}")
+            print(f"  [WARNING] Could not log tool usage: {e}")
         
         # Validate certain tools
         if tool_name in ["Write", "Edit", "MultiEdit"]:

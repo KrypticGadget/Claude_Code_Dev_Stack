@@ -28,7 +28,7 @@ def validate_mcp_usage(mcp_tool):
     
     # Check if already at limit
     if active["count"] >= MCP_CONFIG["max_tools"]:
-        print(f"⚠️  MCP limit reached ({MCP_CONFIG['max_tools']} tools)")
+        print(f"[WARNING] MCP limit reached ({MCP_CONFIG['max_tools']} tools)")
         return False
     
     # Check if tool is approved
@@ -37,7 +37,7 @@ def validate_mcp_usage(mcp_tool):
                    MCP_CONFIG["tier2_deploy"])
     
     if mcp_tool not in all_approved:
-        print(f"❌ MCP '{mcp_tool}' not in approved list")
+        print(f"[ERROR] MCP '{mcp_tool}' not in approved list")
         return False
     
     # Track usage

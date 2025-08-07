@@ -56,7 +56,7 @@ def create_planning_trigger(file_path):
 This file will be automatically removed once planning is complete.
 """)
     
-    print(f"🎯 Planning phase triggered by {file_path}")
+    print(f"[TRIGGER] Planning phase triggered by {file_path}")
 
 if __name__ == "__main__":
     try:

@@ -116,9 +116,9 @@ def create_routing_suggestion(prompt, agents):
         
         explicit_agents = [a for a in agents if a.get("explicit")]
         if explicit_agents:
-            print(f"🎯 Routing to explicit agents: {', '.join('@agent-' + a['agent'] for a in explicit_agents)}")
+            print(f"[ROUTING] Routing to explicit agents: {', '.join('@agent-' + a['agent'] for a in explicit_agents)}")
         else:
-            print(f"🤖 Suggested agents: {', '.join('@agent-' + a['agent'] for a in agents)}")
+            print(f"[SUGGESTED] Suggested agents: {', '.join('@agent-' + a['agent'] for a in agents)}")
 
 if __name__ == "__main__":
     try:

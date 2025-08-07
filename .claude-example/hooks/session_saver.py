@@ -41,7 +41,7 @@ def save_pre_microcompact_state():
     with open(STATE_DIR / "microcompact_state.json", 'w') as f:
         json.dump(microcompact_state, f, indent=2)
     
-    print("💾 Pre-microcompact state saved")
+    print("[SAVE] Pre-microcompact state saved")
 
 def extract_agent_mentions(content):
     """Extract @agent- references from content"""
@@ -110,11 +110,11 @@ def save_session_state():
         with open(usage_file) as f:
             usage = json.load(f)
             if usage.get("savings", 0) > 0:
-                print(f"💰 Cost savings today: ${usage['savings']:.2f}")
+                print(f"[SAVINGS] Cost savings today: ${usage['savings']:.2f}")
     
-    print("✅ Session state saved successfully")
-    print("🎯 @agent- routing preserved")
-    print("📊 Model usage tracked")
+    print("[OK] Session state saved successfully")
+    print("[INFO] @agent- routing preserved")
+    print("[INFO] Model usage tracked")
 
 if __name__ == "__main__":
     try:
@@ -152,5 +152,5 @@ if __name__ == "__main__":
         print(f"Session saved: {session_id}")
         sys.exit(0)
     except Exception as e:
-        print(f"❌ Session save failed: {e}", file=sys.stderr)
+        print(f"[ERROR] Session save failed: {e}", file=sys.stderr)
         sys.exit(1)

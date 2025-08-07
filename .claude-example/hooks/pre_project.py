@@ -51,9 +51,9 @@ def main():
             
             with open(metadata_path, 'w') as f:
                 json.dump(metadata, f, indent=2)
-            print(f"  ✓ Updated project metadata")
+            print(f"  [OK] Updated project metadata")
         except Exception as e:
-            print(f"  ⚠ Warning: Could not update metadata file: {e}")
+            print(f"  [WARNING] Could not update metadata file: {e}")
         
         # Check for required files
         required_files = ['.claude/agents', '.claude/commands', '.claude/hooks']
@@ -65,10 +65,10 @@ def main():
                 missing.append(req_file)
         
         if missing:
-            print(f"  ⚠ Warning: Missing components: {', '.join(missing)}")
+            print(f"  [WARNING] Missing components: {', '.join(missing)}")
             print("    Run installers to set up missing components")
         else:
-            print("  ✓ All Claude Code components installed")
+            print("  [OK] All Claude Code components installed")
         
         # Output for Claude Code
         output = {
@@ -79,7 +79,7 @@ def main():
         }
         print(json.dumps(output))
         
-        print("✨ Pre-project hook completed!")
+        print("[COMPLETE] Pre-project hook completed!")
         return 0
     except Exception as e:
         print(f"Error in pre-project hook: {e}", file=sys.stderr)

@@ -57,7 +57,7 @@ def track_model_usage(agent, model="default"):
     # Create cost report if significant savings
     if usage_data["savings"] > 10:
         with open("COST_SAVINGS.md", 'w') as f:
-            f.write(f"""# 💰 Model Usage Cost Savings
+            f.write(f"""# [COST SAVINGS] Model Usage Cost Savings
 
 **Today's Savings**: ${usage_data['savings']:.2f}
 **Total Cost**: ${usage_data['total_cost']:.2f}
