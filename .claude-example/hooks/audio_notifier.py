@@ -39,16 +39,8 @@ class AudioNotifier:
         
         try:
             if self.system == "Windows":
-                # Use start command to play MP3 files with default media player
-                import subprocess
-                # Convert Path object to string and ensure proper escaping
-                audio_path_str = str(audio_file.absolute()).replace('/', '\\')
-                subprocess.run(
-                    f'cmd /c start /min "" "{audio_path_str}"',
-                    capture_output=True,
-                    shell=True,
-                    timeout=2
-                )
+                # Use os.startfile - simplest and most reliable for Windows
+                os.startfile(str(audio_file))
             elif self.system == "Darwin":  # macOS
                 os.system(f'afplay "{audio_file}" &')
             else:  # Linux

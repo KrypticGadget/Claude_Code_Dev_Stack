@@ -1,30 +1,29 @@
 #!/usr/bin/env python3
 """
-Enhanced audio player hook for Claude Code Dev Stack
-Plays context-aware audio notifications based on events
+Audio player hook for Claude Code - plays audio notifications for various events.
+Supports Windows, macOS, and Linux with MP3 files.
 """
 
 import json
 import sys
-import os
-import platform
 import subprocess
+import platform
 from pathlib import Path
 
 class AudioPlayer:
     def __init__(self):
-        # Audio directory relative to hooks
-        self.audio_dir = Path(__file__).parent.parent / "audio"
+        # Audio directory under .claude
+        self.audio_dir = Path.home() / ".claude" / "audio"
         self.system = platform.system()
         
-        # Map events to audio files (using your actual MP3 files)
+        # Map events to audio files
         self.audio_map = {
             "task_complete": "task_complete.mp3",
             "build_complete": "build_complete.mp3",
             "error_fixed": "error_fixed.mp3",
             "ready": "ready.mp3",
             "awaiting": "awaiting_instructions.mp3",
-            # Additional mappings for hook events
+            # Aliases for events
             "agent_start": "ready.mp3",
             "mcp_activated": "ready.mp3",
             "success": "task_complete.mp3",
@@ -41,27 +40,22 @@ class AudioPlayer:
             
         audio_path = self.audio_dir / audio_file
         
+        # Check if file exists
         if not audio_path.exists():
-            # Silently skip if file doesn't exist
             return False
         
         try:
             if self.system == "Windows":
-                # Windows: Use start command to play mp3 files with default player
-                # Convert Path object to string and ensure proper escaping
-                audio_path_str = str(audio_path.absolute()).replace('/', '\\')
-                subprocess.run(
-                    f'cmd /c start /min "" "{audio_path_str}"',
-                    capture_output=True,
-                    shell=True,
-                    timeout=2
-                )
+                # Use os.startfile - most reliable method for Windows
+                import os
+                os.startfile(str(audio_path))
             elif self.system == "Darwin":  # macOS
                 subprocess.run(["afplay", str(audio_path)], capture_output=True, timeout=2)
             else:  # Linux
                 subprocess.run(["aplay", str(audio_path)], capture_output=True, timeout=2)
             return True
-        except:
+        except Exception:
+            # Silently fail - don't break hook chain
             return False
     
     def determine_audio(self, input_data):
@@ -72,40 +66,44 @@ class AudioPlayer:
         
         # SessionStart event
         if hook_event == "SessionStart":
-            return self.audio_map["session_start"]
+            return self.audio_map.get("session_start")
         
         # Stop event (task complete)
         if hook_event == "Stop":
-            return self.audio_map["task_complete"]
+            return self.audio_map.get("task_complete")
         
         # Agent invocations
         if tool_name == "Task" or "@agent-" in input_data.get("prompt", ""):
-            return self.audio_map["agent_start"]
+            return self.audio_map.get("agent_start")
         
         # MCP services
         if tool_name and tool_name.startswith("mcp__"):
-            return self.audio_map["mcp_activated"]
+            return self.audio_map.get("mcp_activated")
         
         # Build/compile events
         if tool_name == "Bash":
             command = input_data.get("tool_input", {}).get("command", "")
             if any(build_cmd in command for build_cmd in ["npm run build", "make", "cargo build", "go build"]):
                 if isinstance(tool_response, dict) and tool_response.get("exit_code") == 0:
-                    return self.audio_map["build_complete"]
+                    return self.audio_map.get("build_complete")
         
         # Error resolution
         if hook_event == "PostToolUse":
             if isinstance(tool_response, dict):
                 # Check if an error was fixed
-                if "fixed" in str(tool_response).lower() or "resolved" in str(tool_response).lower():
-                    return self.audio_map["error_fixed"]
+                if "error" in str(tool_response).lower() and tool_response.get("success"):
+                    return self.audio_map.get("error_fixed")
                 # Check for successful completion
                 elif tool_response.get("success") or tool_response.get("exit_code") == 0:
-                    return self.audio_map["success"]
+                    return self.audio_map.get("success")
         
-        # UserPromptSubmit - waiting for instructions
-        if hook_event == "UserPromptSubmit" and not input_data.get("prompt"):
-            return self.audio_map["awaiting"]
+        # File operations
+        if tool_name in ["Write", "Edit", "MultiEdit"]:
+            return self.audio_map.get("success")
+        
+        # Awaiting input
+        if hook_event == "UserInput" or "awaiting" in input_data.get("state", ""):
+            return self.audio_map.get("awaiting")
         
         return None  # No audio for this event
 
