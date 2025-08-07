@@ -71,10 +71,16 @@ if ($audioFiles.Count -gt 0) {
     Write-Host "  ✓ Backed up $($audioFiles.Count) audio files" -ForegroundColor Green
 }
 
-# Backup settings.json
+# Backup settings.json (COMPLETE VERSION)
 if (Test-Path "$claudeDir\settings.json") {
     Copy-Item "$claudeDir\settings.json" "$backupPath\settings.json" -Force
-    Write-Host "  ✓ Backed up settings.json" -ForegroundColor Green
+    Write-Host "  ✓ Backed up settings.json (complete with hooks)" -ForegroundColor Green
+    
+    # Also check if it has hook configuration
+    $settings = Get-Content "$claudeDir\settings.json" -Raw | ConvertFrom-Json -ErrorAction SilentlyContinue
+    if ($settings.hooks) {
+        Write-Host "    • Contains hook configuration" -ForegroundColor Gray
+    }
 }
 
 # Backup state if exists
@@ -227,17 +233,46 @@ if (Test-Path $settingsPath) {
     try {
         $settings = Get-Content $settingsPath -Raw | ConvertFrom-Json
         
-        # Remove hooks configuration
+        # Check what's in settings before removing
+        $hadHooks = $false
+        $hadAgentSystem = $false
+        $hadSlashCommands = $false
+        
         if ($settings.PSObject.Properties["hooks"]) {
+            $hadHooks = $true
+        }
+        if ($settings.PSObject.Properties["agentSystem"]) {
+            $hadAgentSystem = $true
+        }
+        if ($settings.PSObject.Properties["slashCommands"]) {
+            $hadSlashCommands = $true
+        }
+        
+        # Remove all hook-related configurations
+        if ($hadHooks) {
             $settings.PSObject.Properties.Remove("hooks")
-            Write-Host "  ✓ Removed hooks configuration from settings" -ForegroundColor Green
+            Write-Host "  ✓ Removed hooks configuration" -ForegroundColor Green
+        }
+        if ($hadAgentSystem) {
+            $settings.PSObject.Properties.Remove("agentSystem")
+            Write-Host "  ✓ Removed agent system configuration" -ForegroundColor Green
+        }
+        if ($hadSlashCommands) {
+            $settings.PSObject.Properties.Remove("slashCommands")
+            Write-Host "  ✓ Removed slash commands configuration" -ForegroundColor Green
         }
         
         # Save updated settings
         $settings | ConvertTo-Json -Depth 10 | Out-File $settingsPath -Encoding UTF8
+        
+        if (!$hadHooks -and !$hadAgentSystem -and !$hadSlashCommands) {
+            Write-Host "  • No hook configurations found in settings" -ForegroundColor Gray
+        }
     } catch {
-        Write-Host "  ⚠ Could not update settings.json" -ForegroundColor Yellow
+        Write-Host "  ⚠ Could not update settings.json: $_" -ForegroundColor Yellow
     }
+} else {
+    Write-Host "  • No settings.json found" -ForegroundColor Gray
 }
 
 # Step 9: Remove hooks directory if empty

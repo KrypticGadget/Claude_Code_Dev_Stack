@@ -17,10 +17,19 @@ $stateDir = "$claudeDir\state"
 $backupsDir = "$claudeDir\backups"
 $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
 
-# Project paths
-$projectRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
-$sourceHooksDir = "$projectRoot\.claude-example\hooks"
-$sourceAudioDir = "$projectRoot\.claude-example\audio"
+# Project paths - handle both direct execution and web download
+if ($PSScriptRoot) {
+    $projectRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
+    $sourceHooksDir = "$projectRoot\.claude-example\hooks"
+    $sourceAudioDir = "$projectRoot\.claude-example\audio"
+    $sourceSettingsFile = "$projectRoot\.claude-example\settings-integrated.json"
+} else {
+    # Running from web, will download from GitHub
+    $projectRoot = $null
+    $sourceHooksDir = $null
+    $sourceAudioDir = $null
+    $sourceSettingsFile = $null
+}
 
 # Step 1: Detect Python command
 Write-Host "`n🔍 Detecting Python installation..." -ForegroundColor Yellow
@@ -207,6 +216,18 @@ if ($failedCount -gt 0) {
     Write-Host "  Failed: $failedCount hooks" -ForegroundColor Red
 }
 
+# Also ensure hooks have proper Python shebang
+Write-Host "`n🔧 Ensuring hooks are executable..." -ForegroundColor Yellow
+$hookFiles = Get-ChildItem $hooksDir -Filter "*.py" -ErrorAction SilentlyContinue
+foreach ($hook in $hookFiles) {
+    $content = Get-Content $hook.FullName -Raw
+    if ($content -notmatch '^#!/usr/bin/env python') {
+        $newContent = "#!/usr/bin/env python3`n" + $content
+        $newContent | Out-File $hook.FullName -Encoding UTF8
+    }
+}
+Write-Host "  ✓ Hook files prepared" -ForegroundColor Green
+
 # Step 5: Install audio assets
 Write-Host "`n🎵 Installing audio notifications..." -ForegroundColor Yellow
 
@@ -242,13 +263,67 @@ if (Test-Path $sourceAudioDir) {
     }
 }
 
-# Step 6: Create PROPERLY FORMATTED settings.json with Windows paths
-Write-Host "`n⚙️ Creating properly configured settings.json..." -ForegroundColor Yellow
+# Step 6: Copy or download settings-integrated.json
+Write-Host "`n⚙️ Installing settings.json with complete hook configuration..." -ForegroundColor Yellow
 
-# Build the settings object with proper Windows paths
-$settings = @{
-    hooks = @{
-        PreToolUse = @(
+# Try to copy from local source first
+if ($sourceSettingsFile -and (Test-Path $sourceSettingsFile)) {
+    Write-Host "  Installing from local source..." -ForegroundColor Cyan
+    
+    # Read the source settings file
+    $sourceContent = Get-Content $sourceSettingsFile -Raw
+    
+    # Replace $HOME with actual Windows path
+    $settingsContent = $sourceContent -replace '\$HOME', $env:USERPROFILE.Replace('\', '/')
+    
+    # Replace python command based on what we detected
+    if ($pythonCmd -eq "python3") {
+        $settingsContent = $settingsContent -replace '("command":\s*")([^"]*\.py")', '$1python3 $2'
+    } else {
+        $settingsContent = $settingsContent -replace '("command":\s*")([^"]*\.py")', '$1python $2'
+    }
+    
+    # Ensure proper path format for Windows
+    $settingsContent = $settingsContent -replace '(python[3]?\s+)([^"]+)', '$1"$2"'
+    
+    # Save the modified settings
+    $settingsContent | Out-File "$claudeDir\settings.json" -Encoding UTF8
+    Write-Host "  ✓ Installed settings.json from local source" -ForegroundColor Green
+    
+} else {
+    # Download from GitHub
+    Write-Host "  Downloading settings from GitHub..." -ForegroundColor Cyan
+    $settingsUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/settings-integrated.json"
+    
+    try {
+        $webClient = New-Object System.Net.WebClient
+        $sourceContent = $webClient.DownloadString($settingsUrl)
+        $webClient.Dispose()
+        
+        # Replace $HOME with actual Windows path
+        $settingsContent = $sourceContent -replace '\$HOME', $env:USERPROFILE.Replace('\', '/')
+        
+        # Replace python command based on what we detected
+        if ($pythonCmd -eq "python3") {
+            $settingsContent = $settingsContent -replace '("command":\s*")([^"]*\.py")', '$1python3 $2'
+        } else {
+            $settingsContent = $settingsContent -replace '("command":\s*")([^"]*\.py")', '$1python $2'
+        }
+        
+        # Ensure proper path format for Windows
+        $settingsContent = $settingsContent -replace '(python[3]?\s+)([^"]+)', '$1"$2"'
+        
+        # Save the modified settings
+        $settingsContent | Out-File "$claudeDir\settings.json" -Encoding UTF8
+        Write-Host "  ✓ Downloaded and configured settings.json" -ForegroundColor Green
+        
+    } catch {
+        Write-Host "  ✗ Failed to download settings.json, creating basic configuration..." -ForegroundColor Yellow
+        
+        # Fallback to creating basic settings
+        $settings = @{
+            hooks = @{
+                PreToolUse = @(
             @{
                 matcher = "Task"
                 hooks = @(
@@ -421,14 +496,17 @@ $settings = @{
                 )
             }
         )
+            }
+        }
+        
+        # Convert to JSON and save
+        $settingsJson = $settings | ConvertTo-Json -Depth 10
+        $settingsJson | Out-File "$claudeDir\settings.json" -Encoding UTF8
+        Write-Host "  ✓ Created fallback settings.json with Windows paths" -ForegroundColor Yellow
     }
 }
 
-# Convert to JSON and save
-$settingsJson = $settings | ConvertTo-Json -Depth 10
-$settingsJson | Out-File "$claudeDir\settings.json" -Encoding UTF8
-Write-Host "  ✓ Created settings.json with Windows paths" -ForegroundColor Green
-Write-Host "  ✓ Python command: $pythonCmd" -ForegroundColor Cyan
+Write-Host "  ✓ Python command configured: $pythonCmd" -ForegroundColor Cyan
 
 # Step 7: Validate JSON
 Write-Host "`n🔍 Validating configuration..." -ForegroundColor Yellow

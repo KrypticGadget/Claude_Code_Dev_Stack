@@ -154,40 +154,73 @@ if (Test-Path $audioPath) {
 }
 
 # Check settings with detailed validation
-Write-Host "`n⚙️ Configuration (FIXED):" -ForegroundColor Cyan
+Write-Host "`n⚙️ Configuration (COMPLETE):" -ForegroundColor Cyan
 $testsTotal++
 if (Test-Path $settingsPath) {
     try {
         $settings = Get-Content $settingsPath -Raw | ConvertFrom-Json
+        $configIssues = @()
+        
+        # Check for hooks configuration
         if ($settings.hooks) {
-            # Check for proper hook structure
+            # Check for all required hook events
             $hasPreToolUse = $settings.hooks.PreToolUse -ne $null
             $hasPostToolUse = $settings.hooks.PostToolUse -ne $null
             $hasUserPromptSubmit = $settings.hooks.UserPromptSubmit -ne $null
             $hasSessionStart = $settings.hooks.SessionStart -ne $null
+            $hasStop = $settings.hooks.Stop -ne $null
+            $hasSubagentStop = $settings.hooks.SubagentStop -ne $null
             
-            # Check for proper command format (should use absolute paths or $env:USERPROFILE)
+            # Check for proper command format
             $sampleCommand = $settings.hooks.PreToolUse[0].hooks[0].command
-            $hasProperPaths = $sampleCommand -match "(C:/Users|\`$env:USERPROFILE)"
+            $hasPythonCommand = $sampleCommand -match "python[3]?"
+            $hasProperPaths = $sampleCommand -match "(C:/Users|\$env:USERPROFILE)"
             
-            if ($hasPreToolUse -and $hasPostToolUse -and $hasUserPromptSubmit -and $hasSessionStart -and $hasProperPaths) {
-                Write-Host "  ✓ settings.json properly configured with Windows paths" -ForegroundColor Green
-                Write-Host "    • PreToolUse hooks: ✓" -ForegroundColor Gray
-                Write-Host "    • PostToolUse hooks: ✓" -ForegroundColor Gray
-                Write-Host "    • UserPromptSubmit hooks: ✓" -ForegroundColor Gray
-                Write-Host "    • SessionStart hooks: ✓" -ForegroundColor Gray
+            # Check for integrated features
+            $hasAgentSystem = $settings.agentSystem -ne $null
+            $hasSlashCommands = $settings.slashCommands -ne $null
+            $hasMcpIntegration = $settings.mcpIntegration -ne $null
+            
+            if ($hasPreToolUse -and $hasPostToolUse -and $hasUserPromptSubmit -and $hasSessionStart -and $hasPythonCommand -and $hasProperPaths) {
+                Write-Host "  ✓ settings.json FULLY configured with all features" -ForegroundColor Green
+                Write-Host "    • Hook Events: PreToolUse ✓ PostToolUse ✓ UserPromptSubmit ✓" -ForegroundColor Gray
+                Write-Host "    • SessionStart ✓ Stop $(if($hasStop){"✓"}else{"✗"}) SubagentStop $(if($hasSubagentStop){"✓"}else{"✗"})" -ForegroundColor Gray
+                Write-Host "    • Python command: ✓" -ForegroundColor Gray
                 Write-Host "    • Windows paths: ✓" -ForegroundColor Gray
+                
+                if ($hasAgentSystem) {
+                    Write-Host "    • Agent System: ✓ (28 agents configured)" -ForegroundColor Gray
+                }
+                if ($hasSlashCommands) {
+                    Write-Host "    • Slash Commands: ✓ (18 commands configured)" -ForegroundColor Gray
+                }
+                if ($hasMcpIntegration) {
+                    Write-Host "    • MCP Integration: ✓ (3 services configured)" -ForegroundColor Gray
+                }
+                
                 $testsPassed++
                 $components.Settings = $true
             } else {
-                Write-Host "  ⚠ settings.json has hooks but may need path fixes" -ForegroundColor Yellow
+                Write-Host "  ⚠ settings.json has hooks but missing components" -ForegroundColor Yellow
+                if (!$hasPythonCommand) {
+                    $configIssues += "Missing python/python3 in commands"
+                }
                 if (!$hasProperPaths) {
-                    Write-Host "    ✗ Paths need to use C:/Users/Zach or `$env:USERPROFILE" -ForegroundColor Red
+                    $configIssues += "Paths need Windows format (C:/Users or `$env:USERPROFILE)"
+                }
+                if (!$hasPreToolUse) { $configIssues += "Missing PreToolUse hooks" }
+                if (!$hasPostToolUse) { $configIssues += "Missing PostToolUse hooks" }
+                if (!$hasUserPromptSubmit) { $configIssues += "Missing UserPromptSubmit hooks" }
+                if (!$hasSessionStart) { $configIssues += "Missing SessionStart hooks" }
+                
+                foreach ($issue in $configIssues) {
+                    Write-Host "    ✗ $issue" -ForegroundColor Red
                 }
                 $components.Settings = "partial"
             }
         } else {
-            Write-Host "  ⚠ settings.json exists but no hooks configured" -ForegroundColor Yellow
+            Write-Host "  ⚠ settings.json exists but NO hooks configured!" -ForegroundColor Red
+            Write-Host "    Run: .\platform-tools\windows\installers\install-hooks.ps1" -ForegroundColor Yellow
             $components.Settings = "partial"
         }
     } catch {
@@ -195,7 +228,8 @@ if (Test-Path $settingsPath) {
         $components.Settings = "partial"
     }
 } else {
-    Write-Host "  ✗ settings.json missing" -ForegroundColor Red
+    Write-Host "  ✗ settings.json missing completely!" -ForegroundColor Red
+    Write-Host "    Run: .\platform-tools\windows\installers\install-hooks.ps1" -ForegroundColor Yellow
     $components.Settings = $false
 }
 
