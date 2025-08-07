@@ -28,7 +28,11 @@ class AudioNotifier:
         
     def play_sound(self, sound_type):
         """Play audio file based on event type"""
-        audio_file = self.audio_dir / self.audio_map.get(sound_type, "ready.mp3")
+        audio_filename = self.audio_map.get(sound_type, "ready.mp3")
+        if not audio_filename:
+            return
+            
+        audio_file = self.audio_dir / audio_filename
         
         if not audio_file.exists():
             return  # Silently skip if audio file doesn't exist
@@ -37,8 +41,10 @@ class AudioNotifier:
             if self.system == "Windows":
                 # Use start command to play MP3 files with default media player
                 import subprocess
+                # Convert Path object to string and ensure proper escaping
+                audio_path_str = str(audio_file.absolute()).replace('/', '\\')
                 subprocess.run(
-                    ["cmd", "/c", f"start /min \"\" \"{audio_file}\""],
+                    f'cmd /c start /min "" "{audio_path_str}"',
                     capture_output=True,
                     shell=True,
                     timeout=2

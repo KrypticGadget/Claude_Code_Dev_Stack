@@ -36,6 +36,9 @@ class AudioPlayer:
     
     def play_sound(self, audio_file):
         """Play audio file using appropriate system player"""
+        if not audio_file:
+            return False
+            
         audio_path = self.audio_dir / audio_file
         
         if not audio_path.exists():
@@ -45,8 +48,10 @@ class AudioPlayer:
         try:
             if self.system == "Windows":
                 # Windows: Use start command to play mp3 files with default player
+                # Convert Path object to string and ensure proper escaping
+                audio_path_str = str(audio_path.absolute()).replace('/', '\\')
                 subprocess.run(
-                    ["cmd", "/c", f"start /min \"\" \"{audio_path}\""],
+                    f'cmd /c start /min "" "{audio_path_str}"',
                     capture_output=True,
                     shell=True,
                     timeout=2
