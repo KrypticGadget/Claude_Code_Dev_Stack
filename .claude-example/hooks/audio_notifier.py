@@ -8,6 +8,7 @@ import json
 import sys
 import os
 import platform
+import subprocess
 from pathlib import Path
 
 class AudioNotifier:
@@ -39,7 +40,7 @@ class AudioNotifier:
         
         try:
             if self.system == "Windows":
-                # Try pygame first (silent playback)
+                # Method 1: Try pygame first (silent playback)
                 try:
                     import pygame
                     pygame.mixer.init()
@@ -49,29 +50,25 @@ class AudioNotifier:
                 except ImportError:
                     pass
                 
-                # Fallback: PowerShell with hidden window
-                import subprocess
-                ps_cmd = f'''
-                Add-Type -AssemblyName presentationCore
-                $player = New-Object System.Windows.Media.MediaPlayer
-                $player.Open([System.Uri]::new("{str(audio_file).replace(chr(92), '/')}", [System.UriKind]::Absolute))
-                $player.Play()
-                '''
+                # Method 2: Try playsound module
+                try:
+                    from playsound import playsound
+                    playsound(str(audio_file), False)  # False = don't block
+                    return
+                except ImportError:
+                    pass
                 
-                si = subprocess.STARTUPINFO()
-                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                si.wShowWindow = subprocess.SW_HIDE
-                
-                CREATE_NO_WINDOW = 0x08000000
-                DETACHED_PROCESS = 0x00000008
+                # Method 3: Use mshta.exe with HTML5 audio (invisible, won't affect PowerShell)
+                audio_url = audio_file.as_uri()
+                mshta_script = f'''mshta "javascript:var a=new Audio('{audio_url}');a.play();setTimeout(function(){{close();}},5000);"'''
                 
                 subprocess.Popen(
-                    ['powershell', '-NoProfile', '-Command', ps_cmd],
+                    mshta_script,
+                    shell=True,
                     stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    startupinfo=si,
-                    creationflags=CREATE_NO_WINDOW | DETACHED_PROCESS
+                    stderr=subprocess.DEVNULL
                 )
+                
             elif self.system == "Darwin":  # macOS
                 os.system(f'afplay "{audio_file}" &')
             else:  # Linux
