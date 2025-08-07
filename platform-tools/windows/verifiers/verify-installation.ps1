@@ -5,7 +5,7 @@
 Write-Host @"
 ╔════════════════════════════════════════════════════════════════╗
 ║      Claude Code Dev Stack - Installation Verifier v2.1        ║
-║        Checking Enhanced Hooks & Complete Integration          ║
+║        Checking FIXED Enhanced Hooks & Complete System         ║
 ╚════════════════════════════════════════════════════════════════╝
 "@ -ForegroundColor Cyan
 
@@ -69,18 +69,33 @@ if (Test-Path $commandsPath) {
     $components.Commands = $false
 }
 
-# Check enhanced hooks
-Write-Host "`n🪝 Enhanced Hooks:" -ForegroundColor Cyan
+# Check enhanced hooks - UPDATED LIST WITH ALL 19 HOOKS
+Write-Host "`n🪝 Enhanced Hooks (FIXED):" -ForegroundColor Cyan
 $requiredHooks = @(
+    "agent_mention_parser.py",
+    "agent_orchestrator.py",
     "agent_orchestrator_integrated.py",
     "slash_command_router.py",
+    "mcp_gateway.py",
     "mcp_gateway_enhanced.py",
     "mcp_initializer.py",
     "audio_player.py",
+    "audio_notifier.py",
     "session_loader.py",
     "session_saver.py",
+    "quality_gate.py",
     "model_tracker.py",
-    "quality_gate.py"
+    "planning_trigger.py",
+    "pre_command.py",
+    "post_command.py",
+    "pre_project.py",
+    "post_project.py",
+    "base_hook.py"
+)
+
+# Also check for test hook
+$optionalHooks = @(
+    "test_hook.py"
 )
 
 $foundHooks = 0
@@ -96,17 +111,24 @@ foreach ($hook in $requiredHooks) {
     }
 }
 
+# Check optional hooks
+$testHookFound = Test-Path "$hooksPath\test_hook.py"
+
 if ($foundHooks -eq $requiredHooks.Count) {
-    Write-Host "  ✓ All critical hooks installed ($foundHooks/$($requiredHooks.Count))" -ForegroundColor Green
+    Write-Host "  ✓ All 19 required hooks installed" -ForegroundColor Green
+    if ($testHookFound) {
+        Write-Host "  ✓ Test hook also present (debugging enabled)" -ForegroundColor Green
+    }
     $components.Hooks = $true
-} elseif ($foundHooks -gt 0) {
-    Write-Host "  ⚠ Partial hooks ($foundHooks/$($requiredHooks.Count))" -ForegroundColor Yellow
+} elseif ($foundHooks -ge 15) {
+    Write-Host "  ⚠ Most hooks installed ($foundHooks/19)" -ForegroundColor Yellow
     if ($missingHooks.Count -gt 0) {
         Write-Host "    Missing: $($missingHooks -join ', ')" -ForegroundColor Gray
     }
     $components.Hooks = "partial"
 } else {
-    Write-Host "  ✗ No enhanced hooks found" -ForegroundColor Red
+    Write-Host "  ✗ Insufficient hooks found ($foundHooks/19)" -ForegroundColor Red
+    Write-Host "    Missing critical hooks for system functionality" -ForegroundColor Red
     $components.Hooks = $false
 }
 
@@ -131,22 +153,45 @@ if (Test-Path $audioPath) {
     $components.Audio = $false
 }
 
-# Check settings
-Write-Host "`n⚙️ Configuration:" -ForegroundColor Cyan
+# Check settings with detailed validation
+Write-Host "`n⚙️ Configuration (FIXED):" -ForegroundColor Cyan
 $testsTotal++
 if (Test-Path $settingsPath) {
     try {
         $settings = Get-Content $settingsPath -Raw | ConvertFrom-Json
         if ($settings.hooks) {
-            Write-Host "  ✓ Integrated settings.json with hooks" -ForegroundColor Green
-            $testsPassed++
-            $components.Settings = $true
+            # Check for proper hook structure
+            $hasPreToolUse = $settings.hooks.PreToolUse -ne $null
+            $hasPostToolUse = $settings.hooks.PostToolUse -ne $null
+            $hasUserPromptSubmit = $settings.hooks.UserPromptSubmit -ne $null
+            $hasSessionStart = $settings.hooks.SessionStart -ne $null
+            
+            # Check for proper command format (should use absolute paths or $env:USERPROFILE)
+            $sampleCommand = $settings.hooks.PreToolUse[0].hooks[0].command
+            $hasProperPaths = $sampleCommand -match "(C:/Users|\`$env:USERPROFILE)"
+            
+            if ($hasPreToolUse -and $hasPostToolUse -and $hasUserPromptSubmit -and $hasSessionStart -and $hasProperPaths) {
+                Write-Host "  ✓ settings.json properly configured with Windows paths" -ForegroundColor Green
+                Write-Host "    • PreToolUse hooks: ✓" -ForegroundColor Gray
+                Write-Host "    • PostToolUse hooks: ✓" -ForegroundColor Gray
+                Write-Host "    • UserPromptSubmit hooks: ✓" -ForegroundColor Gray
+                Write-Host "    • SessionStart hooks: ✓" -ForegroundColor Gray
+                Write-Host "    • Windows paths: ✓" -ForegroundColor Gray
+                $testsPassed++
+                $components.Settings = $true
+            } else {
+                Write-Host "  ⚠ settings.json has hooks but may need path fixes" -ForegroundColor Yellow
+                if (!$hasProperPaths) {
+                    Write-Host "    ✗ Paths need to use C:/Users/Zach or `$env:USERPROFILE" -ForegroundColor Red
+                }
+                $components.Settings = "partial"
+            }
         } else {
             Write-Host "  ⚠ settings.json exists but no hooks configured" -ForegroundColor Yellow
             $components.Settings = "partial"
         }
     } catch {
-        Write-Host "  ⚠ settings.json exists but couldn't parse" -ForegroundColor Yellow
+        Write-Host "  ⚠ settings.json exists but couldn't parse: $_" -ForegroundColor Yellow
         $components.Settings = "partial"
     }
 } else {
@@ -166,34 +211,104 @@ if (Test-Path $mcpPath) {
     $components.MCP = "optional"
 }
 
-# Check Python
+# Check Python with proper command detection
 Write-Host "`n🐍 Python Runtime:" -ForegroundColor Cyan
 $testsTotal++
+$pythonCmd = ""
+$pythonFound = $false
+
+# Try python first (most common on Windows)
 try {
     $pythonVersion = python --version 2>&1
-    if ($pythonVersion -match "Python") {
-        Write-Host "  ✓ Python installed: $pythonVersion" -ForegroundColor Green
+    if ($pythonVersion -match "Python 3") {
+        Write-Host "  ✓ Python 3 installed: $pythonVersion" -ForegroundColor Green
+        Write-Host "    Command: python" -ForegroundColor Gray
         $testsPassed++
         $components.Python = $true
+        $pythonCmd = "python"
+        $pythonFound = $true
+    } elseif ($pythonVersion -match "Python 2") {
+        Write-Host "  ✗ Python 2 detected - Python 3 required!" -ForegroundColor Red
+        $components.Python = $false
     }
 } catch {
-    Write-Host "  ✗ Python not found (required for hooks)" -ForegroundColor Red
-    $components.Python = $false
+    # Try python3 as fallback
+    try {
+        $pythonVersion = python3 --version 2>&1
+        if ($pythonVersion -match "Python 3") {
+            Write-Host "  ✓ Python 3 installed: $pythonVersion" -ForegroundColor Green
+            Write-Host "    Command: python3" -ForegroundColor Gray
+            $testsPassed++
+            $components.Python = $true
+            $pythonCmd = "python3"
+            $pythonFound = $true
+        }
+    } catch {
+        Write-Host "  ✗ Python not found (CRITICAL - required for hooks)" -ForegroundColor Red
+        Write-Host "    Install from: https://python.org" -ForegroundColor Yellow
+        Write-Host "    Make sure to check 'Add Python to PATH'!" -ForegroundColor Yellow
+        $components.Python = $false
+    }
 }
 
-# Quick functional test
-Write-Host "`n🧪 Quick Functional Test:" -ForegroundColor Cyan
-if ($components.Hooks -eq $true -and $components.Python -eq $true) {
+# Quick functional tests
+Write-Host "`n🧪 Quick Functional Tests:" -ForegroundColor Cyan
+
+if ($components.Hooks -eq $true -and $pythonFound) {
+    # Test 1: Test hook execution
+    $testsTotal++
+    Write-Host "  Testing test_hook.py..." -NoNewline
+    if (Test-Path "$hooksPath\test_hook.py") {
+        $testData = '{"hook_event_name": "test", "tool_name": "Verify"}'
+        $testResult = $testData | & $pythonCmd "$hooksPath\test_hook.py" 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host " ✓" -ForegroundColor Green
+            $testsPassed++
+            
+            # Check if log was created
+            if (Test-Path "$logsPath\test_hook.log") {
+                Write-Host "    Log file created: ✓" -ForegroundColor Gray
+            }
+        } else {
+            Write-Host " ✗" -ForegroundColor Red
+        }
+    } else {
+        Write-Host " SKIPPED (test hook not found)" -ForegroundColor Yellow
+    }
+    
+    # Test 2: Slash command router
     $testsTotal++
     Write-Host "  Testing slash command router..." -NoNewline
-    $testData = '{"prompt":"/new-project test"}'
-    $testResult = $testData | python "$hooksPath\slash_command_router.py" 2>&1
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host " ✓" -ForegroundColor Green
-        $testsPassed++
+    if (Test-Path "$hooksPath\slash_command_router.py") {
+        $testData = '{"prompt":"/new-project test"}'
+        $testResult = $testData | & $pythonCmd "$hooksPath\slash_command_router.py" 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host " ✓" -ForegroundColor Green
+            $testsPassed++
+        } else {
+            Write-Host " ✗" -ForegroundColor Red
+        }
     } else {
-        Write-Host " ✗" -ForegroundColor Red
+        Write-Host " SKIPPED (router not found)" -ForegroundColor Yellow
     }
+    
+    # Test 3: Agent mention parser
+    $testsTotal++
+    Write-Host "  Testing agent mention parser..." -NoNewline
+    if (Test-Path "$hooksPath\agent_mention_parser.py") {
+        $testData = '{"prompt":"@agent-frontend-mockup test"}'
+        $testResult = $testData | & $pythonCmd "$hooksPath\agent_mention_parser.py" 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host " ✓" -ForegroundColor Green
+            $testsPassed++
+        } else {
+            Write-Host " ✗" -ForegroundColor Red
+        }
+    } else {
+        Write-Host " SKIPPED (parser not found)" -ForegroundColor Yellow
+    }
+} else {
+    Write-Host "  SKIPPED - Hooks or Python not properly installed" -ForegroundColor Yellow
 }
 
 # Summary
@@ -232,21 +347,39 @@ foreach ($comp in $components.GetEnumerator()) {
 # Recommendations
 Write-Host "`n💡 Recommendations:" -ForegroundColor Cyan
 if ($percentage -eq 100) {
-    Write-Host "  ✅ System fully operational!" -ForegroundColor Green
+    Write-Host "  ✅ System fully operational with FIXED hooks!" -ForegroundColor Green
     Write-Host "     Your Claude Code Dev Stack is ready for 6-9x faster development!" -ForegroundColor Cyan
+    Write-Host "`n  🚀 Next Steps:" -ForegroundColor Cyan
+    Write-Host "     1. Restart Claude Code" -ForegroundColor White
+    Write-Host "     2. Run: claude --debug" -ForegroundColor White
+    Write-Host "     3. Type: /hooks (to verify all are loaded)" -ForegroundColor White
 } elseif ($percentage -ge 80) {
     Write-Host "  ⚠ System mostly operational with minor issues" -ForegroundColor Yellow
     if ($components.Python -eq $false) {
-        Write-Host "     • Install Python from https://python.org" -ForegroundColor Yellow
+        Write-Host "     • CRITICAL: Install Python 3 from https://python.org" -ForegroundColor Red
+        Write-Host "       Make sure to check 'Add Python to PATH'!" -ForegroundColor Yellow
+    }
+    if ($components.Settings -eq "partial") {
+        Write-Host "     • Run INSTALL_HOOKS_FIX.ps1 to fix paths" -ForegroundColor Yellow
+    }
+    if ($components.Hooks -ne $true) {
+        Write-Host "     • Run install-hooks.ps1 to install missing hooks" -ForegroundColor Yellow
     }
     if ($components.Audio -ne $true) {
         Write-Host "     • Run install-hooks.ps1 to add audio support" -ForegroundColor Yellow
     }
 } else {
     Write-Host "  ❌ System needs configuration" -ForegroundColor Red
-    Write-Host "     Run the following to complete setup:" -ForegroundColor Yellow
-    Write-Host "     .\platform-tools\windows\installers\install-all.ps1" -ForegroundColor Cyan
+    Write-Host "     Run one of the following to complete setup:" -ForegroundColor Yellow
+    Write-Host "     • Quick Fix: .\INSTALL_HOOKS_FIX.ps1" -ForegroundColor Cyan
+    Write-Host "     • Full Install: .\platform-tools\windows\installers\install-all.ps1" -ForegroundColor Cyan
 }
+
+Write-Host "`n📝 Troubleshooting Tips:" -ForegroundColor Cyan
+Write-Host "  • If hooks don't trigger: Check Python is in PATH" -ForegroundColor White
+Write-Host "  • If paths fail: Use absolute paths (C:/Users/Zach)" -ForegroundColor White
+Write-Host "  • If JSON errors: Validate settings.json syntax" -ForegroundColor White
+Write-Host "  • Debug mode: claude --debug shows hook execution" -ForegroundColor White
 
 # Return status code
 if ($percentage -eq 100) {

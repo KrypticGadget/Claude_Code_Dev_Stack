@@ -5,7 +5,31 @@
 [![Agents](https://img.shields.io/badge/AI_Agents-28-blue)](./.claude-example/agents)
 [![Commands](https://img.shields.io/badge/Slash_Commands-18-green)](./.claude-example/commands) 
 [![MCPs](https://img.shields.io/badge/MCP_Tools-3-orange)](docs/reference/MCP_GUIDE.md)
-[![Hooks](https://img.shields.io/badge/Automation_Hooks-13-red)](./.claude-example/hooks)
+[![Hooks](https://img.shields.io/badge/Automation_Hooks-19-red)](./.claude-example/hooks)
+
+---
+
+## 🎯 Quick Install - Choose Your Platform
+
+### 🪟 **Windows PowerShell**
+```powershell
+# Complete Installation (Everything)
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/installers/install-all.ps1 | iex
+```
+
+### 🐧 **Linux/WSL**
+```bash
+# Complete Installation (Everything)
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/installers/install-all.sh | bash
+```
+
+### 🍎 **macOS**
+```bash
+# Complete Installation (Everything)
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/installers/install-all-mac.sh | bash
+```
+
+---
 
 ## 🧠 Universal Meta Prompting Guide
 
@@ -19,6 +43,8 @@
 5. Run it in Claude Code and watch the magic happen!
 
 **Example:** Turn "I need a SaaS platform" into a complete development plan with the right agents, commands, and workflow.
+
+---
 
 ## 📖 Complete System Guide
 
@@ -35,56 +61,36 @@
 
 [Read the Complete System Guide →](CLAUDE_CODE_STACK_SUMMARY.md)
 
-## 📚 Documentation
+---
 
-### 🚀 Getting Started
+## 📚 Documentation Hub
+
+### 🚀 **Getting Started**
 - **[Installation](docs/getting-started/INSTALLATION.md)** - One-line installers
 - **[Quick Start](docs/getting-started/QUICK_START.md)** - 60 seconds to building
 - **[First Project](docs/getting-started/FIRST_PROJECT.md)** - Step-by-step guide
 
-### 📖 Reference
+### 📖 **Reference**
 - **[All 28 Agents](docs/reference/AGENT_REFERENCE.md)** | [Browse](.claude-example/agents/)
 - **[All 18 Commands](docs/reference/COMMAND_REFERENCE.md)** | [Browse](.claude-example/commands/)
 - **[Hooks System](docs/reference/HOOKS_GUIDE.md)** | [Browse](.claude-example/hooks/)
 - **[MCP Tools](docs/reference/MCP_GUIDE.md)** - Minimal 3-tool approach
 
-### 🧠 Guides
+### 🧠 **Guides**
 - **[Best Practices](docs/guides/BEST_PRACTICES.md)** - Peak performance
 - **[Meta Prompting](docs/guides/META_PROMPTING.md)** - Complex projects
 - **[Architecture](docs/architecture/)** - System design
 
-### 💡 Resources
+### 💡 **Resources**
 - **[Examples](examples/)** - Real-world usage
 - **[Master Prompts](master-prompts/)** - Ready templates
 - **[Industry Templates](prompts/industry-templates/)** - Specific sectors
 
-### 🛠️ Tools
-- **[Platform Tools](platform-tools/)** - OS-specific tools
-  - **[Windows](platform-tools/windows/)** - PowerShell scripts
-  - **[Linux](platform-tools/linux/)** - Bash scripts  
-  - **[macOS](platform-tools/macos/)** - Mac scripts
-- **[Utilities](scripts/)** - Helper scripts
-
-## ⚡ Quick Install
-
-### Windows PowerShell
-```powershell
-iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/installers/install-all.ps1 | iex
-```
-
-### Linux/WSL
-```bash
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/installers/install-all.sh | bash
-```
-
-### macOS
-```bash
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/installers/install-all-mac.sh | bash
-```
+---
 
 ## 🏗️ The 4-Stack System That Changes Everything
 
-### 1. 🤖 28 AI Agents - Your Expert Team
+### 1. 🤖 **28 AI Agents - Your Expert Team**
 ```bash
 @agent-system-architect    # Designs your architecture
 @agent-backend-engineer    # Builds your APIs
@@ -94,7 +100,7 @@ curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/m
 ```
 [View all agents →](docs/reference/AGENT_REFERENCE.md)
 
-### 2. 💬 18 Slash Commands - Instant Workflows
+### 2. 💬 **18 Slash Commands - Instant Workflows**
 ```bash
 /new-project      # Start any project type
 /backend-service  # Create REST APIs instantly
@@ -104,20 +110,23 @@ curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/m
 ```
 [View all commands →](docs/reference/COMMAND_REFERENCE.md)
 
-### 3. 🔌 3 MCPs - Just What You Need
+### 3. 🔌 **3 MCPs - Just What You Need**
 - **Playwright** - Automated browser testing
 - **Obsidian** - Knowledge management
 - **Brave Search** - Real-time research
 
 [Learn about MCPs →](docs/reference/MCP_GUIDE.md)
 
-### 4. 🪝 13 Hooks - Automation Magic
+### 4. 🪝 **19 Hooks - Automation Magic**
 - Session persistence (never lose context)
 - Smart agent routing (right expert every time)
 - Quality enforcement (consistent standards)
 - Cost optimization (60% savings on API costs)
+- Audio notifications (know when tasks complete)
 
 [Understand hooks →](docs/reference/HOOKS_GUIDE.md)
+
+---
 
 ## 🚀 Start Building in 60 Seconds
 
@@ -129,67 +138,196 @@ claude-code .
 /new-project "E-commerce platform" @agent-system-architect @agent-database-architect
 ```
 
+---
+
 ## 💡 Quick Examples
 
-### Build a Complete API
+### **Build a Complete API**
 ```bash
 /backend-service "User management API with JWT auth" @agent-backend-engineer @agent-security-architect
 ```
 
-### Create a Modern UI
+### **Create a Modern UI**
 ```bash
 /frontend-mockup "Dashboard with real-time charts" @agent-frontend-architect @agent-ui-ux-designer
 ```
 
-### Full Stack Application
+### **Full Stack Application**
 ```bash
 /new-project "SaaS platform" @agent-ai-architect @agent-full-stack
 ```
 
 [More examples →](examples/)
 
+---
+
+## 🛠️ Component Installation (Advanced)
+
+<details>
+<summary><strong>📦 Install Individual Components</strong></summary>
+
+### **Agents Only**
+
+#### 🪟 Windows
+```powershell
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/installers/install-agents.ps1 | iex
+```
+
+#### 🐧 Linux
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/installers/install-agents.sh | bash
+```
+
+#### 🍎 macOS
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/installers/install-agents-mac.sh | bash
+```
+
+### **Commands Only**
+
+#### 🪟 Windows
+```powershell
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/installers/install-commands.ps1 | iex
+```
+
+#### 🐧 Linux
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/installers/install-commands.sh | bash
+```
+
+#### 🍎 macOS
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/installers/install-commands-mac.sh | bash
+```
+
+### **Hooks Only (FIXED)**
+
+#### 🪟 Windows
+```powershell
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/installers/install-hooks.ps1 | iex
+```
+
+#### 🐧 Linux
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/installers/install-hooks.sh | bash
+```
+
+#### 🍎 macOS
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/installers/install-hooks-mac.sh | bash
+```
+
+### **MCP Services Only**
+
+#### 🪟 Windows
+```powershell
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/installers/install-mcp.ps1 | iex
+```
+
+#### 🐧 Linux
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/installers/install-mcp.sh | bash
+```
+
+#### 🍎 macOS
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/installers/install-mcp-mac.sh | bash
+```
+
+</details>
+
+---
+
+## 🗑️ Uninstall
+
+<details>
+<summary><strong>🧹 Uninstall Options</strong></summary>
+
+### **Complete Uninstall**
+
+#### 🪟 Windows
+```powershell
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/uninstallers/uninstall-all.ps1 | iex
+```
+
+#### 🐧 Linux
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/uninstallers/uninstall-all.sh | bash
+```
+
+#### 🍎 macOS
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/uninstallers/uninstall-all-mac.sh | bash
+```
+
+### **Uninstall Specific Components**
+
+- [View all uninstallers →](platform-tools/)
+
+</details>
+
+---
+
+## 🔧 Quick Fix Scripts
+
+### **🔥 Hook System Fix (Windows)**
+If hooks aren't working properly:
+```powershell
+# Download and run the fix script
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/INSTALL_HOOKS_FIX.ps1 -O INSTALL_HOOKS_FIX.ps1; .\INSTALL_HOOKS_FIX.ps1
+```
+
+### **🔥 Hook System Fix (Linux/Mac)**
+```bash
+# Download and run the fix script
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/INSTALL_HOOKS_FIX.sh -o INSTALL_HOOKS_FIX.sh && bash INSTALL_HOOKS_FIX.sh
+```
+
+---
+
+## ✅ Verify Installation
+
+### **🪟 Windows**
+```powershell
+iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/verifiers/verify-installation.ps1 | iex
+```
+
+### **🐧 Linux**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/verifiers/verify-installation.sh | bash
+```
+
+### **🍎 macOS**
+```bash
+curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/verifiers/verify-installation-mac.sh | bash
+```
+
+---
+
 ## 📁 Repository Structure
 
 ```
 Claude_Code_Dev_Stack/
 ├── .claude-example/          # ✨ Ready-to-use configuration
+│   ├── agents/              # 28 AI specialists
+│   ├── commands/            # 18 workflow commands
+│   ├── hooks/               # 19 automation hooks
+│   └── audio/               # Sound notifications
 ├── platform-tools/           # 🚀 OS-specific installers
+│   ├── windows/             # PowerShell scripts
+│   ├── linux/               # Bash scripts
+│   └── macos/               # Mac scripts
 ├── docs/                     # 📚 Comprehensive documentation
 ├── examples/                 # 💡 Real-world examples
 ├── master-prompts/           # 🎯 Production templates
-└── UNIVERSAL_META_PROMPTING_GUIDE.md  # 🧠 The secret sauce
+├── INSTALL_HOOKS_FIX.ps1    # 🔧 Windows hook fix
+├── INSTALL_HOOKS_FIX.sh     # 🔧 Linux/Mac hook fix
+├── CORRECTED_SETTINGS.json  # ⚙️ Fixed configuration
+├── UNIVERSAL_META_PROMPTING_GUIDE.md  # 🧠 The secret sauce
+└── CLAUDE_CODE_STACK_SUMMARY.md       # 📖 Complete system guide
 ```
 
-## 🔧 Component Installation
-
-Install individual components if needed:
-
-**Agents Only:**
-```bash
-# Windows
-iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/installers/install-agents.ps1 | iex
-
-# Mac  
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/installers/install-agents-mac.sh | bash
-
-# Linux
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/installers/install-agents.sh | bash
-```
-
-[View all installers →](platform-tools/)
-
-## 🗑️ Uninstall
-
-```bash
-# Windows
-iwr -useb https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/uninstallers/uninstall-all.ps1 | iex
-
-# Mac
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/uninstallers/uninstall-all-mac.sh | bash
-
-# Linux
-curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/uninstallers/uninstall-all.sh | bash
-```
+---
 
 ## 🚦 Support
 
@@ -198,12 +336,16 @@ curl -sL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/m
 - 📚 [Wiki](https://github.com/KrypticGadget/Claude_Code_Dev_Stack/wiki)
 - 📖 [Documentation](docs/)
 
+---
+
 ## 📚 Essential Reading
 
 - 🧠 **[Universal Meta Prompting](UNIVERSAL_META_PROMPTING_GUIDE.md)** - Generate perfect prompts
 - 📖 **[Complete System Guide](CLAUDE_CODE_STACK_SUMMARY.md)** - How everything works
 - 🎯 **[Best Practices](docs/guides/BEST_PRACTICES.md)** - Peak performance patterns
 - 🔧 **[Customization](docs/guides/CUSTOMIZATION.md)** - Extend the stack
+
+---
 
 ## ⚖️ License
 

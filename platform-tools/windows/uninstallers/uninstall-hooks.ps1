@@ -3,8 +3,8 @@
 
 Write-Host @"
 ╔════════════════════════════════════════════════════════════════╗
-║         Claude Code Enhanced Hooks Uninstaller v2.1            ║
-║           Safely Removes Hooks with Backup Option              ║
+║     Claude Code Enhanced Hooks Uninstaller v2.1 - FIXED       ║
+║       Safely Removes All 19 Hooks with Complete Backup        ║
 ╚════════════════════════════════════════════════════════════════╝
 "@ -ForegroundColor Yellow
 
@@ -93,8 +93,9 @@ Write-Host "  Backup location: $backupPath" -ForegroundColor Cyan
 # Step 4: Remove hook scripts
 Write-Host "`n🗑️ Removing hooks..." -ForegroundColor Yellow
 
-# List of all possible enhanced hooks
+# List of all possible enhanced hooks (including test hook)
 $allHooks = @(
+    # Core integration hooks
     "agent_mention_parser.py",
     "agent_orchestrator.py",
     "agent_orchestrator_integrated.py",
@@ -102,18 +103,31 @@ $allHooks = @(
     "mcp_gateway.py",
     "mcp_gateway_enhanced.py",
     "mcp_initializer.py",
+    
+    # Audio and notification
     "audio_player.py",
     "audio_notifier.py",
+    
+    # Session management
     "session_loader.py",
     "session_saver.py",
+    
+    # Quality and tracking
     "quality_gate.py",
     "model_tracker.py",
     "planning_trigger.py",
+    
+    # Pre/Post hooks
     "pre_command.py",
     "post_command.py",
     "pre_project.py",
     "post_project.py",
-    "base_hook.py"
+    
+    # Base utilities
+    "base_hook.py",
+    
+    # Debug hook
+    "test_hook.py"
 )
 
 $removedCount = 0
@@ -157,7 +171,10 @@ if (Test-Path $logsDir) {
         "mcp_operations.jsonl",
         "agent_routing.jsonl",
         "slash_commands.jsonl",
-        "model_usage.jsonl"
+        "model_usage.jsonl",
+        "test_hook.log",  # Added test hook log
+        "audio_player.log",
+        "session_*.log"
     )
     
     foreach ($pattern in $logPatterns) {
@@ -236,20 +253,30 @@ Write-Host "  UNINSTALLATION COMPLETE" -ForegroundColor Green
 Write-Host "═" * 60 -ForegroundColor Cyan
 
 Write-Host "`n📊 Removal Summary:" -ForegroundColor Cyan
-Write-Host "  • Hooks removed: $removedCount" -ForegroundColor White
+Write-Host "  • Hooks removed: $removedCount/20" -ForegroundColor White
 Write-Host "  • Audio files removed: $audioCount" -ForegroundColor White
 Write-Host "  • Logs cleaned: $logsRemoved" -ForegroundColor White
 Write-Host "  • State files cleaned: $stateRemoved" -ForegroundColor White
+Write-Host "  • Settings cleaned: $(if ($settings.PSObject.Properties["hooks"]) { "Yes" } else { "N/A" })" -ForegroundColor White
 
 Write-Host "`n💾 Backup Information:" -ForegroundColor Yellow
 Write-Host "  Location: $backupPath" -ForegroundColor White
 Write-Host "  Contains: Hooks, audio, settings, and state" -ForegroundColor White
 
 Write-Host "`n🔄 To Restore:" -ForegroundColor Cyan
-Write-Host "  1. Copy files from backup to original locations" -ForegroundColor White
-Write-Host "  2. Or run install-hooks.ps1 for fresh installation" -ForegroundColor White
+Write-Host "  Option 1: Restore from backup" -ForegroundColor White
+Write-Host "    • Copy files from: $backupPath" -ForegroundColor Gray
+Write-Host "  Option 2: Fresh installation (RECOMMENDED)" -ForegroundColor White
+Write-Host "    • Run: .\platform-tools\windows\installers\install-hooks.ps1" -ForegroundColor Gray
+Write-Host "  Option 3: Use fix script for complete setup" -ForegroundColor White
+Write-Host "    • Run: .\INSTALL_HOOKS_FIX.ps1" -ForegroundColor Gray
 
-Write-Host "`n✅ Enhanced hooks have been safely removed." -ForegroundColor Green
+Write-Host "`n⚠️ Important Notes:" -ForegroundColor Yellow
+Write-Host "  • Your backup is preserved at: $backupPath" -ForegroundColor White
+Write-Host "  • Restart Claude Code after reinstalling hooks" -ForegroundColor White
+Write-Host "  • Use --debug flag to verify hook operations" -ForegroundColor White
+
+Write-Host "`n✅ Enhanced hooks have been safely removed with complete backup." -ForegroundColor Green
 
 # Return success
 return 0

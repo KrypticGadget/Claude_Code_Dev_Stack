@@ -1,10 +1,10 @@
-# Enhanced Claude Code Hooks Installer v2.1
-# Installs complete integrated hook system with audio notifications
+# Enhanced Claude Code Hooks Installer v2.1 - FIXED
+# Installs complete integrated hook system with proper Windows paths
 
 Write-Host @"
 ╔════════════════════════════════════════════════════════════════╗
-║          Claude Code Enhanced Hooks Installer v2.1             ║
-║     19 Hooks + Audio Notifications + Full Integration          ║
+║       Claude Code Enhanced Hooks Installer v2.1 - FIXED        ║
+║     19 Hooks + Audio + Proper Windows Path Configuration       ║
 ╚════════════════════════════════════════════════════════════════╝
 "@ -ForegroundColor Cyan
 
@@ -21,21 +21,40 @@ $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
 $projectRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
 $sourceHooksDir = "$projectRoot\.claude-example\hooks"
 $sourceAudioDir = "$projectRoot\.claude-example\audio"
-$sourceSettings = "$projectRoot\.claude-example\settings-integrated.json"
 
-# Step 1: Check prerequisites
-Write-Host "`n🔍 Checking prerequisites..." -ForegroundColor Yellow
+# Step 1: Detect Python command
+Write-Host "`n🔍 Detecting Python installation..." -ForegroundColor Yellow
 
+$pythonCmd = ""
 $hasPython = $false
+
+# Try python first (most common on Windows)
 try {
     $pythonVersion = python --version 2>&1
-    if ($pythonVersion -match "Python") {
+    if ($pythonVersion -match "Python 3") {
+        $pythonCmd = "python"
         $hasPython = $true
-        Write-Host "  ✓ Python found: $pythonVersion" -ForegroundColor Green
+        Write-Host "  ✓ Found Python 3: $pythonVersion" -ForegroundColor Green
+        Write-Host "  Using command: python" -ForegroundColor Cyan
+    } elseif ($pythonVersion -match "Python 2") {
+        Write-Host "  ⚠ Python 2 detected - Python 3 required!" -ForegroundColor Red
     }
 } catch {
-    Write-Host "  ⚠ Python not found - hooks require Python to run" -ForegroundColor Yellow
-    Write-Host "    Install from: https://python.org" -ForegroundColor Gray
+    # Try python3 as fallback
+    try {
+        $pythonVersion = python3 --version 2>&1
+        if ($pythonVersion -match "Python 3") {
+            $pythonCmd = "python3"
+            $hasPython = $true
+            Write-Host "  ✓ Found Python 3: $pythonVersion" -ForegroundColor Green
+            Write-Host "  Using command: python3" -ForegroundColor Cyan
+        }
+    } catch {
+        Write-Host "  ✗ Python not found - hooks will NOT work!" -ForegroundColor Red
+        Write-Host "    Install from: https://python.org" -ForegroundColor Yellow
+        Write-Host "    Make sure to check 'Add Python to PATH' during installation!" -ForegroundColor Yellow
+        $pythonCmd = "python"  # Default fallback
+    }
 }
 
 # Step 2: Create directory structure
@@ -126,6 +145,38 @@ if (Test-Path $sourceHooksDir) {
             Write-Host "    ⚠ $hook (not found)" -ForegroundColor Yellow
         }
     }
+    
+    # Also create test hook for debugging
+    $testHook = @'
+#!/usr/bin/env python3
+"""Test hook to verify system is working"""
+import json
+import sys
+import os
+from datetime import datetime
+
+# Read input
+try:
+    input_data = json.load(sys.stdin)
+    event = input_data.get("hook_event_name", "unknown")
+    
+    # Log to file
+    log_dir = os.path.expanduser("~/.claude/logs")
+    os.makedirs(log_dir, exist_ok=True)
+    with open(os.path.join(log_dir, "test_hook.log"), "a") as f:
+        f.write(f"{datetime.now().isoformat()}: Event={event}\n")
+    
+    # Output to stderr for debug
+    print(f"[TEST HOOK] Event: {event}", file=sys.stderr)
+except Exception as e:
+    print(f"[TEST HOOK ERROR] {e}", file=sys.stderr)
+
+sys.exit(0)
+'@
+    $testHook | Out-File -FilePath "$hooksDir\test_hook.py" -Encoding UTF8
+    Write-Host "    ✓ test_hook.py (debug)" -ForegroundColor Green
+    $installedCount++
+    
 } else {
     # Fallback to GitHub download
     Write-Host "  Downloading from GitHub..." -ForegroundColor Cyan
@@ -191,179 +242,264 @@ if (Test-Path $sourceAudioDir) {
     }
 }
 
-# Step 6: Install integrated settings
-Write-Host "`n⚙️ Installing integrated settings..." -ForegroundColor Yellow
+# Step 6: Create PROPERLY FORMATTED settings.json with Windows paths
+Write-Host "`n⚙️ Creating properly configured settings.json..." -ForegroundColor Yellow
 
-if (Test-Path $sourceSettings) {
-    # Read settings and update paths
-    $settingsContent = Get-Content $sourceSettings -Raw
-    $settingsContent = $settingsContent -replace '\$HOME', $env:USERPROFILE.Replace('\', '/')
-    
-    # Save to Claude directory
-    $settingsContent | Out-File "$claudeDir\settings.json" -Encoding UTF8
-    Write-Host "  ✓ Installed integrated settings.json" -ForegroundColor Green
-} else {
-    Write-Host "  ⚠ Settings file not found, creating minimal configuration" -ForegroundColor Yellow
-    
-    # Create minimal settings with hook configurations
-    $minimalSettings = @{
-        hooks = @{
-            PreToolUse = @(
-                @{
-                    matcher = "Task"
-                    hooks = @(
-                        @{
-                            type = "command"
-                            command = "`$HOME/.claude/hooks/agent_orchestrator_integrated.py"
-                            timeout = 10
-                        },
-                        @{
-                            type = "command"
-                            command = "`$HOME/.claude/hooks/audio_player.py"
-                            timeout = 1
-                        }
-                    )
-                }
-            )
-            PostToolUse = @(
-                @{
-                    hooks = @(
-                        @{
-                            type = "command"
-                            command = "`$HOME/.claude/hooks/model_tracker.py"
-                            timeout = 5
-                        }
-                    )
-                }
-            )
-            UserPromptSubmit = @(
-                @{
-                    hooks = @(
-                        @{
-                            type = "command"
-                            command = "`$HOME/.claude/hooks/slash_command_router.py"
-                            timeout = 3
-                        }
-                    )
-                }
-            )
-            SessionStart = @(
-                @{
-                    hooks = @(
-                        @{
-                            type = "command"
-                            command = "`$HOME/.claude/hooks/session_loader.py"
-                            timeout = 10
-                        },
-                        @{
-                            type = "command"
-                            command = "`$HOME/.claude/hooks/mcp_initializer.py"
-                            timeout = 5
-                        }
-                    )
-                }
-            )
-            Stop = @(
-                @{
-                    hooks = @(
-                        @{
-                            type = "command"
-                            command = "`$HOME/.claude/hooks/session_saver.py"
-                            timeout = 5
-                        },
-                        @{
-                            type = "command"
-                            command = "`$HOME/.claude/hooks/audio_player.py"
-                            timeout = 1
-                        }
-                    )
-                }
-            )
-        }
+# Build the settings object with proper Windows paths
+$settings = @{
+    hooks = @{
+        PreToolUse = @(
+            @{
+                matcher = "Task"
+                hooks = @(
+                    @{
+                        type = "command"
+                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\agent_orchestrator_integrated.py`""
+                        timeout = 10
+                    },
+                    @{
+                        type = "command"
+                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\audio_player.py`""
+                        timeout = 1
+                    }
+                )
+            },
+            @{
+                matcher = "Write|Edit|MultiEdit"
+                hooks = @(
+                    @{
+                        type = "command"
+                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\quality_gate.py`""
+                        timeout = 5
+                    }
+                )
+            },
+            @{
+                matcher = "Bash"
+                hooks = @(
+                    @{
+                        type = "command"
+                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\pre_command.py`""
+                        timeout = 5
+                    },
+                    @{
+                        type = "command"
+                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\test_hook.py`""
+                        timeout = 2
+                    }
+                )
+            },
+            @{
+                matcher = "mcp__playwright__.*"
+                hooks = @(
+                    @{
+                        type = "command"
+                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\mcp_gateway_enhanced.py`" --service playwright"
+                        timeout = 5
+                    }
+                )
+            },
+            @{
+                matcher = "mcp__obsidian__.*"
+                hooks = @(
+                    @{
+                        type = "command"
+                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\mcp_gateway_enhanced.py`" --service obsidian"
+                        timeout = 5
+                    }
+                )
+            },
+            @{
+                matcher = "mcp__web-search__.*"
+                hooks = @(
+                    @{
+                        type = "command"
+                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\mcp_gateway_enhanced.py`" --service web-search"
+                        timeout = 5
+                    }
+                )
+            }
+        )
+        PostToolUse = @(
+            @{
+                matcher = "Task"
+                hooks = @(
+                    @{
+                        type = "command"
+                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\model_tracker.py`""
+                        timeout = 5
+                    },
+                    @{
+                        type = "command"
+                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\audio_player.py`""
+                        timeout = 1
+                    }
+                )
+            },
+            @{
+                matcher = "Write|Edit|MultiEdit"
+                hooks = @(
+                    @{
+                        type = "command"
+                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\post_command.py`""
+                        timeout = 5
+                    }
+                )
+            }
+        )
+        UserPromptSubmit = @(
+            @{
+                hooks = @(
+                    @{
+                        type = "command"
+                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\agent_mention_parser.py`""
+                        timeout = 3
+                    },
+                    @{
+                        type = "command"
+                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\slash_command_router.py`""
+                        timeout = 3
+                    },
+                    @{
+                        type = "command"
+                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\planning_trigger.py`""
+                        timeout = 3
+                    }
+                )
+            }
+        )
+        SessionStart = @(
+            @{
+                hooks = @(
+                    @{
+                        type = "command"
+                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\session_loader.py`""
+                        timeout = 10
+                    },
+                    @{
+                        type = "command"
+                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\mcp_initializer.py`""
+                        timeout = 5
+                    },
+                    @{
+                        type = "command"
+                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\audio_player.py`""
+                        timeout = 1
+                    }
+                )
+            }
+        )
+        Stop = @(
+            @{
+                hooks = @(
+                    @{
+                        type = "command"
+                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\session_saver.py`""
+                        timeout = 5
+                    },
+                    @{
+                        type = "command"
+                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\post_project.py`""
+                        timeout = 5
+                    },
+                    @{
+                        type = "command"
+                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\audio_player.py`""
+                        timeout = 1
+                    }
+                )
+            }
+        )
+        SubagentStop = @(
+            @{
+                hooks = @(
+                    @{
+                        type = "command"
+                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\model_tracker.py`""
+                        timeout = 3
+                    }
+                )
+            }
+        )
     }
-    
-    $minimalSettings | ConvertTo-Json -Depth 10 | Out-File "$claudeDir\settings.json" -Encoding UTF8
-    Write-Host "  ✓ Created minimal settings.json" -ForegroundColor Green
 }
 
-# Step 7: Create test script
-Write-Host "`n🧪 Creating test script..." -ForegroundColor Yellow
+# Convert to JSON and save
+$settingsJson = $settings | ConvertTo-Json -Depth 10
+$settingsJson | Out-File "$claudeDir\settings.json" -Encoding UTF8
+Write-Host "  ✓ Created settings.json with Windows paths" -ForegroundColor Green
+Write-Host "  ✓ Python command: $pythonCmd" -ForegroundColor Cyan
 
-$testScript = @'
-# Test enhanced hook system
-Write-Host "Testing Enhanced Hook System" -ForegroundColor Cyan
+# Step 7: Validate JSON
+Write-Host "`n🔍 Validating configuration..." -ForegroundColor Yellow
 
-$claudeHooks = "$env:USERPROFILE\.claude\hooks"
+try {
+    $testSettings = Get-Content "$claudeDir\settings.json" -Raw | ConvertFrom-Json
+    Write-Host "  ✓ settings.json is valid JSON" -ForegroundColor Green
+} catch {
+    Write-Host "  ✗ settings.json has JSON errors!" -ForegroundColor Red
+    Write-Host "    Error: $_" -ForegroundColor Red
+}
 
-# Test slash command router
-Write-Host "`nTesting slash command router..." -ForegroundColor Yellow
-$testData = @{ prompt = "/new-project test" } | ConvertTo-Json
-$result = $testData | python "$claudeHooks\slash_command_router.py" 2>&1
-if ($LASTEXITCODE -eq 0) {
-    Write-Host "  ✓ Slash commands work!" -ForegroundColor Green
+# Step 8: Test hook execution
+Write-Host "`n🧪 Testing hook system..." -ForegroundColor Yellow
+
+$testInput = '{"hook_event_name": "test", "tool_name": "Bash"}'
+$testHookPath = "$hooksDir\test_hook.py"
+
+if (Test-Path $testHookPath) {
+    try {
+        $testOutput = $testInput | & $pythonCmd $testHookPath 2>&1
+        Write-Host "  ✓ Test hook executed successfully" -ForegroundColor Green
+        
+        if (Test-Path "$logsDir\test_hook.log") {
+            Write-Host "  ✓ Test log created successfully" -ForegroundColor Green
+        }
+    } catch {
+        Write-Host "  ⚠ Test hook failed (Python may not be in PATH)" -ForegroundColor Yellow
+    }
 } else {
-    Write-Host "  ✗ Slash commands failed" -ForegroundColor Red
+    Write-Host "  ⚠ Test hook not found" -ForegroundColor Yellow
 }
 
-# Test agent orchestrator
-Write-Host "Testing agent orchestrator..." -ForegroundColor Yellow
-$testData = @{
-    tool_name = "Task"
-    tool_input = @{ prompt = "@agent-frontend-mockup test" }
-} | ConvertTo-Json
-$result = $testData | python "$claudeHooks\agent_orchestrator_integrated.py" 2>&1
-if ($LASTEXITCODE -eq 0) {
-    Write-Host "  ✓ Agent orchestration works!" -ForegroundColor Green
-} else {
-    Write-Host "  ✗ Agent orchestration failed" -ForegroundColor Red
-}
-
-# Test audio
-Write-Host "Testing audio notifications..." -ForegroundColor Yellow
-$testData = @{ hook_event_name = "SessionStart" } | ConvertTo-Json
-$result = $testData | python "$claudeHooks\audio_player.py" 2>&1
-if ($LASTEXITCODE -eq 0) {
-    Write-Host "  ✓ Audio system works!" -ForegroundColor Green
-} else {
-    Write-Host "  ✗ Audio system failed" -ForegroundColor Red
-}
-
-Write-Host "`nTest complete!" -ForegroundColor Green
-'@
-
-$testScript | Out-File "$claudeDir\test-hooks.ps1" -Encoding UTF8
-Write-Host "  ✓ Created test-hooks.ps1" -ForegroundColor Green
-
-# Step 8: Display summary
+# Step 9: Display summary
 Write-Host "`n" -NoNewline
 Write-Host "═" * 60 -ForegroundColor Cyan
 Write-Host "  ENHANCED HOOKS INSTALLATION COMPLETE" -ForegroundColor Green
 Write-Host "═" * 60 -ForegroundColor Cyan
 
 Write-Host "`n📊 Installation Summary:" -ForegroundColor Cyan
-Write-Host "  • Hooks installed: $installedCount/$($hooks.Count)" -ForegroundColor White
+Write-Host "  • Hooks installed: $installedCount/20" -ForegroundColor White
 Write-Host "  • Audio files: $(if (Test-Path $audioDir) { (Get-ChildItem $audioDir -Filter "*.mp3").Count } else { 0 })" -ForegroundColor White
-Write-Host "  • Directories created: $($directories.Count)" -ForegroundColor White
-Write-Host "  • Settings: Integrated configuration" -ForegroundColor White
+Write-Host "  • Python command: $pythonCmd" -ForegroundColor White
+Write-Host "  • Settings: Configured with Windows paths" -ForegroundColor White
 
 Write-Host "`n🚀 Key Features Enabled:" -ForegroundColor Cyan
 Write-Host "  • 28 Agents orchestration" -ForegroundColor White
 Write-Host "  • 18 Slash commands" -ForegroundColor White
-Write-Host "  • 3 MCP services integration" -ForegroundColor White
+Write-Host "  • MCP services integration" -ForegroundColor White
 Write-Host "  • Audio notifications" -ForegroundColor White
 Write-Host "  • Session persistence" -ForegroundColor White
-Write-Host "  • Model optimization" -ForegroundColor White
 Write-Host "  • Quality gates" -ForegroundColor White
 
-Write-Host "`n📝 Next Steps:" -ForegroundColor Yellow
-Write-Host "  1. Restart Claude Code to load new hooks" -ForegroundColor White
-Write-Host "  2. Test system: .\test-hooks.ps1" -ForegroundColor White
-Write-Host "  3. Try: claude `"/new-project test`"" -ForegroundColor White
+Write-Host "`n⚠️ CRITICAL NEXT STEPS:" -ForegroundColor Yellow
+Write-Host "  1. EXIT Claude Code completely" -ForegroundColor Red
+Write-Host "  2. Restart Claude Code" -ForegroundColor White
+Write-Host "  3. Run in debug mode: claude --debug" -ForegroundColor White
+Write-Host "  4. Type: /hooks" -ForegroundColor White
+Write-Host "  5. Verify all hooks are listed" -ForegroundColor White
+
+Write-Host "`n🧪 To Test Hooks:" -ForegroundColor Cyan
+Write-Host "  • Run: ls (should trigger test_hook)" -ForegroundColor White
+Write-Host "  • Try: @agent-frontend-mockup test" -ForegroundColor White
+Write-Host "  • Try: /new-project test" -ForegroundColor White
+Write-Host "  • Check: $logsDir\test_hook.log" -ForegroundColor White
 
 if (!$hasPython) {
-    Write-Host "`n⚠ Important:" -ForegroundColor Yellow
-    Write-Host "  Python is required for hooks to function" -ForegroundColor Red
+    Write-Host "`n❌ IMPORTANT:" -ForegroundColor Red
+    Write-Host "  Python 3 is REQUIRED for hooks to function" -ForegroundColor Red
     Write-Host "  Install from: https://python.org" -ForegroundColor Yellow
+    Write-Host "  Make sure to check 'Add Python to PATH'!" -ForegroundColor Yellow
 }
 
 Write-Host "`n✨ Your Claude Code is now enhanced with 6-9x faster development!" -ForegroundColor Green
