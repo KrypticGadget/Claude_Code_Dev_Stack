@@ -15,28 +15,34 @@ class AudioNotifier:
         self.audio_dir = Path.home() / ".claude" / "audio"
         self.system = platform.system()
         
-        # Map events to audio files
+        # Map events to audio files (supporting both wav and mp3)
         self.audio_map = {
-            "success": "success.wav",
-            "warning": "warning.wav",
-            "error": "error.wav",
-            "notify": "notify.wav",
-            "agent": "agent.wav",
-            "mcp": "mcp.wav",
-            "session": "session.wav"
+            "success": "task_complete.mp3",
+            "warning": "awaiting_instructions.mp3",
+            "error": "error_fixed.mp3",
+            "notify": "ready.mp3",
+            "agent": "ready.mp3",
+            "mcp": "ready.mp3",
+            "session": "ready.mp3"
         }
         
     def play_sound(self, sound_type):
         """Play audio file based on event type"""
-        audio_file = self.audio_dir / self.audio_map.get(sound_type, "notify.wav")
+        audio_file = self.audio_dir / self.audio_map.get(sound_type, "ready.mp3")
         
         if not audio_file.exists():
             return  # Silently skip if audio file doesn't exist
         
         try:
             if self.system == "Windows":
-                import winsound
-                winsound.PlaySound(str(audio_file), winsound.SND_FILENAME | winsound.SND_ASYNC)
+                # Use start command to play MP3 files with default media player
+                import subprocess
+                subprocess.run(
+                    ["cmd", "/c", f"start /min \"\" \"{audio_file}\""],
+                    capture_output=True,
+                    shell=True,
+                    timeout=2
+                )
             elif self.system == "Darwin":  # macOS
                 os.system(f'afplay "{audio_file}" &')
             else:  # Linux

@@ -44,10 +44,11 @@ class AudioPlayer:
         
         try:
             if self.system == "Windows":
-                # Windows: Use PowerShell to play sound
+                # Windows: Use start command to play mp3 files with default player
                 subprocess.run(
-                    ["powershell", "-c", f"(New-Object Media.SoundPlayer '{audio_path}').PlaySync()"],
+                    ["cmd", "/c", f"start /min \"\" \"{audio_path}\""],
                     capture_output=True,
+                    shell=True,
                     timeout=2
                 )
             elif self.system == "Darwin":  # macOS
