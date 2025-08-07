@@ -56,25 +56,14 @@ class AudioPlayer:
                 except ImportError:
                     pass
                 
-                # Method 2: Try playsound module (simple, no windows)
-                try:
-                    from playsound import playsound
-                    playsound(str(audio_path), False)  # False = don't block
-                    return True
-                except ImportError:
-                    pass
-                
-                # Method 3: Use mshta.exe with HTML5 audio (invisible, won't affect PowerShell)
-                audio_url = audio_path.as_uri()
-                mshta_script = f'''
-                mshta "javascript:var a=new Audio('{audio_url}');a.play();setTimeout(function(){{close();}},5000);"
-                '''
-                
-                subprocess.Popen(
-                    mshta_script,
+                # Method 2: Use Windows start command with /b flag (background)
+                # This is the simplest method that works without affecting the console
+                subprocess.run(
+                    f'start /b "" "{audio_path}"',
                     shell=True,
                     stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL
+                    stderr=subprocess.DEVNULL,
+                    check=False
                 )
                 
             elif self.system == "Darwin":  # macOS

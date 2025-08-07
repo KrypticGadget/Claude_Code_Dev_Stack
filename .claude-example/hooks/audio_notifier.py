@@ -50,23 +50,14 @@ class AudioNotifier:
                 except ImportError:
                     pass
                 
-                # Method 2: Try playsound module
-                try:
-                    from playsound import playsound
-                    playsound(str(audio_file), False)  # False = don't block
-                    return
-                except ImportError:
-                    pass
-                
-                # Method 3: Use mshta.exe with HTML5 audio (invisible, won't affect PowerShell)
-                audio_url = audio_file.as_uri()
-                mshta_script = f'''mshta "javascript:var a=new Audio('{audio_url}');a.play();setTimeout(function(){{close();}},5000);"'''
-                
-                subprocess.Popen(
-                    mshta_script,
+                # Method 2: Use Windows start command with /b flag (background)
+                # Simple and reliable, doesn't affect console window
+                subprocess.run(
+                    f'start /b "" "{audio_file}"',
                     shell=True,
                     stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL
+                    stderr=subprocess.DEVNULL,
+                    check=False
                 )
                 
             elif self.system == "Darwin":  # macOS
