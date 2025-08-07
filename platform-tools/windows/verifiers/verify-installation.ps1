@@ -17,7 +17,7 @@ $hooksPath = "$claudeDir\hooks"
 $audioPath = "$claudeDir\audio"
 $logsPath = "$claudeDir\logs"
 $statePath = "$claudeDir\state"
-$settingsPath = "$claudeDir\settings.json"
+$claudeJsonPath = "$env:USERPROFILE\.claude.json"
 $mcpPath = "$claudeDir\.mcp.json"
 
 # Initialize counters
@@ -153,12 +153,12 @@ if (Test-Path $audioPath) {
     $components.Audio = $false
 }
 
-# Check settings with detailed validation
-Write-Host "`n⚙️ Configuration (COMPLETE):" -ForegroundColor Cyan
+# Check .claude.json configuration with detailed validation
+Write-Host "`n⚙️ Configuration (.claude.json - FIXED):" -ForegroundColor Cyan
 $testsTotal++
-if (Test-Path $settingsPath) {
+if (Test-Path $claudeJsonPath) {
     try {
-        $settings = Get-Content $settingsPath -Raw | ConvertFrom-Json
+        $settings = Get-Content $claudeJsonPath -Raw | ConvertFrom-Json
         $configIssues = @()
         
         # Check for hooks configuration
@@ -182,7 +182,7 @@ if (Test-Path $settingsPath) {
             $hasMcpIntegration = $settings.mcpIntegration -ne $null
             
             if ($hasPreToolUse -and $hasPostToolUse -and $hasUserPromptSubmit -and $hasSessionStart -and $hasPythonCommand -and $hasProperPaths) {
-                Write-Host "  ✓ settings.json FULLY configured with all features" -ForegroundColor Green
+                Write-Host "  ✓ .claude.json FULLY configured with all features" -ForegroundColor Green
                 Write-Host "    • Hook Events: PreToolUse ✓ PostToolUse ✓ UserPromptSubmit ✓" -ForegroundColor Gray
                 Write-Host "    • SessionStart ✓ Stop $(if($hasStop){"✓"}else{"✗"}) SubagentStop $(if($hasSubagentStop){"✓"}else{"✗"})" -ForegroundColor Gray
                 Write-Host "    • Python command: ✓" -ForegroundColor Gray
@@ -201,7 +201,7 @@ if (Test-Path $settingsPath) {
                 $testsPassed++
                 $components.Settings = $true
             } else {
-                Write-Host "  ⚠ settings.json has hooks but missing components" -ForegroundColor Yellow
+                Write-Host "  ⚠ .claude.json has hooks but missing components" -ForegroundColor Yellow
                 if (!$hasPythonCommand) {
                     $configIssues += "Missing python/python3 in commands"
                 }
@@ -219,16 +219,16 @@ if (Test-Path $settingsPath) {
                 $components.Settings = "partial"
             }
         } else {
-            Write-Host "  ⚠ settings.json exists but NO hooks configured!" -ForegroundColor Red
+            Write-Host "  ⚠ .claude.json exists but NO hooks configured!" -ForegroundColor Red
             Write-Host "    Run: .\platform-tools\windows\installers\install-hooks.ps1" -ForegroundColor Yellow
             $components.Settings = "partial"
         }
     } catch {
-        Write-Host "  ⚠ settings.json exists but couldn't parse: $_" -ForegroundColor Yellow
+        Write-Host "  ⚠ .claude.json exists but couldn't parse: $_" -ForegroundColor Yellow
         $components.Settings = "partial"
     }
 } else {
-    Write-Host "  ✗ settings.json missing completely!" -ForegroundColor Red
+    Write-Host "  ✗ .claude.json missing completely!" -ForegroundColor Red
     Write-Host "    Run: .\platform-tools\windows\installers\install-hooks.ps1" -ForegroundColor Yellow
     $components.Settings = $false
 }
@@ -412,7 +412,7 @@ if ($percentage -eq 100) {
 Write-Host "`n📝 Troubleshooting Tips:" -ForegroundColor Cyan
 Write-Host "  • If hooks don't trigger: Check Python is in PATH" -ForegroundColor White
 Write-Host "  • If paths fail: Use absolute paths (C:/Users/Zach)" -ForegroundColor White
-Write-Host "  • If JSON errors: Validate settings.json syntax" -ForegroundColor White
+Write-Host "  • If JSON errors: Validate .claude.json syntax" -ForegroundColor White
 Write-Host "  • Debug mode: claude --debug shows hook execution" -ForegroundColor White
 
 # Return status code

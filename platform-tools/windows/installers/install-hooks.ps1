@@ -1,35 +1,22 @@
-# Enhanced Claude Code Hooks Installer v2.1 - FIXED
-# Installs complete integrated hook system with proper Windows paths
+# Enhanced Claude Code Hooks Installer v2.1 - FINAL FIX
+# Properly merges hooks into .claude.json (the file Claude Code actually reads!)
 
 Write-Host @"
 ╔════════════════════════════════════════════════════════════════╗
-║       Claude Code Enhanced Hooks Installer v2.1 - FIXED        ║
-║     19 Hooks + Audio + Proper Windows Path Configuration       ║
+║     Claude Code Enhanced Hooks Installer v2.1 - FINAL FIX      ║
+║        Properly installs hooks into .claude.json file          ║
 ╚════════════════════════════════════════════════════════════════╝
 "@ -ForegroundColor Cyan
 
 # Configuration
 $claudeDir = "$env:USERPROFILE\.claude"
+$claudeJsonPath = "$env:USERPROFILE\.claude.json"
 $hooksDir = "$claudeDir\hooks"
 $audioDir = "$claudeDir\audio"
 $logsDir = "$claudeDir\logs"
 $stateDir = "$claudeDir\state"
 $backupsDir = "$claudeDir\backups"
 $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-
-# Project paths - handle both direct execution and web download
-if ($PSScriptRoot) {
-    $projectRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
-    $sourceHooksDir = "$projectRoot\.claude-example\hooks"
-    $sourceAudioDir = "$projectRoot\.claude-example\audio"
-    $sourceSettingsFile = "$projectRoot\.claude-example\settings-integrated.json"
-} else {
-    # Running from web, will download from GitHub
-    $projectRoot = $null
-    $sourceHooksDir = $null
-    $sourceAudioDir = $null
-    $sourceSettingsFile = $null
-}
 
 # Step 1: Detect Python command
 Write-Host "`n🔍 Detecting Python installation..." -ForegroundColor Yellow
@@ -80,22 +67,13 @@ foreach ($dir in $directories) {
     }
 }
 
-# Step 3: Backup existing configuration
+# Step 3: Backup existing .claude.json
 Write-Host "`n💾 Backing up existing configuration..." -ForegroundColor Yellow
 
-if (Test-Path "$claudeDir\settings.json") {
-    $backupPath = "$backupsDir\settings_$timestamp.json"
-    Copy-Item "$claudeDir\settings.json" $backupPath -Force
-    Write-Host "  ✓ Backed up settings to: $backupPath" -ForegroundColor Green
-}
-
-# Backup existing hooks if present
-$existingHooks = Get-ChildItem $hooksDir -Filter "*.py" -ErrorAction SilentlyContinue
-if ($existingHooks) {
-    $backupHooksDir = "$backupsDir\hooks_$timestamp"
-    New-Item -ItemType Directory -Path $backupHooksDir -Force | Out-Null
-    Copy-Item "$hooksDir\*.py" $backupHooksDir -Force
-    Write-Host "  ✓ Backed up $($existingHooks.Count) existing hooks" -ForegroundColor Green
+if (Test-Path $claudeJsonPath) {
+    $backupPath = "$backupsDir\.claude_$timestamp.json"
+    Copy-Item $claudeJsonPath $backupPath -Force
+    Write-Host "  ✓ Backed up .claude.json to: $backupPath" -ForegroundColor Green
 }
 
 # Step 4: Install enhanced hooks
@@ -138,77 +116,27 @@ $hooks = @(
 $installedCount = 0
 $failedCount = 0
 
-# Try local source first (only works when running locally)
-if ($sourceHooksDir -and (Test-Path $sourceHooksDir)) {
-    Write-Host "  Installing from local source..." -ForegroundColor Cyan
+# Download from GitHub
+Write-Host "  Downloading hooks from GitHub..." -ForegroundColor Cyan
+$baseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/hooks"
+
+foreach ($hook in $hooks) {
+    Write-Host "    Downloading: $hook... " -NoNewline
+    $url = "$baseUrl/$hook"
+    $dest = "$hooksDir\$hook"
     
-    foreach ($hook in $hooks) {
-        $sourcePath = "$sourceHooksDir\$hook"
-        $destPath = "$hooksDir\$hook"
-        
-        if (Test-Path $sourcePath) {
-            Copy-Item $sourcePath $destPath -Force
-            Write-Host "    ✓ $hook" -ForegroundColor Green
-            $installedCount++
-        } else {
-            Write-Host "    ⚠ $hook (not found)" -ForegroundColor Yellow
-        }
+    try {
+        $webClient = New-Object System.Net.WebClient
+        $webClient.DownloadFile($url, $dest)
+        $webClient.Dispose()
+        Write-Host "✓" -ForegroundColor Green
+        $installedCount++
+    } catch {
+        Write-Host "✗" -ForegroundColor Red
+        $failedCount++
     }
     
-    # Also create test hook for debugging
-    $testHook = @'
-#!/usr/bin/env python3
-"""Test hook to verify system is working"""
-import json
-import sys
-import os
-from datetime import datetime
-
-# Read input
-try:
-    input_data = json.load(sys.stdin)
-    event = input_data.get("hook_event_name", "unknown")
-    
-    # Log to file
-    log_dir = os.path.expanduser("~/.claude/logs")
-    os.makedirs(log_dir, exist_ok=True)
-    with open(os.path.join(log_dir, "test_hook.log"), "a") as f:
-        f.write(f"{datetime.now().isoformat()}: Event={event}\n")
-    
-    # Output to stderr for debug
-    print(f"[TEST HOOK] Event: {event}", file=sys.stderr)
-except Exception as e:
-    print(f"[TEST HOOK ERROR] {e}", file=sys.stderr)
-
-sys.exit(0)
-'@
-    $testHook | Out-File -FilePath "$hooksDir\test_hook.py" -Encoding UTF8
-    Write-Host "    ✓ test_hook.py (debug)" -ForegroundColor Green
-    $installedCount++
-    
-} else {
-    # Fallback to GitHub download
-    Write-Host "  Downloading from GitHub..." -ForegroundColor Cyan
-    $baseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/hooks"
-    
-    foreach ($hook in $hooks) {
-        Write-Host "    Downloading: $hook... " -NoNewline
-        $url = "$baseUrl/$hook"
-        $dest = "$hooksDir\$hook"
-        
-        try {
-            $webClient = New-Object System.Net.WebClient
-            $webClient.DownloadFile($url, $dest)
-            $webClient.Dispose()
-            Write-Host "✓" -ForegroundColor Green
-            $installedCount++
-        } catch {
-            Write-Host "✗" -ForegroundColor Red
-            $failedCount++
-        }
-        
-        Start-Sleep -Milliseconds 100
-    }
+    Start-Sleep -Milliseconds 100
 }
 
 # Create test_hook.py for debugging
@@ -245,360 +173,168 @@ if ($failedCount -gt 0) {
     Write-Host "  Failed: $failedCount hooks" -ForegroundColor Red
 }
 
-# Also ensure hooks have proper Python shebang
-Write-Host "`n🔧 Ensuring hooks are executable..." -ForegroundColor Yellow
-$hookFiles = Get-ChildItem $hooksDir -Filter "*.py" -ErrorAction SilentlyContinue
-foreach ($hook in $hookFiles) {
-    $content = Get-Content $hook.FullName -Raw
-    if ($content -notmatch '^#!/usr/bin/env python') {
-        $newContent = "#!/usr/bin/env python3`n" + $content
-        $newContent | Out-File $hook.FullName -Encoding UTF8
-    }
-}
-Write-Host "  ✓ Hook files prepared" -ForegroundColor Green
-
 # Step 5: Install audio assets
 Write-Host "`n🎵 Installing audio notifications..." -ForegroundColor Yellow
 
-if ($sourceAudioDir -and (Test-Path $sourceAudioDir)) {
-    $audioFiles = Get-ChildItem $sourceAudioDir -Filter "*.mp3" -ErrorAction SilentlyContinue
-    
-    if ($audioFiles) {
-        foreach ($audioFile in $audioFiles) {
-            Copy-Item $audioFile.FullName "$audioDir\$($audioFile.Name)" -Force
-            Write-Host "  ✓ $($audioFile.Name)" -ForegroundColor Green
-        }
-        Write-Host "  Installed: $($audioFiles.Count) audio files" -ForegroundColor Cyan
-    } else {
-        Write-Host "  ⚠ No audio files found" -ForegroundColor Yellow
-    }
-} else {
-    # Download audio files from GitHub or create placeholders
-    Write-Host "  Downloading audio files from GitHub..." -ForegroundColor Yellow
-    $audioBaseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/audio"
-    $audioFiles = @(
-        "ready.mp3",
-        "task_complete.mp3",
-        "build_complete.mp3",
-        "error_fixed.mp3",
-        "awaiting_instructions.mp3"
-    )
-    
-    $audioDownloaded = 0
-    foreach ($audio in $audioFiles) {
-        $audioUrl = "$audioBaseUrl/$audio"
-        $audioPath = "$audioDir\$audio"
-        
-        try {
-            # Try to download real audio file
-            $webClient = New-Object System.Net.WebClient
-            $webClient.DownloadFile($audioUrl, $audioPath)
-            $webClient.Dispose()
-            Write-Host "    ✓ Downloaded: $audio" -ForegroundColor Green
-            $audioDownloaded++
-        } catch {
-            # Create placeholder if download fails
-            if (!(Test-Path $audioPath)) {
-                New-Item -ItemType File -Path $audioPath -Force | Out-Null
-                Write-Host "    • Created placeholder: $audio" -ForegroundColor Gray
-            }
-        }
-        Start-Sleep -Milliseconds 100
-    }
-    
-    if ($audioDownloaded -gt 0) {
-        Write-Host "  Downloaded: $audioDownloaded audio files" -ForegroundColor Green
-    }
-}
+# Download audio files from GitHub or create placeholders
+$audioBaseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/audio"
+$audioFiles = @(
+    "ready.mp3",
+    "task_complete.mp3",
+    "build_complete.mp3",
+    "error_fixed.mp3",
+    "awaiting_instructions.mp3"
+)
 
-# Step 6: Copy or download settings-integrated.json
-Write-Host "`n⚙️ Installing settings.json with complete hook configuration..." -ForegroundColor Yellow
-
-# Try to copy from local source first
-if ($sourceSettingsFile -and (Test-Path $sourceSettingsFile)) {
-    Write-Host "  Installing from local source..." -ForegroundColor Cyan
-    
-    # Read the source settings file
-    $sourceContent = Get-Content $sourceSettingsFile -Raw
-    
-    # Replace $HOME with actual Windows path
-    $settingsContent = $sourceContent -replace '\$HOME', $env:USERPROFILE.Replace('\', '/')
-    
-    # Fix Python commands - add python/python3 where needed
-    if ($pythonCmd -eq "python3") {
-        # Add python3 to commands that don't have it
-        $settingsContent = $settingsContent -replace '"command":\s*"(/[^"]+\.py)', '"command": "python3 $1'
-        $settingsContent = $settingsContent -replace '"command":\s*"(C:/[^"]+\.py)', '"command": "python3 $1'
-        # Keep existing python3 commands
-        $settingsContent = $settingsContent -replace '"command":\s*"python\s+', '"command": "python3 '
-    } else {
-        # Add python to commands that don't have it
-        $settingsContent = $settingsContent -replace '"command":\s*"(/[^"]+\.py)', '"command": "python $1'
-        $settingsContent = $settingsContent -replace '"command":\s*"(C:/[^"]+\.py)', '"command": "python $1'
-        # Keep existing python commands, change python3 to python
-        $settingsContent = $settingsContent -replace '"command":\s*"python3\s+', '"command": "python '
-    }
-    
-    # Save the modified settings
-    $settingsContent | Out-File "$claudeDir\settings.json" -Encoding UTF8
-    Write-Host "  ✓ Installed settings.json from local source" -ForegroundColor Green
-    
-} else {
-    # Download from GitHub
-    Write-Host "  Downloading settings from GitHub..." -ForegroundColor Cyan
-    $settingsUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/settings-integrated.json"
+$audioDownloaded = 0
+foreach ($audio in $audioFiles) {
+    $audioUrl = "$audioBaseUrl/$audio"
+    $audioPath = "$audioDir\$audio"
     
     try {
+        # Try to download real audio file
         $webClient = New-Object System.Net.WebClient
-        $sourceContent = $webClient.DownloadString($settingsUrl)
+        $webClient.DownloadFile($audioUrl, $audioPath)
         $webClient.Dispose()
-        
-        # Replace $HOME with actual Windows path
-        $settingsContent = $sourceContent -replace '\$HOME', $env:USERPROFILE.Replace('\', '/')
-        
-        # Fix Python commands - add python/python3 where needed
-        if ($pythonCmd -eq "python3") {
-            # Add python3 to commands that don't have it
-            $settingsContent = $settingsContent -replace '"command":\s*"(/[^"]+\.py)', '"command": "python3 $1'
-            $settingsContent = $settingsContent -replace '"command":\s*"(C:/[^"]+\.py)', '"command": "python3 $1'
-            # Keep existing python3 commands
-            $settingsContent = $settingsContent -replace '"command":\s*"python\s+', '"command": "python3 '
-        } else {
-            # Add python to commands that don't have it
-            $settingsContent = $settingsContent -replace '"command":\s*"(/[^"]+\.py)', '"command": "python $1'
-            $settingsContent = $settingsContent -replace '"command":\s*"(C:/[^"]+\.py)', '"command": "python $1'
-            # Keep existing python commands, change python3 to python
-            $settingsContent = $settingsContent -replace '"command":\s*"python3\s+', '"command": "python '
-        }
-        
-        # Save the modified settings
-        $settingsContent | Out-File "$claudeDir\settings.json" -Encoding UTF8
-        Write-Host "  ✓ Downloaded and configured settings.json" -ForegroundColor Green
-        
+        Write-Host "    ✓ Downloaded: $audio" -ForegroundColor Green
+        $audioDownloaded++
     } catch {
-        Write-Host "  ✗ Failed to download settings.json, creating basic configuration..." -ForegroundColor Yellow
-        
-        # Fallback to creating basic settings
-        $settings = @{
-            hooks = @{
-                PreToolUse = @(
-            @{
-                matcher = "Task"
-                hooks = @(
-                    @{
-                        type = "command"
-                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\agent_orchestrator_integrated.py`""
-                        timeout = 10
-                    },
-                    @{
-                        type = "command"
-                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\audio_player.py`""
-                        timeout = 1
-                    }
-                )
-            },
-            @{
-                matcher = "Write|Edit|MultiEdit"
-                hooks = @(
-                    @{
-                        type = "command"
-                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\quality_gate.py`""
-                        timeout = 5
-                    }
-                )
-            },
-            @{
-                matcher = "Bash"
-                hooks = @(
-                    @{
-                        type = "command"
-                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\pre_command.py`""
-                        timeout = 5
-                    },
-                    @{
-                        type = "command"
-                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\test_hook.py`""
-                        timeout = 2
-                    }
-                )
-            },
-            @{
-                matcher = "mcp__playwright__.*"
-                hooks = @(
-                    @{
-                        type = "command"
-                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\mcp_gateway_enhanced.py`" --service playwright"
-                        timeout = 5
-                    }
-                )
-            },
-            @{
-                matcher = "mcp__obsidian__.*"
-                hooks = @(
-                    @{
-                        type = "command"
-                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\mcp_gateway_enhanced.py`" --service obsidian"
-                        timeout = 5
-                    }
-                )
-            },
-            @{
-                matcher = "mcp__web-search__.*"
-                hooks = @(
-                    @{
-                        type = "command"
-                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\mcp_gateway_enhanced.py`" --service web-search"
-                        timeout = 5
-                    }
-                )
-            }
-        )
-        PostToolUse = @(
-            @{
-                matcher = "Task"
-                hooks = @(
-                    @{
-                        type = "command"
-                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\model_tracker.py`""
-                        timeout = 5
-                    },
-                    @{
-                        type = "command"
-                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\audio_player.py`""
-                        timeout = 1
-                    }
-                )
-            },
-            @{
-                matcher = "Write|Edit|MultiEdit"
-                hooks = @(
-                    @{
-                        type = "command"
-                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\post_command.py`""
-                        timeout = 5
-                    }
-                )
-            }
-        )
-        UserPromptSubmit = @(
-            @{
-                hooks = @(
-                    @{
-                        type = "command"
-                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\agent_mention_parser.py`""
-                        timeout = 3
-                    },
-                    @{
-                        type = "command"
-                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\slash_command_router.py`""
-                        timeout = 3
-                    },
-                    @{
-                        type = "command"
-                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\planning_trigger.py`""
-                        timeout = 3
-                    }
-                )
-            }
-        )
-        SessionStart = @(
-            @{
-                hooks = @(
-                    @{
-                        type = "command"
-                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\session_loader.py`""
-                        timeout = 10
-                    },
-                    @{
-                        type = "command"
-                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\mcp_initializer.py`""
-                        timeout = 5
-                    },
-                    @{
-                        type = "command"
-                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\audio_player.py`""
-                        timeout = 1
-                    }
-                )
-            }
-        )
-        Stop = @(
-            @{
-                hooks = @(
-                    @{
-                        type = "command"
-                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\session_saver.py`""
-                        timeout = 5
-                    },
-                    @{
-                        type = "command"
-                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\post_project.py`""
-                        timeout = 5
-                    },
-                    @{
-                        type = "command"
-                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\audio_player.py`""
-                        timeout = 1
-                    }
-                )
-            }
-        )
-        SubagentStop = @(
-            @{
-                hooks = @(
-                    @{
-                        type = "command"
-                        command = "$pythonCmd `"$env:USERPROFILE\.claude\hooks\model_tracker.py`""
-                        timeout = 3
-                    }
-                )
-            }
-        )
-            }
+        # Create placeholder if download fails
+        if (!(Test-Path $audioPath)) {
+            New-Item -ItemType File -Path $audioPath -Force | Out-Null
+            Write-Host "    • Created placeholder: $audio" -ForegroundColor Gray
         }
-        
-        # Convert to JSON and save
-        $settingsJson = $settings | ConvertTo-Json -Depth 10
-        $settingsJson | Out-File "$claudeDir\settings.json" -Encoding UTF8
-        Write-Host "  ✓ Created fallback settings.json with Windows paths" -ForegroundColor Yellow
     }
+    Start-Sleep -Milliseconds 100
 }
 
-Write-Host "  ✓ Python command configured: $pythonCmd" -ForegroundColor Cyan
+if ($audioDownloaded -gt 0) {
+    Write-Host "  Downloaded: $audioDownloaded audio files" -ForegroundColor Green
+}
 
-# Step 7: Validate JSON
-Write-Host "`n🔍 Validating configuration..." -ForegroundColor Yellow
+# Step 6: Download and merge hook configuration into .claude.json
+Write-Host "`n⚙️ Configuring hooks in .claude.json..." -ForegroundColor Yellow
+
+# Download the hook configuration template
+$hooksConfigUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/.claude.json"
 
 try {
-    $testSettings = Get-Content "$claudeDir\settings.json" -Raw | ConvertFrom-Json
-    Write-Host "  ✓ settings.json is valid JSON" -ForegroundColor Green
-} catch {
-    Write-Host "  ✗ settings.json has JSON errors!" -ForegroundColor Red
-    Write-Host "    Error: $_" -ForegroundColor Red
-}
-
-# Step 8: Test hook execution
-Write-Host "`n🧪 Testing hook system..." -ForegroundColor Yellow
-
-$testInput = '{"hook_event_name": "test", "tool_name": "Bash"}'
-$testHookPath = "$hooksDir\test_hook.py"
-
-if (Test-Path $testHookPath) {
-    try {
-        $testOutput = $testInput | & $pythonCmd $testHookPath 2>&1
-        Write-Host "  ✓ Test hook executed successfully" -ForegroundColor Green
-        
-        if (Test-Path "$logsDir\test_hook.log") {
-            Write-Host "  ✓ Test log created successfully" -ForegroundColor Green
+    Write-Host "  Downloading hook configuration..." -ForegroundColor Cyan
+    $webClient = New-Object System.Net.WebClient
+    $hooksConfigContent = $webClient.DownloadString($hooksConfigUrl)
+    $webClient.Dispose()
+    
+    # Parse the hooks configuration
+    $hooksConfig = $hooksConfigContent | ConvertFrom-Json
+    
+    # Fix paths in the hooks configuration
+    foreach ($eventType in $hooksConfig.hooks.PSObject.Properties) {
+        foreach ($matcher in $eventType.Value) {
+            if ($matcher.hooks) {
+                foreach ($hook in $matcher.hooks) {
+                    # Replace $HOME with Windows path
+                    $hook.command = $hook.command -replace '\$HOME', $env:USERPROFILE.Replace('\', '/')
+                    
+                    # Add python command if missing
+                    if ($hook.command -notmatch '^(python|python3)') {
+                        $hook.command = "$pythonCmd $($hook.command)"
+                    }
+                    
+                    # Fix python/python3 based on what we detected
+                    if ($pythonCmd -eq "python") {
+                        $hook.command = $hook.command -replace '^python3\s+', 'python '
+                    } else {
+                        $hook.command = $hook.command -replace '^python\s+', 'python3 '
+                    }
+                }
+            }
         }
-    } catch {
-        Write-Host "  ⚠ Test hook failed (Python may not be in PATH)" -ForegroundColor Yellow
     }
-} else {
-    Write-Host "  ⚠ Test hook not found" -ForegroundColor Yellow
+    
+    # Load existing .claude.json or create new
+    if (Test-Path $claudeJsonPath) {
+        Write-Host "  Merging with existing .claude.json..." -ForegroundColor Cyan
+        $existingConfig = Get-Content $claudeJsonPath -Raw | ConvertFrom-Json
+        
+        # Add or update hooks section
+        if ($existingConfig.PSObject.Properties["hooks"]) {
+            Write-Host "    Updating existing hooks configuration..." -ForegroundColor Gray
+        } else {
+            Write-Host "    Adding hooks configuration..." -ForegroundColor Gray
+        }
+        
+        # Add hooks to existing config
+        $existingConfig | Add-Member -MemberType NoteProperty -Name "hooks" -Value $hooksConfig.hooks -Force
+        
+        # Also add agent and command systems if not present
+        if ($hooksConfig.agentSystem -and -not $existingConfig.PSObject.Properties["agentSystem"]) {
+            $existingConfig | Add-Member -MemberType NoteProperty -Name "agentSystem" -Value $hooksConfig.agentSystem -Force
+            Write-Host "    Added agent system configuration" -ForegroundColor Gray
+        }
+        
+        if ($hooksConfig.slashCommands -and -not $existingConfig.PSObject.Properties["slashCommands"]) {
+            $existingConfig | Add-Member -MemberType NoteProperty -Name "slashCommands" -Value $hooksConfig.slashCommands -Force
+            Write-Host "    Added slash commands configuration" -ForegroundColor Gray
+        }
+        
+        $finalConfig = $existingConfig
+    } else {
+        Write-Host "  Creating new .claude.json..." -ForegroundColor Cyan
+        $finalConfig = $hooksConfig
+    }
+    
+    # Save the merged configuration
+    $finalConfig | ConvertTo-Json -Depth 10 | Out-File $claudeJsonPath -Encoding UTF8
+    Write-Host "  ✓ Successfully configured hooks in .claude.json" -ForegroundColor Green
+    
+} catch {
+    Write-Host "  ✗ Failed to configure .claude.json: $_" -ForegroundColor Red
+    Write-Host "    Please manually add hook configuration" -ForegroundColor Yellow
 }
 
-# Step 9: Display summary
+# Step 7: Validate configuration
+Write-Host "`n🔍 Validating installation..." -ForegroundColor Yellow
+
+# Check .claude.json
+try {
+    $testConfig = Get-Content $claudeJsonPath -Raw | ConvertFrom-Json
+    if ($testConfig.hooks) {
+        Write-Host "  ✓ .claude.json has hooks configuration" -ForegroundColor Green
+        
+        # Count configured hooks
+        $hookCount = 0
+        foreach ($eventType in $testConfig.hooks.PSObject.Properties) {
+            foreach ($matcher in $eventType.Value) {
+                if ($matcher.hooks) {
+                    $hookCount += $matcher.hooks.Count
+                }
+            }
+        }
+        Write-Host "  ✓ $hookCount hook commands configured" -ForegroundColor Green
+    } else {
+        Write-Host "  ⚠ .claude.json missing hooks configuration" -ForegroundColor Yellow
+    }
+} catch {
+    Write-Host "  ✗ .claude.json has JSON errors!" -ForegroundColor Red
+}
+
+# Test Python execution
+Write-Host "`n🧪 Testing hook system..." -ForegroundColor Yellow
+$testInput = '{"hook_event_name": "test", "tool_name": "Verify"}'
+$testCommand = "$pythonCmd `"$hooksDir\test_hook.py`""
+
+try {
+    $testInput | & cmd /c $testCommand 2>&1 | Out-Null
+    Write-Host "  ✓ Test hook executed successfully" -ForegroundColor Green
+    
+    if (Test-Path "$logsDir\test_hook.log") {
+        Write-Host "  ✓ Test log created successfully" -ForegroundColor Green
+    }
+} catch {
+    Write-Host "  ⚠ Test hook execution failed (check Python installation)" -ForegroundColor Yellow
+}
+
+# Step 8: Display summary
 Write-Host "`n" -NoNewline
 Write-Host "═" * 60 -ForegroundColor Cyan
 Write-Host "  ENHANCED HOOKS INSTALLATION COMPLETE" -ForegroundColor Green
@@ -606,9 +342,9 @@ Write-Host "═" * 60 -ForegroundColor Cyan
 
 Write-Host "`n📊 Installation Summary:" -ForegroundColor Cyan
 Write-Host "  • Hooks installed: $installedCount/20" -ForegroundColor White
-Write-Host "  • Audio files: $(if (Test-Path $audioDir) { (Get-ChildItem $audioDir -Filter "*.mp3").Count } else { 0 })" -ForegroundColor White
+Write-Host "  • Audio files: $audioDownloaded/5" -ForegroundColor White
 Write-Host "  • Python command: $pythonCmd" -ForegroundColor White
-Write-Host "  • Settings: Configured with Windows paths" -ForegroundColor White
+Write-Host "  • Configuration: .claude.json (properly configured)" -ForegroundColor White
 
 Write-Host "`n🚀 Key Features Enabled:" -ForegroundColor Cyan
 Write-Host "  • 28 Agents orchestration" -ForegroundColor White

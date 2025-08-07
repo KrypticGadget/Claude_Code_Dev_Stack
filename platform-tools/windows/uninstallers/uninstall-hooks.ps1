@@ -71,13 +71,14 @@ if ($audioFiles.Count -gt 0) {
     Write-Host "  ✓ Backed up $($audioFiles.Count) audio files" -ForegroundColor Green
 }
 
-# Backup settings.json (COMPLETE VERSION)
-if (Test-Path "$claudeDir\settings.json") {
-    Copy-Item "$claudeDir\settings.json" "$backupPath\settings.json" -Force
-    Write-Host "  ✓ Backed up settings.json (complete with hooks)" -ForegroundColor Green
+# Backup .claude.json (COMPLETE VERSION)
+$claudeJsonPath = "$env:USERPROFILE\.claude.json"
+if (Test-Path $claudeJsonPath) {
+    Copy-Item $claudeJsonPath "$backupPath\.claude.json" -Force
+    Write-Host "  ✓ Backed up .claude.json (complete with hooks)" -ForegroundColor Green
     
     # Also check if it has hook configuration
-    $settings = Get-Content "$claudeDir\settings.json" -Raw | ConvertFrom-Json -ErrorAction SilentlyContinue
+    $settings = Get-Content $claudeJsonPath -Raw | ConvertFrom-Json -ErrorAction SilentlyContinue
     if ($settings.hooks) {
         Write-Host "    • Contains hook configuration" -ForegroundColor Gray
     }
@@ -225,13 +226,13 @@ if (Test-Path $stateDir) {
     }
 }
 
-# Step 8: Update settings.json
-Write-Host "`n⚙️ Updating settings..." -ForegroundColor Yellow
+# Step 8: Update .claude.json
+Write-Host "`n⚙️ Updating .claude.json configuration..." -ForegroundColor Yellow
 
-$settingsPath = "$claudeDir\settings.json"
-if (Test-Path $settingsPath) {
+$claudeJsonPath = "$env:USERPROFILE\.claude.json"
+if (Test-Path $claudeJsonPath) {
     try {
-        $settings = Get-Content $settingsPath -Raw | ConvertFrom-Json
+        $settings = Get-Content $claudeJsonPath -Raw | ConvertFrom-Json
         
         # Check what's in settings before removing
         $hadHooks = $false
@@ -262,17 +263,17 @@ if (Test-Path $settingsPath) {
             Write-Host "  ✓ Removed slash commands configuration" -ForegroundColor Green
         }
         
-        # Save updated settings
-        $settings | ConvertTo-Json -Depth 10 | Out-File $settingsPath -Encoding UTF8
+        # Save updated .claude.json
+        $settings | ConvertTo-Json -Depth 10 | Out-File $claudeJsonPath -Encoding UTF8
         
         if (!$hadHooks -and !$hadAgentSystem -and !$hadSlashCommands) {
             Write-Host "  • No hook configurations found in settings" -ForegroundColor Gray
         }
     } catch {
-        Write-Host "  ⚠ Could not update settings.json: $_" -ForegroundColor Yellow
+        Write-Host "  ⚠ Could not update .claude.json: $_" -ForegroundColor Yellow
     }
 } else {
-    Write-Host "  • No settings.json found" -ForegroundColor Gray
+    Write-Host "  • No .claude.json found" -ForegroundColor Gray
 }
 
 # Step 9: Remove hooks directory if empty
