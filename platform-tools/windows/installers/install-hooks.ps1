@@ -232,11 +232,16 @@ try {
         foreach ($matcher in $eventType.Value) {
             if ($matcher.hooks) {
                 foreach ($hook in $matcher.hooks) {
-                    # Replace $HOME with Windows path
+                    # Replace $HOME with Windows path (use forward slashes for Python)
                     $hook.command = $hook.command -replace '\$HOME', $env:USERPROFILE.Replace('\', '/')
                     
+                    # Ensure we use python command with full path
+                    if ($hook.command -match '\.claude/hooks/(.+\.py)') {
+                        $hookScript = $matches[1]
+                        $hook.command = "$pythonCmd `"$($env:USERPROFILE.Replace('\', '/'))/.claude/hooks/$hookScript`""
+                    }
                     # Add python command if missing
-                    if ($hook.command -notmatch '^(python|python3)') {
+                    elseif ($hook.command -notmatch '^(python|python3)') {
                         $hook.command = "$pythonCmd $($hook.command)"
                     }
                     
