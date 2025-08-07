@@ -59,14 +59,15 @@ class AudioNotifier:
                 '''
                 
                 startupinfo = subprocess.STARTUPINFO()
-                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW | subprocess.CREATE_NEW_PROCESS_GROUP
                 startupinfo.wShowWindow = subprocess.SW_HIDE
                 
                 subprocess.Popen(
-                    ['powershell', '-NoProfile', '-WindowStyle', 'Hidden', '-Command', ps_cmd],
+                    ['powershell', '-NoProfile', '-NonInteractive', '-WindowStyle', 'Hidden', '-Command', ps_cmd],
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
-                    startupinfo=startupinfo
+                    startupinfo=startupinfo,
+                    creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NO_WINDOW
                 )
             elif self.system == "Darwin":  # macOS
                 os.system(f'afplay "{audio_file}" &')
