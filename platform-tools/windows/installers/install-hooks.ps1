@@ -211,6 +211,35 @@ sys.exit(0)
     }
 }
 
+# Create test_hook.py for debugging
+Write-Host "  Creating test_hook.py..." -NoNewline
+$testHook = @'
+#!/usr/bin/env python3
+"""Test hook to verify system is working"""
+import json
+import sys
+import os
+from datetime import datetime
+
+try:
+    input_data = json.load(sys.stdin)
+    event = input_data.get("hook_event_name", "unknown")
+    
+    log_dir = os.path.expanduser("~/.claude/logs")
+    os.makedirs(log_dir, exist_ok=True)
+    with open(os.path.join(log_dir, "test_hook.log"), "a") as f:
+        f.write(f"{datetime.now().isoformat()}: Event={event}\n")
+    
+    print(f"[TEST HOOK] Event: {event}", file=sys.stderr)
+except Exception as e:
+    print(f"[TEST HOOK ERROR] {e}", file=sys.stderr)
+
+sys.exit(0)
+'@
+$testHook | Out-File -FilePath "$hooksDir\test_hook.py" -Encoding UTF8
+Write-Host " ✓" -ForegroundColor Green
+$installedCount++
+
 Write-Host "  Installed: $installedCount hooks" -ForegroundColor Green
 if ($failedCount -gt 0) {
     Write-Host "  Failed: $failedCount hooks" -ForegroundColor Red
@@ -231,7 +260,7 @@ Write-Host "  ✓ Hook files prepared" -ForegroundColor Green
 # Step 5: Install audio assets
 Write-Host "`n🎵 Installing audio notifications..." -ForegroundColor Yellow
 
-if (Test-Path $sourceAudioDir) {
+if ($sourceAudioDir -and (Test-Path $sourceAudioDir)) {
     $audioFiles = Get-ChildItem $sourceAudioDir -Filter "*.mp3" -ErrorAction SilentlyContinue
     
     if ($audioFiles) {
@@ -244,9 +273,10 @@ if (Test-Path $sourceAudioDir) {
         Write-Host "  ⚠ No audio files found" -ForegroundColor Yellow
     }
 } else {
-    # Create placeholder audio files
-    Write-Host "  Creating audio placeholders..." -ForegroundColor Yellow
-    $audioPlaceholders = @(
+    # Download audio files from GitHub or create placeholders
+    Write-Host "  Downloading audio files from GitHub..." -ForegroundColor Yellow
+    $audioBaseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/audio"
+    $audioFiles = @(
         "ready.mp3",
         "task_complete.mp3",
         "build_complete.mp3",
@@ -254,12 +284,30 @@ if (Test-Path $sourceAudioDir) {
         "awaiting_instructions.mp3"
     )
     
-    foreach ($audio in $audioPlaceholders) {
+    $audioDownloaded = 0
+    foreach ($audio in $audioFiles) {
+        $audioUrl = "$audioBaseUrl/$audio"
         $audioPath = "$audioDir\$audio"
-        if (!(Test-Path $audioPath)) {
-            New-Item -ItemType File -Path $audioPath -Force | Out-Null
-            Write-Host "    • Created placeholder: $audio" -ForegroundColor Gray
+        
+        try {
+            # Try to download real audio file
+            $webClient = New-Object System.Net.WebClient
+            $webClient.DownloadFile($audioUrl, $audioPath)
+            $webClient.Dispose()
+            Write-Host "    ✓ Downloaded: $audio" -ForegroundColor Green
+            $audioDownloaded++
+        } catch {
+            # Create placeholder if download fails
+            if (!(Test-Path $audioPath)) {
+                New-Item -ItemType File -Path $audioPath -Force | Out-Null
+                Write-Host "    • Created placeholder: $audio" -ForegroundColor Gray
+            }
         }
+        Start-Sleep -Milliseconds 100
+    }
+    
+    if ($audioDownloaded -gt 0) {
+        Write-Host "  Downloaded: $audioDownloaded audio files" -ForegroundColor Green
     }
 }
 
