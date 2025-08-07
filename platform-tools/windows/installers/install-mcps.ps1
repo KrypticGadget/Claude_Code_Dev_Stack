@@ -69,18 +69,18 @@ try {
 if ($pythonInstalled) {
     Write-Host "   Installing Obsidian MCP..." -ForegroundColor Cyan
     
-    # Check for UV
-    $hasUV = $false
+    # Install mcp-obsidian package directly with pip
+    Write-Host "   Installing mcp-obsidian package..." -ForegroundColor Yellow
     try {
-        uvx --version 2>$null | Out-Null
-        $hasUV = $true
+        pip install mcp-obsidian --upgrade --quiet 2>$null
+        Write-Host "   ✓ mcp-obsidian package installed" -ForegroundColor Green
+        $mcpInstalled = $true
     } catch {
-        Write-Host "   Installing UV package manager..." -ForegroundColor Yellow
-        pip install --user uv 2>$null
-        $hasUV = $true
+        Write-Host "   ✗ Failed to install mcp-obsidian package" -ForegroundColor Red
+        $mcpInstalled = $false
     }
     
-    if ($hasUV) {
+    if ($mcpInstalled) {
         Write-Host ""
         Write-Host "   Obsidian REST API Plugin required:" -ForegroundColor Yellow
         Write-Host "   1. Open Obsidian → Settings → Community Plugins" -ForegroundColor Gray
@@ -96,7 +96,8 @@ if ($pythonInstalled) {
                 claude mcp remove obsidian 2>$null | Out-Null
             } catch {}
             
-            claude mcp add obsidian --env OBSIDIAN_API_KEY=$apiKey --env OBSIDIAN_HOST=127.0.0.1 --env OBSIDIAN_PORT=27124 -- cmd /c uvx mcp-obsidian
+            # Use python -m to run the installed package
+            claude mcp add obsidian --env OBSIDIAN_API_KEY=$apiKey --env OBSIDIAN_HOST=127.0.0.1 --env OBSIDIAN_PORT=27124 -- python -m mcp_obsidian
             Write-Host "   ✓ Obsidian MCP installed" -ForegroundColor Green
         } else {
             Write-Host "   ⚠ Skipping Obsidian MCP (no API key)" -ForegroundColor Yellow

@@ -179,11 +179,11 @@ Write-Host "`n🎵 Installing audio notifications..." -ForegroundColor Yellow
 # Download audio files from GitHub or create placeholders
 $audioBaseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/audio"
 $audioFiles = @(
-    "ready.mp3",
-    "task_complete.mp3",
-    "build_complete.mp3",
-    "error_fixed.mp3",
-    "awaiting_instructions.mp3"
+    "ready.wav",
+    "task_complete.wav",
+    "build_complete.wav",
+    "error_fixed.wav",
+    "awaiting_instructions.wav"
 )
 
 $audioDownloaded = 0

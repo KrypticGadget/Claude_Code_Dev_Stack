@@ -16,20 +16,20 @@ class AudioNotifier:
         self.audio_dir = Path.home() / ".claude" / "audio"
         self.system = platform.system()
         
-        # Map events to audio files (supporting both wav and mp3)
+        # Map events to audio files (using WAV for silent Windows playback)
         self.audio_map = {
-            "success": "task_complete.mp3",
-            "warning": "awaiting_instructions.mp3",
-            "error": "error_fixed.mp3",
-            "notify": "ready.mp3",
-            "agent": "ready.mp3",
-            "mcp": "ready.mp3",
-            "session": "ready.mp3"
+            "success": "task_complete.wav",
+            "warning": "awaiting_instructions.wav",
+            "error": "error_fixed.wav",
+            "notify": "ready.wav",
+            "agent": "ready.wav",
+            "mcp": "ready.wav",
+            "session": "ready.wav"
         }
         
     def play_sound(self, sound_type):
         """Play audio file based on event type"""
-        audio_filename = self.audio_map.get(sound_type, "ready.mp3")
+        audio_filename = self.audio_map.get(sound_type, "ready.wav")
         if not audio_filename:
             return
             
@@ -50,14 +50,17 @@ class AudioNotifier:
                 except ImportError:
                     pass
                 
-                # Method 2: Use Windows start command with /b flag (background)
-                # Simple and reliable, doesn't affect console window
+                # Method 2: Use PowerShell with .NET SoundPlayer for WAV files
+                # Plays silently without any windows
+                ps_script = f'''
+                (New-Object System.Media.SoundPlayer "{str(audio_file)}").Play()
+                '''
+                
                 subprocess.run(
-                    f'start /b "" "{audio_file}"',
-                    shell=True,
+                    ['powershell', '-NoProfile', '-NonInteractive', '-WindowStyle', 'Hidden', '-Command', ps_script],
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
-                    check=False
+                    shell=False
                 )
                 
             elif self.system == "Darwin":  # macOS

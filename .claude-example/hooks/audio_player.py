@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Audio player hook for Claude Code - plays audio notifications for various events.
-Supports Windows, macOS, and Linux with MP3 files.
+Supports Windows, macOS, and Linux with WAV files for silent playback.
 """
 
 import json
@@ -16,21 +16,21 @@ class AudioPlayer:
         self.audio_dir = Path.home() / ".claude" / "audio"
         self.system = platform.system()
         
-        # Map events to audio files
+        # Map events to audio files (using WAV for silent Windows playback)
         self.audio_map = {
-            "task_complete": "task_complete.mp3",
-            "build_complete": "build_complete.mp3",
-            "error_fixed": "error_fixed.mp3",
-            "ready": "ready.mp3",
-            "awaiting": "awaiting_instructions.mp3",
+            "task_complete": "task_complete.wav",
+            "build_complete": "build_complete.wav",
+            "error_fixed": "error_fixed.wav",
+            "ready": "ready.wav",
+            "awaiting": "awaiting_instructions.wav",
             # Aliases for events
-            "agent_start": "ready.mp3",
-            "mcp_activated": "ready.mp3",
-            "success": "task_complete.mp3",
-            "build_success": "build_complete.mp3",
-            "error_resolved": "error_fixed.mp3",
-            "session_start": "ready.mp3",
-            "waiting": "awaiting_instructions.mp3"
+            "agent_start": "ready.wav",
+            "mcp_activated": "ready.wav",
+            "success": "task_complete.wav",
+            "build_success": "build_complete.wav",
+            "error_resolved": "error_fixed.wav",
+            "session_start": "ready.wav",
+            "waiting": "awaiting_instructions.wav"
         }
     
     def play_sound(self, audio_file):
@@ -56,14 +56,26 @@ class AudioPlayer:
                 except ImportError:
                     pass
                 
-                # Method 2: Use Windows start command with /b flag (background)
-                # This is the simplest method that works without affecting the console
+                # Method 2: Use PowerShell with .NET SoundPlayer for WAV files
+                # This plays silently without opening any windows
+                ps_script = f'''
+                Add-Type -TypeDefinition @"
+                using System.Media;
+                public class Sound {{
+                    public static void PlaySound(string path) {{
+                        var player = new SoundPlayer(path);
+                        player.Play();
+                    }}
+                }}
+"@
+                [Sound]::PlaySound("{str(audio_path)}")
+                '''
+                
                 subprocess.run(
-                    f'start /b "" "{audio_path}"',
-                    shell=True,
+                    ['powershell', '-NoProfile', '-NonInteractive', '-WindowStyle', 'Hidden', '-Command', ps_script],
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
-                    check=False
+                    shell=False
                 )
                 
             elif self.system == "Darwin":  # macOS
