@@ -76,10 +76,22 @@ if ($failed -eq 0) {
 }
 
 Write-Host ""
-Write-Host "To remove MCPs from Claude Code, use:" -ForegroundColor Cyan
-Write-Host "  claude mcp remove playwright" -ForegroundColor White
-Write-Host "  claude mcp remove brave-search" -ForegroundColor White
-Write-Host "  claude mcp remove obsidian" -ForegroundColor White
+Write-Host "Removing registered MCP servers..." -ForegroundColor Yellow
+
+# Remove MCP servers from Claude Code
+$mcpsToRemove = @("playwright", "obsidian", "web-search")
+foreach ($mcp in $mcpsToRemove) {
+    try {
+        claude mcp remove $mcp 2>$null | Out-Null
+        Write-Host "  Removed: $mcp" -ForegroundColor Green
+    } catch {
+        # Silently continue if MCP not found
+    }
+}
+
+Write-Host ""
+Write-Host "To reinstall MCPs, use:" -ForegroundColor Cyan
+Write-Host "  .\platform-tools\windows\installers\install-mcps.ps1" -ForegroundColor White
 
 Write-Host ""
 return

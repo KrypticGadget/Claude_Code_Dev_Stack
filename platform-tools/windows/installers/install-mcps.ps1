@@ -96,8 +96,8 @@ if ($pythonInstalled) {
                 claude mcp remove obsidian 2>$null | Out-Null
             } catch {}
             
-            # Use python -m to run the installed package
-            claude mcp add obsidian --env OBSIDIAN_API_KEY=$apiKey --env OBSIDIAN_HOST=127.0.0.1 --env OBSIDIAN_PORT=27124 -- python -m mcp_obsidian
+            # Use python -m to run the installed package (note: hyphen not underscore)
+            claude mcp add obsidian --env OBSIDIAN_API_KEY=$apiKey --env OBSIDIAN_HOST=127.0.0.1 --env OBSIDIAN_PORT=27124 -- python -m mcp-obsidian
             Write-Host "   ✓ Obsidian MCP installed" -ForegroundColor Green
         } else {
             Write-Host "   ⚠ Skipping Obsidian MCP (no API key)" -ForegroundColor Yellow

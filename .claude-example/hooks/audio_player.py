@@ -42,6 +42,7 @@ class AudioPlayer:
         
         # Check if file exists
         if not audio_path.exists():
+            print(f"[AUDIO DEBUG] File not found: {audio_path}", file=sys.stderr)
             return False
         
         try:
@@ -52,6 +53,7 @@ class AudioPlayer:
                     pygame.mixer.init()
                     pygame.mixer.music.load(str(audio_path))
                     pygame.mixer.music.play()
+                    print(f"[AUDIO DEBUG] Playing with pygame: {audio_file}", file=sys.stderr)
                     return True
                 except ImportError:
                     pass
@@ -62,17 +64,29 @@ class AudioPlayer:
                     # SND_ASYNC plays sound asynchronously (non-blocking)
                     # SND_FILENAME specifies that the sound parameter is a filename
                     winsound.PlaySound(str(audio_path), winsound.SND_FILENAME | winsound.SND_ASYNC)
+                    print(f"[AUDIO DEBUG] Playing with winsound: {audio_file}", file=sys.stderr)
+                    return True
+                except Exception as e:
+                    print(f"[AUDIO DEBUG] winsound error: {e}", file=sys.stderr)
+                    pass
+                
+                # Method 3: Fallback to simple Windows command
+                try:
+                    # Use Windows media player in background
+                    cmd = f'powershell -WindowStyle Hidden -Command "(New-Object Media.SoundPlayer \'{str(audio_path)}\').PlaySync()"'
+                    subprocess.Popen(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    print(f"[AUDIO DEBUG] Playing with PowerShell: {audio_file}", file=sys.stderr)
                     return True
                 except:
                     pass
-                
+                    
             elif self.system == "Darwin":  # macOS
                 subprocess.run(["afplay", str(audio_path)], capture_output=True, timeout=2)
             else:  # Linux
                 subprocess.run(["aplay", str(audio_path)], capture_output=True, timeout=2)
             return True
-        except Exception:
-            # Silently fail - don't break hook chain
+        except Exception as e:
+            print(f"[AUDIO DEBUG] General error: {e}", file=sys.stderr)
             return False
     
     def determine_audio(self, input_data):
@@ -137,6 +151,9 @@ def main():
     
     # Determine which audio to play
     audio_file = player.determine_audio(input_data)
+    
+    # Debug output
+    print(f"[AUDIO DEBUG] Event triggered, file to play: {audio_file}", file=sys.stderr)
     
     # Play the audio if determined
     if audio_file:

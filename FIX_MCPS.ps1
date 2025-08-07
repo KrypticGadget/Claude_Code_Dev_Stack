@@ -18,7 +18,7 @@ claude mcp remove obsidian 2>$null | Out-Null
 
 $apiKey = Read-Host "   Enter your Obsidian API key (or press Enter to skip)"
 if ($apiKey) {
-    claude mcp add obsidian --env OBSIDIAN_API_KEY=$apiKey -- python -m mcp_obsidian
+    claude mcp add obsidian --env OBSIDIAN_API_KEY=$apiKey -- python -m mcp-obsidian
     Write-Host "   ✓ Obsidian MCP fixed" -ForegroundColor Green
 } else {
     Write-Host "   ⚠ Skipped Obsidian (no API key)" -ForegroundColor Yellow

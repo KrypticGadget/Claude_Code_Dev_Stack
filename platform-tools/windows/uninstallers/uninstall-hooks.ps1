@@ -27,7 +27,7 @@ if (!(Test-Path $hooksDir)) {
 }
 
 $installedHooks = Get-ChildItem $hooksDir -Filter "*.py" -ErrorAction SilentlyContinue
-$audioFiles = if (Test-Path $audioDir) { Get-ChildItem $audioDir -Filter "*.mp3" -ErrorAction SilentlyContinue } else { @() }
+$audioFiles = if (Test-Path $audioDir) { Get-ChildItem $audioDir -Filter "*.wav" -ErrorAction SilentlyContinue } else { @() }
 
 Write-Host "  Found: $($installedHooks.Count) hooks" -ForegroundColor Cyan
 Write-Host "  Found: $($audioFiles.Count) audio files" -ForegroundColor Cyan
@@ -67,7 +67,7 @@ if ($installedHooks) {
 if ($audioFiles.Count -gt 0) {
     $audioBackupDir = "$backupPath\audio"
     New-Item -ItemType Directory -Path $audioBackupDir -Force | Out-Null
-    Copy-Item "$audioDir\*.mp3" $audioBackupDir -Force
+    Copy-Item "$audioDir\*.wav" $audioBackupDir -Force
     Write-Host "  ✓ Backed up $($audioFiles.Count) audio files" -ForegroundColor Green
 }
 
@@ -154,7 +154,7 @@ Write-Host "`n🎵 Removing audio files..." -ForegroundColor Yellow
 
 $audioCount = 0
 if (Test-Path $audioDir) {
-    Get-ChildItem $audioDir -Filter "*.mp3" | ForEach-Object {
+    Get-ChildItem $audioDir -Filter "*.wav" | ForEach-Object {
         Remove-Item $_.FullName -Force
         $audioCount++
     }

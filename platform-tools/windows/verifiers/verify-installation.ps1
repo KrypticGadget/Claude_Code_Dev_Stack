@@ -136,7 +136,7 @@ if ($foundHooks -eq $requiredHooks.Count) {
 Write-Host "`n🎵 Audio System:" -ForegroundColor Cyan
 $testsTotal++
 if (Test-Path $audioPath) {
-    $audioCount = (Get-ChildItem $audioPath -Filter "*.mp3" -ErrorAction SilentlyContinue).Count
+    $audioCount = (Get-ChildItem $audioPath -Filter "*.wav" -ErrorAction SilentlyContinue).Count
     if ($audioCount -ge 5) {
         Write-Host "  ✓ All audio files present ($audioCount files)" -ForegroundColor Green
         $testsPassed++
