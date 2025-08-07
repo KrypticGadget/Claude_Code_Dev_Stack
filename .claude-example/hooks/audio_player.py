@@ -103,6 +103,9 @@ class AudioPlayer:
         tool_name = input_data.get("tool_name", "")
         tool_response = input_data.get("tool_response", {})
         
+        # Debug logging
+        print(f"[AUDIO DEBUG] Hook event: {hook_event}, Tool: {tool_name}", file=sys.stderr)
+        
         # SessionStart event
         if hook_event == "SessionStart":
             return self.audio_map.get("session_start")
@@ -111,20 +114,31 @@ class AudioPlayer:
         if hook_event == "Stop":
             return self.audio_map.get("task_complete")
         
-        # Agent invocations
-        if tool_name == "Task" or "@agent-" in input_data.get("prompt", ""):
+        # Agent invocations - check multiple places for agent mentions
+        if tool_name == "Task":
+            return self.audio_map.get("agent_start")
+        
+        # Check for @agent- mentions in various fields
+        prompt_str = str(input_data.get("prompt", ""))
+        tool_input_str = str(input_data.get("tool_input", {}))
+        
+        if "@agent-" in prompt_str or "@agent-" in tool_input_str:
+            return self.audio_map.get("agent_start")
+        
+        # Also check if Task tool has agent in description
+        if tool_name == "Task" and "agent" in str(input_data).lower():
             return self.audio_map.get("agent_start")
         
         # MCP services
         if tool_name and tool_name.startswith("mcp__"):
             return self.audio_map.get("mcp_activated")
         
-        # Build/compile events
+        # Build/compile events - play on any build completion (success or failure)
         if tool_name == "Bash":
             command = input_data.get("tool_input", {}).get("command", "")
-            if any(build_cmd in command for build_cmd in ["npm run build", "make", "cargo build", "go build"]):
-                if isinstance(tool_response, dict) and tool_response.get("exit_code") == 0:
-                    return self.audio_map.get("build_complete")
+            if any(build_cmd in command for build_cmd in ["npm run build", "make", "cargo build", "go build", "npm build", "yarn build"]):
+                # Play build complete sound regardless of exit code to notify completion
+                return self.audio_map.get("build_complete")
         
         # Error resolution
         if hook_event == "PostToolUse":
@@ -136,12 +150,24 @@ class AudioPlayer:
                 elif tool_response.get("success") or tool_response.get("exit_code") == 0:
                     return self.audio_map.get("success")
         
-        # File operations
+        # File operations - check if we're fixing errors
         if tool_name in ["Write", "Edit", "MultiEdit"]:
-            return self.audio_map.get("success")
+            # Check if we're fixing code errors based on context
+            prompt_lower = str(input_data.get("prompt", "")).lower()
+            tool_input_str = str(input_data.get("tool_input", {})).lower()
+            
+            if any(word in prompt_lower or word in tool_input_str for word in ["fix", "error", "syntax", "bug", "issue", "problem", "correct"]):
+                return self.audio_map.get("error_fixed")
+            else:
+                return self.audio_map.get("success")
         
-        # Awaiting input
+        # Awaiting input - check for help commands and waiting states
+        prompt_str = str(input_data.get("prompt", ""))
         if hook_event == "UserInput" or "awaiting" in input_data.get("state", ""):
+            return self.audio_map.get("awaiting")
+        
+        # Check if user is asking for help
+        if any(help_cmd in prompt_str.lower() for help_cmd in ["/help", "help me", "need help", "??"]):
             return self.audio_map.get("awaiting")
         
         return None  # No audio for this event
