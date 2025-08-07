@@ -58,16 +58,19 @@ class AudioNotifier:
                 $player.Play()
                 '''
                 
-                startupinfo = subprocess.STARTUPINFO()
-                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW | subprocess.CREATE_NEW_PROCESS_GROUP
-                startupinfo.wShowWindow = subprocess.SW_HIDE
+                si = subprocess.STARTUPINFO()
+                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                si.wShowWindow = subprocess.SW_HIDE
+                
+                CREATE_NO_WINDOW = 0x08000000
+                DETACHED_PROCESS = 0x00000008
                 
                 subprocess.Popen(
-                    ['powershell', '-NoProfile', '-NonInteractive', '-WindowStyle', 'Hidden', '-Command', ps_cmd],
+                    ['powershell', '-NoProfile', '-Command', ps_cmd],
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
-                    startupinfo=startupinfo,
-                    creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NO_WINDOW
+                    startupinfo=si,
+                    creationflags=CREATE_NO_WINDOW | DETACHED_PROCESS
                 )
             elif self.system == "Darwin":  # macOS
                 os.system(f'afplay "{audio_file}" &')

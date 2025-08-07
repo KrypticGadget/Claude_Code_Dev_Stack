@@ -46,7 +46,7 @@ class AudioPlayer:
         
         try:
             if self.system == "Windows":
-                # Method 1: Try pygame first (if installed)
+                # Method 1: Try pygame first (if installed) - most reliable, no windows
                 try:
                     import pygame
                     pygame.mixer.init()
@@ -56,35 +56,38 @@ class AudioPlayer:
                 except ImportError:
                     pass
                 
-                # Method 2: Use PowerShell with hidden window
-                import subprocess
-                ps_cmd = f'''
-                $player = New-Object System.Media.SoundPlayer
-                $player.SoundLocation = "{str(audio_path)}"
-                $player.Play()
-                '''
+                # Method 2: Try VLC if installed (no window)
+                vlc_paths = [
+                    r"C:\Program Files\VideoLAN\VLC\vlc.exe",
+                    r"C:\Program Files (x86)\VideoLAN\VLC\vlc.exe"
+                ]
+                for vlc_path in vlc_paths:
+                    if Path(vlc_path).exists():
+                        subprocess.Popen(
+                            [vlc_path, "--intf", "dummy", "--play-and-exit", str(audio_path)],
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL
+                        )
+                        return True
                 
-                # For MP3 files, use Windows Media Foundation
-                if str(audio_path).lower().endswith('.mp3'):
-                    ps_cmd = f'''
-                    Add-Type -AssemblyName presentationCore
-                    $player = New-Object System.Windows.Media.MediaPlayer
-                    $player.Open([System.Uri]::new("{str(audio_path).replace(chr(92), '/')}", [System.UriKind]::Absolute))
-                    $player.Play()
-                    Start-Sleep -Seconds 3
-                    '''
-                
-                # Run PowerShell completely detached without affecting parent window
-                startupinfo = subprocess.STARTUPINFO()
-                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW | subprocess.CREATE_NEW_PROCESS_GROUP
-                startupinfo.wShowWindow = subprocess.SW_HIDE
+                # Method 3: Use Windows built-in without opening window
+                # This uses Windows' built-in audio playback without any visible window
+                import os
+                # Set window state to minimized/hidden
+                si = subprocess.STARTUPINFO()
+                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                si.wShowWindow = 0  # SW_HIDE
                 
                 subprocess.Popen(
-                    ['powershell', '-NoProfile', '-NonInteractive', '-WindowStyle', 'Hidden', '-Command', ps_cmd],
+                    ['powershell', '-WindowStyle', 'Hidden', '-Command', 
+                     f'Add-Type -AssemblyName PresentationCore; '
+                     f'$player = New-Object System.Windows.Media.MediaPlayer; '
+                     f'$player.Open([System.Uri]"{str(audio_path)}"); '
+                     f'$player.Play(); '
+                     f'Start-Sleep -Seconds 5'],
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
-                    startupinfo=startupinfo,
-                    creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NO_WINDOW
+                    startupinfo=si
                 )
                 
             elif self.system == "Darwin":  # macOS
