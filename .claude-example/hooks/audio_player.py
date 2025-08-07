@@ -56,27 +56,15 @@ class AudioPlayer:
                 except ImportError:
                     pass
                 
-                # Method 2: Use PowerShell with .NET SoundPlayer for WAV files
-                # This plays silently without opening any windows
-                ps_script = f'''
-                Add-Type -TypeDefinition @"
-                using System.Media;
-                public class Sound {{
-                    public static void PlaySound(string path) {{
-                        var player = new SoundPlayer(path);
-                        player.Play();
-                    }}
-                }}
-"@
-                [Sound]::PlaySound("{str(audio_path)}")
-                '''
-                
-                subprocess.run(
-                    ['powershell', '-NoProfile', '-NonInteractive', '-WindowStyle', 'Hidden', '-Command', ps_script],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    shell=False
-                )
+                # Method 2: Use winsound for WAV files - built-in, no windows, no console issues
+                try:
+                    import winsound
+                    # SND_ASYNC plays sound asynchronously (non-blocking)
+                    # SND_FILENAME specifies that the sound parameter is a filename
+                    winsound.PlaySound(str(audio_path), winsound.SND_FILENAME | winsound.SND_ASYNC)
+                    return True
+                except:
+                    pass
                 
             elif self.system == "Darwin":  # macOS
                 subprocess.run(["afplay", str(audio_path)], capture_output=True, timeout=2)

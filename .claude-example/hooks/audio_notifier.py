@@ -50,18 +50,13 @@ class AudioNotifier:
                 except ImportError:
                     pass
                 
-                # Method 2: Use PowerShell with .NET SoundPlayer for WAV files
-                # Plays silently without any windows
-                ps_script = f'''
-                (New-Object System.Media.SoundPlayer "{str(audio_file)}").Play()
-                '''
-                
-                subprocess.run(
-                    ['powershell', '-NoProfile', '-NonInteractive', '-WindowStyle', 'Hidden', '-Command', ps_script],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    shell=False
-                )
+                # Method 2: Use winsound for WAV files - built-in, no console issues
+                try:
+                    import winsound
+                    winsound.PlaySound(str(audio_file), winsound.SND_FILENAME | winsound.SND_ASYNC)
+                    return
+                except:
+                    pass
                 
             elif self.system == "Darwin":  # macOS
                 os.system(f'afplay "{audio_file}" &')
