@@ -39,10 +39,35 @@ class AudioNotifier:
         
         try:
             if self.system == "Windows":
-                # Play audio silently in background using Windows Media Player
+                # Try pygame first (silent playback)
+                try:
+                    import pygame
+                    pygame.mixer.init()
+                    pygame.mixer.music.load(str(audio_file))
+                    pygame.mixer.music.play()
+                    return
+                except ImportError:
+                    pass
+                
+                # Fallback: PowerShell with hidden window
                 import subprocess
-                cmd = ['C:\\Program Files\\Windows Media Player\\wmplayer.exe', '/play', '/close', str(audio_file)]
-                subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                ps_cmd = f'''
+                Add-Type -AssemblyName presentationCore
+                $player = New-Object System.Windows.Media.MediaPlayer
+                $player.Open([System.Uri]::new("{str(audio_file).replace(chr(92), '/')}", [System.UriKind]::Absolute))
+                $player.Play()
+                '''
+                
+                startupinfo = subprocess.STARTUPINFO()
+                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                startupinfo.wShowWindow = subprocess.SW_HIDE
+                
+                subprocess.Popen(
+                    ['powershell', '-NoProfile', '-WindowStyle', 'Hidden', '-Command', ps_cmd],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    startupinfo=startupinfo
+                )
             elif self.system == "Darwin":  # macOS
                 os.system(f'afplay "{audio_file}" &')
             else:  # Linux

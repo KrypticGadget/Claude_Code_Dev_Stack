@@ -46,11 +46,46 @@ class AudioPlayer:
         
         try:
             if self.system == "Windows":
-                # Play audio silently in background using Windows Media Player
+                # Method 1: Try pygame first (if installed)
+                try:
+                    import pygame
+                    pygame.mixer.init()
+                    pygame.mixer.music.load(str(audio_path))
+                    pygame.mixer.music.play()
+                    return True
+                except ImportError:
+                    pass
+                
+                # Method 2: Use PowerShell with hidden window
                 import subprocess
-                # Using wmplayer with /play and /close to play and exit
-                cmd = ['C:\\Program Files\\Windows Media Player\\wmplayer.exe', '/play', '/close', str(audio_path)]
-                subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                ps_cmd = f'''
+                $player = New-Object System.Media.SoundPlayer
+                $player.SoundLocation = "{str(audio_path)}"
+                $player.Play()
+                '''
+                
+                # For MP3 files, use Windows Media Foundation
+                if str(audio_path).lower().endswith('.mp3'):
+                    ps_cmd = f'''
+                    Add-Type -AssemblyName presentationCore
+                    $player = New-Object System.Windows.Media.MediaPlayer
+                    $player.Open([System.Uri]::new("{str(audio_path).replace(chr(92), '/')}", [System.UriKind]::Absolute))
+                    $player.Play()
+                    Start-Sleep -Seconds 3
+                    '''
+                
+                # Run PowerShell completely hidden
+                startupinfo = subprocess.STARTUPINFO()
+                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                startupinfo.wShowWindow = subprocess.SW_HIDE
+                
+                subprocess.Popen(
+                    ['powershell', '-NoProfile', '-WindowStyle', 'Hidden', '-Command', ps_cmd],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    startupinfo=startupinfo
+                )
+                
             elif self.system == "Darwin":  # macOS
                 subprocess.run(["afplay", str(audio_path)], capture_output=True, timeout=2)
             else:  # Linux
