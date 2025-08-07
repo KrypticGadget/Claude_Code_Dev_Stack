@@ -263,8 +263,9 @@ if (Test-Path $claudeJsonPath) {
             Write-Host "  ✓ Removed slash commands configuration" -ForegroundColor Green
         }
         
-        # Save updated .claude.json
-        $settings | ConvertTo-Json -Depth 10 | Out-File $claudeJsonPath -Encoding UTF8
+        # Save updated .claude.json without BOM
+        $jsonContent = $settings | ConvertTo-Json -Depth 10
+        [System.IO.File]::WriteAllText($claudeJsonPath, $jsonContent, [System.Text.UTF8Encoding]::new($false))
         
         if (!$hadHooks -and !$hadAgentSystem -and !$hadSlashCommands) {
             Write-Host "  • No hook configurations found in settings" -ForegroundColor Gray

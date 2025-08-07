@@ -283,8 +283,9 @@ try {
         $finalConfig = $hooksConfig
     }
     
-    # Save the merged configuration
-    $finalConfig | ConvertTo-Json -Depth 10 | Out-File $claudeJsonPath -Encoding UTF8
+    # Save the merged configuration without BOM
+    $jsonContent = $finalConfig | ConvertTo-Json -Depth 10
+    [System.IO.File]::WriteAllText($claudeJsonPath, $jsonContent, [System.Text.UTF8Encoding]::new($false))
     Write-Host "  ✓ Successfully configured hooks in .claude.json" -ForegroundColor Green
     
 } catch {
