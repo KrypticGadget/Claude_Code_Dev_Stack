@@ -8,6 +8,11 @@
             "type": "command",
             "command": "$HOME/.claude/hooks/agent_orchestrator.py",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/audio_player.py",
+            "timeout": 1
           }
         ]
       },
@@ -70,6 +75,11 @@
             "type": "command",
             "command": "$HOME/.claude/hooks/model_tracker.py",
             "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/audio_player.py",
+            "timeout": 1
           }
         ]
       },
@@ -80,6 +90,11 @@
             "type": "command",
             "command": "$HOME/.claude/hooks/post_command.py",
             "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/audio_player.py",
+            "timeout": 1
           }
         ]
       },
@@ -124,6 +139,11 @@
           },
           {
             "type": "command",
+            "command": "$HOME/.claude/hooks/audio_player.py",
+            "timeout": 1
+          },
+          {
+            "type": "command",
             "command": "$HOME/.claude/hooks/pre_project.py",
             "timeout": 5
           }
@@ -142,6 +162,11 @@
             "type": "command",
             "command": "$HOME/.claude/hooks/post_project.py",
             "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/audio_player.py",
+            "timeout": 1
           }
         ]
       }
