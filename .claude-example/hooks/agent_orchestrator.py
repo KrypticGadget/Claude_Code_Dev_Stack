@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Route prompts to appropriate agents based on content and @agent- mentions"""
+"""Enhanced agent orchestrator for integrated Claude Code Dev Stack"""
 import json
 import re
 import sys
 from pathlib import Path
 from datetime import datetime
 
-AGENT_KEYWORDS = {
+class AgentOrchestrator:
+    def __init__(self):
+        self.agent_keywords = {
     "system-architect": ["architecture", "system design", "scalability", "infrastructure"],
     "backend-services": ["api", "backend", "server", "endpoint", "database connection"],
     "frontend-architecture": ["ui", "frontend", "react", "vue", "user interface"],
