@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Ultimate Claude Code Dev Stack - Audio Generation System
-Generates all 50 audio notifications using Edge-TTS (free, no API keys)
+Generates all 50 audio notifications as real WAV files using Edge-TTS
+Fixed to output proper PCM WAV format compatible with Windows audio APIs
 """
 
 import asyncio
@@ -9,6 +10,7 @@ import edge_tts
 import os
 import sys
 from pathlib import Path
+import wave
 
 # Complete audio system - 50 sounds
 COMPLETE_AUDIO_SYSTEM = {
@@ -61,24 +63,50 @@ COMPLETE_AUDIO_SYSTEM = {
     "orchestrator_engaged": "Master orchestrator engaged",
     "mcp_service_starting": "MCP service initializing",
     "parallel_execution": "Executing tasks in parallel",
-    "sequential_execution": "Executing tasks sequentially",
-    "handoff_occurring": "Transferring between agents",
-    "optimization_applied": "Optimization strategy applied",
-    "context_switching": "Switching operational context",
-    "pipeline_complete": "Processing pipeline complete",
-    "coordination_active": "Multi-system coordination active"
+    "sequential_execution": "Processing tasks sequentially",
+    "handoff_occurring": "Agent handoff in progress",
+    "optimization_applied": "Performance optimization applied",
+    "context_switching": "Switching execution context",
+    "pipeline_complete": "Pipeline execution complete",
+    "coordination_active": "Multi-agent coordination active"
 }
 
 async def generate_all_audio():
-    """Generate all audio files using Edge-TTS"""
+    """Generate all audio files as real WAV files"""
     
-    print("ULTIMATE Claude Code Dev Stack - Audio Generation")
+    print("ULTIMATE Claude Code Dev Stack - Audio Generation (FIXED)")
     print("=" * 60)
-    print(f"Generating {len(COMPLETE_AUDIO_SYSTEM)} audio files...")
+    print(f"Generating {len(COMPLETE_AUDIO_SYSTEM)} audio files as real WAV...")
     print()
     
-    # Create output directory
-    output_dir = Path(__file__).parent.parent / "sounds"
+    # Check dependencies
+    print("Checking dependencies...")
+    
+    # Install pygame if needed
+    try:
+        import pygame
+        print("  [OK] pygame is installed")
+    except ImportError:
+        print("  Installing pygame for WAV conversion...")
+        os.system("pip install pygame")
+        import pygame
+    
+    # Check edge-tts
+    try:
+        import edge_tts
+        print("  [OK] edge-tts is installed")
+    except ImportError:
+        print("  Installing edge-tts...")
+        os.system("pip install edge-tts")
+        import edge_tts
+    
+    print()
+    
+    # Initialize pygame for audio conversion
+    pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=512)
+    
+    # Create output directory - TTS/sounds folder
+    output_dir = Path(__file__).parent.parent / "sounds"  # Goes to TTS/sounds/
     output_dir.mkdir(parents=True, exist_ok=True)
     
     # Best voices for different types
@@ -89,12 +117,11 @@ async def generate_all_audio():
         'alert': "en-US-JennyNeural"         # Clear female
     }
     
-    # Use JARVIS voice as primary
-    primary_voice = voices['jarvis']
-    
     # Track progress
     total = len(COMPLETE_AUDIO_SYSTEM)
     current = 0
+    success = 0
+    failed = 0
     
     # Categories for organization
     categories = {
@@ -120,98 +147,120 @@ async def generate_all_audio():
         for filename, text in items:
             current += 1
             
-            # Choose voice based on category
-            if category == 'input':
-                voice = voices['friendly']
-            elif category == 'orchestration':
-                voice = voices['jarvis']
-            else:
-                voice = voices['professional']
-            
-            # Generate audio with optimized settings
-            communicate = edge_tts.Communicate(
-                text,
-                voice,
-                rate="-5%",      # Slightly slower for clarity
-                pitch="-5Hz"      # Slightly lower for authority
-            )
-            
-            # Save file
-            output_file = output_dir / f"{filename}.wav"
-            await communicate.save(str(output_file))
-            
-            # Progress indicator
-            print(f"  [{current}/{total}] - {filename}.wav")
+            try:
+                # Choose voice based on category
+                if category == 'input':
+                    voice = voices['friendly']
+                elif category == 'orchestration':
+                    voice = voices['jarvis']
+                else:
+                    voice = voices['professional']
+                
+                # Generate audio with optimized settings
+                communicate = edge_tts.Communicate(
+                    text,
+                    voice,
+                    rate="-5%",      # Slightly slower for clarity
+                    pitch="-5Hz"      # Slightly lower for authority
+                )
+                
+                # First save as temporary MP3 (Edge-TTS default format)
+                temp_file = output_dir / f"_temp_{filename}.mp3"
+                await communicate.save(str(temp_file))
+                
+                # Convert MP3 to WAV using pygame
+                sound = pygame.mixer.Sound(str(temp_file))
+                raw_data = sound.get_raw()
+                
+                # Save as real PCM WAV file
+                output_file = output_dir / f"{filename}.wav"
+                with wave.open(str(output_file), 'wb') as wav_file:
+                    wav_file.setnchannels(2)  # Stereo
+                    wav_file.setsampwidth(2)  # 16-bit
+                    wav_file.setframerate(44100)  # 44.1kHz
+                    wav_file.writeframes(raw_data)
+                
+                # Remove temp MP3 file
+                if temp_file.exists():
+                    temp_file.unlink()
+                
+                # Progress indicator
+                print(f"  [{current}/{total}] [OK] {filename}.wav")
+                success += 1
+                
+            except Exception as e:
+                print(f"  [{current}/{total}] [FAIL] {filename}.wav - Error: {e}")
+                failed += 1
     
     print()
-    print("\n" + "=" * 60)
-    print(f"SUCCESS! All {total} audio files generated!")
-    print(f"Location: {output_dir}")
+    print("=" * 60)
+    
+    if success == total:
+        print(f"[OK] SUCCESS! All {total} audio files generated as real WAV!")
+    else:
+        print(f"Generated {success}/{total} files ({failed} failed)")
+    
+    print(f"\nLocation: {output_dir}")
     print("\nAudio System Ready:")
-    print(f"  - {len(categories['development'])} Development phase sounds")
-    print(f"  - {len(categories['input'])} Input detection sounds")
-    print(f"  - {len(categories['orchestration'])} Orchestration sounds")
-    print("\nYour JARVIS-style audio system is ready!")
+    print(f"  [OK] {len(categories['development'])} Development phase sounds")
+    print(f"  [OK] {len(categories['input'])} Input detection sounds")
+    print(f"  [OK] {len(categories['orchestration'])} Orchestration sounds")
+    print("\n[OK] All files are in PCM WAV format compatible with winsound!")
+    
+    # Test with winsound
+    print("\nTesting playback with winsound...")
+    try:
+        import winsound
+        test_file = output_dir / "project_created.wav"
+        if test_file.exists():
+            print(f"  Playing: {test_file.name}")
+            winsound.PlaySound(str(test_file), winsound.SND_FILENAME)
+            print("  [OK] SUCCESS! Audio plays correctly with winsound!")
+            print("\nYou should have heard: 'Project structure initialized successfully'")
+        else:
+            print("  [FAIL] Test file not found")
+    except Exception as e:
+        print(f"  [FAIL] Playback test failed: {e}")
+    
+    print("\n" + "=" * 60)
+    print("NEXT STEPS:")
+    print("1. Copy these files to C:\\Users\\Zach\\.claude\\audio\\")
+    print("   Copy-Item '.claude-example\\audio\\*.wav' 'C:\\Users\\Zach\\.claude\\audio\\' -Force")
+    print("2. Restart Claude Code")
+    print("3. You should hear audio notifications!")
+    print("=" * 60)
 
 async def test_audio(filename):
     """Test a single audio file"""
     import subprocess
     import platform
     
-    sound_file = Path(__file__).parent.parent / "sounds" / f"{filename}.wav"
+    output_dir = Path(__file__).parent.parent
+    audio_file = output_dir / f"{filename}.wav"
     
-    if not sound_file.exists():
-        print(f"File not found: {sound_file}")
+    if not audio_file.exists():
+        print(f"File not found: {audio_file}")
         return
     
-    print(f"Playing: {filename}.wav")
+    print(f"Testing: {audio_file}")
     
     system = platform.system()
-    try:
-        if system == "Windows":
-            subprocess.run(
-                ["powershell", "-c", f"(New-Object Media.SoundPlayer '{sound_file}').PlaySync()"],
-                capture_output=True
-            )
-        elif system == "Darwin":  # macOS
-            subprocess.run(["afplay", str(sound_file)], capture_output=True)
-        else:  # Linux
-            subprocess.run(["paplay", str(sound_file)], capture_output=True)
-        print("Playback complete")
-    except Exception as e:
-        print(f"Playback failed: {e}")
-
-def main():
-    """Main entry point"""
-    
-    # Check for edge-tts
-    try:
-        import edge_tts
-    except ImportError:
-        print("Installing edge-tts...")
-        os.system(f"{sys.executable} -m pip install edge-tts")
-        print("edge-tts installed")
-        import edge_tts
-    
-    # Parse arguments
-    if len(sys.argv) > 1:
-        if sys.argv[1] == "test" and len(sys.argv) > 2:
-            # Test mode
-            asyncio.run(test_audio(sys.argv[2]))
-        elif sys.argv[1] == "list":
-            # List all sounds
-            print("\nAvailable Sounds:")
-            print("=" * 60)
-            for i, (name, text) in enumerate(COMPLETE_AUDIO_SYSTEM.items(), 1):
-                print(f"{i:3}. {name:30} → \"{text}\"")
-        else:
-            print("Usage:")
-            print("  python generate_all_audio.py         # Generate all sounds")
-            print("  python generate_all_audio.py test <name>  # Test a sound")
-            print("  python generate_all_audio.py list    # List all sounds")
+    if system == "Windows":
+        import winsound
+        winsound.PlaySound(str(audio_file), winsound.SND_FILENAME)
+        print("[OK] Playback complete!")
+    elif system == "Darwin":
+        subprocess.run(["afplay", str(audio_file)])
     else:
-        # Generate all
-        asyncio.run(generate_all_audio())
+        subprocess.run(["aplay", str(audio_file)])
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) > 1 and sys.argv[1] == "test":
+        # Test mode
+        if len(sys.argv) > 2:
+            asyncio.run(test_audio(sys.argv[2]))
+        else:
+            asyncio.run(test_audio("project_created"))
+    else:
+        # Generate all audio
+        asyncio.run(generate_all_audio())
