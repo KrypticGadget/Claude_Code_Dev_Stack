@@ -1,10 +1,10 @@
-# Enhanced Claude Code Hooks Installer v2.1 - FINAL FIX
-# Properly merges hooks into .claude.json (the file Claude Code actually reads!)
+# Ultimate Claude Code Hooks & Audio System Installer v3.0
+# Installs hooks + 50 JARVIS-style audio notifications
 
 Write-Host @"
 ╔════════════════════════════════════════════════════════════════╗
-║     Claude Code Enhanced Hooks Installer v2.1 - CORRECT FIX    ║
-║      Properly installs hooks into ~/.claude/settings.json      ║
+║   Ultimate Claude Code Hooks & Audio System Installer v3.0     ║
+║    Hooks + 50 JARVIS-style Audio + Intelligent Orchestration   ║
 ╚════════════════════════════════════════════════════════════════╝
 "@ -ForegroundColor Cyan
 
@@ -76,10 +76,10 @@ if (Test-Path $settingsPath) {
     Write-Host "  ✓ Backed up settings.json to: $backupPath" -ForegroundColor Green
 }
 
-# Step 4: Install optimized hooks (only essential ones)
-Write-Host "`n📝 Installing optimized hooks (8 essential)..." -ForegroundColor Yellow
+# Step 4: Install optimized hooks INCLUDING ULTIMATE SYSTEM
+Write-Host "`n📝 Installing Ultimate Hook System..." -ForegroundColor Yellow
 
-# Only install hooks that provide real value without performance issues
+# Ultimate system hooks + essential ones
 $hooks = @(
     # Core functionality (5 hooks)
     "agent_mention_parser.py",    # Routes @agent- mentions
@@ -87,6 +87,11 @@ $hooks = @(
     "audio_player.py",            # Audio notifications
     "audio_notifier.py",          # Alternative audio system
     "planning_trigger.py",        # Todo management
+    
+    # ULTIMATE SYSTEM HOOKS (3 new)
+    "master_orchestrator.py",     # Master orchestrator for intelligent routing
+    "audio_controller.py",        # Advanced audio controller
+    "ultimate_claude_hook.py",   # Simplified ultimate system
     
     # Minimal session management (3 hooks - lightweight versions)
     "session_loader.py",          # Minimal - just acknowledges
@@ -154,43 +159,80 @@ if ($failedCount -gt 0) {
     Write-Host "  Failed: $failedCount hooks" -ForegroundColor Red
 }
 
-# Step 5: Install audio assets
-Write-Host "`n🎵 Installing audio notifications..." -ForegroundColor Yellow
+# Step 5: Install ULTIMATE Audio System (50 sounds)
+Write-Host "`n🎵 Installing Ultimate Audio System (50 JARVIS-style sounds)..." -ForegroundColor Yellow
 
-# Download audio files from GitHub or create placeholders
+# Option 1: Download pre-generated audio files if available
 $audioBaseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/audio"
-$audioFiles = @(
-    "ready.wav",
-    "task_complete.wav",
-    "build_complete.wav",
-    "error_fixed.wav",
-    "awaiting_instructions.wav"
-)
-
 $audioDownloaded = 0
-foreach ($audio in $audioFiles) {
-    $audioUrl = "$audioBaseUrl/$audio"
-    $audioPath = "$audioDir\$audio"
+$audioNeeded = $false
+
+# Check if we already have 50 audio files
+$existingAudio = (Get-ChildItem $audioDir -Filter "*.wav" -ErrorAction SilentlyContinue).Count
+
+if ($existingAudio -ge 50) {
+    Write-Host "  ✓ Ultimate audio system already installed ($existingAudio files)" -ForegroundColor Green
+} else {
+    Write-Host "  Need to generate audio files..." -ForegroundColor Yellow
+    $audioNeeded = $true
+    
+    # Download audio generator script
+    $generatorDir = "$audioDir\generator"
+    if (!(Test-Path $generatorDir)) {
+        New-Item -ItemType Directory -Path $generatorDir -Force | Out-Null
+    }
+    
+    $generatorUrl = "$audioBaseUrl/generator/generate_all_audio.py"
+    $generatorPath = "$generatorDir\generate_all_audio.py"
     
     try {
-        # Try to download real audio file
+        Write-Host "  Downloading audio generator..." -ForegroundColor Cyan
         $webClient = New-Object System.Net.WebClient
-        $webClient.DownloadFile($audioUrl, $audioPath)
+        $webClient.DownloadFile($generatorUrl, $generatorPath)
         $webClient.Dispose()
-        Write-Host "    ✓ Downloaded: $audio" -ForegroundColor Green
-        $audioDownloaded++
-    } catch {
-        # Create placeholder if download fails
-        if (!(Test-Path $audioPath)) {
-            New-Item -ItemType File -Path $audioPath -Force | Out-Null
-            Write-Host "    • Created placeholder: $audio" -ForegroundColor Gray
+        Write-Host "  ✓ Downloaded generator script" -ForegroundColor Green
+        
+        # If Python is available, generate audio
+        if ($hasPython) {
+            Write-Host "  Installing Edge-TTS (free text-to-speech)..." -ForegroundColor Cyan
+            $pipInstall = & $pythonCmd -m pip install edge-tts --quiet 2>&1
+            
+            Write-Host "  Generating 50 audio files (takes ~60 seconds)..." -ForegroundColor Yellow
+            Write-Host "    This is a one-time process..." -ForegroundColor Gray
+            
+            # Run generator
+            $genProcess = Start-Process -FilePath $pythonCmd -ArgumentList "`"$generatorPath`"" -WorkingDirectory $audioDir -Wait -PassThru -WindowStyle Hidden
+            
+            if ($genProcess.ExitCode -eq 0) {
+                $newAudioCount = (Get-ChildItem $audioDir -Filter "*.wav" -ErrorAction SilentlyContinue).Count
+                Write-Host "  ✓ Generated $newAudioCount audio files successfully!" -ForegroundColor Green
+                $audioDownloaded = $newAudioCount
+            } else {
+                Write-Host "  ⚠ Audio generation had issues - manual generation needed" -ForegroundColor Yellow
+            }
+        } else {
+            Write-Host "  ⚠ Python required for audio generation" -ForegroundColor Yellow
+            Write-Host "    To generate manually later:" -ForegroundColor Gray
+            Write-Host "    1. Install Python from python.org" -ForegroundColor Gray
+            Write-Host "    2. Run: pip install edge-tts" -ForegroundColor Gray
+            Write-Host "    3. Run: python `"$generatorPath`"" -ForegroundColor Gray
         }
+    } catch {
+        Write-Host "  ⚠ Could not download generator: $_" -ForegroundColor Yellow
     }
-    Start-Sleep -Milliseconds 100
 }
 
-if ($audioDownloaded -gt 0) {
-    Write-Host "  Downloaded: $audioDownloaded audio files" -ForegroundColor Green
+# Show audio system status
+$finalAudioCount = (Get-ChildItem $audioDir -Filter "*.wav" -ErrorAction SilentlyContinue).Count
+if ($finalAudioCount -ge 50) {
+    Write-Host "`n  🎉 Ultimate Audio System Ready!" -ForegroundColor Green
+    Write-Host "    • 23 Development phase sounds" -ForegroundColor Gray
+    Write-Host "    • 15 Input detection sounds" -ForegroundColor Gray
+    Write-Host "    • 12 Orchestration sounds" -ForegroundColor Gray
+} elseif ($finalAudioCount -gt 0) {
+    Write-Host "`n  ⚠ Partial audio system ($finalAudioCount files)" -ForegroundColor Yellow
+} else {
+    Write-Host "`n  ⚠ Audio generation pending - see instructions above" -ForegroundColor Yellow
 }
 
 # Step 6: Download and merge hook configuration into settings.json

@@ -69,8 +69,8 @@ if (Test-Path $commandsPath) {
     $components.Commands = $false
 }
 
-# Check enhanced hooks - UPDATED LIST WITH ALL 19 HOOKS
-Write-Host "`n🪝 Enhanced Hooks (FIXED):" -ForegroundColor Cyan
+# Check enhanced hooks - INCLUDING ULTIMATE SYSTEM
+Write-Host "`n🪝 Enhanced Hooks (Ultimate System):" -ForegroundColor Cyan
 $requiredHooks = @(
     "agent_mention_parser.py",
     "agent_orchestrator.py",
@@ -81,6 +81,9 @@ $requiredHooks = @(
     "mcp_initializer.py",
     "audio_player.py",
     "audio_notifier.py",
+    "audio_controller.py",          # NEW: Ultimate audio controller
+    "master_orchestrator.py",        # NEW: Master orchestrator
+    "ultimate_claude_hook.py",       # NEW: Ultimate hook system
     "session_loader.py",
     "session_saver.py",
     "quality_gate.py",
@@ -115,34 +118,46 @@ foreach ($hook in $requiredHooks) {
 $testHookFound = Test-Path "$hooksPath\test_hook.py"
 
 if ($foundHooks -eq $requiredHooks.Count) {
-    Write-Host "  ✓ All 19 required hooks installed" -ForegroundColor Green
+    Write-Host "  ✓ All 22 required hooks installed (Ultimate System)" -ForegroundColor Green
     if ($testHookFound) {
         Write-Host "  ✓ Test hook also present (debugging enabled)" -ForegroundColor Green
     }
     $components.Hooks = $true
+} elseif ($foundHooks -ge 19) {
+    Write-Host "  ⚠ Most hooks installed ($foundHooks/22) - Basic system functional" -ForegroundColor Yellow
+    if ($missingHooks.Count -gt 0) {
+        Write-Host "    Missing Ultimate hooks: $($missingHooks -join ', ')" -ForegroundColor Gray
+    }
+    $components.Hooks = "partial"
 } elseif ($foundHooks -ge 15) {
-    Write-Host "  ⚠ Most hooks installed ($foundHooks/19)" -ForegroundColor Yellow
+    Write-Host "  ⚠ Core hooks installed ($foundHooks/22)" -ForegroundColor Yellow
     if ($missingHooks.Count -gt 0) {
         Write-Host "    Missing: $($missingHooks -join ', ')" -ForegroundColor Gray
     }
     $components.Hooks = "partial"
 } else {
-    Write-Host "  ✗ Insufficient hooks found ($foundHooks/19)" -ForegroundColor Red
+    Write-Host "  ✗ Insufficient hooks found ($foundHooks/22)" -ForegroundColor Red
     Write-Host "    Missing critical hooks for system functionality" -ForegroundColor Red
     $components.Hooks = $false
 }
 
-# Check audio
-Write-Host "`n🎵 Audio System:" -ForegroundColor Cyan
+# Check audio - Ultimate System with 50 sounds
+Write-Host "`n🎵 Ultimate Audio System:" -ForegroundColor Cyan
 $testsTotal++
 if (Test-Path $audioPath) {
     $audioCount = (Get-ChildItem $audioPath -Filter "*.wav" -ErrorAction SilentlyContinue).Count
-    if ($audioCount -ge 5) {
-        Write-Host "  ✓ All audio files present ($audioCount files)" -ForegroundColor Green
+    if ($audioCount -ge 50) {
+        Write-Host "  ✓ ULTIMATE: All 50 audio files present!" -ForegroundColor Green
+        Write-Host "    • 23 Development phases" -ForegroundColor Gray
+        Write-Host "    • 15 Input detection types" -ForegroundColor Gray
+        Write-Host "    • 12 Orchestration events" -ForegroundColor Gray
         $testsPassed++
         $components.Audio = $true
+    } elseif ($audioCount -ge 5) {
+        Write-Host "  ⚠ Basic audio present ($audioCount files, Ultimate has 50)" -ForegroundColor Yellow
+        $components.Audio = "partial"
     } elseif ($audioCount -gt 0) {
-        Write-Host "  ⚠ Found $audioCount audio files (expected 5)" -ForegroundColor Yellow
+        Write-Host "  ⚠ Found $audioCount audio files (Ultimate system has 50)" -ForegroundColor Yellow
         $components.Audio = "partial"
     } else {
         Write-Host "  ✗ No audio files found" -ForegroundColor Red

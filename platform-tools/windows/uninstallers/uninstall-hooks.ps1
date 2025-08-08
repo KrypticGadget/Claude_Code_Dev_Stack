@@ -1,10 +1,10 @@
-# Enhanced Claude Code Hooks Uninstaller v2.1
-# Safely removes all hook components with backup
+# Ultimate Claude Code Hooks & Audio Uninstaller v3.0
+# Safely removes all hooks and Ultimate audio system
 
 Write-Host @"
 ╔════════════════════════════════════════════════════════════════╗
-║     Claude Code Enhanced Hooks Uninstaller v2.1 - FIXED       ║
-║       Safely Removes All 19 Hooks with Complete Backup        ║
+║   Ultimate Claude Code Hooks & Audio Uninstaller v3.0         ║
+║     Removes All Hooks & 50 Audio Files with Full Backup       ║
 ╚════════════════════════════════════════════════════════════════╝
 "@ -ForegroundColor Yellow
 
@@ -115,6 +115,11 @@ $allHooks = @(
     "audio_player.py",
     "audio_notifier.py",
     
+    # ULTIMATE SYSTEM HOOKS
+    "master_orchestrator.py",
+    "audio_controller.py",
+    "ultimate_claude_hook.py",
+    
     # Session management
     "session_loader.py",
     "session_saver.py",
@@ -149,16 +154,39 @@ foreach ($hook in $allHooks) {
 
 Write-Host "  Removed: $removedCount hooks" -ForegroundColor Cyan
 
-# Step 5: Remove audio files
-Write-Host "`n🎵 Removing audio files..." -ForegroundColor Yellow
+# Step 5: Remove Ultimate Audio System
+Write-Host "`n🎵 Removing Ultimate Audio System..." -ForegroundColor Yellow
 
 $audioCount = 0
+$generatorRemoved = $false
+
 if (Test-Path $audioDir) {
-    Get-ChildItem $audioDir -Filter "*.wav" | ForEach-Object {
+    # Remove all .wav files (up to 50 for Ultimate system)
+    Get-ChildItem $audioDir -Filter "*.wav" -Recurse | ForEach-Object {
         Remove-Item $_.FullName -Force
         $audioCount++
     }
-    Write-Host "  ✓ Removed: $audioCount audio files" -ForegroundColor Green
+    
+    if ($audioCount -ge 50) {
+        Write-Host "  ✓ Removed: $audioCount Ultimate audio files" -ForegroundColor Green
+    } elseif ($audioCount -gt 0) {
+        Write-Host "  ✓ Removed: $audioCount audio files" -ForegroundColor Green
+    }
+    
+    # Remove generator directory if exists
+    $generatorDir = "$audioDir\generator"
+    if (Test-Path $generatorDir) {
+        Remove-Item $generatorDir -Recurse -Force
+        Write-Host "  ✓ Removed audio generator scripts" -ForegroundColor Green
+        $generatorRemoved = $true
+    }
+    
+    # Remove sounds directory if exists
+    $soundsDir = "$audioDir\sounds"
+    if (Test-Path $soundsDir) {
+        Remove-Item $soundsDir -Recurse -Force
+        Write-Host "  ✓ Removed sounds directory" -ForegroundColor Green
+    }
     
     # Remove audio directory if empty
     if ((Get-ChildItem $audioDir -ErrorAction SilentlyContinue).Count -eq 0) {

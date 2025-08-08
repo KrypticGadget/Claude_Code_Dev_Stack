@@ -16,21 +16,21 @@ class AudioPlayer:
         self.audio_dir = Path.home() / ".claude" / "audio"
         self.system = platform.system()
         
-        # Map events to audio files (using WAV for silent Windows playback)
+        # Map events to audio files (using actual generated files)
         self.audio_map = {
-            "task_complete": "task_complete.wav",
-            "build_complete": "build_complete.wav",
-            "error_fixed": "error_fixed.wav",
-            "ready": "ready.wav",
-            "awaiting": "awaiting_instructions.wav",
+            "task_complete": "pipeline_complete.wav",
+            "build_complete": "build_successful.wav",
+            "error_fixed": "rollback_complete.wav",
+            "ready": "ready_for_input.wav",
+            "awaiting": "awaiting_response.wav",
             # Aliases for events
-            "agent_start": "ready.wav",
-            "mcp_activated": "ready.wav",
-            "success": "task_complete.wav",
-            "build_success": "build_complete.wav",
-            "error_resolved": "error_fixed.wav",
-            "session_start": "ready.wav",
-            "waiting": "awaiting_instructions.wav"
+            "agent_start": "agent_activated.wav",
+            "mcp_activated": "mcp_service_starting.wav",
+            "success": "milestone_complete.wav",
+            "build_success": "build_successful.wav",
+            "error_resolved": "optimization_applied.wav",
+            "session_start": "project_created.wav",
+            "waiting": "awaiting_response.wav"
         }
     
     def play_sound(self, audio_file):

@@ -19,6 +19,12 @@ desktop.ini
 __pycache__/
 *.pyc
 
+# Python virtual environments
+audio_venv/
+venv/
+.venv/
+*_venv/
+
 # Logs
 *.log
 

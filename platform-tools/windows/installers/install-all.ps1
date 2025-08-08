@@ -1,5 +1,5 @@
-# Simple Claude Code Dev Stack Installer
-# Downloads all components from GitHub to ~/.claude
+# Ultimate Claude Code Dev Stack Installer v3.0
+# Downloads all components + Ultimate Audio System from GitHub to ~/.claude
 
 # Setup logging
 $logFile = "$env:USERPROFILE\claude_installer.log"
@@ -11,25 +11,27 @@ function Write-Log {
 }
 
 Write-Log "========================================="
-Write-Log "Claude Code Dev Stack Installer v2.1"
+Write-Log "Ultimate Claude Code Dev Stack Installer v3.0"
 Write-Log "========================================="
 Write-Log "Log file: $logFile"
 
 # Base URLs
 $baseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/installers"
 
-Write-Log "Installing 4 components:"
+Write-Log "Installing 5 components:"
 Write-Log "1. Agents (28 files)"
 Write-Log "2. Commands (18 files)" 
 Write-Log "3. Hooks (13 files)"
 Write-Log "4. MCP configs"
+Write-Log "5. Ultimate Audio System (50 sounds + orchestrator)"
 
 # Component installers
 $components = @(
     @{Name="Agents"; Script="install-agents.ps1"},
     @{Name="Commands"; Script="install-commands.ps1"},
     @{Name="Hooks"; Script="install-hooks.ps1"},
-    @{Name="MCPs"; Script="install-mcps.ps1"}
+    @{Name="MCPs"; Script="install-mcps.ps1"},
+    @{Name="Ultimate Audio"; Script="install-ultimate-audio.ps1"}
 )
 
 foreach ($component in $components) {
@@ -70,15 +72,26 @@ foreach ($component in $components) {
 }
 
 Write-Host "========================================" -ForegroundColor Green
-Write-Host "  Installation Complete!" -ForegroundColor Green
+Write-Host "  🎉 ULTIMATE Installation Complete!" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "Files installed to: $env:USERPROFILE\.claude" -ForegroundColor White
 Write-Host ""
+Write-Host "✨ NEW ULTIMATE FEATURES:" -ForegroundColor Cyan
+Write-Host "  • 50 JARVIS-style audio notifications" -ForegroundColor White
+Write-Host "  • Master orchestrator for smart routing" -ForegroundColor White
+Write-Host "  • Meta-prompt transformation" -ForegroundColor White
+Write-Host "  • Development phase detection" -ForegroundColor White
+Write-Host "  • Input detection with audio alerts" -ForegroundColor White
+Write-Host ""
 Write-Host "To use:" -ForegroundColor Yellow
-Write-Host "1. Open Claude Code" -ForegroundColor White
+Write-Host "1. Restart Claude Code" -ForegroundColor White
 Write-Host "2. Type @ to see agents" -ForegroundColor White
 Write-Host "3. Type / to see commands" -ForegroundColor White
+Write-Host "4. Vague prompts auto-transform!" -ForegroundColor Cyan
+Write-Host "5. Audio alerts for all phases!" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "🎵 Test audio: powershell ~/.claude/audio/test_audio.ps1" -ForegroundColor Yellow
 Write-Host ""
 
 # Don't use exit when running via iwr | iex as it kills the terminal

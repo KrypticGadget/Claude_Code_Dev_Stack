@@ -16,20 +16,20 @@ class AudioNotifier:
         self.audio_dir = Path.home() / ".claude" / "audio"
         self.system = platform.system()
         
-        # Map events to audio files (using WAV for silent Windows playback)
+        # Map events to audio files (using actual generated files)
         self.audio_map = {
-            "success": "task_complete.wav",
-            "warning": "awaiting_instructions.wav",
-            "error": "error_fixed.wav",
-            "notify": "ready.wav",
-            "agent": "ready.wav",
-            "mcp": "ready.wav",
-            "session": "ready.wav"
+            "success": "pipeline_complete.wav",
+            "warning": "awaiting_response.wav",
+            "error": "clarification_needed.wav",
+            "notify": "ready_for_input.wav",
+            "agent": "agent_activated.wav",
+            "mcp": "mcp_service_starting.wav",
+            "session": "processing_complete.wav"
         }
         
     def play_sound(self, sound_type):
         """Play audio file based on event type"""
-        audio_filename = self.audio_map.get(sound_type, "ready.wav")
+        audio_filename = self.audio_map.get(sound_type, "ready_for_input.wav")
         if not audio_filename:
             return
             

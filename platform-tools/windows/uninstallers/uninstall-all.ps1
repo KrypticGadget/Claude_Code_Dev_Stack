@@ -13,6 +13,7 @@ $componentsToRemove = @(
     "$claudeDir\agents",
     "$claudeDir\commands",
     "$claudeDir\hooks",
+    "$claudeDir\audio",
     "$claudeDir\settings.json",
     "$claudeDir\.mcp.json"
 )
