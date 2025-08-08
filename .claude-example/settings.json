@@ -7,7 +7,7 @@
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/audio_player.py",
-            "timeout": 3
+            "timeout": 9
           }
         ]
       }
@@ -24,7 +24,7 @@
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/audio_player.py",
-            "timeout": 3
+            "timeout": 9
           }
         ]
       },
@@ -34,7 +34,7 @@
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/audio_player.py",
-            "timeout": 3
+            "timeout": 9
           }
         ]
       },
@@ -75,7 +75,7 @@
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/audio_player.py",
-            "timeout": 3
+            "timeout": 9
           }
         ]
       }
@@ -91,7 +91,7 @@
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/audio_player.py",
-            "timeout": 3
+            "timeout": 9
           }
         ]
       }
