@@ -196,11 +196,11 @@ if ($audioDownloaded -gt 0) {
 # Step 6: Download and merge hook configuration into settings.json
 Write-Host "`n⚙️ Configuring hooks in ~/.claude/settings.json..." -ForegroundColor Yellow
 
-# Download the hook configuration template
+# Download the CLEANED hook configuration template (only 8 essential hooks)
 $hooksConfigUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/settings.json"
 
 try {
-    Write-Host "  Downloading hook configuration..." -ForegroundColor Cyan
+    Write-Host "  Downloading cleaned hook configuration (8 hooks only)..." -ForegroundColor Cyan
     $webClient = New-Object System.Net.WebClient
     $hooksConfigContent = $webClient.DownloadString($hooksConfigUrl)
     $webClient.Dispose()

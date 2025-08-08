@@ -6,63 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/.claude/hooks/agent_orchestrator.py",
-            "timeout": 10
-          },
-          {
-            "type": "command",
             "command": "$HOME/.claude/hooks/audio_player.py",
             "timeout": 1
-          }
-        ]
-      },
-      {
-        "matcher": "Write|Edit|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/quality_gate.py",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/pre_command.py",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "mcp__playwright__.*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/mcp_gateway.py --service playwright",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "mcp__obsidian__.*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/mcp_gateway.py --service obsidian",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "mcp__web-search__.*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/mcp_gateway.py --service web-search",
-            "timeout": 5
           }
         ]
       }
@@ -74,7 +19,7 @@
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/model_tracker.py",
-            "timeout": 5
+            "timeout": 3
           },
           {
             "type": "command",
@@ -86,11 +31,6 @@
       {
         "matcher": "Write|Edit|MultiEdit",
         "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/post_command.py",
-            "timeout": 5
-          },
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/audio_player.py",
@@ -134,18 +74,8 @@
           },
           {
             "type": "command",
-            "command": "$HOME/.claude/hooks/mcp_initializer.py",
-            "timeout": 5
-          },
-          {
-            "type": "command",
             "command": "$HOME/.claude/hooks/audio_player.py",
             "timeout": 1
-          },
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/pre_project.py",
-            "timeout": 5
           }
         ]
       }
@@ -156,11 +86,6 @@
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/session_saver.py",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/post_project.py",
             "timeout": 5
           },
           {
@@ -259,7 +184,7 @@
     "level": "info",
     "path": "$HOME/.claude/logs/",
     "rotation": "daily",
-    "maxFiles": 30
+    "maxFiles": 7
   },
   "optimization": {
     "modelSelection": {
@@ -275,18 +200,6 @@
     "caching": {
       "enabled": true,
       "ttl": 3600
-    }
-  },
-  "qualityGates": {
-    "codeStandards": {
-      "enabled": true,
-      "linting": true,
-      "formatting": true,
-      "security": true
-    },
-    "testing": {
-      "required": true,
-      "coverage": 80
     }
   }
 }
