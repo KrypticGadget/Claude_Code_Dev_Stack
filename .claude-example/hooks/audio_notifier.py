@@ -40,39 +40,58 @@ class AudioNotifier:
         
         try:
             if self.system == "Windows":
-                # Method 1: Try pygame first (silent playback)
+                # Method 1: Try pygame first (handles more formats)
                 try:
                     import pygame
                     pygame.mixer.init()
                     pygame.mixer.music.load(str(audio_file))
                     pygame.mixer.music.play()
+                    # Wait for audio to finish (up to 2 seconds)
+                    import time
+                    clock = pygame.time.Clock()
+                    while pygame.mixer.music.get_busy() and time.time() < time.time() + 2:
+                        clock.tick(10)
+                    print(f"[AUDIO] Played with pygame: {audio_filename}", file=sys.stderr)
                     return
-                except ImportError:
-                    pass
+                except Exception as e:
+                    print(f"[AUDIO] pygame not available: {e}", file=sys.stderr)
                 
-                # Method 2: Use winsound for WAV files - built-in, no console issues
+                # Method 2: Use PowerShell Media.SoundPlayer (more reliable for Edge-TTS WAVs)
+                try:
+                    ps_command = f'''
+                    Add-Type -AssemblyName System.Media
+                    $player = New-Object System.Media.SoundPlayer("{str(audio_file).replace(chr(92), chr(92)*2)}")
+                    $player.PlaySync()
+                    '''
+                    result = subprocess.run(
+                        ["powershell", "-NoProfile", "-Command", ps_command],
+                        capture_output=True,
+                        timeout=3,
+                        text=True
+                    )
+                    if result.returncode == 0:
+                        print(f"[AUDIO] Played with PowerShell: {audio_filename}", file=sys.stderr)
+                        return
+                    else:
+                        print(f"[AUDIO] PowerShell error: {result.stderr}", file=sys.stderr)
+                except Exception as e:
+                    print(f"[AUDIO] PowerShell failed: {e}", file=sys.stderr)
+                
+                # Method 3: Try winsound as last resort
                 try:
                     import winsound
-                    # Verify file exists
-                    if not audio_file.exists():
-                        print(f"[AUDIO ERROR] File not found: {audio_file}", file=sys.stderr)
-                        return
-                    
-                    # Use synchronous playback to ensure it works
-                    print(f"[AUDIO DEBUG] Playing: {str(audio_file)}", file=sys.stderr)
-                    winsound.PlaySound(str(audio_file), winsound.SND_FILENAME)
-                    print(f"[AUDIO SUCCESS] Played: {audio_filename}", file=sys.stderr)
+                    winsound.PlaySound(str(audio_file), winsound.SND_FILENAME | winsound.SND_ASYNC)
+                    print(f"[AUDIO] Played with winsound: {audio_filename}", file=sys.stderr)
                     return
-                except ImportError as e:
-                    print(f"[AUDIO ERROR] winsound not available: {e}", file=sys.stderr)
                 except Exception as e:
-                    print(f"[AUDIO ERROR] Playback failed: {e}", file=sys.stderr)
-                    pass
+                    print(f"[AUDIO] winsound failed: {e}", file=sys.stderr)
                 
             elif self.system == "Darwin":  # macOS
-                os.system(f'afplay "{audio_file}" &')
+                subprocess.run(["afplay", str(audio_file)], capture_output=True, timeout=2)
+                print(f"[AUDIO] Played: {audio_filename}", file=sys.stderr)
             else:  # Linux
-                os.system(f'aplay "{audio_file}" &')
+                subprocess.run(["aplay", str(audio_file)], capture_output=True, timeout=2)
+                print(f"[AUDIO] Played: {audio_filename}", file=sys.stderr)
         except:
             pass  # Don't let audio errors break the hook chain
     
@@ -99,27 +118,26 @@ class AudioNotifier:
             if isinstance(response, dict):
                 if response.get("success") == False or response.get("error"):
                     return "error"
-                elif response.get("success") == True:
+                elif response.get("warning"):
+                    return "warning"
+                elif response.get("success"):
                     return "success"
         
         # Default notification
         return "notify"
 
 def main():
-    """Main hook execution with audio notification"""
+    """Main hook execution"""
     try:
         input_data = json.load(sys.stdin)
     except:
         input_data = {}
     
-    # Initialize notifier
     notifier = AudioNotifier()
-    
-    # Determine and play appropriate sound
     sound_type = notifier.determine_sound(input_data)
     notifier.play_sound(sound_type)
     
-    # Always exit successfully (audio is non-blocking)
+    # Always exit successfully
     sys.exit(0)
 
 if __name__ == "__main__":

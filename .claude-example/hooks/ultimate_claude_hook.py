@@ -46,10 +46,43 @@ class SimpleAudioSystem:
                 file = self.audio_dir / f"{sound}.wav"
                 if file.exists():
                     if platform.system() == "Windows":
-                        subprocess.run(
-                            ["powershell", "-c", f"(New-Object Media.SoundPlayer '{file}').PlaySync()"],
-                            capture_output=True, timeout=5
-                        )
+                        # Method 1: Try pygame first (handles more formats)
+                        try:
+                            import pygame
+                            pygame.mixer.init()
+                            pygame.mixer.music.load(str(file))
+                            pygame.mixer.music.play()
+                            # Wait for audio to finish (up to 2 seconds)
+                            import time as tm
+                            clock = pygame.time.Clock()
+                            start_time = tm.time()
+                            while pygame.mixer.music.get_busy() and tm.time() - start_time < 2:
+                                clock.tick(10)
+                            continue
+                        except:
+                            pass
+                        
+                        # Method 2: Use PowerShell Media.SoundPlayer (more reliable for Edge-TTS WAVs)
+                        try:
+                            ps_command = f'''
+                            Add-Type -AssemblyName System.Media
+                            $player = New-Object System.Media.SoundPlayer("{str(file).replace(chr(92), chr(92)*2)}")
+                            $player.PlaySync()
+                            '''
+                            subprocess.run(
+                                ["powershell", "-NoProfile", "-Command", ps_command],
+                                capture_output=True, timeout=3
+                            )
+                            continue
+                        except:
+                            pass
+                        
+                        # Method 3: Try winsound as last resort
+                        try:
+                            import winsound
+                            winsound.PlaySound(str(file), winsound.SND_FILENAME | winsound.SND_ASYNC)
+                        except:
+                            pass
             except:
                 pass
 

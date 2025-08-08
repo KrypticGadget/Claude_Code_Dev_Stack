@@ -446,15 +446,49 @@ class EnhancedAudioSystem:
         system = platform.system()
         try:
             if system == "Windows":
-                subprocess.run(
-                    ["powershell", "-c", f"(New-Object Media.SoundPlayer '{sound_file}').PlaySync()"],
-                    capture_output=True,
-                    timeout=5
-                )
+                # Method 1: Try pygame first (handles more formats)
+                try:
+                    import pygame
+                    pygame.mixer.init()
+                    pygame.mixer.music.load(str(sound_file))
+                    pygame.mixer.music.play()
+                    # Wait for audio to finish (up to 2 seconds)
+                    import time
+                    clock = pygame.time.Clock()
+                    start_time = time.time()
+                    while pygame.mixer.music.get_busy() and time.time() - start_time < 2:
+                        clock.tick(10)
+                    return
+                except:
+                    pass
+                
+                # Method 2: Use PowerShell Media.SoundPlayer (more reliable for Edge-TTS WAVs)
+                try:
+                    ps_command = f'''
+                    Add-Type -AssemblyName System.Media
+                    $player = New-Object System.Media.SoundPlayer("{str(sound_file).replace(chr(92), chr(92)*2)}")
+                    $player.PlaySync()
+                    '''
+                    subprocess.run(
+                        ["powershell", "-NoProfile", "-Command", ps_command],
+                        capture_output=True,
+                        timeout=3
+                    )
+                    return
+                except:
+                    pass
+                
+                # Method 3: Try winsound as last resort
+                try:
+                    import winsound
+                    winsound.PlaySound(str(sound_file), winsound.SND_FILENAME | winsound.SND_ASYNC)
+                except:
+                    pass
+                    
             elif system == "Darwin":
                 subprocess.run(["afplay", str(sound_file)], capture_output=True, timeout=5)
             else:
-                subprocess.run(["paplay", str(sound_file)], capture_output=True, timeout=5)
+                subprocess.run(["aplay", str(sound_file)], capture_output=True, timeout=5)
         except:
             pass
 
