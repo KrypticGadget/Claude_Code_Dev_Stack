@@ -79,7 +79,7 @@ if (Test-Path $settingsPath) {
 # Step 4: Install optimized hooks INCLUDING ULTIMATE SYSTEM
 Write-Host "`n📝 Installing Ultimate Hook System..." -ForegroundColor Yellow
 
-# Ultimate system hooks + essential ones
+# Ultimate system hooks + essential ones (12 total)
 $hooks = @(
     # Core functionality (5 hooks)
     "agent_mention_parser.py",    # Routes @agent- mentions
@@ -96,7 +96,10 @@ $hooks = @(
     # Minimal session management (3 hooks - lightweight versions)
     "session_loader.py",          # Minimal - just acknowledges
     "session_saver.py",          # Minimal - just timestamp
-    "model_tracker.py"           # Minimal - daily count only
+    "model_tracker.py",          # Minimal - daily count only
+    
+    # Test hook for debugging
+    "test_hook.py"               # Test hook for verification
 )
 
 $installedCount = 0
@@ -162,63 +165,74 @@ if ($failedCount -gt 0) {
 # Step 5: Install ULTIMATE Audio System (50 sounds)
 Write-Host "`n🎵 Installing Ultimate Audio System (50 JARVIS-style sounds)..." -ForegroundColor Yellow
 
-# Option 1: Download pre-generated audio files if available
-$audioBaseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/audio"
-$audioDownloaded = 0
-$audioNeeded = $false
+# All 50 audio files to download
+$audioFiles = @(
+    # Development phases (23)
+    "project_created.wav", "dependencies_installed.wav", "environment_ready.wav",
+    "requirements_gathered.wav", "architecture_designed.wav", "database_modeled.wav",
+    "backend_complete.wav", "frontend_complete.wav", "api_integrated.wav",
+    "auth_implemented.wav", "unit_tests_pass.wav", "integration_tests_pass.wav",
+    "e2e_tests_complete.wav", "coverage_achieved.wav", "build_started.wav",
+    "build_progress.wav", "build_successful.wav", "build_optimized.wav",
+    "deploy_initiated.wav", "deploy_validation.wav", "deploy_complete.wav",
+    "rollback_complete.wav", "milestone_complete.wav",
+    
+    # Input detection (15)
+    "awaiting_response.wav", "awaiting_confirmation.wav", "awaiting_selection.wav",
+    "awaiting_details.wav", "awaiting_code_review.wav", "yes_no_question.wav",
+    "multiple_choice.wav", "clarification_needed.wav", "permission_required.wav",
+    "ready_for_input.wav", "processing_complete.wav", "task_paused.wav",
+    "decision_point.wav", "gentle_reminder.wav", "still_waiting.wav",
+    
+    # Orchestration (12)
+    "agent_activated.wav", "agent_team_suggested.wav", "meta_prompt_transforming.wav",
+    "orchestrator_engaged.wav", "mcp_service_starting.wav", "parallel_execution.wav",
+    "sequential_execution.wav", "handoff_occurring.wav", "optimization_applied.wav",
+    "context_switching.wav", "pipeline_complete.wav", "coordination_active.wav"
+)
 
-# Check if we already have 50 audio files
+# Check if we already have the audio files
 $existingAudio = (Get-ChildItem $audioDir -Filter "*.wav" -ErrorAction SilentlyContinue).Count
 
 if ($existingAudio -ge 50) {
     Write-Host "  ✓ Ultimate audio system already installed ($existingAudio files)" -ForegroundColor Green
 } else {
-    Write-Host "  Need to generate audio files..." -ForegroundColor Yellow
-    $audioNeeded = $true
+    Write-Host "  Downloading 50 audio files from GitHub..." -ForegroundColor Cyan
+    $audioBaseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/audio"
     
-    # Download audio generator script
-    $generatorDir = "$audioDir\generator"
-    if (!(Test-Path $generatorDir)) {
-        New-Item -ItemType Directory -Path $generatorDir -Force | Out-Null
+    $audioDownloaded = 0
+    $audioFailed = 0
+    
+    foreach ($audioFile in $audioFiles) {
+        $audioUrl = "$audioBaseUrl/$audioFile"
+        $audioPath = "$audioDir\$audioFile"
+        
+        # Skip if already exists
+        if (Test-Path $audioPath) {
+            $audioDownloaded++
+            continue
+        }
+        
+        try {
+            $webClient = New-Object System.Net.WebClient
+            $webClient.DownloadFile($audioUrl, $audioPath)
+            $webClient.Dispose()
+            $audioDownloaded++
+            
+            # Show progress every 10 files
+            if ($audioDownloaded % 10 -eq 0) {
+                Write-Host "    Downloaded: $audioDownloaded/50" -ForegroundColor Gray
+            }
+        } catch {
+            $audioFailed++
+        }
+        
+        Start-Sleep -Milliseconds 100  # Small delay to avoid rate limiting
     }
     
-    $generatorUrl = "$audioBaseUrl/generator/generate_all_audio.py"
-    $generatorPath = "$generatorDir\generate_all_audio.py"
-    
-    try {
-        Write-Host "  Downloading audio generator..." -ForegroundColor Cyan
-        $webClient = New-Object System.Net.WebClient
-        $webClient.DownloadFile($generatorUrl, $generatorPath)
-        $webClient.Dispose()
-        Write-Host "  ✓ Downloaded generator script" -ForegroundColor Green
-        
-        # If Python is available, generate audio
-        if ($hasPython) {
-            Write-Host "  Installing Edge-TTS (free text-to-speech)..." -ForegroundColor Cyan
-            $pipInstall = & $pythonCmd -m pip install edge-tts --quiet 2>&1
-            
-            Write-Host "  Generating 50 audio files (takes ~60 seconds)..." -ForegroundColor Yellow
-            Write-Host "    This is a one-time process..." -ForegroundColor Gray
-            
-            # Run generator
-            $genProcess = Start-Process -FilePath $pythonCmd -ArgumentList "`"$generatorPath`"" -WorkingDirectory $audioDir -Wait -PassThru -WindowStyle Hidden
-            
-            if ($genProcess.ExitCode -eq 0) {
-                $newAudioCount = (Get-ChildItem $audioDir -Filter "*.wav" -ErrorAction SilentlyContinue).Count
-                Write-Host "  ✓ Generated $newAudioCount audio files successfully!" -ForegroundColor Green
-                $audioDownloaded = $newAudioCount
-            } else {
-                Write-Host "  ⚠ Audio generation had issues - manual generation needed" -ForegroundColor Yellow
-            }
-        } else {
-            Write-Host "  ⚠ Python required for audio generation" -ForegroundColor Yellow
-            Write-Host "    To generate manually later:" -ForegroundColor Gray
-            Write-Host "    1. Install Python from python.org" -ForegroundColor Gray
-            Write-Host "    2. Run: pip install edge-tts" -ForegroundColor Gray
-            Write-Host "    3. Run: python `"$generatorPath`"" -ForegroundColor Gray
-        }
-    } catch {
-        Write-Host "  ⚠ Could not download generator: $_" -ForegroundColor Yellow
+    Write-Host "  ✓ Downloaded: $audioDownloaded audio files" -ForegroundColor Green
+    if ($audioFailed -gt 0) {
+        Write-Host "  ⚠ Failed: $audioFailed files" -ForegroundColor Yellow
     }
 }
 
@@ -231,8 +245,7 @@ if ($finalAudioCount -ge 50) {
     Write-Host "    • 12 Orchestration sounds" -ForegroundColor Gray
 } elseif ($finalAudioCount -gt 0) {
     Write-Host "`n  ⚠ Partial audio system ($finalAudioCount files)" -ForegroundColor Yellow
-} else {
-    Write-Host "`n  ⚠ Audio generation pending - see instructions above" -ForegroundColor Yellow
+    Write-Host "    Only $finalAudioCount of 50 files installed" -ForegroundColor Yellow
 }
 
 # Step 6: Download and merge hook configuration into settings.json
