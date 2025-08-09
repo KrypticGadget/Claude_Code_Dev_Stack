@@ -137,30 +137,41 @@ class AudioPlayer:
         if self.system == "Windows":
             # Try multiple methods for Windows
             
-            # Method 1: Try pygame first (handles more formats)
-            try:
-                import pygame
-                pygame.mixer.init()
-                pygame.mixer.music.load(str(audio_path))
-                pygame.mixer.music.play()
-                return True
-            except:
-                pass
-            
-            # Method 2: Windows Media Player
-            try:
-                subprocess.run([
-                    "powershell", "-c",
-                    f"(New-Object Media.SoundPlayer '{audio_path}').PlaySync()"
-                ], check=True, capture_output=True, timeout=2)
-                return True
-            except:
-                pass
-            
-            # Method 3: winsound (built-in)
+            # Method 1: winsound (built-in, SYNCHRONOUS for reliability)
             try:
                 import winsound
+                # Use SYNCHRONOUS playback - no SND_ASYNC flag
                 winsound.PlaySound(str(audio_path), winsound.SND_FILENAME)
+                return True
+            except:
+                pass
+            
+            # Method 2: pygame (backup, also synchronous)
+            try:
+                import pygame
+                # Initialize if not already
+                if not pygame.mixer.get_init():
+                    pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=512)
+                
+                # Load and play synchronously
+                sound = pygame.mixer.Sound(str(audio_path))
+                channel = sound.play()
+                
+                # Wait for sound to finish
+                if channel:
+                    import time
+                    while channel.get_busy():
+                        time.sleep(0.01)
+                return True
+            except:
+                pass
+            
+            # Method 3: PowerShell (last resort, also synchronous)
+            try:
+                subprocess.run([
+                    "powershell", "-WindowStyle", "Hidden", "-c",
+                    f"(New-Object Media.SoundPlayer '{audio_path}').PlaySync()"
+                ], check=True, capture_output=True, timeout=3)
                 return True
             except:
                 pass
