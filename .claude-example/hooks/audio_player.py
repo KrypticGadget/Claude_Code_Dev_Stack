@@ -187,7 +187,7 @@ class AudioPlayer:
                 if any(risky in command for risky in risky_commands):
                     return "command_risky"
                 else:
-                    return "processing"
+                    return "confirm_required"
             
             elif tool == "ExitPlanMode":
                 # Planning phase complete
@@ -201,14 +201,13 @@ class AudioPlayer:
         if event == "PostToolUse":
             if tool == "Task":
                 # Agent completed
-                return "agent_start"
+                return "pipeline_complete"
             
             elif tool in ["Write", "Edit", "MultiEdit"]:
                 # File operation completed
                 if tool_response.get("success") or "written" in str(tool_response):
                     return "file_complete"
-                else:
-                    return "success"
+                return None
             
             elif tool == "Bash":
                 # Command completed

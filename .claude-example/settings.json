@@ -172,7 +172,10 @@
       "/documentation": "Generate documentation",
       "/prompt-enhance": "Improve prompts",
       "/security-audit": "Security analysis",
-      "/performance-optimization": "Performance tuning"
+      "/performance-optimization": "Performance tuning",
+      "/auto-enhance": "Auto-enhance prompt then orchestrate",
+      "/quick-app": "Quick app with enhancement",
+      "/smart-build": "Smart build with best practices"
     }
   },
   "mcpIntegration": {

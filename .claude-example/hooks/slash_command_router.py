@@ -9,7 +9,7 @@ from datetime import datetime
 
 COMMAND_MAPPINGS = {
     "/new-project": {
-        "agents": ["master-orchestrator", "business-analyst", "technical-cto"],
+        "agents": ["prompt-engineer", "master-orchestrator", "business-analyst", "technical-cto"],
         "mcps": ["web-search"],
         "description": "Initialize new project with full analysis"
     },
@@ -54,7 +54,7 @@ COMMAND_MAPPINGS = {
         "description": "Backend service implementation"
     },
     "/full-stack-app": {
-        "agents": ["frontend-architecture", "backend-services", "database-architecture", "api-integration-specialist"],
+        "agents": ["prompt-engineer", "master-orchestrator", "frontend-architecture", "backend-services", "database-architecture", "api-integration-specialist"],
         "mcps": ["playwright", "obsidian"],
         "description": "Complete full-stack application"
     },
@@ -97,6 +97,21 @@ COMMAND_MAPPINGS = {
         "agents": ["performance-optimization", "database-architecture", "backend-services"],
         "mcps": ["playwright"],
         "description": "Performance analysis and optimization"
+    },
+    "/auto-enhance": {
+        "agents": ["prompt-engineer", "master-orchestrator"],
+        "mcps": [],
+        "description": "Auto-enhance prompt then orchestrate execution"
+    },
+    "/quick-app": {
+        "agents": ["prompt-engineer", "master-orchestrator", "frontend-mockup", "backend-services"],
+        "mcps": [],
+        "description": "Quick app with auto-enhancement"
+    },
+    "/smart-build": {
+        "agents": ["prompt-engineer", "master-orchestrator", "usage-guide-agent"],
+        "mcps": ["web-search"],
+        "description": "Smart build with best practices research"
     }
 }
 
@@ -124,10 +139,42 @@ def route_to_agents(command, params):
     context += f"Description: {description}\n"
     context += f"Parameters: {params}\n\n"
     
-    # Add agent invocations
-    context += "## Agents to invoke:\n"
-    for agent in agents:
-        context += f"- @agent-{agent}\n"
+    # Add hierarchical agent invocations
+    context += "## Agent Execution Hierarchy:\n\n"
+    
+    # Phase 1: Prompt Enhancement
+    if "prompt-engineer" in agents:
+        context += "### Phase 1: Prompt Enhancement\n"
+        context += f"@agent-prompt-engineer enhance and structure: {params}\n\n"
+    
+    # Phase 2: Orchestration
+    if "master-orchestrator" in agents:
+        context += "### Phase 2: Master Orchestration\n"
+        context += "@agent-master-orchestrator coordinate execution with enhanced prompt\n\n"
+    
+    # Phase 3: Specialized Agents
+    remaining = [a for a in agents if a not in ["prompt-engineer", "master-orchestrator"]]
+    if remaining:
+        context += "### Phase 3: Specialized Execution\n"
+        
+        # Group by type
+        frontend = [a for a in remaining if a in ["frontend-architecture", "frontend-mockup", "production-frontend", "ui-ux-design"]]
+        backend = [a for a in remaining if a in ["backend-services", "database-architecture", "api-integration-specialist", "middleware-specialist"]]
+        quality = [a for a in remaining if a in ["testing-automation", "quality-assurance", "security-architecture", "performance-optimization"]]
+        business = [a for a in remaining if a in ["business-analyst", "financial-analyst", "ceo-strategy", "technical-cto"]]
+        other = [a for a in remaining if a not in frontend + backend + quality + business]
+        
+        if frontend:
+            context += "**Frontend Team:** " + " ".join(f"@agent-{a}" for a in frontend) + "\n"
+        if backend:
+            context += "**Backend Team:** " + " ".join(f"@agent-{a}" for a in backend) + "\n"
+        if quality:
+            context += "**Quality Team:** " + " ".join(f"@agent-{a}" for a in quality) + "\n"
+        if business:
+            context += "**Business Team:** " + " ".join(f"@agent-{a}" for a in business) + "\n"
+        if other:
+            context += "**Support Team:** " + " ".join(f"@agent-{a}" for a in other) + "\n"
+        context += "\n"
     
     # Add MCP services if needed
     if mcps:
