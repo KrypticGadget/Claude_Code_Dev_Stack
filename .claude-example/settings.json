@@ -200,7 +200,8 @@
       "/mcp-search": "Web search via MCP",
       "/mcp-obsidian": "Obsidian note management",
       "/mcp-playwright": "Browser automation via Playwright",
-      "/mcp-status": "Check MCP service status"
+      "/mcp-status": "Check MCP service status",
+      "/orchestrate-demo": "Full agent orchestration demonstration"
     }
   },
   "mcpIntegration": {

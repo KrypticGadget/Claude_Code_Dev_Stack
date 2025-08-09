@@ -133,6 +133,20 @@ COMMAND_MAPPINGS = {
         "agents": [],
         "mcps": ["web-search", "obsidian", "playwright"],
         "description": "Check status of all MCP services"
+    },
+    "/orchestrate-demo": {
+        "agents": [
+            "prompt-engineer", "master-orchestrator", "ceo-strategy", "business-analyst", 
+            "financial-analyst", "business-tech-alignment", "technical-cto", "project-manager",
+            "technical-specifications", "security-architecture", "ui-ux-design", 
+            "frontend-architecture", "frontend-mockup", "production-frontend", "backend-services",
+            "database-architecture", "middleware-specialist", "api-integration-specialist",
+            "mobile-developer", "integration-setup", "testing-automation", "quality-assurance-lead",
+            "performance-optimization", "devops-engineer", "script-automation", 
+            "technical-documentation", "development-prompt", "usage-guide-agent"
+        ],
+        "mcps": ["web-search", "playwright", "obsidian"],
+        "description": "Full agent orchestration demonstration with all 27 agents"
     }
 }
 
@@ -167,6 +181,32 @@ def route_to_agents(command, params):
         for mcp in mcps:
             context += f"- {mcp}: Checking connection and capabilities\n"
         context += "\nUse appropriate MCP tools to verify service health.\n"
+        return context
+    
+    # Special handling for orchestration demo
+    if command == "/orchestrate-demo":
+        context += "## FULL AGENT ORCHESTRATION DEMONSTRATION\n\n"
+        context += "Execute the complete agent hierarchy with audio feedback:\n\n"
+        context += "### Phase 1: Prompt Enhancement & Master Coordination\n"
+        context += "@prompt-engineer enhance this request for maximum orchestration impact\n"
+        context += "Then @master-orchestrator coordinate ALL 27 agents in logical sequence\n\n"
+        context += "### Phase 2: Business & Strategy Group\n"
+        context += "@ceo-strategy @business-analyst @financial-analyst @business-tech-alignment\n\n"
+        context += "### Phase 3: Technical Leadership Group\n"
+        context += "@technical-cto @project-manager @technical-specifications @security-architecture\n\n"
+        context += "### Phase 4: Frontend Development Group\n"
+        context += "@ui-ux-design @frontend-architecture @frontend-mockup @production-frontend\n\n"
+        context += "### Phase 5: Backend Development Group\n"
+        context += "@backend-services @database-architecture @middleware-specialist @api-integration-specialist\n\n"
+        context += "### Phase 6: Mobile & Quality Group\n"
+        context += "@mobile-developer @integration-setup @testing-automation @quality-assurance-lead\n\n"
+        context += "### Phase 7: Operations & Documentation Group\n"
+        context += "@performance-optimization @devops-engineer @script-automation @technical-documentation\n\n"
+        context += "### Phase 8: Automation Intelligence Group\n"
+        context += "@development-prompt @usage-guide-agent\n\n"
+        context += f"**PROJECT:** Build a full-stack application with: {params}\n"
+        context += "**GOAL:** Demonstrate complete agent ecosystem with audio feedback\n"
+        context += "**LISTEN:** Each agent activation should trigger specific audio\n"
         return context
     
     # Add hierarchical agent invocations
