@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Audio player hook for Claude Code - plays audio notifications for various events.
-Supports multiple playback methods for Windows compatibility.
+Enhanced Audio Player Hook for Claude Code
+Provides intelligent audio notifications for various events and states
 """
 
 import json
@@ -15,20 +15,53 @@ class AudioPlayer:
         self.audio_dir = Path.home() / ".claude" / "audio"
         self.system = platform.system()
         
-        # Essential event-to-audio mapping
+        # Comprehensive event-to-audio mapping
         self.audio_map = {
+            # Session events
             "session_start": "project_created.wav",
-            "task_complete": "pipeline_complete.wav",
+            "session_stop": "ready_for_input.wav",
+            
+            # Agent/Task events
             "agent_start": "agent_activated.wav",
-            "build_complete": "build_successful.wav",
-            "error_fixed": "rollback_complete.wav",
+            "task_complete": "pipeline_complete.wav",
+            
+            # File operation events (Pre and Post)
+            "file_confirm": "confirm_required.wav",
+            "file_pending": "file_operation_pending.wav",
+            "file_complete": "file_operation_complete.wav",
+            
+            # Command execution events
+            "command_risky": "command_execution_pending.wav", 
+            "command_normal": "processing.wav",
+            "command_success": "command_successful.wav",
+            
+            # Planning events
+            "planning_exit": "planning_complete.wav",
+            "planning_active": "analyzing.wav",
+            
+            # Completion states
             "success": "milestone_complete.wav",
+            "operation_done": "operation_complete.wav",
+            "phase_done": "phase_complete.wav",
+            
+            # Waiting states
             "ready": "ready_for_input.wav",
-            "awaiting": "awaiting_response.wav"
+            "awaiting": "awaiting_input.wav",
+            "decision": "decision_required.wav",
+            
+            # Status updates
+            "working": "working.wav",
+            "processing": "processing.wav",
+            "analyzing": "analyzing.wav",
+            
+            # Pipeline states
+            "pipeline_start": "pipeline_initiated.wav",
+            "pipeline_end": "pipeline_complete.wav"
         }
     
-    def play_sound(self, audio_file):
-        """Play audio file using appropriate system player"""
+    def play_sound(self, sound_key):
+        """Play audio file based on sound key"""
+        audio_file = self.audio_map.get(sound_key)
         if not audio_file:
             return False
             
@@ -36,7 +69,24 @@ class AudioPlayer:
         
         if not audio_path.exists():
             print(f"[AUDIO] File not found: {audio_path}", file=sys.stderr)
-            return False
+            # Try fallback sounds for missing new files
+            if sound_key in ["file_pending", "file_complete", "command_risky", "command_success", "planning_exit"]:
+                # Use existing similar sounds as fallback
+                fallback_map = {
+                    "file_pending": "awaiting_confirmation.wav",
+                    "file_complete": "milestone_complete.wav", 
+                    "command_risky": "permission_required.wav",
+                    "command_success": "build_successful.wav",
+                    "planning_exit": "pipeline_complete.wav"
+                }
+                fallback_file = fallback_map.get(sound_key)
+                if fallback_file:
+                    audio_path = self.audio_dir / fallback_file
+                    if audio_path.exists():
+                        print(f"[AUDIO] Using fallback: {fallback_file}", file=sys.stderr)
+            
+            if not audio_path.exists():
+                return False
         
         if self.system == "Windows":
             # Try multiple methods for Windows
@@ -47,41 +97,40 @@ class AudioPlayer:
                 pygame.mixer.init()
                 pygame.mixer.music.load(str(audio_path))
                 pygame.mixer.music.play()
-                # Wait for audio to finish (up to 2 seconds)
+                # Wait for audio to finish (up to 2 seconds for shorter sounds)
                 import time
                 clock = pygame.time.Clock()
-                while pygame.mixer.music.get_busy() and time.time() < time.time() + 2:
+                start_time = time.time()
+                while pygame.mixer.music.get_busy() and time.time() - start_time < 2:
                     clock.tick(10)
                 print(f"[AUDIO] Played with pygame: {audio_file}", file=sys.stderr)
                 return True
             except Exception as e:
-                print(f"[AUDIO] pygame not available or failed: {e}", file=sys.stderr)
+                print(f"[AUDIO] pygame failed: {e}", file=sys.stderr)
             
-            # Method 2: Use PowerShell Media.SoundPlayer (more reliable for Edge-TTS WAVs)
+            # Method 2: Use PowerShell Media.SoundPlayer
             try:
                 ps_command = f'''
-                Add-Type -AssemblyName System.Media
-                $player = New-Object System.Media.SoundPlayer("{str(audio_path).replace(chr(92), chr(92)*2)}")
-                $player.PlaySync()
+                Add-Type -AssemblyName PresentationCore
+                $player = New-Object System.Windows.Media.MediaPlayer
+                $player.Open([Uri]"file:///{str(audio_path).replace(chr(92), '/')}")
+                $player.Play()
+                Start-Sleep -Seconds 2
+                $player.Close()
                 '''
-                result = subprocess.run(
+                subprocess.run(
                     ["powershell", "-NoProfile", "-Command", ps_command],
                     capture_output=True,
-                    timeout=3,
-                    text=True
+                    timeout=3
                 )
-                if result.returncode == 0:
-                    print(f"[AUDIO] Played with PowerShell: {audio_file}", file=sys.stderr)
-                    return True
-                else:
-                    print(f"[AUDIO] PowerShell error: {result.stderr}", file=sys.stderr)
+                print(f"[AUDIO] Played with PowerShell: {audio_file}", file=sys.stderr)
+                return True
             except Exception as e:
                 print(f"[AUDIO] PowerShell failed: {e}", file=sys.stderr)
             
             # Method 3: Try winsound as last resort
             try:
                 import winsound
-                # Try async first to avoid blocking
                 winsound.PlaySound(str(audio_path), winsound.SND_FILENAME | winsound.SND_ASYNC)
                 print(f"[AUDIO] Played with winsound: {audio_file}", file=sys.stderr)
                 return True
@@ -110,31 +159,79 @@ class AudioPlayer:
         """Determine which audio to play based on hook data"""
         event = input_data.get("hook_event_name", "")
         tool = input_data.get("tool_name", "")
+        tool_input = input_data.get("tool_input", {})
+        tool_response = input_data.get("tool_response", {})
         
         # Debug output
         print(f"[AUDIO] Event: {event}, Tool: {tool}", file=sys.stderr)
         
         # SessionStart event
         if event == "SessionStart":
-            return self.audio_map.get("session_start")
+            return "session_start"
         
-        # Stop event (task complete)
+        # Stop event - Claude finished, user's turn
         if event == "Stop":
-            return self.audio_map.get("task_complete")
+            return "ready"
         
-        # Agent invocations
-        if tool == "Task":
-            return self.audio_map.get("agent_start")
+        # PreToolUse events - BEFORE confirmation prompts
+        if event == "PreToolUse":
+            if tool in ["Write", "Edit", "MultiEdit"]:
+                # File operations will need confirmation
+                return "file_confirm"
+            
+            elif tool == "Bash":
+                # Check if command is risky
+                command = tool_input.get("command", "")
+                risky_commands = ["rm ", "del ", "delete", "git push", "git reset", 
+                                  "DROP", "DELETE FROM", "format", "kill", "shutdown"]
+                if any(risky in command for risky in risky_commands):
+                    return "command_risky"
+                else:
+                    return "processing"
+            
+            elif tool == "ExitPlanMode":
+                # Planning phase complete
+                return "planning_exit"
+            
+            elif tool == "Task":
+                # Agent being invoked
+                return "agent_start"
         
-        # Build/compile events
-        if tool == "Bash":
-            command = input_data.get("tool_input", {}).get("command", "")
-            if any(cmd in command for cmd in ["npm run build", "make", "cargo build", "go build"]):
-                return self.audio_map.get("build_complete")
+        # PostToolUse events - AFTER operations complete
+        if event == "PostToolUse":
+            if tool == "Task":
+                # Agent completed
+                return "agent_start"
+            
+            elif tool in ["Write", "Edit", "MultiEdit"]:
+                # File operation completed
+                if tool_response.get("success") or "written" in str(tool_response):
+                    return "file_complete"
+                else:
+                    return "success"
+            
+            elif tool == "Bash":
+                # Command completed
+                exit_code = tool_response.get("exit_code", -1)
+                if exit_code == 0:
+                    return "command_success"
+                elif exit_code > 0:
+                    return None  # Don't play sound for errors
+                else:
+                    return "operation_done"
+            
+            elif tool in ["Read", "Glob", "Grep", "LS"]:
+                # Don't play sounds for read operations
+                return None
+            
+            else:
+                # Generic completion
+                if tool_response.get("success"):
+                    return "success"
         
-        # File operations
-        if tool in ["Write", "Edit", "MultiEdit"]:
-            return self.audio_map.get("success")
+        # SubagentStop - agent finished
+        if event == "SubagentStop":
+            return None  # Avoid double sounds with PostToolUse:Task
         
         return None
 
@@ -146,10 +243,10 @@ def main():
         input_data = {}
     
     player = AudioPlayer()
-    audio_file = player.determine_audio(input_data)
+    sound_key = player.determine_audio(input_data)
     
-    if audio_file:
-        player.play_sound(audio_file)
+    if sound_key:
+        player.play_sound(sound_key)
     else:
         print(f"[AUDIO] No audio for this event", file=sys.stderr)
     

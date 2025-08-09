@@ -10,6 +10,16 @@
             "timeout": 9
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit|Bash|ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/audio_player.py",
+            "timeout": 9
+          }
+        ]
       }
     ],
     "PostToolUse": [
