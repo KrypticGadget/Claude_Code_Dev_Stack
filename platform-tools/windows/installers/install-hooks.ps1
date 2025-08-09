@@ -165,57 +165,121 @@ if ($failedCount -gt 0) {
     Write-Host "  Failed: $failedCount hooks" -ForegroundColor Red
 }
 
-# Step 5: Install Optimized Audio System (22 sounds)
-Write-Host "`n🎵 Installing Optimized Audio System (22 intelligent JARVIS-style sounds)..." -ForegroundColor Yellow
+# Step 5: Install Complete Audio System (69 descriptive sounds)
+Write-Host "`n🎵 Installing Complete Audio System v5.0 (69 descriptive audio files)..." -ForegroundColor Yellow
 
 # Optimized 22 audio files with intelligent detection
 $audioFiles = @(
-    # Core System Files (5)
-    "project_created.wav",       # Session start
-    "ready_for_input.wav",        # Ready for user input
-    "agent_activated.wav",        # Agent start/completion
-    "pipeline_complete.wav",      # Task/pipeline completion
-    "pipeline_initiated.wav",     # Pipeline start
+    # Core System Files (21) - Original compatibility files
+    "project_created.wav",
+    "ready_for_input.wav",
+    "agent_activated.wav",
+    "pipeline_complete.wav",
+    "pipeline_initiated.wav",
+    "confirm_required.wav",
+    "file_operation_pending.wav",
+    "file_operation_complete.wav",
+    "command_execution_pending.wav",
+    "command_successful.wav",
+    "planning_complete.wav",
+    "processing.wav",
+    "analyzing.wav",
+    "working.wav",
+    "awaiting_input.wav",
+    "milestone_complete.wav",
+    "operation_complete.wav",
+    "phase_complete.wav",
+    "decision_required.wav",
+    "awaiting_confirmation.wav",
+    "permission_required.wav",
+    "build_successful.wav",
     
-    # File Operation Files (3)
-    "confirm_required.wav",       # File confirmation needed
-    "file_operation_pending.wav", # File operation starting
-    "file_operation_complete.wav",# File operation completed
+    # File Operations - SPECIFIC (5)
+    "mkdir_operation.wav",        # Creating directory
+    "touch_operation.wav",        # Creating new file
+    "copy_operation.wav",         # Copying files
+    "move_operation.wav",         # Moving files
+    "delete_operation.wav",       # Deleting files
     
-    # Command Execution Files (2)
-    "command_execution_pending.wav", # Risky command warning
-    "command_successful.wav",     # Command completed successfully
+    # Git Operations - SPECIFIC (4)
+    "git_status.wav",             # Checking git status
+    "git_commit.wav",             # Creating git commit
+    "git_push.wav",               # Pushing to remote
+    "git_pull.wav",               # Pulling latest changes
     
-    # Planning Files (1)
-    "planning_complete.wav",      # Planning phase done
+    # Build Operations - SPECIFIC (3)
+    "npm_build.wav",              # Running npm build
+    "make_build.wav",             # Building with make
+    "cargo_build.wav",            # Building rust project
     
-    # State Files (4)
-    "processing.wav",             # General processing
-    "analyzing.wav",              # Analysis in progress
-    "working.wav",                # Working state
-    "awaiting_input.wav",         # Waiting for input
+    # Testing - SPECIFIC (3)
+    "running_tests.wav",          # Running test suite
+    "tests_passed.wav",           # All tests passed
+    "tests_failed.wav",           # Tests failed
     
-    # Completion Files (3)
-    "milestone_complete.wav",     # Milestone reached
-    "operation_complete.wav",     # Operation finished
-    "phase_complete.wav",         # Phase completed
+    # Package Management - SPECIFIC (3)
+    "installing_packages.wav",    # Installing packages
+    "pip_install.wav",            # Installing Python packages
+    "npm_install.wav",            # Installing node modules
     
-    # Decision Files (1)
-    "decision_required.wav",      # Decision needed
+    # Docker - SPECIFIC (2)
+    "docker_building.wav",        # Building Docker image
+    "docker_running.wav",         # Starting Docker container
     
-    # Fallback Files (3)
-    "awaiting_confirmation.wav",  # Confirmation fallback
-    "permission_required.wav",    # Risky command fallback
-    "build_successful.wav"        # Success fallback
+    # Navigation/Search - SPECIFIC (3)
+    "checking_files.wav",         # Listing directory contents
+    "searching_files.wav",        # Searching for files
+    "changing_directory.wav",     # Navigating to directory
+    
+    # Network - SPECIFIC (3)
+    "http_request.wav",           # Making HTTP request
+    "downloading_file.wav",       # Downloading file
+    "ssh_connection.wav",         # SSH connection
+    
+    # Virtual Environment - SPECIFIC (3)
+    "venv_required.wav",          # Virtual environment required
+    "venv_activated.wav",         # Virtual environment activated
+    "no_venv_warning.wav",        # Warning - no virtual environment
+    
+    # Agent Operations - SPECIFIC (4)
+    "frontend_agent.wav",         # Frontend agent working
+    "backend_agent.wav",          # Backend agent processing
+    "database_agent.wav",         # Database agent executing
+    "master_orchestrator.wav",    # Orchestrator coordinating
+    
+    # Status Updates - SPECIFIC (4)
+    "analyzing_code.wav",         # Analyzing your code
+    "generating_code.wav",        # Generating code
+    "reviewing_changes.wav",      # Reviewing changes
+    "optimizing_performance.wav", # Optimizing performance
+    
+    # Warnings - SPECIFIC (3)
+    "risky_command.wav",          # Caution - risky command
+    "permission_denied.wav",      # Permission denied
+    "file_exists.wav",            # File already exists
+    
+    # Errors - SPECIFIC (3)
+    "command_failed.wav",         # Command execution failed
+    "file_not_found.wav",         # File not found
+    "connection_error.wav",       # Connection error
+    
+    # MCP Services - SPECIFIC (3)
+    "playwright_automation.wav",  # Playwright browser automation
+    "obsidian_notes.wav",         # Obsidian note management
+    "web_search.wav",             # Searching the web
+    
+    # Auto Mode - SPECIFIC (2)
+    "auto_accepting.wav",         # Auto-accepting operation
+    "auto_mode_active.wav"        # Automatic mode active
 )
 
 # Check if we already have the audio files
 $existingAudio = (Get-ChildItem $audioDir -Filter "*.wav" -ErrorAction SilentlyContinue).Count
 
-if ($existingAudio -ge 22) {
-    Write-Host "  ✓ Optimized audio system already installed ($existingAudio files)" -ForegroundColor Green
+if ($existingAudio -ge 69) {
+    Write-Host "  ✓ Complete audio system v5.0 already installed ($existingAudio files)" -ForegroundColor Green
 } else {
-    Write-Host "  Downloading 22 optimized audio files from GitHub..." -ForegroundColor Cyan
+    Write-Host "  Downloading 69 descriptive audio files from GitHub..." -ForegroundColor Cyan
     $audioBaseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/audio"
     
     $audioDownloaded = 0
@@ -238,8 +302,8 @@ if ($existingAudio -ge 22) {
             $audioDownloaded++
             
             # Show progress every 5 files
-            if ($audioDownloaded % 5 -eq 0) {
-                Write-Host "    Downloaded: $audioDownloaded/22" -ForegroundColor Gray
+            if ($audioDownloaded % 10 -eq 0) {
+                Write-Host "    Downloaded: $audioDownloaded/69" -ForegroundColor Gray
             }
         } catch {
             $audioFailed++
@@ -256,14 +320,18 @@ if ($existingAudio -ge 22) {
 
 # Show audio system status
 $finalAudioCount = (Get-ChildItem $audioDir -Filter "*.wav" -ErrorAction SilentlyContinue).Count
-if ($finalAudioCount -ge 22) {
-    Write-Host "`n  🎉 Optimized Audio System Ready!" -ForegroundColor Green
-    Write-Host "    • PreToolUse intelligent detection" -ForegroundColor Gray
-    Write-Host "    • Confirmation prompt awareness" -ForegroundColor Gray
-    Write-Host "    • Context-aware audio feedback" -ForegroundColor Gray
+if ($finalAudioCount -ge 69) {
+    Write-Host "`n  🎉 Complete Audio System v5.0 Ready!" -ForegroundColor Green
+    Write-Host "    • 69 descriptive audio files" -ForegroundColor Gray
+    Write-Host "    • Specific operation feedback" -ForegroundColor Gray
+    Write-Host "    • Agent-specific notifications" -ForegroundColor Gray
+    Write-Host "    • Error-specific audio" -ForegroundColor Gray
+} elseif ($finalAudioCount -ge 22) {
+    Write-Host "`n  ✓ Basic audio system ($finalAudioCount files)" -ForegroundColor Yellow
+    Write-Host "    Core files present, missing some specific audio" -ForegroundColor Yellow
 } elseif ($finalAudioCount -gt 0) {
     Write-Host "`n  ⚠ Partial audio system ($finalAudioCount files)" -ForegroundColor Yellow
-    Write-Host "    Only $finalAudioCount of 22 files installed" -ForegroundColor Yellow
+    Write-Host "    Only $finalAudioCount of 69 files installed" -ForegroundColor Yellow
 }
 
 # Step 6: Download and merge hook configuration into settings.json

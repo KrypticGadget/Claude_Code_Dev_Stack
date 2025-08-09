@@ -181,40 +181,193 @@ if [ $FAILED_COUNT -gt 0 ]; then
     echo -e "  ${RED}Failed: $FAILED_COUNT hooks${NC}"
 fi
 
-# Step 5: Install audio assets
-echo -e "\n${YELLOW}🎵 Installing audio notifications...${NC}"
+# Step 5: Install Complete Audio System v5.0 (69 descriptive audio files)
+echo -e "\n${YELLOW}🎵 Installing Complete Audio System v5.0 (69 descriptive audio files)...${NC}"
 
-if [ -d "$SOURCE_AUDIO_DIR" ]; then
-    AUDIO_COUNT=$(ls -1 "$SOURCE_AUDIO_DIR"/*.mp3 2>/dev/null | wc -l)
+# Complete list of v5.0 audio files (69 total)
+AUDIO_FILES=(
+    # Core System Files (22) - Original compatibility
+    "project_created.wav"
+    "ready_for_input.wav"
+    "agent_activated.wav"
+    "pipeline_complete.wav"
+    "pipeline_initiated.wav"
+    "confirm_required.wav"
+    "file_operation_pending.wav"
+    "file_operation_complete.wav"
+    "command_execution_pending.wav"
+    "command_successful.wav"
+    "planning_complete.wav"
+    "processing.wav"
+    "analyzing.wav"
+    "working.wav"
+    "awaiting_input.wav"
+    "milestone_complete.wav"
+    "operation_complete.wav"
+    "phase_complete.wav"
+    "decision_required.wav"
+    "awaiting_confirmation.wav"
+    "permission_required.wav"
+    "build_successful.wav"
     
-    if [ $AUDIO_COUNT -gt 0 ]; then
-        for AUDIO_FILE in "$SOURCE_AUDIO_DIR"/*.mp3; do
-            FILENAME=$(basename "$AUDIO_FILE")
-            cp "$AUDIO_FILE" "$AUDIO_DIR/$FILENAME"
-            echo -e "  ${GREEN}✓ $FILENAME${NC}"
-        done
-        echo -e "  ${CYAN}Installed: $AUDIO_COUNT audio files${NC}"
-    else
-        echo -e "  ${YELLOW}⚠ No audio files found${NC}"
-    fi
+    # File Operations - SPECIFIC (5)
+    "mkdir_operation.wav"
+    "touch_operation.wav"
+    "copy_operation.wav"
+    "move_operation.wav"
+    "delete_operation.wav"
+    
+    # Git Operations - SPECIFIC (4)
+    "git_status.wav"
+    "git_commit.wav"
+    "git_push.wav"
+    "git_pull.wav"
+    
+    # Build Operations - SPECIFIC (3)
+    "npm_build.wav"
+    "make_build.wav"
+    "cargo_build.wav"
+    
+    # Testing - SPECIFIC (3)
+    "running_tests.wav"
+    "tests_passed.wav"
+    "tests_failed.wav"
+    
+    # Package Management - SPECIFIC (3)
+    "installing_packages.wav"
+    "pip_install.wav"
+    "npm_install.wav"
+    
+    # Docker - SPECIFIC (2)
+    "docker_building.wav"
+    "docker_running.wav"
+    
+    # Navigation/Search - SPECIFIC (3)
+    "checking_files.wav"
+    "searching_files.wav"
+    "changing_directory.wav"
+    
+    # Network - SPECIFIC (3)
+    "http_request.wav"
+    "downloading_file.wav"
+    "ssh_connection.wav"
+    
+    # Virtual Environment - SPECIFIC (3)
+    "venv_required.wav"
+    "venv_activated.wav"
+    "no_venv_warning.wav"
+    
+    # Agent Operations - SPECIFIC (4)
+    "frontend_agent.wav"
+    "backend_agent.wav"
+    "database_agent.wav"
+    "master_orchestrator.wav"
+    
+    # Status Updates - SPECIFIC (4)
+    "analyzing_code.wav"
+    "generating_code.wav"
+    "reviewing_changes.wav"
+    "optimizing_performance.wav"
+    
+    # Warnings - SPECIFIC (3)
+    "risky_command.wav"
+    "permission_denied.wav"
+    "file_exists.wav"
+    
+    # Errors - SPECIFIC (3)
+    "command_failed.wav"
+    "file_not_found.wav"
+    "connection_error.wav"
+    
+    # MCP Services - SPECIFIC (3)
+    "playwright_automation.wav"
+    "obsidian_notes.wav"
+    "web_search.wav"
+    
+    # Auto Mode - SPECIFIC (2)
+    "auto_accepting.wav"
+    "auto_mode_active.wav"
+)
+
+# Check existing audio files
+EXISTING_AUDIO=$(ls -1 "$AUDIO_DIR"/*.wav 2>/dev/null | wc -l)
+
+if [ $EXISTING_AUDIO -ge 69 ]; then
+    echo -e "  ${GREEN}✓ Complete audio system v5.0 already installed ($EXISTING_AUDIO files)${NC}"
 else
-    # Create placeholder audio files
-    echo -e "  ${YELLOW}Creating audio placeholders...${NC}"
-    AUDIO_PLACEHOLDERS=(
-        "ready.mp3"
-        "task_complete.mp3"
-        "build_complete.mp3"
-        "error_fixed.mp3"
-        "awaiting_instructions.mp3"
-    )
-    
-    for AUDIO in "${AUDIO_PLACEHOLDERS[@]}"; do
-        AUDIO_PATH="$AUDIO_DIR/$AUDIO"
-        if [ ! -f "$AUDIO_PATH" ]; then
-            touch "$AUDIO_PATH"
-            echo -e "    ${GRAY}• Created placeholder: $AUDIO${NC}"
+    # Try local source first
+    if [ -d "$SOURCE_AUDIO_DIR" ]; then
+        echo -e "  ${CYAN}Installing from local source...${NC}"
+        AUDIO_COUNT=0
+        
+        for AUDIO_FILE in "${AUDIO_FILES[@]}"; do
+            SOURCE_PATH="$SOURCE_AUDIO_DIR/$AUDIO_FILE"
+            DEST_PATH="$AUDIO_DIR/$AUDIO_FILE"
+            
+            if [ -f "$SOURCE_PATH" ]; then
+                cp "$SOURCE_PATH" "$DEST_PATH"
+                ((AUDIO_COUNT++))
+                
+                # Show progress every 10 files
+                if [ $((AUDIO_COUNT % 10)) -eq 0 ]; then
+                    echo -e "    Installed: $AUDIO_COUNT/69 files"
+                fi
+            fi
+        done
+        
+        echo -e "  ${GREEN}✓ Installed: $AUDIO_COUNT audio files${NC}"
+    else
+        # Download from GitHub
+        echo -e "  ${CYAN}Downloading from GitHub...${NC}"
+        BASE_URL="https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/audio"
+        
+        DOWNLOADED=0
+        FAILED=0
+        
+        for AUDIO_FILE in "${AUDIO_FILES[@]}"; do
+            URL="$BASE_URL/$AUDIO_FILE"
+            DEST="$AUDIO_DIR/$AUDIO_FILE"
+            
+            if [ -f "$DEST" ]; then
+                ((DOWNLOADED++))
+                continue
+            fi
+            
+            if curl -sL "$URL" -o "$DEST" 2>/dev/null; then
+                ((DOWNLOADED++))
+                
+                # Show progress every 10 files
+                if [ $((DOWNLOADED % 10)) -eq 0 ]; then
+                    echo -e "    Downloaded: $DOWNLOADED/69"
+                fi
+            else
+                ((FAILED++))
+            fi
+            
+            sleep 0.1  # Small delay to avoid rate limiting
+        done
+        
+        echo -e "  ${GREEN}✓ Downloaded: $DOWNLOADED audio files${NC}"
+        if [ $FAILED -gt 0 ]; then
+            echo -e "  ${YELLOW}⚠ Failed: $FAILED files${NC}"
         fi
-    done
+    fi
+fi
+
+# Show audio system status
+FINAL_AUDIO_COUNT=$(ls -1 "$AUDIO_DIR"/*.wav 2>/dev/null | wc -l)
+if [ $FINAL_AUDIO_COUNT -ge 69 ]; then
+    echo -e "\n  ${GREEN}🎉 Complete Audio System v5.0 Ready!${NC}"
+    echo -e "    ${GRAY}• 69 descriptive audio files${NC}"
+    echo -e "    ${GRAY}• Specific operation feedback${NC}"
+    echo -e "    ${GRAY}• Agent-specific notifications${NC}"
+    echo -e "    ${GRAY}• Error-specific audio${NC}"
+elif [ $FINAL_AUDIO_COUNT -ge 22 ]; then
+    echo -e "\n  ${YELLOW}✓ Basic audio system ($FINAL_AUDIO_COUNT files)${NC}"
+    echo -e "    ${YELLOW}Core files present, missing some specific audio${NC}"
+elif [ $FINAL_AUDIO_COUNT -gt 0 ]; then
+    echo -e "\n  ${YELLOW}⚠ Partial audio system ($FINAL_AUDIO_COUNT files)${NC}"
+    echo -e "    ${YELLOW}Only $FINAL_AUDIO_COUNT of 69 files installed${NC}"
 fi
 
 # Step 6: Install integrated settings
