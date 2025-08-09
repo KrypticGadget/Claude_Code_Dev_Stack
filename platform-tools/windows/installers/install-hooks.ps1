@@ -1,10 +1,10 @@
-# Ultimate Claude Code Hooks & Audio System Installer v3.0
-# Installs hooks + 50 JARVIS-style audio notifications
+# Ultimate Claude Code Hooks & Audio System Installer v4.0
+# Installs hooks + 22 optimized JARVIS-style audio notifications with intelligent detection
 
 Write-Host @"
 ╔════════════════════════════════════════════════════════════════╗
-║   Ultimate Claude Code Hooks & Audio System Installer v3.0     ║
-║    Hooks + 50 JARVIS-style Audio + Intelligent Orchestration   ║
+║   Ultimate Claude Code Hooks & Audio System Installer v4.0     ║
+║  Hooks + 22 Optimized Audio + PreToolUse Intelligent Detection ║
 ╚════════════════════════════════════════════════════════════════╝
 "@ -ForegroundColor Cyan
 
@@ -162,42 +162,57 @@ if ($failedCount -gt 0) {
     Write-Host "  Failed: $failedCount hooks" -ForegroundColor Red
 }
 
-# Step 5: Install ULTIMATE Audio System (50 sounds)
-Write-Host "`n🎵 Installing Ultimate Audio System (50 JARVIS-style sounds)..." -ForegroundColor Yellow
+# Step 5: Install Optimized Audio System (22 sounds)
+Write-Host "`n🎵 Installing Optimized Audio System (22 intelligent JARVIS-style sounds)..." -ForegroundColor Yellow
 
-# All 50 audio files to download
+# Optimized 22 audio files with intelligent detection
 $audioFiles = @(
-    # Development phases (23)
-    "project_created.wav", "dependencies_installed.wav", "environment_ready.wav",
-    "requirements_gathered.wav", "architecture_designed.wav", "database_modeled.wav",
-    "backend_complete.wav", "frontend_complete.wav", "api_integrated.wav",
-    "auth_implemented.wav", "unit_tests_pass.wav", "integration_tests_pass.wav",
-    "e2e_tests_complete.wav", "coverage_achieved.wav", "build_started.wav",
-    "build_progress.wav", "build_successful.wav", "build_optimized.wav",
-    "deploy_initiated.wav", "deploy_validation.wav", "deploy_complete.wav",
-    "rollback_complete.wav", "milestone_complete.wav",
+    # Core System Files (5)
+    "project_created.wav",       # Session start
+    "ready_for_input.wav",        # Ready for user input
+    "agent_activated.wav",        # Agent start/completion
+    "pipeline_complete.wav",      # Task/pipeline completion
+    "pipeline_initiated.wav",     # Pipeline start
     
-    # Input detection (15)
-    "awaiting_response.wav", "awaiting_confirmation.wav", "awaiting_selection.wav",
-    "awaiting_details.wav", "awaiting_code_review.wav", "yes_no_question.wav",
-    "multiple_choice.wav", "clarification_needed.wav", "permission_required.wav",
-    "ready_for_input.wav", "processing_complete.wav", "task_paused.wav",
-    "decision_point.wav", "gentle_reminder.wav", "still_waiting.wav",
+    # File Operation Files (3)
+    "confirm_required.wav",       # File confirmation needed
+    "file_operation_pending.wav", # File operation starting
+    "file_operation_complete.wav",# File operation completed
     
-    # Orchestration (12)
-    "agent_activated.wav", "agent_team_suggested.wav", "meta_prompt_transforming.wav",
-    "orchestrator_engaged.wav", "mcp_service_starting.wav", "parallel_execution.wav",
-    "sequential_execution.wav", "handoff_occurring.wav", "optimization_applied.wav",
-    "context_switching.wav", "pipeline_complete.wav", "coordination_active.wav"
+    # Command Execution Files (2)
+    "command_execution_pending.wav", # Risky command warning
+    "command_successful.wav",     # Command completed successfully
+    
+    # Planning Files (1)
+    "planning_complete.wav",      # Planning phase done
+    
+    # State Files (4)
+    "processing.wav",             # General processing
+    "analyzing.wav",              # Analysis in progress
+    "working.wav",                # Working state
+    "awaiting_input.wav",         # Waiting for input
+    
+    # Completion Files (3)
+    "milestone_complete.wav",     # Milestone reached
+    "operation_complete.wav",     # Operation finished
+    "phase_complete.wav",         # Phase completed
+    
+    # Decision Files (1)
+    "decision_required.wav",      # Decision needed
+    
+    # Fallback Files (3)
+    "awaiting_confirmation.wav",  # Confirmation fallback
+    "permission_required.wav",    # Risky command fallback
+    "build_successful.wav"        # Success fallback
 )
 
 # Check if we already have the audio files
 $existingAudio = (Get-ChildItem $audioDir -Filter "*.wav" -ErrorAction SilentlyContinue).Count
 
-if ($existingAudio -ge 50) {
-    Write-Host "  ✓ Ultimate audio system already installed ($existingAudio files)" -ForegroundColor Green
+if ($existingAudio -ge 22) {
+    Write-Host "  ✓ Optimized audio system already installed ($existingAudio files)" -ForegroundColor Green
 } else {
-    Write-Host "  Downloading 50 audio files from GitHub..." -ForegroundColor Cyan
+    Write-Host "  Downloading 22 optimized audio files from GitHub..." -ForegroundColor Cyan
     $audioBaseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/audio"
     
     $audioDownloaded = 0
@@ -219,9 +234,9 @@ if ($existingAudio -ge 50) {
             $webClient.Dispose()
             $audioDownloaded++
             
-            # Show progress every 10 files
-            if ($audioDownloaded % 10 -eq 0) {
-                Write-Host "    Downloaded: $audioDownloaded/50" -ForegroundColor Gray
+            # Show progress every 5 files
+            if ($audioDownloaded % 5 -eq 0) {
+                Write-Host "    Downloaded: $audioDownloaded/22" -ForegroundColor Gray
             }
         } catch {
             $audioFailed++
@@ -238,14 +253,14 @@ if ($existingAudio -ge 50) {
 
 # Show audio system status
 $finalAudioCount = (Get-ChildItem $audioDir -Filter "*.wav" -ErrorAction SilentlyContinue).Count
-if ($finalAudioCount -ge 50) {
-    Write-Host "`n  🎉 Ultimate Audio System Ready!" -ForegroundColor Green
-    Write-Host "    • 23 Development phase sounds" -ForegroundColor Gray
-    Write-Host "    • 15 Input detection sounds" -ForegroundColor Gray
-    Write-Host "    • 12 Orchestration sounds" -ForegroundColor Gray
+if ($finalAudioCount -ge 22) {
+    Write-Host "`n  🎉 Optimized Audio System Ready!" -ForegroundColor Green
+    Write-Host "    • PreToolUse intelligent detection" -ForegroundColor Gray
+    Write-Host "    • Confirmation prompt awareness" -ForegroundColor Gray
+    Write-Host "    • Context-aware audio feedback" -ForegroundColor Gray
 } elseif ($finalAudioCount -gt 0) {
     Write-Host "`n  ⚠ Partial audio system ($finalAudioCount files)" -ForegroundColor Yellow
-    Write-Host "    Only $finalAudioCount of 50 files installed" -ForegroundColor Yellow
+    Write-Host "    Only $finalAudioCount of 22 files installed" -ForegroundColor Yellow
 }
 
 # Step 6: Download and merge hook configuration into settings.json
@@ -383,15 +398,16 @@ Write-Host "  ENHANCED HOOKS INSTALLATION COMPLETE" -ForegroundColor Green
 Write-Host "═" * 60 -ForegroundColor Cyan
 
 Write-Host "`n📊 Installation Summary:" -ForegroundColor Cyan
-Write-Host "  • Hooks installed: $installedCount/8" -ForegroundColor White
-Write-Host "  • Audio files: $audioDownloaded/5" -ForegroundColor White
+Write-Host "  • Hooks installed: $installedCount/13" -ForegroundColor White
+Write-Host "  • Audio files: $finalAudioCount/22" -ForegroundColor White
 Write-Host "  • Python command: $pythonCmd" -ForegroundColor White
 Write-Host "  • Configuration: ~/.claude/settings.json" -ForegroundColor White
 
 Write-Host "`n🚀 Key Features Enabled:" -ForegroundColor Cyan
 Write-Host "  • Agent routing (@agent- mentions)" -ForegroundColor White
 Write-Host "  • Slash command handling" -ForegroundColor White
-Write-Host "  • Audio notifications" -ForegroundColor White
+Write-Host "  • Audio notifications with PreToolUse detection" -ForegroundColor White
+Write-Host "  • Confirmation prompt awareness" -ForegroundColor White
 Write-Host "  • Todo management" -ForegroundColor White
 Write-Host "  • Minimal session tracking (no bloat)" -ForegroundColor White
 Write-Host "  • Optimized for performance" -ForegroundColor White

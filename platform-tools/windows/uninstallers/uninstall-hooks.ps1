@@ -1,10 +1,10 @@
-# Ultimate Claude Code Hooks & Audio Uninstaller v3.0
-# Safely removes all hooks and Ultimate audio system
+# Ultimate Claude Code Hooks & Audio Uninstaller v4.0
+# Safely removes all hooks and optimized audio system
 
 Write-Host @"
 ╔════════════════════════════════════════════════════════════════╗
-║   Ultimate Claude Code Hooks & Audio Uninstaller v3.0         ║
-║     Removes All Hooks & 50 Audio Files with Full Backup       ║
+║   Ultimate Claude Code Hooks & Audio Uninstaller v4.0         ║
+║     Removes All Hooks & 22 Audio Files with Full Backup       ║
 ╚════════════════════════════════════════════════════════════════╝
 "@ -ForegroundColor Yellow
 
@@ -154,21 +154,21 @@ foreach ($hook in $allHooks) {
 
 Write-Host "  Removed: $removedCount hooks" -ForegroundColor Cyan
 
-# Step 5: Remove Ultimate Audio System
-Write-Host "`n🎵 Removing Ultimate Audio System..." -ForegroundColor Yellow
+# Step 5: Remove Optimized Audio System
+Write-Host "`n🎵 Removing Optimized Audio System..." -ForegroundColor Yellow
 
 $audioCount = 0
 $generatorRemoved = $false
 
 if (Test-Path $audioDir) {
-    # Remove all .wav files (up to 50 for Ultimate system)
+    # Remove all .wav files (up to 22 for Optimized system)
     Get-ChildItem $audioDir -Filter "*.wav" -Recurse | ForEach-Object {
         Remove-Item $_.FullName -Force
         $audioCount++
     }
     
-    if ($audioCount -ge 50) {
-        Write-Host "  ✓ Removed: $audioCount Ultimate audio files" -ForegroundColor Green
+    if ($audioCount -ge 22) {
+        Write-Host "  ✓ Removed: $audioCount optimized audio files" -ForegroundColor Green
     } elseif ($audioCount -gt 0) {
         Write-Host "  ✓ Removed: $audioCount audio files" -ForegroundColor Green
     }
