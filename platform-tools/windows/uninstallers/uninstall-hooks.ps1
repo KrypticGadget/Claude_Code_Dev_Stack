@@ -1,9 +1,9 @@
-# Ultimate Claude Code Hooks & Audio Uninstaller v4.0
-# Safely removes all hooks and optimized audio system
+# Ultimate Claude Code Hooks & Audio Uninstaller v5.0
+# Safely removes all hooks and optimized audio system with v5.0 enhancements
 
 Write-Host @"
 ╔════════════════════════════════════════════════════════════════╗
-║   Ultimate Claude Code Hooks & Audio Uninstaller v4.0         ║
+║   Ultimate Claude Code Hooks & Audio Uninstaller v5.0         ║
 ║     Removes All Hooks & 22 Audio Files with Full Backup       ║
 ╚════════════════════════════════════════════════════════════════╝
 "@ -ForegroundColor Yellow
@@ -100,16 +100,11 @@ Write-Host "  Backup location: $backupPath" -ForegroundColor Cyan
 # Step 4: Remove hook scripts
 Write-Host "`n🗑️ Removing hooks..." -ForegroundColor Yellow
 
-# List of all possible enhanced hooks (including test hook)
+# List of all possible enhanced hooks (v5.0 - 14 hooks)
 $allHooks = @(
     # Core integration hooks
     "agent_mention_parser.py",
-    "agent_orchestrator.py",
-    "agent_orchestrator_integrated.py",
     "slash_command_router.py",
-    "mcp_gateway.py",
-    "mcp_gateway_enhanced.py",
-    "mcp_initializer.py",
     
     # Audio and notification
     "audio_player.py",
@@ -120,26 +115,32 @@ $allHooks = @(
     "audio_controller.py",
     "ultimate_claude_hook.py",
     
+    # v5.0 NEW HOOK
+    "venv_enforcer.py",
+    
     # Session management
     "session_loader.py",
     "session_saver.py",
     
     # Quality and tracking
-    "quality_gate.py",
     "model_tracker.py",
     "planning_trigger.py",
     
-    # Pre/Post hooks
+    # Debug hook
+    "test_hook.py",
+    
+    # Legacy hooks (for cleanup)
+    "agent_orchestrator.py",
+    "agent_orchestrator_integrated.py",
+    "mcp_gateway.py",
+    "mcp_gateway_enhanced.py",
+    "mcp_initializer.py",
+    "quality_gate.py",
     "pre_command.py",
     "post_command.py",
     "pre_project.py",
     "post_project.py",
-    
-    # Base utilities
-    "base_hook.py",
-    
-    # Debug hook
-    "test_hook.py"
+    "base_hook.py"
 )
 
 $removedCount = 0
@@ -318,7 +319,7 @@ Write-Host "  UNINSTALLATION COMPLETE" -ForegroundColor Green
 Write-Host "═" * 60 -ForegroundColor Cyan
 
 Write-Host "`n📊 Removal Summary:" -ForegroundColor Cyan
-Write-Host "  • Hooks removed: $removedCount/20" -ForegroundColor White
+Write-Host "  • Hooks removed: $removedCount/14 (+ legacy)" -ForegroundColor White
 Write-Host "  • Audio files removed: $audioCount" -ForegroundColor White
 Write-Host "  • Logs cleaned: $logsRemoved" -ForegroundColor White
 Write-Host "  • State files cleaned: $stateRemoved" -ForegroundColor White

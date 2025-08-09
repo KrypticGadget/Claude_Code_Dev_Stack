@@ -12,8 +12,23 @@
         ]
       },
       {
-        "matcher": "Write|Edit|MultiEdit|Bash|ExitPlanMode",
+        "matcher": "Write|Edit|MultiEdit|ExitPlanMode",
         "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/audio_player.py",
+            "timeout": 9
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/venv_enforcer.py",
+            "timeout": 3
+          },
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/audio_player.py",
@@ -61,6 +76,11 @@
     "UserPromptSubmit": [
       {
         "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/master_orchestrator.py",
+            "timeout": 5
+          },
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/agent_mention_parser.py",
@@ -175,7 +195,11 @@
       "/performance-optimization": "Performance tuning",
       "/auto-enhance": "Auto-enhance prompt then orchestrate",
       "/quick-app": "Quick app with enhancement",
-      "/smart-build": "Smart build with best practices"
+      "/smart-build": "Smart build with best practices",
+      "/mcp-search": "Web search via MCP",
+      "/mcp-obsidian": "Obsidian note management",
+      "/mcp-playwright": "Browser automation via Playwright",
+      "/mcp-status": "Check MCP service status"
     }
   },
   "mcpIntegration": {
@@ -214,5 +238,15 @@
       "enabled": true,
       "ttl": 3600
     }
+  },
+  "version": "5.0",
+  "features": {
+    "audioFeedback": true,
+    "bashCategorization": true,
+    "venvEnforcement": true,
+    "hierarchicalOrchestration": true,
+    "typeLeaderCoordination": true,
+    "mcpIntegration": true,
+    "autoAcceptDetection": true
   }
 }

@@ -112,6 +112,27 @@ COMMAND_MAPPINGS = {
         "agents": ["prompt-engineer", "master-orchestrator", "usage-guide-agent"],
         "mcps": ["web-search"],
         "description": "Smart build with best practices research"
+    },
+    # MCP-specific commands
+    "/mcp-search": {
+        "agents": ["master-orchestrator"],
+        "mcps": ["web-search"],
+        "description": "Intelligent web search via MCP"
+    },
+    "/mcp-obsidian": {
+        "agents": ["technical-documentation"],
+        "mcps": ["obsidian"],
+        "description": "Note and documentation management via Obsidian"
+    },
+    "/mcp-playwright": {
+        "agents": ["testing-automation"],
+        "mcps": ["playwright"],
+        "description": "Browser automation and testing via Playwright"
+    },
+    "/mcp-status": {
+        "agents": [],
+        "mcps": ["web-search", "obsidian", "playwright"],
+        "description": "Check status of all MCP services"
     }
 }
 
@@ -125,7 +146,7 @@ def parse_slash_command(prompt):
     return None, None
 
 def route_to_agents(command, params):
-    """Route command to appropriate agents and services"""
+    """Route command to appropriate agents and services with proper hierarchy"""
     if command not in COMMAND_MAPPINGS:
         return None
     
@@ -139,42 +160,78 @@ def route_to_agents(command, params):
     context += f"Description: {description}\n"
     context += f"Parameters: {params}\n\n"
     
+    # Special handling for MCP status command
+    if command == "/mcp-status":
+        context += "## MCP Service Status Check:\n\n"
+        context += "Checking status of all MCP services:\n"
+        for mcp in mcps:
+            context += f"- {mcp}: Checking connection and capabilities\n"
+        context += "\nUse appropriate MCP tools to verify service health.\n"
+        return context
+    
     # Add hierarchical agent invocations
     context += "## Agent Execution Hierarchy:\n\n"
     
-    # Phase 1: Prompt Enhancement
+    # ENFORCED HIERARCHY: Always go through proper chain
+    # Phase 1: Prompt Enhancement (if not already enhanced)
     if "prompt-engineer" in agents:
         context += "### Phase 1: Prompt Enhancement\n"
-        context += f"@agent-prompt-engineer enhance and structure: {params}\n\n"
+        context += f"@agent-prompt-engineer enhance and structure: {params}\n"
+        context += "Output: Enhanced prompt for orchestration\n\n"
     
-    # Phase 2: Orchestration
-    if "master-orchestrator" in agents:
+    # Phase 2: Master Orchestration (REQUIRED for multi-agent workflows)
+    if "master-orchestrator" in agents or len(agents) > 2:
         context += "### Phase 2: Master Orchestration\n"
-        context += "@agent-master-orchestrator coordinate execution with enhanced prompt\n\n"
+        if "prompt-engineer" in agents:
+            context += "@agent-master-orchestrator coordinate execution with ENHANCED prompt from Phase 1\n"
+        else:
+            context += f"@agent-master-orchestrator coordinate execution: {params}\n"
+        context += "Responsibilities:\n"
+        context += "- Delegate to type leaders\n"
+        context += "- Coordinate parallel execution\n"
+        context += "- Manage dependencies\n"
+        context += "- Aggregate results\n\n"
     
-    # Phase 3: Specialized Agents
+    # Phase 3: Type Leader Coordination
     remaining = [a for a in agents if a not in ["prompt-engineer", "master-orchestrator"]]
     if remaining:
-        context += "### Phase 3: Specialized Execution\n"
+        context += "### Phase 3: Type Leader Coordination\n\n"
         
-        # Group by type
+        # Group by type with leaders
         frontend = [a for a in remaining if a in ["frontend-architecture", "frontend-mockup", "production-frontend", "ui-ux-design"]]
         backend = [a for a in remaining if a in ["backend-services", "database-architecture", "api-integration-specialist", "middleware-specialist"]]
         quality = [a for a in remaining if a in ["testing-automation", "quality-assurance", "security-architecture", "performance-optimization"]]
         business = [a for a in remaining if a in ["business-analyst", "financial-analyst", "ceo-strategy", "technical-cto"]]
-        other = [a for a in remaining if a not in frontend + backend + quality + business]
+        devops = [a for a in remaining if a in ["devops-engineering", "script-automation", "integration-setup"]]
+        other = [a for a in remaining if a not in frontend + backend + quality + business + devops]
         
         if frontend:
-            context += "**Frontend Team:** " + " ".join(f"@agent-{a}" for a in frontend) + "\n"
+            context += "**Frontend Team (Lead: frontend-architecture):**\n"
+            context += "  Leader: @agent-frontend-architecture (coordinates UI/UX work)\n"
+            context += "  Members: " + " ".join(f"@agent-{a}" for a in frontend if a != "frontend-architecture") + "\n\n"
+        
         if backend:
-            context += "**Backend Team:** " + " ".join(f"@agent-{a}" for a in backend) + "\n"
+            context += "**Backend Team (Lead: backend-services):**\n"
+            context += "  Leader: @agent-backend-services (coordinates API/DB work)\n"
+            context += "  Members: " + " ".join(f"@agent-{a}" for a in backend if a != "backend-services") + "\n\n"
+        
         if quality:
-            context += "**Quality Team:** " + " ".join(f"@agent-{a}" for a in quality) + "\n"
+            context += "**Quality Team (Lead: quality-assurance):**\n"
+            context += "  Leader: @agent-quality-assurance (coordinates testing/security)\n"
+            context += "  Members: " + " ".join(f"@agent-{a}" for a in quality if a != "quality-assurance") + "\n\n"
+        
         if business:
-            context += "**Business Team:** " + " ".join(f"@agent-{a}" for a in business) + "\n"
+            context += "**Business Team (Lead: business-analyst):**\n"
+            context += "  Leader: @agent-business-analyst (coordinates strategy/analysis)\n"
+            context += "  Members: " + " ".join(f"@agent-{a}" for a in business if a != "business-analyst") + "\n\n"
+        
+        if devops:
+            context += "**DevOps Team (Lead: devops-engineering):**\n"
+            context += "  Leader: @agent-devops-engineering (coordinates deployment/automation)\n"
+            context += "  Members: " + " ".join(f"@agent-{a}" for a in devops if a != "devops-engineering") + "\n\n"
+        
         if other:
-            context += "**Support Team:** " + " ".join(f"@agent-{a}" for a in other) + "\n"
-        context += "\n"
+            context += "**Support Team:** " + " ".join(f"@agent-{a}" for a in other) + "\n\n"
     
     # Add MCP services if needed
     if mcps:
@@ -182,12 +239,15 @@ def route_to_agents(command, params):
         for mcp in mcps:
             context += f"- {mcp}\n"
     
-    # Add execution plan
-    context += "\n## Execution plan:\n"
-    context += "1. Initialize required services\n"
-    context += "2. Execute agent tasks in parallel where possible\n"
-    context += "3. Aggregate results\n"
-    context += "4. Save to appropriate location\n"
+    # Add execution plan with hierarchy emphasis
+    context += "\n## Execution Plan (HIERARCHICAL):\n"
+    context += "1. Prompt Enhancement (if applicable)\n"
+    context += "2. Master Orchestration (delegates to teams)\n"
+    context += "3. Type Leaders coordinate their teams\n"
+    context += "4. Teams execute in parallel where possible\n"
+    context += "5. Results aggregated by type leaders\n"
+    context += "6. Master orchestrator compiles final output\n"
+    context += "\n**IMPORTANT**: Follow the hierarchy! Don't skip orchestration levels.\n"
     
     # Log the routing
     log_routing(command, agents, mcps, params)

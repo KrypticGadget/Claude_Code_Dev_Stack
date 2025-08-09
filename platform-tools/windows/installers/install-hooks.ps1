@@ -1,10 +1,10 @@
-# Ultimate Claude Code Hooks & Audio System Installer v4.0
-# Installs hooks + 22 optimized JARVIS-style audio notifications with intelligent detection
+# Ultimate Claude Code Hooks & Audio System Installer v5.0
+# Complete system with audio categorization, venv enforcement, and hierarchical orchestration
 
 Write-Host @"
 ╔════════════════════════════════════════════════════════════════╗
-║   Ultimate Claude Code Hooks & Audio System Installer v4.0     ║
-║  Hooks + 22 Optimized Audio + PreToolUse Intelligent Detection ║
+║   Ultimate Claude Code Hooks & Audio System Installer v5.0     ║
+║  Enhanced Audio + Bash Categorization + Venv + Orchestration   ║
 ╚════════════════════════════════════════════════════════════════╝
 "@ -ForegroundColor Cyan
 
@@ -79,16 +79,19 @@ if (Test-Path $settingsPath) {
 # Step 4: Install optimized hooks INCLUDING ULTIMATE SYSTEM
 Write-Host "`n📝 Installing Ultimate Hook System..." -ForegroundColor Yellow
 
-# Ultimate system hooks + essential ones (12 total)
+# Enhanced system hooks with v5.0 features (14 total)
 $hooks = @(
     # Core functionality (5 hooks)
     "agent_mention_parser.py",    # Routes @agent- mentions
-    "slash_command_router.py",    # Handles /commands
-    "audio_player.py",            # Audio notifications
+    "slash_command_router.py",    # Enhanced with MCP commands & hierarchy
+    "audio_player.py",            # Enhanced with categorization & auto-accept
     "audio_notifier.py",          # Alternative audio system
     "planning_trigger.py",        # Todo management
     
-    # ULTIMATE SYSTEM HOOKS (3 new)
+    # NEW v5.0 HOOKS (1 new)
+    "venv_enforcer.py",          # Virtual environment enforcement
+    
+    # ULTIMATE SYSTEM HOOKS (3)
     "master_orchestrator.py",     # Master orchestrator for intelligent routing
     "audio_controller.py",        # Advanced audio controller
     "ultimate_claude_hook.py",   # Simplified ultimate system

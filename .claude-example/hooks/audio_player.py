@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Enhanced Audio Player Hook for Claude Code
-Provides intelligent audio notifications for various events and states
+Enhanced Audio Player Hook for Claude Code v5.0
+Provides SPECIFIC descriptive audio notifications for all operations
 """
 
 import json
@@ -9,52 +9,115 @@ import sys
 import subprocess
 import platform
 from pathlib import Path
+import os
 
 class AudioPlayer:
     def __init__(self):
         self.audio_dir = Path.home() / ".claude" / "audio"
         self.system = platform.system()
+        # Check for auto-accept mode
+        self.auto_accept = os.environ.get('CLAUDE_AUTO_ACCEPT', '').lower() in ['1', 'true', 'yes']
         
-        # Comprehensive event-to-audio mapping
+        # Comprehensive event-to-audio mapping with SPECIFIC descriptive audio
         self.audio_map = {
-            # Session events
+            # File Operations - SPECIFIC
+            "file_mkdir": "mkdir_operation.wav",
+            "file_touch": "touch_operation.wav",
+            "file_copy": "copy_operation.wav",
+            "file_move": "move_operation.wav",
+            "file_delete": "delete_operation.wav",
+            
+            # Git Operations - SPECIFIC
+            "git_status": "git_status.wav",
+            "git_commit": "git_commit.wav",
+            "git_push": "git_push.wav",
+            "git_pull": "git_pull.wav",
+            
+            # Build Operations - SPECIFIC
+            "build_npm": "npm_build.wav",
+            "build_make": "make_build.wav",
+            "build_cargo": "cargo_build.wav",
+            
+            # Package Management - SPECIFIC
+            "install_pip": "pip_install.wav",
+            "install_npm": "npm_install.wav",
+            "install_packages": "installing_packages.wav",
+            
+            # Testing - SPECIFIC
+            "test_running": "running_tests.wav",
+            "test_passed": "tests_passed.wav",
+            "test_failed": "tests_failed.wav",
+            
+            # Docker - SPECIFIC
+            "docker_build": "docker_building.wav",
+            "docker_run": "docker_running.wav",
+            
+            # Navigation/Search - SPECIFIC
+            "nav_cd": "changing_directory.wav",
+            "nav_ls": "checking_files.wav",
+            "search_files": "searching_files.wav",
+            
+            # Network - SPECIFIC
+            "net_http": "http_request.wav",
+            "net_download": "downloading_file.wav",
+            "net_ssh": "ssh_connection.wav",
+            
+            # Virtual Environment - SPECIFIC
+            "venv_required": "venv_required.wav",
+            "venv_activated": "venv_activated.wav",
+            "venv_warning": "no_venv_warning.wav",
+            
+            # Agent Operations - SPECIFIC
+            "agent_frontend": "frontend_agent.wav",
+            "agent_backend": "backend_agent.wav",
+            "agent_database": "database_agent.wav",
+            "agent_orchestrator": "master_orchestrator.wav",
+            
+            # Status Updates - SPECIFIC
+            "analyzing_code": "analyzing_code.wav",
+            "generating_code": "generating_code.wav",
+            "reviewing_changes": "reviewing_changes.wav",
+            "optimizing": "optimizing_performance.wav",
+            
+            # Warnings - SPECIFIC
+            "risky_command": "risky_command.wav",
+            "permission_denied": "permission_denied.wav",
+            "file_exists": "file_exists.wav",
+            
+            # Errors - SPECIFIC
+            "command_failed": "command_failed.wav",
+            "file_not_found": "file_not_found.wav",
+            "connection_error": "connection_error.wav",
+            
+            # MCP Services - SPECIFIC
+            "mcp_playwright": "playwright_automation.wav",
+            "mcp_obsidian": "obsidian_notes.wav",
+            "mcp_websearch": "web_search.wav",
+            
+            # Auto-accept Mode - SPECIFIC
+            "auto_accepting": "auto_accepting.wav",
+            "auto_mode": "auto_mode_active.wav",
+            
+            # Legacy mappings (fallback compatibility)
             "session_start": "project_created.wav",
             "session_stop": "ready_for_input.wav",
-            
-            # Agent/Task events
             "agent_start": "agent_activated.wav",
             "task_complete": "pipeline_complete.wav",
-            
-            # File operation events (Pre and Post)
             "file_confirm": "confirm_required.wav",
             "file_pending": "file_operation_pending.wav",
             "file_complete": "file_operation_complete.wav",
-            
-            # Command execution events
-            "command_risky": "command_execution_pending.wav", 
-            "command_normal": "processing.wav",
             "command_success": "command_successful.wav",
-            
-            # Planning events
             "planning_exit": "planning_complete.wav",
             "planning_active": "analyzing.wav",
-            
-            # Completion states
             "success": "milestone_complete.wav",
             "operation_done": "operation_complete.wav",
             "phase_done": "phase_complete.wav",
-            
-            # Waiting states
             "ready": "ready_for_input.wav",
             "awaiting": "awaiting_input.wav",
             "decision": "decision_required.wav",
-            
-            # Status updates
             "working": "working.wav",
             "processing": "processing.wav",
             "analyzing": "analyzing.wav",
-            
-            # Pipeline states
             "pipeline_start": "pipeline_initiated.wav",
             "pipeline_end": "pipeline_complete.wav"
         }
@@ -69,24 +132,7 @@ class AudioPlayer:
         
         if not audio_path.exists():
             print(f"[AUDIO] File not found: {audio_path}", file=sys.stderr)
-            # Try fallback sounds for missing new files
-            if sound_key in ["file_pending", "file_complete", "command_risky", "command_success", "planning_exit"]:
-                # Use existing similar sounds as fallback
-                fallback_map = {
-                    "file_pending": "awaiting_confirmation.wav",
-                    "file_complete": "milestone_complete.wav", 
-                    "command_risky": "permission_required.wav",
-                    "command_success": "build_successful.wav",
-                    "planning_exit": "pipeline_complete.wav"
-                }
-                fallback_file = fallback_map.get(sound_key)
-                if fallback_file:
-                    audio_path = self.audio_dir / fallback_file
-                    if audio_path.exists():
-                        print(f"[AUDIO] Using fallback: {fallback_file}", file=sys.stderr)
-            
-            if not audio_path.exists():
-                return False
+            return False
         
         if self.system == "Windows":
             # Try multiple methods for Windows
@@ -97,76 +143,57 @@ class AudioPlayer:
                 pygame.mixer.init()
                 pygame.mixer.music.load(str(audio_path))
                 pygame.mixer.music.play()
-                # Wait for audio to finish (up to 2 seconds for shorter sounds)
-                import time
-                clock = pygame.time.Clock()
-                start_time = time.time()
-                while pygame.mixer.music.get_busy() and time.time() - start_time < 2:
-                    clock.tick(10)
-                print(f"[AUDIO] Played with pygame: {audio_file}", file=sys.stderr)
                 return True
-            except Exception as e:
-                print(f"[AUDIO] pygame failed: {e}", file=sys.stderr)
+            except:
+                pass
             
-            # Method 2: Use PowerShell Media.SoundPlayer
+            # Method 2: Windows Media Player
             try:
-                ps_command = f'''
-                Add-Type -AssemblyName PresentationCore
-                $player = New-Object System.Windows.Media.MediaPlayer
-                $player.Open([Uri]"file:///{str(audio_path).replace(chr(92), '/')}")
-                $player.Play()
-                Start-Sleep -Seconds 2
-                $player.Close()
-                '''
-                subprocess.run(
-                    ["powershell", "-NoProfile", "-Command", ps_command],
-                    capture_output=True,
-                    timeout=3
-                )
-                print(f"[AUDIO] Played with PowerShell: {audio_file}", file=sys.stderr)
+                subprocess.run([
+                    "powershell", "-c",
+                    f"(New-Object Media.SoundPlayer '{audio_path}').PlaySync()"
+                ], check=True, capture_output=True, timeout=2)
                 return True
-            except Exception as e:
-                print(f"[AUDIO] PowerShell failed: {e}", file=sys.stderr)
+            except:
+                pass
             
-            # Method 3: Try winsound as last resort
+            # Method 3: winsound (built-in)
             try:
                 import winsound
-                winsound.PlaySound(str(audio_path), winsound.SND_FILENAME | winsound.SND_ASYNC)
-                print(f"[AUDIO] Played with winsound: {audio_file}", file=sys.stderr)
+                winsound.PlaySound(str(audio_path), winsound.SND_FILENAME)
                 return True
-            except Exception as e:
-                print(f"[AUDIO] winsound failed: {e}", file=sys.stderr)
-                
+            except:
+                pass
+            
         elif self.system == "Darwin":  # macOS
             try:
-                subprocess.run(["afplay", str(audio_path)], capture_output=True, timeout=2)
-                print(f"[AUDIO] Played: {audio_file}", file=sys.stderr)
+                subprocess.run(["afplay", str(audio_path)], check=True, capture_output=True)
                 return True
-            except Exception as e:
-                print(f"[AUDIO] Error: {e}", file=sys.stderr)
-                
-        else:  # Linux
-            try:
-                subprocess.run(["aplay", str(audio_path)], capture_output=True, timeout=2)
-                print(f"[AUDIO] Played: {audio_file}", file=sys.stderr)
-                return True
-            except Exception as e:
-                print(f"[AUDIO] Error: {e}", file=sys.stderr)
+            except:
+                pass
+        
+        elif self.system == "Linux":
+            # Try various Linux audio players
+            for player in ["aplay", "paplay", "ffplay -nodisp -autoexit", "mpg123"]:
+                try:
+                    subprocess.run(player.split() + [str(audio_path)], check=True, capture_output=True)
+                    return True
+                except:
+                    continue
         
         return False
     
-    def determine_audio(self, input_data):
-        """Determine which audio to play based on hook data"""
-        event = input_data.get("hook_event_name", "")
-        tool = input_data.get("tool_name", "")
-        tool_input = input_data.get("tool_input", {})
-        tool_response = input_data.get("tool_response", {})
-        
-        # Debug output
-        print(f"[AUDIO] Event: {event}, Tool: {tool}", file=sys.stderr)
+    def determine_audio(self, hook_data):
+        """Determine which audio to play based on hook event data"""
+        event = hook_data.get("hook_event_name", "")
+        tool = hook_data.get("tool_name", "")
+        tool_input = hook_data.get("tool_input", {})
+        tool_response = hook_data.get("tool_response", {})
         
         # SessionStart event
         if event == "SessionStart":
+            if self.auto_accept:
+                return "auto_mode"
             return "session_start"
         
         # Stop event - Claude finished, user's turn
@@ -176,25 +203,118 @@ class AudioPlayer:
         # PreToolUse events - BEFORE confirmation prompts
         if event == "PreToolUse":
             if tool in ["Write", "Edit", "MultiEdit"]:
-                # File operations will need confirmation
+                # File operations - be specific if possible
+                if self.auto_accept:
+                    return "auto_accepting"
+                    
+                # Try to determine file operation type from context
+                file_path = tool_input.get("file_path", "").lower()
+                if tool == "Write" and not Path(file_path).exists() if file_path else False:
+                    return "file_touch"  # Creating new file
                 return "file_confirm"
             
             elif tool == "Bash":
-                # Check if command is risky
-                command = tool_input.get("command", "")
-                risky_commands = ["rm ", "del ", "delete", "git push", "git reset", 
-                                  "DROP", "DELETE FROM", "format", "kill", "shutdown"]
+                # Categorize Bash commands for SPECIFIC audio
+                command = tool_input.get("command", "").lower()
+                
+                # Check for auto-accept mode first
+                if self.auto_accept:
+                    return "auto_accepting"
+                
+                # File Operations - SPECIFIC
+                if "mkdir" in command:
+                    return "file_mkdir"
+                elif "touch" in command:
+                    return "file_touch"
+                elif any(x in command for x in ["cp ", "copy"]):
+                    return "file_copy"
+                elif any(x in command for x in ["mv ", "move"]):
+                    return "file_move"
+                elif any(x in command for x in ["rm ", "del ", "rmdir"]):
+                    return "file_delete"
+                
+                # Navigation - SPECIFIC
+                elif "cd " in command:
+                    return "nav_cd"
+                elif any(x in command for x in ["ls", "dir"]):
+                    return "nav_ls"
+                
+                # Git Operations - SPECIFIC
+                elif "git status" in command:
+                    return "git_status"
+                elif "git commit" in command:
+                    return "git_commit"
+                elif "git push" in command:
+                    return "git_push"
+                elif "git pull" in command:
+                    return "git_pull"
+                
+                # Build Operations - SPECIFIC
+                elif any(x in command for x in ["npm run", "npm build"]):
+                    return "build_npm"
+                elif "make" in command:
+                    return "build_make"
+                elif "cargo build" in command:
+                    return "build_cargo"
+                
+                # Package Installation - SPECIFIC
+                elif any(x in command for x in ["pip install", "pip3 install"]):
+                    return "install_pip"
+                elif any(x in command for x in ["npm install", "npm i"]):
+                    return "install_npm"
+                elif any(x in command for x in ["apt", "brew", "yarn add"]):
+                    return "install_packages"
+                
+                # Testing - SPECIFIC
+                elif any(x in command for x in ["pytest", "jest", "cargo test", "npm test"]):
+                    return "test_running"
+                
+                # Docker - SPECIFIC
+                elif "docker build" in command:
+                    return "docker_build"
+                elif any(x in command for x in ["docker run", "docker-compose up"]):
+                    return "docker_run"
+                
+                # Network Operations - SPECIFIC
+                elif any(x in command for x in ["curl", "http"]):
+                    return "net_http"
+                elif any(x in command for x in ["wget", "download"]):
+                    return "net_download"
+                elif "ssh" in command:
+                    return "net_ssh"
+                
+                # Search Operations - SPECIFIC
+                elif any(x in command for x in ["find", "grep", "rg ", "fd "]):
+                    return "search_files"
+                
+                # Virtual Environment Check
+                elif any(x in command for x in ["venv", "virtualenv", "activate"]):
+                    return "venv_activated"
+                
+                # Check for risky commands
+                risky_commands = ["rm -rf", "del /f", "git push --force", "git reset --hard", 
+                                  "DROP", "DELETE FROM", "format", "kill -9", "shutdown"]
                 if any(risky in command for risky in risky_commands):
-                    return "command_risky"
-                else:
-                    return "confirm_required"
+                    return "risky_command"
+                
+                # Default for other commands
+                return "processing"
             
             elif tool == "ExitPlanMode":
                 # Planning phase complete
                 return "planning_exit"
             
             elif tool == "Task":
-                # Agent being invoked
+                # Agent being invoked - try to be specific
+                agent_type = tool_input.get("subagent_type", "").lower()
+                if "frontend" in agent_type:
+                    return "agent_frontend"
+                elif "backend" in agent_type:
+                    return "agent_backend"
+                elif "database" in agent_type:
+                    return "agent_database"
+                elif "orchestrator" in agent_type:
+                    return "agent_orchestrator"
                 return "agent_start"
         
         # PostToolUse events - AFTER operations complete
@@ -205,28 +325,83 @@ class AudioPlayer:
             
             elif tool in ["Write", "Edit", "MultiEdit"]:
                 # File operation completed
-                if tool_response.get("success") or "written" in str(tool_response):
+                response_str = str(tool_response).lower()
+                if (tool_response.get("success") or 
+                    any(x in response_str for x in ["written", "updated", "created"]) or
+                    tool_response is not None):
                     return "file_complete"
+                elif "exists" in response_str:
+                    return "file_exists"
+                elif "permission" in response_str:
+                    return "permission_denied"
                 return None
             
             elif tool == "Bash":
-                # Command completed
+                # Command completed - check result
                 exit_code = tool_response.get("exit_code", -1)
+                command = tool_input.get("command", "").lower()
+                output = str(tool_response).lower()
+                
                 if exit_code == 0:
-                    return "command_success"
+                    # Success - play specific completion sounds
+                    if any(x in command for x in ["pytest", "jest", "npm test", "cargo test"]):
+                        # Check if tests actually passed
+                        if "passed" in output or "success" in output:
+                            return "test_passed"
+                        elif "failed" in output:
+                            return "test_failed"
+                    elif any(x in command for x in ["git commit", "git push"]):
+                        return "success"
+                    elif any(x in command for x in ["npm run", "make", "cargo build"]):
+                        return "operation_done"
+                    elif any(x in command for x in ["mkdir", "touch", "cp ", "mv "]):
+                        return "file_complete"
+                    else:
+                        return "command_success"
+                
                 elif exit_code > 0:
-                    return None  # Don't play sound for errors
-                else:
-                    return "operation_done"
+                    # Error occurred - play specific error sounds
+                    if any(x in command for x in ["pytest", "jest", "npm test"]):
+                        return "test_failed"
+                    elif "permission denied" in output:
+                        return "permission_denied"
+                    elif "not found" in output or "no such" in output:
+                        return "file_not_found"
+                    elif "connection" in output or "network" in output:
+                        return "connection_error"
+                    else:
+                        return "command_failed"
+                
+                return "operation_done"
             
             elif tool in ["Read", "Glob", "Grep", "LS"]:
                 # Don't play sounds for read operations
                 return None
             
+            elif tool == "WebSearch":
+                return "mcp_websearch"
+            
+            elif tool == "WebFetch":
+                return "net_http"
+            
             else:
                 # Generic completion
                 if tool_response.get("success"):
                     return "success"
+        
+        # UserPromptSubmit - check for special commands
+        if event == "UserPromptSubmit":
+            prompt = hook_data.get("prompt", "").lower()
+            if "/playwright" in prompt:
+                return "mcp_playwright"
+            elif "/obsidian" in prompt:
+                return "mcp_obsidian"
+            elif "optimize" in prompt or "performance" in prompt:
+                return "optimizing"
+            elif "analyze" in prompt or "review" in prompt:
+                return "analyzing_code"
+            elif "generate" in prompt or "create" in prompt:
+                return "generating_code"
         
         # SubagentStop - agent finished
         if event == "SubagentStop":
@@ -247,7 +422,9 @@ def main():
     if sound_key:
         player.play_sound(sound_key)
     else:
-        print(f"[AUDIO] No audio for this event", file=sys.stderr)
+        # Don't log for every event, only debug mode
+        if os.environ.get('CLAUDE_DEBUG'):
+            print(f"[AUDIO] No audio for event: {input_data.get('hook_event_name')}", file=sys.stderr)
     
     # Always exit successfully
     sys.exit(0)

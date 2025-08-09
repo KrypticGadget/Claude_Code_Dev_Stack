@@ -1,11 +1,11 @@
 #!/bin/bash
-# Enhanced Claude Code Hooks Installer v2.1 for Linux
-# Installs complete integrated hook system with audio notifications
+# Ultimate Claude Code Hooks Installer v5.0 for macOS
+# Complete system with audio categorization, venv enforcement, and hierarchical orchestration
 
 cat << 'EOF'
 ╔════════════════════════════════════════════════════════════════╗
-║          Claude Code Enhanced Hooks Installer v2.1             ║
-║     19 Hooks + Audio Notifications + Full Integration          ║
+║          Claude Code Enhanced Hooks Installer v5.0             ║
+║   14 Hooks + 22 Audio Files + Bash Categorization + Venv      ║
 ╚════════════════════════════════════════════════════════════════╝
 EOF
 
@@ -52,25 +52,20 @@ elif command -v python &> /dev/null; then
     fi
 else
     echo -e "  ${YELLOW}⚠ Python not found - hooks require Python 3${NC}"
-    echo -e "    ${GRAY}Install with: sudo apt install python3 (Debian/Ubuntu)${NC}"
-    echo -e "    ${GRAY}           or: sudo dnf install python3 (Fedora)${NC}"
-    echo -e "    ${GRAY}           or: sudo pacman -S python (Arch)${NC}"
+    echo -e "    ${GRAY}Install with: brew install python3${NC}"
 fi
 
-# Check for audio playback capability
+# Check for audio playback capability on macOS
 HAS_AUDIO=false
-if command -v aplay &> /dev/null; then
-    echo -e "  ${GREEN}✓ Audio support: aplay (ALSA)${NC}"
-    HAS_AUDIO=true
-elif command -v paplay &> /dev/null; then
-    echo -e "  ${GREEN}✓ Audio support: paplay (PulseAudio)${NC}"
+if command -v afplay &> /dev/null; then
+    echo -e "  ${GREEN}✓ Audio support: afplay (native macOS)${NC}"
     HAS_AUDIO=true
 elif command -v ffplay &> /dev/null; then
     echo -e "  ${GREEN}✓ Audio support: ffplay${NC}"
     HAS_AUDIO=true
 else
-    echo -e "  ${YELLOW}⚠ No audio player found - audio notifications disabled${NC}"
-    echo -e "    ${GRAY}Install with: sudo apt install alsa-utils${NC}"
+    echo -e "  ${YELLOW}⚠ Audio player found (afplay is built-in on macOS)${NC}"
+    HAS_AUDIO=true  # afplay should always be available on macOS
 fi
 
 # Step 2: Create directory structure
@@ -108,27 +103,34 @@ fi
 # Step 4: Install enhanced hooks
 echo -e "\n${YELLOW}📝 Installing enhanced hooks...${NC}"
 
-# Complete list of enhanced hooks
+# Complete list of v5.0 hooks (14 total)
 HOOKS=(
+    # Core integration hooks
     "agent_mention_parser.py"
-    "agent_orchestrator.py"
-    "agent_orchestrator_integrated.py"
     "slash_command_router.py"
-    "mcp_gateway.py"
-    "mcp_gateway_enhanced.py"
-    "mcp_initializer.py"
+    
+    # Audio and notification
     "audio_player.py"
     "audio_notifier.py"
+    
+    # v5.0 NEW HOOK
+    "venv_enforcer.py"
+    
+    # ULTIMATE SYSTEM HOOKS
+    "master_orchestrator.py"
+    "audio_controller.py"
+    "ultimate_claude_hook.py"
+    
+    # Session management
     "session_loader.py"
     "session_saver.py"
-    "quality_gate.py"
+    
+    # Quality and tracking
     "model_tracker.py"
     "planning_trigger.py"
-    "pre_command.py"
-    "post_command.py"
-    "pre_project.py"
-    "post_project.py"
-    "base_hook.py"
+    
+    # Debug hook
+    "test_hook.py"
 )
 
 INSTALLED_COUNT=0
@@ -161,7 +163,7 @@ else
         URL="$BASE_URL/$HOOK"
         DEST="$HOOKS_DIR/$HOOK"
         
-        if wget -q "$URL" -O "$DEST" 2>/dev/null || curl -sL "$URL" -o "$DEST" 2>/dev/null; then
+        if curl -sL "$URL" -o "$DEST" 2>/dev/null; then
             chmod +x "$DEST"
             echo -e "${GREEN}✓${NC}"
             ((INSTALLED_COUNT++))
@@ -219,7 +221,7 @@ fi
 echo -e "\n${YELLOW}⚙️ Installing integrated settings...${NC}"
 
 if [ -f "$SOURCE_SETTINGS" ]; then
-    # Read settings and update paths for Linux
+    # Read settings and update paths for macOS
     sed "s|\$HOME|$HOME|g" "$SOURCE_SETTINGS" > "$CLAUDE_DIR/settings.json"
     echo -e "  ${GREEN}✓ Installed integrated settings.json${NC}"
 else
@@ -304,8 +306,8 @@ else
 }
 SETTINGS_EOF
     
-    # Replace $HOME with actual path
-    sed -i "s|\$HOME|$HOME|g" "$CLAUDE_DIR/settings.json"
+    # Replace $HOME with actual path (macOS sed requires backup extension)
+    sed -i '' "s|\$HOME|$HOME|g" "$CLAUDE_DIR/settings.json"
     echo -e "  ${GREEN}✓ Created minimal settings.json${NC}"
 fi
 
@@ -349,7 +351,7 @@ else
     echo -e "  \033[0;31m✗ Agent orchestration failed\033[0m"
 fi
 
-# Test audio
+# Test audio (using afplay on macOS)
 echo -e "\033[1;33mTesting audio notifications...\033[0m"
 TEST_DATA='{"hook_event_name":"SessionStart"}'
 if echo "$TEST_DATA" | $PYTHON_CMD "$CLAUDE_HOOKS/audio_player.py" &> /dev/null; then
@@ -380,7 +382,7 @@ echo -e "\n${CYAN}🚀 Key Features Enabled:${NC}"
 echo -e "  ${WHITE}• 28 Agents orchestration${NC}"
 echo -e "  ${WHITE}• 18 Slash commands${NC}"
 echo -e "  ${WHITE}• 3 MCP services integration${NC}"
-echo -e "  ${WHITE}• Audio notifications${NC}"
+echo -e "  ${WHITE}• Audio notifications (afplay)${NC}"
 echo -e "  ${WHITE}• Session persistence${NC}"
 echo -e "  ${WHITE}• Model optimization${NC}"
 echo -e "  ${WHITE}• Quality gates${NC}"
@@ -393,13 +395,7 @@ echo -e "  ${WHITE}3. Try: claude \"/new-project test\"${NC}"
 if [ "$HAS_PYTHON" = false ]; then
     echo -e "\n${YELLOW}⚠ Important:${NC}"
     echo -e "  ${RED}Python 3 is required for hooks to function${NC}"
-    echo -e "  ${YELLOW}Install from your package manager or https://python.org${NC}"
-fi
-
-if [ "$HAS_AUDIO" = false ]; then
-    echo -e "\n${YELLOW}⚠ Audio Note:${NC}"
-    echo -e "  ${YELLOW}Install audio support for notifications:${NC}"
-    echo -e "  ${GRAY}sudo apt install alsa-utils (or pulseaudio-utils)${NC}"
+    echo -e "  ${YELLOW}Install with: brew install python3${NC}"
 fi
 
 echo -e "\n${GREEN}✨ Your Claude Code is now enhanced with 6-9x faster development!${NC}"

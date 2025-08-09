@@ -1,11 +1,11 @@
 #!/bin/bash
-# Enhanced Claude Code Hooks Installer v2.1 for macOS
-# Installs complete integrated hook system with audio notifications
+# Ultimate Claude Code Hooks Installer v5.0 for macOS
+# Complete system with audio categorization, venv enforcement, and hierarchical orchestration
 
 cat << 'EOF'
 ╔════════════════════════════════════════════════════════════════╗
-║          Claude Code Enhanced Hooks Installer v2.1             ║
-║     19 Hooks + Audio Notifications + Full Integration          ║
+║          Claude Code Enhanced Hooks Installer v5.0             ║
+║   14 Hooks + 22 Audio Files + Bash Categorization + Venv      ║
 ╚════════════════════════════════════════════════════════════════╝
 EOF
 
@@ -103,27 +103,34 @@ fi
 # Step 4: Install enhanced hooks
 echo -e "\n${YELLOW}📝 Installing enhanced hooks...${NC}"
 
-# Complete list of enhanced hooks
+# Complete list of v5.0 hooks (14 total)
 HOOKS=(
+    # Core integration hooks
     "agent_mention_parser.py"
-    "agent_orchestrator.py"
-    "agent_orchestrator_integrated.py"
     "slash_command_router.py"
-    "mcp_gateway.py"
-    "mcp_gateway_enhanced.py"
-    "mcp_initializer.py"
+    
+    # Audio and notification
     "audio_player.py"
     "audio_notifier.py"
+    
+    # v5.0 NEW HOOK
+    "venv_enforcer.py"
+    
+    # ULTIMATE SYSTEM HOOKS
+    "master_orchestrator.py"
+    "audio_controller.py"
+    "ultimate_claude_hook.py"
+    
+    # Session management
     "session_loader.py"
     "session_saver.py"
-    "quality_gate.py"
+    
+    # Quality and tracking
     "model_tracker.py"
     "planning_trigger.py"
-    "pre_command.py"
-    "post_command.py"
-    "pre_project.py"
-    "post_project.py"
-    "base_hook.py"
+    
+    # Debug hook
+    "test_hook.py"
 )
 
 INSTALLED_COUNT=0
