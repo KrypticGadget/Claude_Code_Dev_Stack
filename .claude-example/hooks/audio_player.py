@@ -140,11 +140,16 @@ class AudioPlayer:
             # Method 1: winsound (built-in, SYNCHRONOUS for reliability)
             try:
                 import winsound
+                if os.environ.get('CLAUDE_DEBUG'):
+                    print(f"[AUDIO] winsound attempting: {audio_path.name}", file=sys.stderr)
                 # Use SYNCHRONOUS playback - no SND_ASYNC flag
                 winsound.PlaySound(str(audio_path), winsound.SND_FILENAME)
+                if os.environ.get('CLAUDE_DEBUG'):
+                    print(f"[AUDIO] winsound SUCCESS: {audio_path.name}", file=sys.stderr)
                 return True
-            except:
-                pass
+            except Exception as e:
+                if os.environ.get('CLAUDE_DEBUG'):
+                    print(f"[AUDIO] winsound failed: {e}", file=sys.stderr)
             
             # Method 2: pygame (backup, also synchronous)
             try:
@@ -431,11 +436,17 @@ def main():
     sound_key = player.determine_audio(input_data)
     
     if sound_key:
-        player.play_sound(sound_key)
+        success = player.play_sound(sound_key)
+        if os.environ.get('CLAUDE_DEBUG'):
+            event = input_data.get('hook_event_name', 'unknown')
+            tool = input_data.get('tool_name', 'none')
+            print(f"[AUDIO] Event:{event} Tool:{tool} Key:{sound_key} Success:{success}", file=sys.stderr)
     else:
         # Don't log for every event, only debug mode
         if os.environ.get('CLAUDE_DEBUG'):
-            print(f"[AUDIO] No audio for event: {input_data.get('hook_event_name')}", file=sys.stderr)
+            event = input_data.get('hook_event_name', 'unknown')
+            tool = input_data.get('tool_name', 'none')
+            print(f"[AUDIO] No audio - Event:{event} Tool:{tool}", file=sys.stderr)
     
     # Always exit successfully
     sys.exit(0)
