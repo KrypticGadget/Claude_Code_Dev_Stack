@@ -1,5 +1,16 @@
-# Ultimate Claude Code Dev Stack Installer v3.0
+# Ultimate Claude Code Dev Stack Installer v3.1
 # Downloads all components + Ultimate Audio System from GitHub to ~/.claude
+# Now with automatic Playwright browser lock fixes!
+
+# Pre-installation Edge cleanup (preserves Chrome for user browsing)
+Write-Host "Preparing environment (Edge only)..." -ForegroundColor Yellow
+Stop-Process -Name msedge,msedgewebview2 -Force -ErrorAction SilentlyContinue 2>$null
+Remove-Item "$env:LOCALAPPDATA\ms-playwright\mcp-edge" -Recurse -Force -ErrorAction SilentlyContinue 2>$null
+Remove-Item "$env:LOCALAPPDATA\ms-playwright\msedge-*" -Recurse -Force -ErrorAction SilentlyContinue 2>$null
+[Environment]::SetEnvironmentVariable('PLAYWRIGHT_HEADLESS', 'false', 'User')
+[Environment]::SetEnvironmentVariable('PLAYWRIGHT_BROWSER', 'msedge', 'User')
+$env:PLAYWRIGHT_HEADLESS = "false"
+$env:PLAYWRIGHT_BROWSER = "msedge"
 
 # Setup logging
 $logFile = "$env:USERPROFILE\claude_installer.log"
@@ -11,8 +22,8 @@ function Write-Log {
 }
 
 Write-Log "========================================="
-Write-Log "Ultimate Claude Code Dev Stack Installer v3.0"
-Write-Log "========================================="
+Write-Log "Ultimate Claude Code Dev Stack Installer v3.1"
+Write-Log "==========================================="
 Write-Log "Log file: $logFile"
 
 # Base URLs
@@ -71,9 +82,21 @@ foreach ($component in $components) {
     Write-Log ""
 }
 
+# Create quick fix script for future browser locks
+$quickFix = @'
+# Quick Playwright Edge Browser Lock Fix (Preserves Chrome)
+Write-Host "Fixing Playwright Edge browser locks..." -ForegroundColor Yellow
+Stop-Process -Name msedge,msedgewebview2 -Force -ErrorAction SilentlyContinue
+Remove-Item "$env:LOCALAPPDATA\ms-playwright\mcp-edge" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item "$env:LOCALAPPDATA\ms-playwright\msedge-*" -Recurse -Force -ErrorAction SilentlyContinue
+Write-Host "✓ Browser locks cleared!" -ForegroundColor Green
+Write-Host "You can now use Playwright MCP again." -ForegroundColor Cyan
+'@
+$quickFix | Out-File -FilePath "$env:USERPROFILE\fix-playwright.ps1" -Encoding UTF8
+
 Write-Host "========================================" -ForegroundColor Green
 Write-Host "  🎉 ULTIMATE Installation Complete!" -ForegroundColor Green
-Write-Host "========================================" -ForegroundColor Green
+Write-Host "======================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "Files installed to: $env:USERPROFILE\.claude" -ForegroundColor White
 Write-Host ""
@@ -83,6 +106,8 @@ Write-Host "  • Master orchestrator for smart routing" -ForegroundColor White
 Write-Host "  • Meta-prompt transformation" -ForegroundColor White
 Write-Host "  • Development phase detection" -ForegroundColor White
 Write-Host "  • Input detection with audio alerts" -ForegroundColor White
+Write-Host "  • ✅ Playwright HEADED MODE (Edge browser visible!)" -ForegroundColor Green
+Write-Host "  • 🔒 Chrome preserved for your browsing!" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "To use:" -ForegroundColor Yellow
 Write-Host "1. Restart Claude Code" -ForegroundColor White
@@ -92,6 +117,9 @@ Write-Host "4. Vague prompts auto-transform!" -ForegroundColor Cyan
 Write-Host "5. Audio alerts for all phases!" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "🎵 Test audio: powershell ~/.claude/audio/test_audio.ps1" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "🔧 Browser lock fix: powershell ~/fix-playwright.ps1" -ForegroundColor Yellow
+Write-Host "   (Run if you get 'Browser already in use' errors)" -ForegroundColor Gray
 Write-Host ""
 
 # Don't use exit when running via iwr | iex as it kills the terminal

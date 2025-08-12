@@ -1,58 +1,175 @@
-# Claude Code MCP Server Installer
-# Installs and configures Playwright, Obsidian, and Web-search MCP servers
+# Claude Code MCP Server Installer - Enhanced Edition
+# Auto-fixes browser locks, sets environment variables, works from any directory
+# Version: 2.0
+
+param(
+    [switch]$SkipBrowserFix = $false,
+    [switch]$Minimal = $false
+)
 
 Write-Host ""
-Write-Host "Claude Code MCP Server Installer" -ForegroundColor Cyan
-Write-Host "=================================" -ForegroundColor Cyan
+Write-Host "Claude Code MCP Server Installer v2.0" -ForegroundColor Cyan
+Write-Host "======================================" -ForegroundColor Cyan
 Write-Host ""
 
-# Check if Claude Code is installed
+# Function to clean browser processes and cache
+function Clear-BrowserLocks {
+    Write-Host "Cleaning browser locks and cache..." -ForegroundColor Yellow
+    
+    # Kill ONLY Edge processes (leave Chrome alone for user browsing)
+    $processes = @("msedge", "msedgewebview2")
+    $totalKilled = 0
+    foreach ($proc in $processes) {
+        $count = (Get-Process -Name $proc -ErrorAction SilentlyContinue).Count
+        if ($count -gt 0) {
+            Stop-Process -Name $proc -Force -ErrorAction SilentlyContinue
+            $totalKilled += $count
+        }
+    }
+    
+    if ($totalKilled -gt 0) {
+        Write-Host "  ✓ Terminated $totalKilled browser process(es)" -ForegroundColor Green
+    }
+    
+    # Clear Playwright cache (Edge specific)
+    $cachePaths = @(
+        "$env:LOCALAPPDATA\ms-playwright\mcp-edge",
+        "$env:LOCALAPPDATA\ms-playwright\msedge-*",
+        "$env:TEMP\playwright-edge-*",
+        "$env:TEMP\playwright-*"
+    )
+    
+    foreach ($path in $cachePaths) {
+        if (Test-Path $path) {
+            Remove-Item -Path $path -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
+    Write-Host "  ✓ Cleared Playwright cache" -ForegroundColor Green
+    Start-Sleep -Milliseconds 500
+}
+
+# Function to set permanent environment variables
+function Set-PlaywrightEnvironment {
+    Write-Host "Setting environment variables..." -ForegroundColor Yellow
+    
+    # Set user environment variables permanently
+    [Environment]::SetEnvironmentVariable('PLAYWRIGHT_HEADLESS', 'false', 'User')
+    [Environment]::SetEnvironmentVariable('PLAYWRIGHT_BROWSERS_PATH', "$env:LOCALAPPDATA\ms-playwright", 'User')
+    
+    # Also set for current session
+    $env:PLAYWRIGHT_HEADLESS = "false"
+    $env:PLAYWRIGHT_BROWSERS_PATH = "$env:LOCALAPPDATA\ms-playwright"
+    
+    Write-Host "  ✓ Environment variables configured for headed mode" -ForegroundColor Green
+}
+
+# Check prerequisites
+Write-Host "Checking prerequisites..." -ForegroundColor Yellow
+
+# Check Claude Code CLI
+$hasClaudeCode = $false
 try {
     $claudeVersion = claude --version 2>$null
     if ($claudeVersion) {
-        Write-Host "✓ Claude Code detected" -ForegroundColor Green
+        Write-Host "  ✓ Claude Code detected" -ForegroundColor Green
+        $hasClaudeCode = $true
     }
 } catch {
-    Write-Host "✗ Claude Code CLI not found!" -ForegroundColor Red
-    Write-Host "  Install from: https://claude.ai/download" -ForegroundColor Yellow
-    Write-Host ""
-    return 1
+    Write-Host "  ✗ Claude Code CLI not found!" -ForegroundColor Red
+    Write-Host "    Install from: https://claude.ai/download" -ForegroundColor Yellow
+    if (-not $Minimal) {
+        Write-Host ""
+        Read-Host "Press Enter to exit"
+        exit 1
+    }
 }
 
-# Check for Node.js
+# Check Node.js
+$hasNode = $false
 try {
     $nodeVersion = node --version 2>$null
     if ($nodeVersion) {
-        Write-Host "✓ Node.js detected: $nodeVersion" -ForegroundColor Green
+        Write-Host "  ✓ Node.js detected: $nodeVersion" -ForegroundColor Green
+        $hasNode = $true
     }
 } catch {
-    Write-Host "✗ Node.js not found!" -ForegroundColor Red
-    Write-Host "  Install from: https://nodejs.org" -ForegroundColor Yellow
-    Write-Host ""
-    return 1
+    Write-Host "  ✗ Node.js not found!" -ForegroundColor Red
+    Write-Host "    Install from: https://nodejs.org" -ForegroundColor Yellow
+    if (-not $Minimal) {
+        Write-Host ""
+        Read-Host "Press Enter to exit"
+        exit 1
+    }
 }
 
 Write-Host ""
-Write-Host "Installing MCP servers..." -ForegroundColor Yellow
+
+# Always clean browser locks unless skipped
+if (-not $SkipBrowserFix) {
+    Clear-BrowserLocks
+    Write-Host ""
+}
+
+# Set environment variables
+Set-PlaywrightEnvironment
 Write-Host ""
 
-# Install Playwright MCP (headed mode - browser UI visible)
-Write-Host "1. Installing Playwright MCP..." -ForegroundColor Cyan
+# Install MCP Servers
+Write-Host "Installing MCP servers..." -ForegroundColor Cyan
+Write-Host ""
+
+# 1. Install Playwright MCP with headed mode and all fixes
+Write-Host "1. Installing Playwright MCP (headed mode)..." -ForegroundColor Yellow
+
+# Remove existing Playwright MCP
 try {
-    # Remove if exists
-    claude mcp remove playwright 2>$null | Out-Null
+    $output = claude mcp remove playwright 2>&1
+    if ($output -notlike "*not found*") {
+        Write-Host "   Removed existing Playwright configuration" -ForegroundColor Gray
+    }
 } catch {}
 
-try {
-    claude mcp add playwright -- cmd /c npx '@playwright/mcp@latest'
-    Write-Host "   ✓ Playwright MCP installed (headed mode - browser UI visible)" -ForegroundColor Green
-} catch {
-    Write-Host "   ✗ Failed to install Playwright MCP" -ForegroundColor Red
+# Install with proper configuration
+$playwrightInstalled = $false
+$retryCount = 0
+$maxRetries = 3
+
+while (-not $playwrightInstalled -and $retryCount -lt $maxRetries) {
+    try {
+        # Clear any lingering locks before each attempt
+        if ($retryCount -gt 0) {
+            Write-Host "   Retry attempt $($retryCount)..." -ForegroundColor Yellow
+            Clear-BrowserLocks
+            Start-Sleep -Seconds 2
+        }
+        
+        # Install Playwright MCP with Edge browser configuration
+        $installCmd = @"
+claude mcp add playwright ``
+    --env PLAYWRIGHT_HEADLESS=false ``
+    --env PLAYWRIGHT_BROWSER=msedge ``
+    --env PLAYWRIGHT_BROWSERS_PATH="$env:LOCALAPPDATA\ms-playwright" ``
+    --env PLAYWRIGHT_CHROMIUM_ARGS="--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-blink-features=AutomationControlled" ``
+    -- cmd /c npx '@playwright/mcp@latest'
+"@
+        
+        Invoke-Expression $installCmd 2>&1 | Out-Null
+        $playwrightInstalled = $true
+        Write-Host "   ✓ Playwright MCP installed (browser UI will be visible)" -ForegroundColor Green
+    }
+    catch {
+        $retryCount++
+        if ($retryCount -ge $maxRetries) {
+            Write-Host "   ✗ Failed to install Playwright after $maxRetries attempts" -ForegroundColor Red
+            Write-Host "   Try running this command manually:" -ForegroundColor Yellow
+            Write-Host "   $installCmd" -ForegroundColor Gray
+        }
+    }
 }
 
-# Check for Python (needed for Obsidian)
+# 2. Check for Python (needed for Obsidian)
 Write-Host ""
-Write-Host "2. Checking Obsidian MCP prerequisites..." -ForegroundColor Cyan
+Write-Host "2. Checking Obsidian MCP prerequisites..." -ForegroundColor Yellow
 
 $pythonInstalled = $false
 try {
@@ -66,21 +183,14 @@ try {
     Write-Host "     Install from: https://python.org" -ForegroundColor Gray
 }
 
-if ($pythonInstalled) {
-    Write-Host "   Installing Obsidian MCP..." -ForegroundColor Cyan
+if ($pythonInstalled -and -not $Minimal) {
+    Write-Host "   Installing Obsidian MCP..." -ForegroundColor Yellow
     
-    # Install mcp-obsidian package directly with pip
-    Write-Host "   Installing mcp-obsidian package..." -ForegroundColor Yellow
+    # Install mcp-obsidian package
     try {
         pip install mcp-obsidian --upgrade --quiet 2>$null
         Write-Host "   ✓ mcp-obsidian package installed" -ForegroundColor Green
-        $mcpInstalled = $true
-    } catch {
-        Write-Host "   ✗ Failed to install mcp-obsidian package" -ForegroundColor Red
-        $mcpInstalled = $false
-    }
-    
-    if ($mcpInstalled) {
+        
         Write-Host ""
         Write-Host "   Obsidian REST API Plugin required:" -ForegroundColor Yellow
         Write-Host "   1. Open Obsidian → Settings → Community Plugins" -ForegroundColor Gray
@@ -96,121 +206,122 @@ if ($pythonInstalled) {
                 claude mcp remove obsidian 2>$null | Out-Null
             } catch {}
             
-            # Use python -m to run the installed package (note: underscore not hyphen for module name)
             claude mcp add obsidian --env OBSIDIAN_API_KEY=$apiKey --env OBSIDIAN_HOST=127.0.0.1 --env OBSIDIAN_PORT=27124 -- python -m mcp_obsidian
             Write-Host "   ✓ Obsidian MCP installed" -ForegroundColor Green
         } else {
             Write-Host "   ⚠ Skipping Obsidian MCP (no API key)" -ForegroundColor Yellow
         }
+    } catch {
+        Write-Host "   ✗ Failed to install mcp-obsidian package" -ForegroundColor Red
     }
 }
 
-# Install Web-search MCP
-Write-Host ""
-Write-Host "3. Installing Web-search MCP..." -ForegroundColor Cyan
-
-$webSearchDir = "$env:USERPROFILE\mcp-servers\web-search"
-
-# Check for Git
-$hasGit = $false
-try {
-    git --version 2>$null | Out-Null
-    $hasGit = $true
-} catch {}
-
-if ($hasGit) {
-    Write-Host "   Cloning repository..." -ForegroundColor Yellow
-    if (Test-Path $webSearchDir) {
-        Remove-Item -Path $webSearchDir -Recurse -Force 2>$null
-    }
-    git clone https://github.com/pskill9/web-search.git $webSearchDir 2>$null
-} else {
-    Write-Host "   Downloading repository..." -ForegroundColor Yellow
-    $zipUrl = "https://github.com/pskill9/web-search/archive/refs/heads/main.zip"
-    $zipPath = "$env:TEMP\web-search.zip"
+# 3. Install Web-search MCP
+if (-not $Minimal) {
+    Write-Host ""
+    Write-Host "3. Installing Web-search MCP..." -ForegroundColor Yellow
     
-    Invoke-WebRequest -Uri $zipUrl -OutFile $zipPath -UseBasicParsing
+    $webSearchDir = "$env:USERPROFILE\mcp-servers\web-search"
     
-    if (Test-Path $webSearchDir) {
-        Remove-Item -Path $webSearchDir -Recurse -Force
-    }
+    # Check for Git
+    $hasGit = $false
+    try {
+        git --version 2>$null | Out-Null
+        $hasGit = $true
+    } catch {}
     
-    Expand-Archive -Path $zipPath -DestinationPath "$env:USERPROFILE\mcp-servers" -Force
-    Move-Item "$env:USERPROFILE\mcp-servers\web-search-main" $webSearchDir -Force
-    Remove-Item $zipPath
-}
-
-Write-Host "   Building server..." -ForegroundColor Yellow
-Push-Location $webSearchDir
-npm install --silent 2>$null
-npm run build --silent 2>$null
-Pop-Location
-
-try {
-    claude mcp remove web-search 2>$null | Out-Null
-} catch {}
-
-$indexPath = "$webSearchDir\build\index.js"
-if (Test-Path $indexPath) {
-    claude mcp add web-search -- cmd /c node "$indexPath"
-    Write-Host "   ✓ Web-search MCP installed" -ForegroundColor Green
-} else {
-    Write-Host "   ✗ Failed to build Web-search MCP" -ForegroundColor Red
-}
-
-# Download configuration files
-Write-Host ""
-Write-Host "4. Installing configuration files..." -ForegroundColor Cyan
-
-$claudeDir = "$env:USERPROFILE\.claude"
-if (-not (Test-Path $claudeDir)) {
-    New-Item -ItemType Directory -Path $claudeDir -Force | Out-Null
-}
-
-$configs = @(
-    @{Name="settings.json"; Url="https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/settings.json"},
-    @{Name=".mcp.json"; Url="https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/.mcp.json"}
-)
-
-foreach ($config in $configs) {
-    $dest = "$claudeDir\$($config.Name)"
-    
-    if (Test-Path $dest) {
-        Write-Host "   • $($config.Name) exists (skipped)" -ForegroundColor Yellow
-    } else {
-        try {
-            $webClient = New-Object System.Net.WebClient
-            $bytes = $webClient.DownloadData($config.Url)
-            [System.IO.File]::WriteAllBytes($dest, $bytes)
-            $webClient.Dispose()
-            Write-Host "   ✓ $($config.Name) installed" -ForegroundColor Green
-        } catch {
-            Write-Host "   ✗ Failed to download $($config.Name)" -ForegroundColor Red
+    if ($hasGit) {
+        Write-Host "   Cloning repository..." -ForegroundColor Gray
+        if (Test-Path $webSearchDir) {
+            Remove-Item -Path $webSearchDir -Recurse -Force 2>$null
         }
+        git clone https://github.com/pskill9/web-search.git $webSearchDir 2>$null
+    } else {
+        Write-Host "   Downloading repository..." -ForegroundColor Gray
+        $zipUrl = "https://github.com/pskill9/web-search/archive/refs/heads/main.zip"
+        $zipPath = "$env:TEMP\web-search.zip"
+        
+        Invoke-WebRequest -Uri $zipUrl -OutFile $zipPath -UseBasicParsing
+        
+        if (Test-Path $webSearchDir) {
+            Remove-Item -Path $webSearchDir -Recurse -Force
+        }
+        
+        Expand-Archive -Path $zipPath -DestinationPath "$env:USERPROFILE\mcp-servers" -Force
+        Move-Item "$env:USERPROFILE\mcp-servers\web-search-main" $webSearchDir -Force
+        Remove-Item $zipPath
+    }
+    
+    Write-Host "   Building server..." -ForegroundColor Gray
+    Push-Location $webSearchDir
+    npm install --silent 2>$null
+    npm run build --silent 2>$null
+    Pop-Location
+    
+    try {
+        claude mcp remove web-search 2>$null | Out-Null
+    } catch {}
+    
+    $indexPath = "$webSearchDir\build\index.js"
+    if (Test-Path $indexPath) {
+        claude mcp add web-search -- cmd /c node "$indexPath"
+        Write-Host "   ✓ Web-search MCP installed" -ForegroundColor Green
+    } else {
+        Write-Host "   ✗ Failed to build Web-search MCP" -ForegroundColor Red
     }
 }
+
+# Create helper scripts
+Write-Host ""
+Write-Host "Creating helper scripts..." -ForegroundColor Yellow
+
+# Create a quick fix script in user's home directory
+$quickFixScript = @'
+# Quick Playwright Fix (Edge Only - Preserves Chrome)
+param([switch]$Silent)
+if (-not $Silent) { Write-Host "Fixing Playwright Edge browser locks..." -ForegroundColor Yellow }
+Stop-Process -Name msedge,msedgewebview2 -Force -ErrorAction SilentlyContinue
+Remove-Item "$env:LOCALAPPDATA\ms-playwright\mcp-edge" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item "$env:LOCALAPPDATA\ms-playwright\msedge-*" -Recurse -Force -ErrorAction SilentlyContinue
+if (-not $Silent) { Write-Host "✓ Edge browser locks cleared (Chrome untouched)" -ForegroundColor Green }
+'@
+
+$quickFixPath = "$env:USERPROFILE\fix-playwright.ps1"
+$quickFixScript | Out-File -FilePath $quickFixPath -Encoding UTF8
+Write-Host "  ✓ Created quick fix script: $quickFixPath" -ForegroundColor Green
 
 # Summary
 Write-Host ""
-Write-Host "=================================" -ForegroundColor Cyan
-Write-Host " MCP Installation Complete" -ForegroundColor Cyan
-Write-Host "=================================" -ForegroundColor Cyan
+Write-Host "======================================" -ForegroundColor Cyan
+Write-Host " MCP Installation Complete!" -ForegroundColor Cyan
+Write-Host "======================================" -ForegroundColor Cyan
 Write-Host ""
 
+# List installed servers
 Write-Host "Installed MCP servers:" -ForegroundColor Green
-claude mcp list 2>$null
+claude mcp list 2>$null | ForEach-Object { Write-Host "  $_" -ForegroundColor Gray }
 
 Write-Host ""
-Write-Host "Test your MCP servers:" -ForegroundColor Yellow
+Write-Host "✅ Playwright is configured for HEADED MODE (browser visible)" -ForegroundColor Green
+Write-Host ""
+
+# Test commands
+Write-Host "Test your setup:" -ForegroundColor Yellow
 Write-Host '  claude "Use playwright to go to example.com"' -ForegroundColor Gray
-Write-Host '  claude "Use web-search to find news about AI"' -ForegroundColor Gray
-if ($apiKey) {
-    Write-Host '  claude "Use obsidian to list files in vault"' -ForegroundColor Gray
+if (-not $Minimal) {
+    Write-Host '  claude "Use web-search to find news about AI"' -ForegroundColor Gray
 }
 
 Write-Host ""
-Write-Host "For detailed setup and troubleshooting:" -ForegroundColor Cyan
-Write-Host "  https://github.com/KrypticGadget/Claude_Code_Dev_Stack/docs/MCP_COMPLETE_GUIDE.md" -ForegroundColor White
+Write-Host "Quick fixes if browser locks occur:" -ForegroundColor Yellow
+Write-Host "  fix-playwright" -ForegroundColor Gray
+Write-Host "  OR" -ForegroundColor Gray
+Write-Host "  powershell -File `"$quickFixPath`"" -ForegroundColor Gray
+
+Write-Host ""
+Write-Host "For detailed documentation:" -ForegroundColor Cyan
+Write-Host "  https://github.com/KrypticGadget/Claude_Code_Dev_Stack" -ForegroundColor White
 Write-Host ""
 
-return 0
+# Return success
+exit 0
