@@ -36,7 +36,7 @@ Write-Host ""
 Write-Host "Installing MCP servers..." -ForegroundColor Yellow
 Write-Host ""
 
-# Install Playwright MCP (headless by default)
+# Install Playwright MCP (headed mode - browser UI visible)
 Write-Host "1. Installing Playwright MCP..." -ForegroundColor Cyan
 try {
     # Remove if exists
@@ -44,8 +44,8 @@ try {
 } catch {}
 
 try {
-    claude mcp add playwright -- cmd /c npx '@playwright/mcp@latest' --headless
-    Write-Host "   ✓ Playwright MCP installed (headless mode)" -ForegroundColor Green
+    claude mcp add playwright -- cmd /c npx '@playwright/mcp@latest'
+    Write-Host "   ✓ Playwright MCP installed (headed mode - browser UI visible)" -ForegroundColor Green
 } catch {
     Write-Host "   ✗ Failed to install Playwright MCP" -ForegroundColor Red
 }
