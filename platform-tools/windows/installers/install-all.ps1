@@ -1,4 +1,4 @@
-# Ultimate Claude Code Dev Stack Installer v3.1
+# Ultimate Claude Code Dev Stack Installer v3.0
 # Downloads all components + Ultimate Audio System from GitHub to ~/.claude
 # Now with automatic Playwright browser lock fixes!
 
@@ -22,19 +22,19 @@ function Write-Log {
 }
 
 Write-Log "========================================="
-Write-Log "Ultimate Claude Code Dev Stack Installer v3.1"
+Write-Log "Ultimate Claude Code Dev Stack Installer v3.0"
 Write-Log "==========================================="
 Write-Log "Log file: $logFile"
 
 # Base URLs
 $baseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/installers"
 
-Write-Log "Installing 5 components:"
-Write-Log "1. Agents (28 files)"
-Write-Log "2. Commands (18 files)" 
-Write-Log "3. Hooks (13 files)"
-Write-Log "4. MCP configs"
-Write-Log "5. Ultimate Audio System (50 sounds + orchestrator)"
+Write-Log "Installing 5 V3.0 components:"
+Write-Log "1. Agents (28 V3-enhanced files with orchestration)"
+Write-Log "2. Commands (18 files with /orchestrate-demo)" 
+Write-Log "3. V3 Hooks (19 files - status line, context manager, smart orchestrator)"
+Write-Log "4. MCP configs (Playwright, Obsidian, Web Search)"
+Write-Log "5. V3 Audio System (50 phase-aware sounds + orchestrator)"
 
 # Component installers
 $components = @(
@@ -100,12 +100,14 @@ Write-Host "======================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "Files installed to: $env:USERPROFILE\.claude" -ForegroundColor White
 Write-Host ""
-Write-Host "✨ NEW ULTIMATE FEATURES:" -ForegroundColor Cyan
-Write-Host "  • 50 JARVIS-style audio notifications" -ForegroundColor White
-Write-Host "  • Master orchestrator for smart routing" -ForegroundColor White
-Write-Host "  • Meta-prompt transformation" -ForegroundColor White
-Write-Host "  • Development phase detection" -ForegroundColor White
-Write-Host "  • Input detection with audio alerts" -ForegroundColor White
+Write-Host "✨ V3.0 FEATURES:" -ForegroundColor Cyan
+Write-Host "  • Real-time status line (100ms updates)" -ForegroundColor White
+Write-Host "  • Context manager with token tracking" -ForegroundColor White
+Write-Host "  • Smart orchestrator with context-aware agent selection" -ForegroundColor White
+Write-Host "  • Parallel execution engine for concurrent agents" -ForegroundColor White
+Write-Host "  • Chat handoff documentation system" -ForegroundColor White
+Write-Host "  • 28 V3-enhanced agents with orchestration patterns" -ForegroundColor White
+Write-Host "  • 50 phase-aware audio notifications" -ForegroundColor White
 Write-Host "  • ✅ Playwright HEADED MODE (Edge browser visible!)" -ForegroundColor Green
 Write-Host "  • 🔒 Chrome preserved for your browsing!" -ForegroundColor Cyan
 Write-Host ""

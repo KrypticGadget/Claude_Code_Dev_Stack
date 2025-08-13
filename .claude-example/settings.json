@@ -79,6 +79,11 @@
         "hooks": [
           {
             "type": "command",
+            "command": "$HOME/.claude/hooks/smart_orchestrator.py",
+            "timeout": 5
+          },
+          {
+            "type": "command",
             "command": "$HOME/.claude/hooks/master_orchestrator.py",
             "timeout": 5
           },
@@ -91,6 +96,11 @@
             "type": "command",
             "command": "$HOME/.claude/hooks/slash_command_router.py",
             "timeout": 3
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/context_manager.py",
+            "timeout": 2
           }
         ]
       }
@@ -98,6 +108,11 @@
     "SessionStart": [
       {
         "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/status_line_manager.py",
+            "timeout": 2
+          },
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/session_loader.py",
@@ -242,6 +257,35 @@
     }
   },
   "version": "5.0",
+  "v3Features": {
+    "statusLine": {
+      "enabled": true,
+      "updateInterval": 100,
+      "showInPrompt": true,
+      "components": ["model", "git", "phase", "agents", "tokens", "health"]
+    },
+    "contextManager": {
+      "enabled": true,
+      "autoHandoff": true,
+      "tokenWarning": 0.8,
+      "tokenCritical": 0.9,
+      "depthWarning": 15,
+      "depthCritical": 20
+    },
+    "smartOrchestrator": {
+      "enabled": true,
+      "contextAware": true,
+      "parallelExecution": true,
+      "learningEnabled": true
+    },
+    "audioV3": {
+      "enabled": false,
+      "modelSpecific": true,
+      "gitSounds": true,
+      "agentSounds": true,
+      "phaseSounds": true
+    }
+  },
   "features": {
     "audioFeedback": true,
     "bashCategorization": true,

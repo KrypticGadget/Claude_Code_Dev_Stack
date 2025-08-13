@@ -1,0 +1,157 @@
+{
+  "audio_files": {
+    "project_created.wav": "Project initialized successfully",
+    "ready_for_input.wav": "Ready for your input",
+    "agent_activated.wav": "Agent activated",
+    "pipeline_complete.wav": "Pipeline completed",
+    "pipeline_initiated.wav": "Pipeline initiated",
+    "confirm_required.wav": "Confirmation required",
+    "file_operation_pending.wav": "File operation pending",
+    "file_operation_complete.wav": "File operation complete",
+    "command_execution_pending.wav": "Command execution pending",
+    "command_successful.wav": "Command successful",
+    "planning_complete.wav": "Planning complete",
+    "processing.wav": "Processing",
+    "analyzing.wav": "Analyzing",
+    "working.wav": "Working",
+    "awaiting_input.wav": "Awaiting input",
+    "milestone_complete.wav": "Milestone complete",
+    "operation_complete.wav": "Operation complete",
+    "phase_complete.wav": "Phase complete",
+    "decision_required.wav": "Decision required",
+    "awaiting_confirmation.wav": "Awaiting confirmation",
+    "permission_required.wav": "Permission required",
+    "build_successful.wav": "Build successful",
+    
+    "mkdir_operation.wav": "Creating directory",
+    "touch_operation.wav": "Creating new file",
+    "copy_operation.wav": "Copying files",
+    "move_operation.wav": "Moving files",
+    "delete_operation.wav": "Deleting files",
+    
+    "git_status.wav": "Checking git status",
+    "git_commit.wav": "Creating git commit",
+    "git_push.wav": "Pushing to remote repository",
+    "git_pull.wav": "Pulling latest changes",
+    
+    "npm_build.wav": "Running npm build",
+    "make_build.wav": "Building with make",
+    "cargo_build.wav": "Building rust project",
+    
+    "running_tests.wav": "Running test suite",
+    "tests_passed.wav": "All tests passed",
+    "tests_failed.wav": "Tests failed",
+    
+    "installing_packages.wav": "Installing packages",
+    "pip_install.wav": "Installing Python packages",
+    "npm_install.wav": "Installing node modules",
+    
+    "docker_building.wav": "Building Docker image",
+    "docker_running.wav": "Starting Docker container",
+    
+    "checking_files.wav": "Listing directory contents",
+    "searching_files.wav": "Searching for files",
+    "changing_directory.wav": "Navigating to directory",
+    
+    "http_request.wav": "Making HTTP request",
+    "downloading_file.wav": "Downloading file",
+    "ssh_connection.wav": "Establishing SSH connection",
+    
+    "venv_required.wav": "Virtual environment required",
+    "venv_activated.wav": "Virtual environment activated",
+    "no_venv_warning.wav": "Warning - no virtual environment",
+    
+    "frontend_agent.wav": "Frontend agent working",
+    "backend_agent.wav": "Backend agent processing",
+    "database_agent.wav": "Database agent executing",
+    "master_orchestrator.wav": "Orchestrator coordinating",
+    
+    "analyzing_code.wav": "Analyzing your code",
+    "generating_code.wav": "Generating code",
+    "reviewing_changes.wav": "Reviewing changes",
+    "optimizing_performance.wav": "Optimizing performance",
+    
+    "risky_command.wav": "Caution - risky command detected",
+    "permission_denied.wav": "Permission denied",
+    "file_exists.wav": "File already exists",
+    
+    "command_failed.wav": "Command execution failed",
+    "file_not_found.wav": "File not found",
+    "connection_error.wav": "Connection error",
+    
+    "playwright_automation.wav": "Playwright browser automation",
+    "obsidian_notes.wav": "Obsidian note management",
+    "web_search.wav": "Searching the web",
+    
+    "auto_accepting.wav": "Auto-accepting operation",
+    "auto_mode_active.wav": "Automatic mode active",
+    
+    "startup.wav": "Claude Code V3 initialized",
+    "phase_planning.wav": "Entering planning phase",
+    "phase_implementation.wav": "Beginning implementation",
+    "phase_testing.wav": "Starting test execution",
+    "phase_deployment.wav": "Deploying to production",
+    "phase_complete.wav": "Phase completed successfully",
+    
+    "token_warning.wav": "Token usage at 80 percent",
+    "token_critical.wav": "Token usage critical - handoff recommended",
+    "handoff_generated.wav": "Handoff documentation generated",
+    
+    "parallel_execution.wav": "Executing agents in parallel",
+    "context_saved.wav": "Context saved successfully",
+    "context_loaded.wav": "Context loaded successfully",
+    
+    "orchestration_started.wav": "Orchestration initiated",
+    "orchestration_complete.wav": "Orchestration completed",
+    "agent_delegating.wav": "Delegating to specialized agent",
+    
+    "v3_feature_activated.wav": "V3 feature activated",
+    "smart_routing.wav": "Smart routing engaged",
+    "status_update.wav": "Status line updated"
+  },
+  
+  "voice_settings": {
+    "default": {
+      "voice": "en-US-AriaNeural",
+      "rate": "-5%",
+      "pitch": "-5Hz"
+    },
+    "error": {
+      "voice": "en-US-JennyNeural",
+      "rate": "-10%",
+      "pitch": "-10Hz"
+    },
+    "jarvis": {
+      "voice": "en-GB-RyanNeural",
+      "rate": "-5%",
+      "pitch": "-10Hz"
+    },
+    "warning": {
+      "voice": "en-US-JennyNeural",
+      "rate": "-5%",
+      "pitch": "+0Hz"
+    }
+  },
+  
+  "categories": {
+    "system": ["startup", "ready_for_input", "awaiting_input", "processing", "analyzing", "working"],
+    "agents": ["agent_activated", "frontend_agent", "backend_agent", "database_agent", "master_orchestrator", "agent_delegating"],
+    "files": ["file_operation_pending", "file_operation_complete", "mkdir_operation", "touch_operation", "copy_operation", "move_operation", "delete_operation"],
+    "git": ["git_status", "git_commit", "git_push", "git_pull"],
+    "build": ["npm_build", "make_build", "cargo_build", "build_successful"],
+    "test": ["running_tests", "tests_passed", "tests_failed"],
+    "packages": ["installing_packages", "pip_install", "npm_install"],
+    "docker": ["docker_building", "docker_running"],
+    "navigation": ["checking_files", "searching_files", "changing_directory"],
+    "network": ["http_request", "downloading_file", "ssh_connection"],
+    "venv": ["venv_required", "venv_activated", "no_venv_warning"],
+    "status": ["analyzing_code", "generating_code", "reviewing_changes", "optimizing_performance"],
+    "warnings": ["risky_command", "permission_denied", "file_exists"],
+    "errors": ["command_failed", "file_not_found", "connection_error"],
+    "mcp": ["playwright_automation", "obsidian_notes", "web_search"],
+    "auto": ["auto_accepting", "auto_mode_active"],
+    "phases": ["phase_planning", "phase_implementation", "phase_testing", "phase_deployment", "phase_complete"],
+    "tokens": ["token_warning", "token_critical", "handoff_generated"],
+    "v3": ["v3_feature_activated", "smart_routing", "status_update", "parallel_execution", "orchestration_started", "orchestration_complete"]
+  }
+}

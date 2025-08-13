@@ -1,9 +1,9 @@
-# Simple Claude Code Dev Stack Uninstaller for Windows
-# Removes all components from ~/.claude
+# Claude Code Dev Stack V3.0 Uninstaller for Windows
+# Removes all V3 components from ~/.claude
 
 Write-Host ""
-Write-Host "Claude Code Dev Stack - Complete Uninstaller" -ForegroundColor Red
-Write-Host "============================================" -ForegroundColor Red
+Write-Host "Claude Code Dev Stack V3.0 - Complete Uninstaller" -ForegroundColor Red
+Write-Host "=================================================" -ForegroundColor Red
 Write-Host ""
 
 # Define what will be removed

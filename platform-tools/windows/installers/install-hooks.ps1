@@ -1,10 +1,10 @@
-# Ultimate Claude Code Hooks & Audio System Installer v5.0
-# Complete system with audio categorization, venv enforcement, and hierarchical orchestration
+# Ultimate Claude Code Hooks & Audio System Installer v3.0
+# V3.0 Complete system with status line, context manager, smart orchestration, and parallel execution
 
 Write-Host @"
 ╔════════════════════════════════════════════════════════════════╗
-║   Ultimate Claude Code Hooks & Audio System Installer v5.0     ║
-║  Enhanced Audio + Bash Categorization + Venv + Orchestration   ║
+║   Ultimate Claude Code Hooks & Audio System Installer v3.0     ║
+║   V3.0: Status Line + Context Manager + Smart Orchestration    ║
 ╚════════════════════════════════════════════════════════════════╝
 "@ -ForegroundColor Cyan
 
@@ -79,24 +79,28 @@ if (Test-Path $settingsPath) {
 # Step 4: Install optimized hooks INCLUDING ULTIMATE SYSTEM
 Write-Host "`n📝 Installing Ultimate Hook System..." -ForegroundColor Yellow
 
-# Enhanced system hooks with v5.0 features (14 total)
+# V3.0 Enhanced system hooks (19 total)
 $hooks = @(
+    # Core V3.0 Components (6 hooks)
+    "status_line_manager.py",     # Real-time status line with 100ms updates
+    "context_manager.py",         # Token management and handoff thresholds
+    "smart_orchestrator.py",      # Context-aware agent selection
+    "chat_manager_v3.py",         # Chat handoff documentation
+    "parallel_execution_engine.py", # Concurrent agent execution
+    "audio_player_v3.py",         # V3 audio system with phase sounds
+    
     # Core functionality (5 hooks)
     "agent_mention_parser.py",    # Routes @agent- mentions
     "slash_command_router.py",    # Enhanced with MCP commands & hierarchy
-    "audio_player.py",            # Enhanced with categorization & auto-accept
+    "audio_player.py",            # Legacy audio system
     "audio_notifier.py",          # Alternative audio system
     "planning_trigger.py",        # Todo management
     
-    # NEW v5.0 HOOKS (1 new)
+    # Enhanced features (2 hooks)
     "venv_enforcer.py",          # Virtual environment enforcement
-    
-    # ULTIMATE SYSTEM HOOKS (3)
     "master_orchestrator.py",     # Master orchestrator for intelligent routing
-    "audio_controller.py",        # Advanced audio controller
-    "ultimate_claude_hook.py",   # Simplified ultimate system
     
-    # Minimal session management (3 hooks - lightweight versions)
+    # Session management (3 hooks - lightweight versions)
     "session_loader.py",          # Minimal - just acknowledges
     "session_saver.py",          # Minimal - just timestamp
     "model_tracker.py",          # Minimal - daily count only

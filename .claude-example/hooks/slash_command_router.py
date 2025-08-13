@@ -147,6 +147,37 @@ COMMAND_MAPPINGS = {
         ],
         "mcps": ["web-search", "playwright", "obsidian"],
         "description": "Full agent orchestration demonstration with all 27 agents"
+    },
+    # V3.0 Commands
+    "/v3-status": {
+        "agents": [],
+        "mcps": [],
+        "description": "Show V3 system status and health"
+    },
+    "/v3-handoff": {
+        "agents": [],
+        "mcps": [],
+        "description": "Generate handoff documentation for current chat"
+    },
+    "/v3-parallel": {
+        "agents": ["master-orchestrator"],
+        "mcps": [],
+        "description": "Execute agents in parallel mode"
+    },
+    "/v3-smart-build": {
+        "agents": ["smart-orchestrator", "master-orchestrator"],
+        "mcps": ["web-search"],
+        "description": "V3 smart build with context-aware orchestration"
+    },
+    "/v3-test": {
+        "agents": [],
+        "mcps": [],
+        "description": "Run V3 system tests"
+    },
+    "/v3-enhance-agents": {
+        "agents": [],
+        "mcps": [],
+        "description": "Enhance all agents with V3 capabilities"
     }
 }
 
