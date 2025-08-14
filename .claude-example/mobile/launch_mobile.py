@@ -309,8 +309,9 @@ class SecureMobileLauncher:
             from io import BytesIO
             import base64
             
-            # Create QR code with URL and auth token
-            qr_data = f"{url}?auth={auth_token}"
+            # Create QR code with just the tunnel URL (no auth parameter)
+            # The dashboard doesn't understand the auth parameter
+            qr_data = url
             
             qr = qrcode.QRCode(
                 version=1,
@@ -332,7 +333,7 @@ class SecureMobileLauncher:
             
             # Also create ASCII QR for terminal display
             qr_ascii = qrcode.QRCode()
-            qr_ascii.add_data(qr_data)
+            qr_ascii.add_data(url)  # Just the URL, no auth
             qr_ascii.make()
             
             # Print ASCII QR code

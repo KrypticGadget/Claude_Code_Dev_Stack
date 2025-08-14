@@ -293,9 +293,9 @@ DISPLAY_TEMPLATE = """
             </div>
             
             <div class="info-row">
-                <span class="info-label">🔗 Quick Link:</span>
-                <span class="info-value">{{ url }}?auth={{ auth_token }}</span>
-                <button class="copy-btn" onclick="copyToClipboard('{{ url }}?auth={{ auth_token }}')">Copy</button>
+                <span class="info-label">🔗 Dashboard URL:</span>
+                <span class="info-value">{{ url }}</span>
+                <button class="copy-btn" onclick="copyToClipboard('{{ url }}')">Copy</button>
             </div>
             
             <div class="info-row">
@@ -314,8 +314,8 @@ DISPLAY_TEMPLATE = """
             <h3>📋 How to Access on Samsung Galaxy S25 Edge</h3>
             <ol>
                 <li><strong>Method 1:</strong> Scan the QR code above with your Samsung Camera</li>
-                <li><strong>Method 2:</strong> Copy the Quick Link and paste in Samsung Internet Browser</li>
-                <li><strong>Method 3:</strong> Check your phone notifications for the push notification</li>
+                <li><strong>Method 2:</strong> Copy the Dashboard URL and paste in Samsung Internet Browser</li>
+                <li><strong>Method 3:</strong> Enter the URL manually and use the auth token if prompted</li>
             </ol>
             <p style="margin-top: 15px;">
                 <strong>Features:</strong> Real-time sync, Edge lighting effects, Haptic feedback, 
@@ -346,10 +346,10 @@ DISPLAY_TEMPLATE = """
             });
         }
         
-        // Auto-refresh every 5 seconds to update status
+        // Auto-refresh every 30 seconds to update status (not too often)
         setTimeout(() => {
             location.reload();
-        }, 5000);
+        }, 30000);
     </script>
 </body>
 </html>
