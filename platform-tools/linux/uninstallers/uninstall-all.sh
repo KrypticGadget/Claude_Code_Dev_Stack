@@ -1,6 +1,6 @@
 #!/bin/bash
-# Claude Code Dev Stack - Uninstall All Components
-# Simple script to remove all Claude Code components
+# Claude Code Dev Stack V3.0+ - Uninstall All Components
+# Simple script to remove all Claude Code V3+ components
 
 set -e
 
@@ -25,11 +25,16 @@ log_error() {
 
 # Main uninstall function
 uninstall_all() {
-    log_warning "This will remove all Claude Code Dev Stack components:"
-    echo "  - ~/.claude/agents"
-    echo "  - ~/.claude/commands"
-    echo "  - ~/.claude/hooks"
-    echo "  - ~/.claude/mcps"
+    log_warning "This will remove all Claude Code Dev Stack V3.0+ components:"
+    echo "  - ~/.claude/agents (28 V3+ agent files)"
+    echo "  - ~/.claude/commands (20+ command files)"
+    echo "  - ~/.claude/hooks (19 hook files)"
+    echo "  - ~/.claude/audio (96 audio files)"
+    echo "  - ~/.claude/logs (system logs)"
+    echo "  - ~/.claude/state (state management)"
+    echo "  - ~/.claude/backups (backup files)"
+    echo "  - ~/.claude/mobile (mobile configs)"
+    echo "  - ~/.claude/tunnels (tunnel configs)"
     echo "  - MCP configuration files"
     echo ""
     
@@ -61,10 +66,40 @@ uninstall_all() {
         log_info "Removed hooks directory"
     fi
     
-    # Remove mcps directory
-    if [[ -d "$HOME/.claude/mcps" ]]; then
-        rm -rf "$HOME/.claude/mcps"
-        log_info "Removed mcps directory"
+    # Remove audio directory
+    if [[ -d "$HOME/.claude/audio" ]]; then
+        rm -rf "$HOME/.claude/audio"
+        log_info "Removed audio directory (96 files)"
+    fi
+    
+    # Remove logs directory
+    if [[ -d "$HOME/.claude/logs" ]]; then
+        rm -rf "$HOME/.claude/logs"
+        log_info "Removed logs directory"
+    fi
+    
+    # Remove state directory
+    if [[ -d "$HOME/.claude/state" ]]; then
+        rm -rf "$HOME/.claude/state"
+        log_info "Removed state directory"
+    fi
+    
+    # Remove backups directory
+    if [[ -d "$HOME/.claude/backups" ]]; then
+        rm -rf "$HOME/.claude/backups"
+        log_info "Removed backups directory"
+    fi
+    
+    # Remove mobile directory
+    if [[ -d "$HOME/.claude/mobile" ]]; then
+        rm -rf "$HOME/.claude/mobile"
+        log_info "Removed mobile directory"
+    fi
+    
+    # Remove tunnels directory
+    if [[ -d "$HOME/.claude/tunnels" ]]; then
+        rm -rf "$HOME/.claude/tunnels"
+        log_info "Removed tunnels directory"
     fi
     
     # Remove MCP config files
@@ -84,7 +119,8 @@ uninstall_all() {
         log_info "Removed empty MCP config directory"
     fi
     
-    log_info "Uninstallation completed successfully"
+    log_info "V3.0+ uninstallation completed successfully"
+    log_info "All mobile launchers and tunnel configs removed"
     return 0
 }
 

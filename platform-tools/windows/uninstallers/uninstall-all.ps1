@@ -1,9 +1,9 @@
-# Claude Code Dev Stack V3.0 Uninstaller for Windows
-# Removes all V3 components from ~/.claude
+# Claude Code Dev Stack V3.0+ Uninstaller for Windows
+# Removes all V3+ components from ~/.claude
 
 Write-Host ""
-Write-Host "Claude Code Dev Stack V3.0 - Complete Uninstaller" -ForegroundColor Red
-Write-Host "=================================================" -ForegroundColor Red
+Write-Host "Claude Code Dev Stack V3.0+ - Complete Uninstaller" -ForegroundColor Red
+Write-Host "==================================================" -ForegroundColor Red
 Write-Host ""
 
 # Define what will be removed
@@ -14,6 +14,11 @@ $componentsToRemove = @(
     "$claudeDir\commands",
     "$claudeDir\hooks",
     "$claudeDir\audio",
+    "$claudeDir\logs",
+    "$claudeDir\state",
+    "$claudeDir\backups",
+    "$claudeDir\mobile",
+    "$claudeDir\tunnels",
     "$claudeDir\settings.json",
     "$claudeDir\.mcp.json"
 )
@@ -101,7 +106,8 @@ if ($failed -gt 0) {
     Write-Host "  Components failed: $failed" -ForegroundColor Red
 }
 Write-Host ""
-Write-Host "Claude Code Dev Stack has been uninstalled." -ForegroundColor Green
+Write-Host "Claude Code Dev Stack V3.0+ has been uninstalled." -ForegroundColor Green
+Write-Host "All V3+ components, mobile launchers, and tunnel configs removed." -ForegroundColor Gray
 Write-Host ""
 
 # Return instead of exit

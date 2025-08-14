@@ -169,121 +169,115 @@ if ($failedCount -gt 0) {
     Write-Host "  Failed: $failedCount hooks" -ForegroundColor Red
 }
 
-# Step 5: Install Complete Audio System V3.0+ (102 phase-aware sounds)
-Write-Host "`n🎵 Installing Complete Audio System V3.0+ (102 phase-aware audio files)..." -ForegroundColor Yellow
+# Step 5: Install Complete Audio System V3.0+ (96 phase-aware sounds)
+Write-Host "`n🎵 Installing Complete Audio System V3.0+ (96 phase-aware audio files)..." -ForegroundColor Yellow
 
-# Optimized 22 audio files with intelligent detection
+# Complete V3+ Audio System - All 96 Audio Files (exact match to .claude-example/audio)
 $audioFiles = @(
-    # Core System Files (21) - Original compatibility files
-    "project_created.wav",
-    "ready_for_input.wav",
     "agent_activated.wav",
+    "agent_delegating.wav",
+    "analyzing.wav",
+    "analyzing_code.wav",
+    "auto_accepting.wav",
+    "auto_mode_active.wav",
+    "awaiting_confirmation.wav",
+    "awaiting_input.wav",
+    "backend_agent.wav",
+    "build_successful.wav",
+    "cargo_build.wav",
+    "changing_directory.wav",
+    "checking_files.wav",
+    "command_execution_pending.wav",
+    "command_failed.wav",
+    "command_successful.wav",
+    "confirm_required.wav",
+    "connection_error.wav",
+    "context_loaded.wav",
+    "context_saved.wav",
+    "copy_operation.wav",
+    "dashboard_started.wav",
+    "database_agent.wav",
+    "decision_required.wav",
+    "delete_operation.wav",
+    "dependency_installing.wav",
+    "dependency_missing.wav",
+    "docker_building.wav",
+    "docker_running.wav",
+    "documentation_generating.wav",
+    "downloading_file.wav",
+    "file_exists.wav",
+    "file_operation_complete.wav",
+    "file_operation_pending.wav",
+    "formatting_code.wav",
+    "frontend_agent.wav",
+    "generating_code.wav",
+    "git_commit.wav",
+    "git_pull.wav",
+    "git_push.wav",
+    "git_status.wav",
+    "handoff_generated.wav",
+    "http_request.wav",
+    "installing_packages.wav",
+    "linting_complete.wav",
+    "linting_issues.wav",
+    "linting_started.wav",
+    "make_build.wav",
+    "master_orchestrator.wav",
+    "mkdir_operation.wav",
+    "move_operation.wav",
+    "no_venv_warning.wav",
+    "notification_sent.wav",
+    "npm_build.wav",
+    "npm_install.wav",
+    "obsidian_notes.wav",
+    "operation_complete.wav",
+    "optimizing_performance.wav",
+    "orchestration_complete.wav",
+    "orchestration_started.wav",
+    "parallel_execution.wav",
+    "performance_warning.wav",
+    "permission_required.wav",
+    "phase_complete.wav",
+    "phase_deployment.wav",
+    "phase_implementation.wav",
+    "phase_planning.wav",
+    "pip_install.wav",
     "pipeline_complete.wav",
     "pipeline_initiated.wav",
-    "confirm_required.wav",
-    "file_operation_pending.wav",
-    "file_operation_complete.wav",
-    "command_execution_pending.wav",
-    "command_successful.wav",
     "planning_complete.wav",
+    "playwright_automation.wav",
     "processing.wav",
-    "analyzing.wav",
-    "working.wav",
-    "awaiting_input.wav",
-    "milestone_complete.wav",
-    "operation_complete.wav",
-    "phase_complete.wav",
-    "decision_required.wav",
-    "awaiting_confirmation.wav",
-    "permission_required.wav",
-    "build_successful.wav",
-    
-    # File Operations - SPECIFIC (5)
-    "mkdir_operation.wav",        # Creating directory
-    "touch_operation.wav",        # Creating new file
-    "copy_operation.wav",         # Copying files
-    "move_operation.wav",         # Moving files
-    "delete_operation.wav",       # Deleting files
-    
-    # Git Operations - SPECIFIC (4)
-    "git_status.wav",             # Checking git status
-    "git_commit.wav",             # Creating git commit
-    "git_push.wav",               # Pushing to remote
-    "git_pull.wav",               # Pulling latest changes
-    
-    # Build Operations - SPECIFIC (3)
-    "npm_build.wav",              # Running npm build
-    "make_build.wav",             # Building with make
-    "cargo_build.wav",            # Building rust project
-    
-    # Testing - SPECIFIC (3)
-    "running_tests.wav",          # Running test suite
-    "tests_passed.wav",           # All tests passed
-    "tests_failed.wav",           # Tests failed
-    
-    # Package Management - SPECIFIC (3)
-    "installing_packages.wav",    # Installing packages
-    "pip_install.wav",            # Installing Python packages
-    "npm_install.wav",            # Installing node modules
-    
-    # Docker - SPECIFIC (2)
-    "docker_building.wav",        # Building Docker image
-    "docker_running.wav",         # Starting Docker container
-    
-    # Navigation/Search - SPECIFIC (3)
-    "checking_files.wav",         # Listing directory contents
-    "searching_files.wav",        # Searching for files
-    "changing_directory.wav",     # Navigating to directory
-    
-    # Network - SPECIFIC (3)
-    "http_request.wav",           # Making HTTP request
-    "downloading_file.wav",       # Downloading file
-    "ssh_connection.wav",         # SSH connection
-    
-    # Virtual Environment - SPECIFIC (3)
-    "venv_required.wav",          # Virtual environment required
-    "venv_activated.wav",         # Virtual environment activated
-    "no_venv_warning.wav",        # Warning - no virtual environment
-    
-    # Agent Operations - SPECIFIC (4)
-    "frontend_agent.wav",         # Frontend agent working
-    "backend_agent.wav",          # Backend agent processing
-    "database_agent.wav",         # Database agent executing
-    "master_orchestrator.wav",    # Orchestrator coordinating
-    
-    # Status Updates - SPECIFIC (4)
-    "analyzing_code.wav",         # Analyzing your code
-    "generating_code.wav",        # Generating code
-    "reviewing_changes.wav",      # Reviewing changes
-    "optimizing_performance.wav", # Optimizing performance
-    
-    # Warnings - SPECIFIC (3)
-    "risky_command.wav",          # Caution - risky command
-    "permission_denied.wav",      # Permission denied
-    "file_exists.wav",            # File already exists
-    
-    # Errors - SPECIFIC (3)
-    "command_failed.wav",         # Command execution failed
-    "file_not_found.wav",         # File not found
-    "connection_error.wav",       # Connection error
-    
-    # MCP Services - SPECIFIC (3)
-    "playwright_automation.wav",  # Playwright browser automation
-    "obsidian_notes.wav",         # Obsidian note management
-    "web_search.wav",             # Searching the web
-    
-    # Auto Mode - SPECIFIC (2)
-    "auto_accepting.wav",         # Auto-accepting operation
-    "auto_mode_active.wav"        # Automatic mode active
+    "project_created.wav",
+    "ready_for_input.wav",
+    "resource_warning.wav",
+    "reviewing_changes.wav",
+    "risky_command.wav",
+    "running_tests.wav",
+    "searching_files.wav",
+    "security_scanning.wav",
+    "smart_routing.wav",
+    "ssh_connection.wav",
+    "startup.wav",
+    "status_update.wav",
+    "tests_failed.wav",
+    "tests_passed.wav",
+    "token_critical.wav",
+    "token_warning.wav",
+    "tunnel_connected.wav",
+    "tunnel_disconnected.wav",
+    "venv_activated.wav",
+    "venv_required.wav",
+    "web_search.wav",
+    "working.wav"
 )
 
 # Check if we already have the audio files
 $existingAudio = (Get-ChildItem $audioDir -Filter "*.wav" -ErrorAction SilentlyContinue).Count
 
-if ($existingAudio -ge 102) {
+if ($existingAudio -ge 96) {
     Write-Host "  ✓ Complete audio system V3.0+ already installed ($existingAudio files)" -ForegroundColor Green
 } else {
-    Write-Host "  Downloading 102 phase-aware audio files from GitHub..." -ForegroundColor Cyan
+    Write-Host "  Downloading 96 phase-aware audio files from GitHub..." -ForegroundColor Cyan
     $audioBaseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/audio"
     
     $audioDownloaded = 0
@@ -305,9 +299,9 @@ if ($existingAudio -ge 102) {
             $webClient.Dispose()
             $audioDownloaded++
             
-            # Show progress every 5 files
+            # Show progress every 10 files
             if ($audioDownloaded % 10 -eq 0) {
-                Write-Host "    Downloaded: $audioDownloaded/69" -ForegroundColor Gray
+                Write-Host "    Downloaded: $audioDownloaded/96" -ForegroundColor Gray
             }
         } catch {
             $audioFailed++
@@ -324,9 +318,9 @@ if ($existingAudio -ge 102) {
 
 # Show audio system status
 $finalAudioCount = (Get-ChildItem $audioDir -Filter "*.wav" -ErrorAction SilentlyContinue).Count
-if ($finalAudioCount -ge 102) {
+if ($finalAudioCount -ge 96) {
     Write-Host "`n  🎉 Complete Audio System V3.0+ Ready!" -ForegroundColor Green
-    Write-Host "    • 102 phase-aware audio files with mobile sync" -ForegroundColor Gray
+    Write-Host "    • 96 phase-aware audio files with mobile sync" -ForegroundColor Gray
     Write-Host "    • Specific operation feedback" -ForegroundColor Gray
     Write-Host "    • Agent-specific notifications" -ForegroundColor Gray
     Write-Host "    • Error-specific audio" -ForegroundColor Gray
@@ -338,7 +332,7 @@ if ($finalAudioCount -ge 102) {
     Write-Host "    Core files present, missing some V3+ audio" -ForegroundColor Yellow
 } elseif ($finalAudioCount -gt 0) {
     Write-Host "`n  ⚠ Partial audio system ($finalAudioCount files)" -ForegroundColor Yellow
-    Write-Host "    Only $finalAudioCount of 102 V3+ files installed" -ForegroundColor Yellow
+    Write-Host "    Only $finalAudioCount of 96 V3+ files installed" -ForegroundColor Yellow
 }
 
 # Step 6: Download and merge hook configuration into settings.json
@@ -476,8 +470,8 @@ Write-Host "  ENHANCED HOOKS INSTALLATION COMPLETE" -ForegroundColor Green
 Write-Host "═" * 60 -ForegroundColor Cyan
 
 Write-Host "`n📊 Installation Summary:" -ForegroundColor Cyan
-Write-Host "  • Hooks installed: $installedCount/13" -ForegroundColor White
-Write-Host "  • Audio files: $finalAudioCount/22" -ForegroundColor White
+Write-Host "  • Hooks installed: $installedCount/19" -ForegroundColor White
+Write-Host "  • Audio files: $finalAudioCount/96" -ForegroundColor White
 Write-Host "  • Python command: $pythonCmd" -ForegroundColor White
 Write-Host "  • Configuration: ~/.claude/settings.json" -ForegroundColor White
 
