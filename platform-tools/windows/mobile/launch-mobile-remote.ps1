@@ -73,6 +73,7 @@ $files = @(
     @{path="mobile/mobile_auth.py"; dest="$mobileDir\mobile_auth.py"},
     @{path="mobile/qr_generator.py"; dest="$mobileDir\qr_generator.py"},
     @{path="mobile/README.md"; dest="$mobileDir\README.md"},
+    @{path="dashboard/simple_dashboard.py"; dest="$dashboardDir\simple_dashboard.py"},
     @{path="dashboard/dashboard_server.py"; dest="$dashboardDir\dashboard_server.py"},
     @{path="dashboard/requirements.txt"; dest="$dashboardDir\requirements.txt"},
     @{path="dashboard/templates/dashboard.html"; dest="$dashboardDir\templates\dashboard.html"},

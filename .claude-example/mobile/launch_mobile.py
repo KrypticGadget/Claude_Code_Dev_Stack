@@ -147,10 +147,11 @@ class SecureMobileLauncher:
         """Start dashboard with authentication"""
         try:
             # Download dashboard components if needed
-            if not self.download_component('dashboard', 'dashboard_server.py'):
-                return False
-            if not self.download_component('dashboard', 'requirements.txt'):
-                safe_print("⚠️ Could not download dashboard requirements")
+            # Try simple dashboard first
+            if not self.download_component('dashboard', 'simple_dashboard.py'):
+                safe_print("⚠️ Could not download simple dashboard, trying complex version...")
+                if not self.download_component('dashboard', 'dashboard_server.py'):
+                    return False
             
             # Generate auth token
             auth_token = self.generate_auth_token()
@@ -162,11 +163,22 @@ class SecureMobileLauncher:
             env['CLAUDE_MOBILE_AUTH_TOKEN'] = auth_token
             env['CLAUDE_MOBILE_AUTH_DIR'] = str(self.mobile_dir)
             
-            # Start dashboard with authentication
+            # Try simple dashboard first
+            simple_dashboard = self.mobile_dir / 'dashboard' / 'simple_dashboard.py'
             dashboard_script = self.mobile_dir / 'dashboard' / 'dashboard_server.py'
             
+            if simple_dashboard.exists():
+                script_to_use = simple_dashboard
+                safe_print("Using simple dashboard (no complex dependencies)...")
+            elif dashboard_script.exists():
+                script_to_use = dashboard_script
+                safe_print("Using full dashboard...")
+            else:
+                safe_print("❌ No dashboard script found")
+                return False
+            
             self.dashboard_process = subprocess.Popen([
-                sys.executable, str(dashboard_script),
+                sys.executable, str(script_to_use),
                 '--mobile-auth', auth_token,
                 '--port', str(self.dashboard_port)
             ], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -181,8 +193,10 @@ class SecureMobileLauncher:
             else:
                 stdout, stderr = self.dashboard_process.communicate()
                 safe_print(f"❌ Dashboard failed to start:")
-                print(f"stdout: {stdout.decode()}")
-                print(f"stderr: {stderr.decode()}")
+                if stdout:
+                    print(f"stdout: {stdout.decode()[:500]}")
+                if stderr:
+                    print(f"stderr: {stderr.decode()[:500]}")
                 return False
                 
         except Exception as e:
