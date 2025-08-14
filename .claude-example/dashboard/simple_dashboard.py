@@ -161,17 +161,8 @@ def run_server(port=8080):
     """Run the dashboard server"""
     server_address = ('', port)
     httpd = HTTPServer(server_address, DashboardHandler)
-    safe_print(f"Dashboard server running on http://localhost:{port}")
+    print(f"Dashboard server running on http://localhost:{port}")
     httpd.serve_forever()
-
-def safe_print(text):
-    """Safe print that handles Unicode on Windows"""
-    try:
-        print(text)
-    except UnicodeEncodeError:
-        # Fallback: replace problematic characters
-        safe_text = text.encode('ascii', 'replace').decode('ascii')
-        print(safe_text)
 
 def main():
     """Main entry point"""
@@ -185,14 +176,14 @@ def main():
     
     port = args.port
     
-    safe_print(f"Starting Claude Code V3+ Dashboard on port {port}...")
+    print(f"Starting Claude Code V3+ Dashboard on port {port}...")
     
     try:
         run_server(port)
     except KeyboardInterrupt:
-        safe_print("\nDashboard stopped")
+        print("\nDashboard stopped")
     except Exception as e:
-        safe_print(f"Error: {e}")
+        print(f"Error: {e}")
         sys.exit(1)
 
 if __name__ == '__main__':
