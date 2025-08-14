@@ -202,33 +202,9 @@ class SecureMobileLauncher:
             
             # Check if ngrok auth token is set
             if not os.environ.get('NGROK_AUTH_TOKEN'):
-                safe_print("\n🔐 ngrok authentication required")
-                safe_print("━" * 60)
-                safe_print("ngrok needs a free auth token to create secure tunnels.")
-                safe_print("\n📋 To get your token:")
-                safe_print("1. Go to: https://dashboard.ngrok.com/signup")
-                safe_print("2. Sign up for a free account (takes 30 seconds)")
-                safe_print("3. Copy your auth token from the dashboard")
-                safe_print("━" * 60)
-                
-                # Prompt for token
-                print("\n🔑 Enter your ngrok auth token (or press Enter to skip): ", end="")
-                auth_token = input().strip()
-                
-                if auth_token:
-                    # Set environment variable for this session
-                    os.environ['NGROK_AUTH_TOKEN'] = auth_token
-                    safe_print("✅ Auth token set for this session")
-                    
-                    # Also try to save it permanently (Windows)
-                    try:
-                        subprocess.run(['setx', 'NGROK_AUTH_TOKEN', auth_token], 
-                                     capture_output=True, check=False)
-                        safe_print("✅ Auth token saved for future sessions")
-                    except:
-                        pass
-                else:
-                    safe_print("⚠️ Skipping ngrok, trying alternative tunnel providers...")
+                safe_print("\n⚠️ ngrok auth token not found in environment")
+                safe_print("Please set NGROK_AUTH_TOKEN environment variable or run the launcher again")
+                safe_print("The launcher will prompt you for the token")
             
             safe_print("🌐 Starting secure tunnel...")
             
