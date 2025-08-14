@@ -20,6 +20,9 @@
 # INSTALL EVERYTHING (V3.0+ Complete System)
 iwr -Uri "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/installers/install-all.ps1" -UseBasicParsing | iex
 
+# MOBILE ACCESS (Samsung Galaxy S25 Edge)
+iwr -Uri "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/mobile/launch-mobile-remote.ps1" -UseBasicParsing | iex
+
 # UNINSTALL EVERYTHING
 iwr -Uri "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/uninstallers/uninstall-all.ps1" -UseBasicParsing | iex
 ```
@@ -27,19 +30,25 @@ iwr -Uri "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/
 ### **Linux**
 ```bash
 # INSTALL EVERYTHING (V3.0+ Complete System)
-curl -sSL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/installers/install-all.sh | bash
+curl -fsSL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/installers/install-all.sh | bash
+
+# MOBILE ACCESS (Samsung Galaxy S25 Edge)
+curl -fsSL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/mobile/launch-mobile-remote.sh | bash
 
 # UNINSTALL EVERYTHING
-curl -sSL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/uninstallers/uninstall-all.sh | bash
+curl -fsSL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/uninstallers/uninstall-all.sh | bash
 ```
 
 ### **macOS**
 ```bash
 # INSTALL EVERYTHING (V3.0+ Complete System)
-curl -sSL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/installers/install-all.sh | bash
+curl -fsSL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/installers/install-all.sh | bash
+
+# MOBILE ACCESS (Samsung Galaxy S25 Edge)
+curl -fsSL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/mobile/launch-mobile-remote.sh | bash
 
 # UNINSTALL EVERYTHING
-curl -sSL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/uninstallers/uninstall-all.sh | bash
+curl -fsSL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/uninstallers/uninstall-all.sh | bash
 ```
 
 ---
@@ -49,25 +58,26 @@ curl -sSL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/
 ### **Core Features**
 - 🤖 **28 V3-Enhanced AI Agents** with automatic orchestration & delegation
 - 🔊 **102 Phase-Aware Audio Notifications** (includes 15 new V3+ sounds)
-- 📱 **Remote Android/iOS Monitoring** via Pushover & Telegram
+- 📱 **Remote Mobile Access** for Samsung Galaxy S25 Edge via secure tunnels
+- 📊 **Real-Time Dashboard** with QR code access & push notifications
 - 🎯 **Real-Time Status Line** with 100ms updates
 - ⚡ **Parallel Execution Engine** (4x faster operations)
 - 🔧 **Code Quality Tools** (multi-language linting & formatting)
-- 📊 **Web Monitoring Dashboard** with performance metrics
 - 🌐 **MCP Integration** (Browser, Search, GitHub, Obsidian)
 - 💾 **Smart Resource Management** (prevents file bloat)
 - 📋 **Automatic Documentation** generation
 
 ### **V3.0+ Extended Features (NEW)**
-- 🔔 **Remote Notifications** - Get alerts on your phone anywhere
-- 🛠️ **Quality Gates** - Automatic code linting & formatting
+- 📱 **One-Liner Mobile Access** - Secure GitHub-based deployment for Samsung Galaxy S25 Edge
+- 🔐 **Enterprise Security** - Token authentication, session management, rate limiting
+- 🔔 **Remote Notifications** - Get alerts on your phone anywhere (Pushover/Telegram)
+- 🛠️ **Quality Gates** - Automatic code linting & formatting across 9+ languages
 - 📈 **Performance Monitoring** - Track agent execution & token usage
-- 🔒 **Security Scanning** - Vulnerability detection
-- 🚇 **Tunnel Support** - Remote access via ngrok/Cloudflare
+- 🔒 **Security Scanning** - Vulnerability detection & threat analysis
+- 🚇 **Tunnel Support** - Remote access via ngrok/Cloudflare with auto-fallback
 - 📦 **Dependency Management** - Auto-install missing packages
 - 🗑️ **Resource Cleanup** - Automatic log rotation & compression
 - 📝 **Git Hooks** - Pre-commit quality checks
-- 🎨 **Multi-Language Support** - Python, JS, TS, Go, Rust, Java, Ruby, PHP, C++
 
 ---
 
@@ -122,39 +132,41 @@ python ~/.claude/hooks/code_linter.py project .
 
 ---
 
-## 📱 **Remote Monitoring Setup**
+## 📱 **Mobile Access for Samsung Galaxy S25 Edge**
 
-### **1. Install Notification Services**
+### **🚀 ONE-LINER SETUP (Recommended)**
+```bash
+# Windows
+iwr -Uri "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/mobile/launch-mobile-remote.ps1" -UseBasicParsing | iex
+
+# Linux  
+curl -fsSL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/mobile/launch-mobile-remote.sh | bash
+
+# macOS
+curl -fsSL https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/macos/mobile/launch-mobile-remote.sh | bash
+```
+
+### **✨ What This Gets You**
+- 🔐 **Secure Authentication** with cryptographic tokens
+- 📱 **QR Code Access** - Scan with Samsung camera
+- 📊 **Real-Time Dashboard** - Monitor all 28 agents
+- 🔔 **Push Notifications** via Pushover/Telegram  
+- 🚇 **Auto Tunnel Setup** (ngrok/Cloudflare)
+- 🎭 **MCP Playwright Viewing** - See browser sessions
+- 📈 **Performance Metrics** - Token usage & execution times
+
+### **🔧 Optional: Manual Notification Setup**
 ```bash
 # Pushover (recommended - $5 one-time)
-# 1. Install Pushover app on Android/iOS
-# 2. Get API token from pushover.net
-
-# Telegram (free)
-# 1. Create bot via @BotFather
-# 2. Get bot token and chat ID
-
-# Set environment variables
 export PUSHOVER_TOKEN="your_pushover_token"
 export PUSHOVER_USER="your_pushover_user"
+
+# Telegram (free alternative)
 export TELEGRAM_BOT_TOKEN="your_bot_token"
 export TELEGRAM_CHAT_ID="your_chat_id"
-```
 
-### **2. Setup Remote Access Tunnel**
-```bash
-# Option A: ngrok (easiest)
-ngrok http 8080
-
-# Option B: Cloudflare Tunnel (free)
-cloudflared tunnel create claude-code
-cloudflared tunnel run claude-code
-```
-
-### **3. Start Dashboard**
-```bash
-python ~/.claude/dashboard/dashboard_server.py
-# Access at: http://localhost:8080 (or via tunnel URL)
+# ngrok tunnel (optional - auto-installed)
+export NGROK_TOKEN="your_ngrok_token"
 ```
 
 ---
