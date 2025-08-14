@@ -222,32 +222,22 @@ ngrok needs a free auth token to create secure tunnels.
         Write-ColorText "🚀 Launching mobile access system..." $Green
         Write-Host ""
         
-        # Now just run Python script normally - token is already set
-        # Capture both stdout and stderr
-        $output = & python launch_mobile.py @args 2>&1
+        # Just run the Python script directly and let it handle everything
+        & python launch_mobile.py @args
         
-        # Display the output
-        $output | ForEach-Object {
-            $line = $_
-            if ($line -like "*localhost:6000*" -or $line -like "*http://localhost*") {
-                Write-ColorText $line $Cyan
-            } elseif ($line -like "*SUCCESS*" -or $line -like "*READY*") {
-                Write-ColorText $line $Green
-            } elseif ($line -like "*ERROR*" -or $line -like "*Failed*") {
-                Write-ColorText $line $Red
-            } else {
-                Write-Host $line
-            }
-        }
-        
-        if ($LASTEXITCODE -ne 0) {
-            Write-ColorText "❌ Mobile launcher exited with error code: $LASTEXITCODE" $Red
-            Write-ColorText "Check the output above for error details" $Yellow
+        # Check if it worked
+        if ($LASTEXITCODE -eq 0) {
+            Write-ColorText "`n✅ Mobile launcher completed!" $Green
+            Write-ColorText "📱 Visit http://localhost:6000 for QR code and access info" $Cyan
+            return $true
+        } else {
+            Write-ColorText "`n❌ Mobile launcher encountered an error" $Red
+            Write-ColorText "Try running directly: python $MobileDir\launch_mobile.py" $Yellow
             return $false
         }
     }
     catch {
-        Write-ColorText "❌ Error starting mobile access: $_" $Red
+        Write-ColorText "❌ Error: $_" $Red
         return $false
     }
     finally {
