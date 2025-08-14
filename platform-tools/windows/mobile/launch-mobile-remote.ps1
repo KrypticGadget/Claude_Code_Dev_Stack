@@ -167,6 +167,47 @@ function Start-MobileAccess {
     Write-ColorText "🚀 Starting Claude Code V3+ Mobile Access..." $Green
     Write-ColorText "=" * 60 $Blue
     
+    # Check for ngrok auth token FIRST
+    if (-not $env:NGROK_AUTH_TOKEN) {
+        Write-ColorText @"
+
+🔐 ngrok Authentication Required
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ngrok needs a free auth token to create secure tunnels.
+
+📋 To get your token:
+1. Go to: https://dashboard.ngrok.com/signup
+2. Sign up for a free account (takes 30 seconds)
+3. Copy your auth token from the dashboard
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+"@ $Yellow
+        
+        Write-Host ""
+        $authToken = Read-Host "🔑 Enter your ngrok auth token (or press Enter to skip)"
+        
+        if ($authToken) {
+            # Set for current session
+            $env:NGROK_AUTH_TOKEN = $authToken
+            Write-ColorText "✅ Auth token set for this session" $Green
+            
+            # Save permanently for Windows
+            try {
+                [Environment]::SetEnvironmentVariable("NGROK_AUTH_TOKEN", $authToken, "User")
+                Write-ColorText "✅ Auth token saved for future sessions" $Green
+            }
+            catch {
+                Write-ColorText "⚠️ Could not save token permanently" $Yellow
+            }
+        }
+        else {
+            Write-ColorText "⚠️ Skipping ngrok setup - tunnel may not work" $Yellow
+        }
+        Write-Host ""
+    }
+    else {
+        Write-ColorText "✅ ngrok auth token found in environment" $Green
+    }
+    
     # Build arguments
     $args = @()
     if ($NoPhone) { $args += "--no-phone" }
@@ -180,7 +221,7 @@ function Start-MobileAccess {
         Write-ColorText "🚀 Launching mobile access system..." $Green
         Write-Host ""
         
-        # Start mobile access - use & to ensure output is shown
+        # Now just run Python script normally - token is already set
         & python launch_mobile.py @args
         
         if ($LASTEXITCODE -ne 0) {
