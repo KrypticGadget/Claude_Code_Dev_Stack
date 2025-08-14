@@ -102,6 +102,7 @@ function Download-MobileComponents {
     # Mobile components
     $mobileFiles = @(
         "mobile/launch_mobile.py",
+        "mobile/mobile_display_server.py",  # CRITICAL: Web display for QR code
         "mobile/mobile_auth.py", 
         "mobile/qr_generator.py",
         "mobile/README.md"
@@ -222,10 +223,25 @@ ngrok needs a free auth token to create secure tunnels.
         Write-Host ""
         
         # Now just run Python script normally - token is already set
-        & python launch_mobile.py @args
+        # Capture both stdout and stderr
+        $output = & python launch_mobile.py @args 2>&1
+        
+        # Display the output
+        $output | ForEach-Object {
+            if ($_ -match "localhost:6000" -or $_ -match "http://localhost") {
+                Write-ColorText $_ $Cyan
+            } elseif ($_ -match "✅|SUCCESS|READY") {
+                Write-ColorText $_ $Green
+            } elseif ($_ -match "❌|ERROR|Failed") {
+                Write-ColorText $_ $Red
+            } else {
+                Write-Host $_
+            }
+        }
         
         if ($LASTEXITCODE -ne 0) {
-            Write-ColorText "❌ Mobile launcher exited with error" $Red
+            Write-ColorText "❌ Mobile launcher exited with error code: $LASTEXITCODE" $Red
+            Write-ColorText "Check the output above for error details" $Yellow
             return $false
         }
     }
