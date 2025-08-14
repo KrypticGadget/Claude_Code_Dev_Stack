@@ -447,10 +447,10 @@ class SecureMobileLauncher:
             sys.path.append(str(self.mobile_dir))
             from mobile_display_server import start_display_server
             
-            # Start display server on port 6000
+            # Start display server on port 5555 (safe port)
             safe_print("\n" + "=" * 60)
             safe_print("🌐 Starting mobile access portal...")
-            display_thread = start_display_server(access_info, port=6000)
+            display_thread = start_display_server(access_info, port=5555)
             
             # Keep reference to thread
             self.display_thread = display_thread
@@ -459,7 +459,7 @@ class SecureMobileLauncher:
             safe_print("\n✅ MOBILE ACCESS PORTAL READY!")
             safe_print("=" * 60)
             safe_print("📱 Open this URL in your browser:")
-            safe_print("   http://localhost:6000")
+            safe_print("   http://localhost:5555")
             safe_print("")
             safe_print("🔗 This page will show:")
             safe_print("   • QR code for mobile scanning")
@@ -513,11 +513,15 @@ class SecureMobileLauncher:
             
             # Success!
             safe_print("\n✅ Mobile access launched successfully!")
-            safe_print("\n📱 IMPORTANT: Visit http://localhost:6000 to see:")
+            safe_print("\n📱 IMPORTANT: Visit http://localhost:5555 to see:")
             safe_print("   • QR code for mobile access")
             safe_print("   • Tunnel URL and auth credentials")
             safe_print("   • Samsung Galaxy S25 Edge instructions")
-            print("\n🔄 Monitoring system... Press Ctrl+C to stop")
+            safe_print("")
+            safe_print("📱 Direct mobile access:")
+            safe_print(f"   {tunnel_url}")
+            safe_print("")
+            print("🔄 Monitoring system... Press Ctrl+C to stop")
             
             # Keep running and monitor
             self.monitor_system()

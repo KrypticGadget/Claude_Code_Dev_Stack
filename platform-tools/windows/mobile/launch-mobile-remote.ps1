@@ -152,9 +152,9 @@ try {
     
     if ($LASTEXITCODE -eq 0) {
         Write-ColorText "`n✅ Mobile launcher completed!" $Green
-        Write-ColorText "📱 Visit http://localhost:6000 for QR code and access info" $Blue
+        Write-ColorText "📱 Visit http://localhost:5555 for QR code and access info" $Blue
         Write-ColorText "" $White
-        Write-ColorText "The page at localhost:6000 will show:" $Yellow
+        Write-ColorText "The page at localhost:5555 will show:" $Yellow
         Write-ColorText "  • QR code for mobile scanning" $Gray
         Write-ColorText "  • Tunnel URL for remote access" $Gray
         Write-ColorText "  • Auth token for secure connection" $Gray
