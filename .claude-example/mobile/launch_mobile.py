@@ -200,6 +200,36 @@ class SecureMobileLauncher:
             if not self.download_component('tunnels', 'setup_cloudflare.py'):
                 safe_print("⚠️ Could not download cloudflare setup")
             
+            # Check if ngrok auth token is set
+            if not os.environ.get('NGROK_AUTH_TOKEN'):
+                safe_print("\n🔐 ngrok authentication required")
+                safe_print("━" * 60)
+                safe_print("ngrok needs a free auth token to create secure tunnels.")
+                safe_print("\n📋 To get your token:")
+                safe_print("1. Go to: https://dashboard.ngrok.com/signup")
+                safe_print("2. Sign up for a free account (takes 30 seconds)")
+                safe_print("3. Copy your auth token from the dashboard")
+                safe_print("━" * 60)
+                
+                # Prompt for token
+                print("\n🔑 Enter your ngrok auth token (or press Enter to skip): ", end="")
+                auth_token = input().strip()
+                
+                if auth_token:
+                    # Set environment variable for this session
+                    os.environ['NGROK_AUTH_TOKEN'] = auth_token
+                    safe_print("✅ Auth token set for this session")
+                    
+                    # Also try to save it permanently (Windows)
+                    try:
+                        subprocess.run(['setx', 'NGROK_AUTH_TOKEN', auth_token], 
+                                     capture_output=True, check=False)
+                        safe_print("✅ Auth token saved for future sessions")
+                    except:
+                        pass
+                else:
+                    safe_print("⚠️ Skipping ngrok, trying alternative tunnel providers...")
+            
             safe_print("🌐 Starting secure tunnel...")
             
             # Start tunnel manager
@@ -390,14 +420,25 @@ class SecureMobileLauncher:
             from mobile_display_server import start_display_server
             
             # Start display server on port 6000
-            safe_print("🌐 Starting mobile access portal on http://localhost:6000")
+            safe_print("\n" + "=" * 60)
+            safe_print("🌐 Starting mobile access portal...")
             display_thread = start_display_server(access_info, port=6000)
             
             # Keep reference to thread
             self.display_thread = display_thread
             
-            safe_print("✅ Mobile access portal opened in browser!")
-            safe_print("📱 QR code and access credentials displayed at http://localhost:6000")
+            # Give clear instructions
+            safe_print("\n✅ MOBILE ACCESS PORTAL READY!")
+            safe_print("=" * 60)
+            safe_print("📱 Open this URL in your browser:")
+            safe_print("   http://localhost:6000")
+            safe_print("")
+            safe_print("🔗 This page will show:")
+            safe_print("   • QR code for mobile scanning")
+            safe_print("   • Tunnel URL: " + url)
+            safe_print("   • Auth token for secure access")
+            safe_print("   • Copy buttons for easy access")
+            safe_print("=" * 60)
             
         except Exception as e:
             safe_print(f"⚠️ Could not start web display: {e}")
@@ -444,7 +485,11 @@ class SecureMobileLauncher:
             
             # Success!
             safe_print("\n✅ Mobile access launched successfully!")
-            print("🔄 Monitoring system... Press Ctrl+C to stop")
+            safe_print("\n📱 IMPORTANT: Visit http://localhost:6000 to see:")
+            safe_print("   • QR code for mobile access")
+            safe_print("   • Tunnel URL and auth credentials")
+            safe_print("   • Samsung Galaxy S25 Edge instructions")
+            print("\n🔄 Monitoring system... Press Ctrl+C to stop")
             
             # Keep running and monitor
             self.monitor_system()
