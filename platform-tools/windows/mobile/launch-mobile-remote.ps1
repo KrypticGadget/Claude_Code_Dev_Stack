@@ -177,8 +177,16 @@ function Start-MobileAccess {
     Push-Location $MobileDir
     
     try {
-        # Start mobile access
-        python launch_mobile.py @args
+        Write-ColorText "🚀 Launching mobile access system..." $Green
+        Write-Host ""
+        
+        # Start mobile access - use & to ensure output is shown
+        & python launch_mobile.py @args
+        
+        if ($LASTEXITCODE -ne 0) {
+            Write-ColorText "❌ Mobile launcher exited with error" $Red
+            return $false
+        }
     }
     catch {
         Write-ColorText "❌ Error starting mobile access: $_" $Red
