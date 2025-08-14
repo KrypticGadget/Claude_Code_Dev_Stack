@@ -123,7 +123,7 @@ class SecureMobileLauncher:
             # Generate auth token
             auth_token = self.generate_auth_token()
             
-            safe_safe_print("🔒 Starting secure dashboard with authentication...")
+            safe_print("🔒 Starting secure dashboard with authentication...")
             
             # Set environment variable for dashboard authentication
             env = os.environ.copy()
@@ -335,7 +335,7 @@ class SecureMobileLauncher:
     
     def launch(self, send_to_phone: bool = True, generate_qr: bool = True) -> bool:
         """Main launch function - the one-liner entry point"""
-        safe_safe_print("🚀 Starting Claude Code V3+ Secure Mobile Access...")
+        safe_print("🚀 Starting Claude Code V3+ Secure Mobile Access...")
         safe_print("=" * 60)
         
         try:
