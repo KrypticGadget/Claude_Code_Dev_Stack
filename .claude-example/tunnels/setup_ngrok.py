@@ -23,9 +23,14 @@ class NgrokTunnelManager:
         self.config_dir = self.claude_dir / 'tunnels'
         self.config_dir.mkdir(exist_ok=True)
         
-        # ngrok settings
+        # ngrok settings - NEVER hardcode tokens!
         tunnel_settings = self.settings.get('v3ExtendedFeatures', {}).get('tunnels', {})
-        self.ngrok_token = tunnel_settings.get('ngrokToken', os.getenv('NGROK_TOKEN'))
+        # Try multiple environment variable names
+        self.ngrok_token = (
+            os.getenv('NGROK_AUTH_TOKEN') or  # Most common
+            os.getenv('NGROK_TOKEN') or       # Alternative
+            tunnel_settings.get('ngrokToken')  # From settings (should NOT contain actual token)
+        )
         self.dashboard_port = tunnel_settings.get('dashboardPort', 8080)
         self.tunnel_name = tunnel_settings.get('tunnelName', 'claude-code-dashboard')
         self.subdomain = tunnel_settings.get('subdomain')  # Premium feature
