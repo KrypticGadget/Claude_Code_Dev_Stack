@@ -57,6 +57,7 @@ class SecureMobileLauncher:
         # Processes
         self.dashboard_process = None
         self.tunnel_process = None
+        self.display_thread = None
         
         # Mobile access info
         self.mobile_access_file = self.mobile_dir / 'current_access.json'
@@ -351,26 +352,62 @@ class SecureMobileLauncher:
             safe_print(f"⚠️  Could not save access info: {e}")
     
     def display_access_info(self, url: str, auth_token: str):
-        """Display mobile access information"""
-        print("\n" + "=" * 60)
-        safe_print("🚀 CLAUDE CODE V3+ MOBILE ACCESS READY!")
-        print("=" * 60)
-        safe_print(f"📱 Mobile URL: {url}")
-        safe_print(f"🔐 Auth Token: {auth_token}")
-        safe_print(f"🌐 Quick Link: {url}?auth={auth_token}")
-        print(f"⏰ Expires: {datetime.fromtimestamp(int(time.time()) + self.session_timeout).strftime('%Y-%m-%d %H:%M')}")
-        print("")
-        print("📋 To access on Samsung Galaxy S25 Edge:")
-        print("1. Open Samsung Internet Browser")
-        print("2. Navigate to the Quick Link above")
-        print("3. Full V3+ dashboard access with authentication")
-        print("")
-        safe_print("🔒 Security Features:")
-        safe_print("  ✅ HTTPS tunnel encryption (TLS 1.3)")
-        safe_print("  ✅ Session-based authentication")
-        safe_print("  ✅ Auto-expiring tokens (24 hours)")
-        safe_print("  ✅ Secure token generation")
-        print("=" * 60)
+        """Display mobile access information in browser"""
+        try:
+            # Download display server if needed
+            if not self.download_component('mobile', 'mobile_display_server.py'):
+                # Fallback to terminal display
+                print("\n" + "=" * 60)
+                safe_print("🚀 CLAUDE CODE V3+ MOBILE ACCESS READY!")
+                print("=" * 60)
+                safe_print(f"📱 Mobile URL: {url}")
+                safe_print(f"🔐 Auth Token: {auth_token}")
+                safe_print(f"🌐 Quick Link: {url}?auth={auth_token}")
+                return
+            
+            # Import and start display server
+            import webbrowser
+            import base64
+            from io import BytesIO
+            
+            # Prepare access information
+            access_info = {
+                'url': url,
+                'auth_token': auth_token,
+                'expires': datetime.fromtimestamp(int(time.time()) + self.session_timeout).strftime('%Y-%m-%d %H:%M'),
+                'dashboard_port': self.dashboard_port
+            }
+            
+            # Add QR code as base64 if available
+            qr_file = self.mobile_dir / 'mobile_access_qr.png'
+            if qr_file.exists():
+                with open(qr_file, 'rb') as f:
+                    qr_data = f.read()
+                    access_info['qr_code_base64'] = base64.b64encode(qr_data).decode('utf-8')
+            
+            # Import display server module
+            sys.path.append(str(self.mobile_dir))
+            from mobile_display_server import start_display_server
+            
+            # Start display server on port 6000
+            safe_print("🌐 Starting mobile access portal on http://localhost:6000")
+            display_thread = start_display_server(access_info, port=6000)
+            
+            # Keep reference to thread
+            self.display_thread = display_thread
+            
+            safe_print("✅ Mobile access portal opened in browser!")
+            safe_print("📱 QR code and access credentials displayed at http://localhost:6000")
+            
+        except Exception as e:
+            safe_print(f"⚠️ Could not start web display: {e}")
+            # Fallback to terminal display
+            print("\n" + "=" * 60)
+            safe_print("🚀 CLAUDE CODE V3+ MOBILE ACCESS READY!")
+            print("=" * 60)
+            safe_print(f"📱 Mobile URL: {url}")
+            safe_print(f"🔐 Auth Token: {auth_token}")
+            safe_print(f"🌐 Quick Link: {url}?auth={auth_token}")
     
     def launch(self, send_to_phone: bool = True, generate_qr: bool = True) -> bool:
         """Main launch function - the one-liner entry point"""
