@@ -192,29 +192,81 @@ class SecureMobileLauncher:
     def start_tunnel(self) -> Optional[str]:
         """Start tunnel and return public URL"""
         try:
+            # Check if ngrok auth token is set
+            auth_token = os.environ.get('NGROK_AUTH_TOKEN')
+            if not auth_token:
+                safe_print("\n⚠️ ngrok auth token not found in environment")
+                safe_print("Please set NGROK_AUTH_TOKEN environment variable or run the launcher again")
+                return None
+            
+            safe_print("🌐 Starting secure tunnel with ngrok...")
+            
+            # Try to start ngrok directly first
+            ngrok_paths = [
+                Path.home() / "ngrok" / "ngrok.exe",
+                Path.home() / "ngrok.exe",
+                Path("C:/Users") / os.environ.get('USERNAME', 'User') / "ngrok" / "ngrok.exe",
+                Path("C:/Users") / os.environ.get('USERNAME', 'User') / "ngrok.exe"
+            ]
+            
+            ngrok_exe = None
+            for path in ngrok_paths:
+                if path.exists():
+                    ngrok_exe = str(path)
+                    break
+            
+            if ngrok_exe:
+                safe_print(f"✅ Found ngrok at: {ngrok_exe}")
+                
+                # Start ngrok directly with the auth token
+                ngrok_cmd = [ngrok_exe, "http", str(self.dashboard_port), "--authtoken", auth_token]
+                
+                # Start ngrok in background
+                self.tunnel_process = subprocess.Popen(
+                    ngrok_cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True
+                )
+                
+                # Wait for ngrok to start
+                time.sleep(5)
+                
+                # Get tunnel URL from ngrok API
+                try:
+                    import requests
+                    response = requests.get('http://localhost:4040/api/tunnels', timeout=5)
+                    if response.status_code == 200:
+                        data = response.json()
+                        tunnels = data.get('tunnels', [])
+                        for tunnel in tunnels:
+                            if tunnel.get('proto') == 'https':
+                                self.tunnel_url = tunnel.get('public_url')
+                                safe_print(f"✅ Tunnel started: {self.tunnel_url}")
+                                return self.tunnel_url
+                except:
+                    pass
+                
+                safe_print("⚠️ Tunnel started but couldn't get URL - check http://localhost:4040")
+                return "http://localhost:8080"  # Fallback to local
+            
+            # Fallback to tunnel manager if ngrok not found directly
+            safe_print("⚠️ ngrok not found, trying tunnel manager...")
+            
             # Download tunnel components if needed
             if not self.download_component('tunnels', 'tunnel_manager.py'):
                 return None
-            if not self.download_component('tunnels', 'setup_ngrok.py'):
-                safe_print("⚠️ Could not download ngrok setup")
-            if not self.download_component('tunnels', 'setup_cloudflare.py'):
-                safe_print("⚠️ Could not download cloudflare setup")
-            
-            # Check if ngrok auth token is set
-            if not os.environ.get('NGROK_AUTH_TOKEN'):
-                safe_print("\n⚠️ ngrok auth token not found in environment")
-                safe_print("Please set NGROK_AUTH_TOKEN environment variable or run the launcher again")
-                safe_print("The launcher will prompt you for the token")
-            
-            safe_print("🌐 Starting secure tunnel...")
             
             # Start tunnel manager
             tunnel_script = self.mobile_dir / 'tunnels' / 'tunnel_manager.py'
             
-            # Start tunnel in background
+            # Pass auth token via environment
+            env = os.environ.copy()
+            env['NGROK_AUTH_TOKEN'] = auth_token
+            
             tunnel_cmd = [sys.executable, str(tunnel_script), 'start']
             
-            result = subprocess.run(tunnel_cmd, capture_output=True, text=True, timeout=30)
+            result = subprocess.run(tunnel_cmd, capture_output=True, text=True, timeout=30, env=env)
             
             if result.returncode == 0:
                 # Parse result to get URL
