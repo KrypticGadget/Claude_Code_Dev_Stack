@@ -228,14 +228,15 @@ ngrok needs a free auth token to create secure tunnels.
         
         # Display the output
         $output | ForEach-Object {
-            if ($_ -match "localhost:6000" -or $_ -match "http://localhost") {
-                Write-ColorText $_ $Cyan
-            } elseif ($_ -match "✅|SUCCESS|READY") {
-                Write-ColorText $_ $Green
-            } elseif ($_ -match "❌|ERROR|Failed") {
-                Write-ColorText $_ $Red
+            $line = $_
+            if ($line -like "*localhost:6000*" -or $line -like "*http://localhost*") {
+                Write-ColorText $line $Cyan
+            } elseif ($line -like "*SUCCESS*" -or $line -like "*READY*") {
+                Write-ColorText $line $Green
+            } elseif ($line -like "*ERROR*" -or $line -like "*Failed*") {
+                Write-ColorText $line $Red
             } else {
-                Write-Host $_
+                Write-Host $line
             }
         }
         
