@@ -11,6 +11,12 @@ import json
 from datetime import datetime
 from pathlib import Path
 
+# Fix Windows Unicode encoding issues
+if sys.platform.startswith('win'):
+    import codecs
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.detach())
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.detach())
+
 # Simple HTTP server using built-in modules
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import threading
@@ -155,8 +161,17 @@ def run_server(port=8080):
     """Run the dashboard server"""
     server_address = ('', port)
     httpd = HTTPServer(server_address, DashboardHandler)
-    print(f"✅ Dashboard server running on http://localhost:{port}")
+    safe_print(f"Dashboard server running on http://localhost:{port}")
     httpd.serve_forever()
+
+def safe_print(text):
+    """Safe print that handles Unicode on Windows"""
+    try:
+        print(text)
+    except UnicodeEncodeError:
+        # Fallback: replace problematic characters
+        safe_text = text.encode('ascii', 'replace').decode('ascii')
+        print(safe_text)
 
 def main():
     """Main entry point"""
@@ -170,14 +185,14 @@ def main():
     
     port = args.port
     
-    print(f"🚀 Starting Claude Code V3+ Dashboard on port {port}...")
+    safe_print(f"Starting Claude Code V3+ Dashboard on port {port}...")
     
     try:
         run_server(port)
     except KeyboardInterrupt:
-        print("\n✅ Dashboard stopped")
+        safe_print("\nDashboard stopped")
     except Exception as e:
-        print(f"❌ Error: {e}")
+        safe_print(f"Error: {e}")
         sys.exit(1)
 
 if __name__ == '__main__':
