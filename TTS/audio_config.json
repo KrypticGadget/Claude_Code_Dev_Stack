@@ -107,7 +107,23 @@
     
     "v3_feature_activated.wav": "V3 feature activated",
     "smart_routing.wav": "Smart routing engaged",
-    "status_update.wav": "Status line updated"
+    "status_update.wav": "Status line updated",
+    
+    "linting_started.wav": "Running code quality checks",
+    "linting_complete.wav": "Code quality check complete",
+    "linting_issues.wav": "Linting issues detected",
+    "formatting_code.wav": "Auto-formatting code",
+    "dependency_installing.wav": "Installing dependencies",
+    "dependency_missing.wav": "Missing dependencies detected",
+    "performance_warning.wav": "Performance threshold exceeded",
+    "resource_warning.wav": "High resource usage detected",
+    "notification_sent.wav": "Remote notification sent",
+    "tunnel_connected.wav": "Remote tunnel established",
+    "tunnel_disconnected.wav": "Remote tunnel disconnected",
+    "dashboard_started.wav": "Monitoring dashboard active",
+    "security_scanning.wav": "Scanning for vulnerabilities",
+    "documentation_generating.wav": "Generating documentation",
+    "quality_gate_passed.wav": "All quality checks passed"
   },
   
   "voice_settings": {
