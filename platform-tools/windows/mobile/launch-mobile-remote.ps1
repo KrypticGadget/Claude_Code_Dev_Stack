@@ -1,175 +1,105 @@
 # Claude Code V3+ Mobile Access Remote Launcher
-# One-liner mobile access that downloads and runs from GitHub
-# Usage: iwr -Uri "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/mobile/launch-mobile-remote.ps1" -UseBasicParsing | iex
+# WORKING VERSION - Always prompts for token
 
-param(
-    [switch]$NoPhone,
-    [switch]$NoQR,
-    [int]$Port = 8080,
-    [switch]$Debug
+# Color functions
+function Write-ColorText {
+    param([string]$Text, [ConsoleColor]$Color = "White")
+    Write-Host $Text -ForegroundColor $Color -NoNewline
+    Write-Host ""
+}
+
+$Green = "Green"
+$Red = "Red"
+$Yellow = "Yellow"
+$Blue = "Cyan"
+$Gray = "Gray"
+
+Write-ColorText @"
+🚀 Claude Code V3+ Mobile Access Remote Launcher
+=================================================
+📱 Secure one-liner mobile access to your V3+ system
+🌐 Downloads components from GitHub automatically
+🔒 Enterprise-grade security with token authentication
+📊 Real-time monitoring dashboard for Samsung Galaxy S25 Edge
+"@ $Blue
+
+# Check Python
+try {
+    $pythonVersion = python --version 2>&1
+    Write-ColorText "✅ Python found: $pythonVersion" $Green
+} catch {
+    Write-ColorText "❌ Python not found. Please install Python 3.8+" $Red
+    exit 1
+}
+
+# Check Claude installation
+$claudeDir = "$env:USERPROFILE\.claude"
+if (-not (Test-Path $claudeDir)) {
+    Write-ColorText "❌ Claude Code not installed" $Red
+    Write-ColorText "Please run the installer first" $Yellow
+    exit 1
+}
+
+Write-ColorText "✅ Claude Code V3+ installation verified" $Green
+
+# Install packages
+Write-ColorText "`n📦 Installing required Python packages..." $Blue
+$packages = @("flask", "flask-socketio", "qrcode[pil]", "requests", "psutil")
+foreach ($pkg in $packages) {
+    Write-ColorText "Installing $pkg..." $Yellow
+    pip install $pkg --quiet --disable-pip-version-check 2>$null
+}
+Write-ColorText "✅ Package installation complete" $Green
+
+# Download components
+Write-ColorText "`n📥 Downloading mobile components from GitHub..." $Blue
+
+$mobileDir = "$claudeDir\mobile"
+$dashboardDir = "$claudeDir\dashboard"
+$tunnelsDir = "$claudeDir\tunnels"
+
+# Create directories
+@($mobileDir, $dashboardDir, $tunnelsDir, "$dashboardDir\templates") | ForEach-Object {
+    if (-not (Test-Path $_)) {
+        New-Item -ItemType Directory -Path $_ -Force | Out-Null
+    }
+}
+
+$baseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example"
+
+$files = @(
+    @{path="mobile/launch_mobile.py"; dest="$mobileDir\launch_mobile.py"},
+    @{path="mobile/mobile_display_server.py"; dest="$mobileDir\mobile_display_server.py"},
+    @{path="mobile/mobile_auth.py"; dest="$mobileDir\mobile_auth.py"},
+    @{path="mobile/qr_generator.py"; dest="$mobileDir\qr_generator.py"},
+    @{path="mobile/README.md"; dest="$mobileDir\README.md"},
+    @{path="dashboard/dashboard_server.py"; dest="$dashboardDir\dashboard_server.py"},
+    @{path="dashboard/requirements.txt"; dest="$dashboardDir\requirements.txt"},
+    @{path="dashboard/templates/dashboard.html"; dest="$dashboardDir\templates\dashboard.html"},
+    @{path="tunnels/tunnel_manager.py"; dest="$tunnelsDir\tunnel_manager.py"},
+    @{path="tunnels/setup_ngrok.py"; dest="$tunnelsDir\setup_ngrok.py"},
+    @{path="tunnels/setup_cloudflare.py"; dest="$tunnelsDir\setup_cloudflare.py"}
 )
 
-# Colors for output
-$Green = "`e[32m"
-$Red = "`e[31m"
-$Yellow = "`e[33m"
-$Blue = "`e[34m"
-$Reset = "`e[0m"
-
-function Write-ColorText {
-    param($Text, $Color = $Reset)
-    Write-Host "$Color$Text$Reset"
-}
-
-function Test-PythonInstallation {
+$downloaded = 0
+foreach ($file in $files) {
+    Write-ColorText "  Downloading $($file.path)..." $Yellow
     try {
-        $pythonVersion = python --version 2>&1
-        if ($LASTEXITCODE -eq 0) {
-            Write-ColorText "✅ Python found: $pythonVersion" $Green
-            return $true
-        }
+        $url = "$baseUrl/$($file.path)"
+        Invoke-WebRequest -Uri $url -OutFile $file.dest -UseBasicParsing
+        $downloaded++
+    } catch {
+        Write-ColorText "  Failed: $($file.path)" $Red
     }
-    catch {}
-    
-    Write-ColorText "❌ Python not found. Please install Python 3.7+ from python.org" $Red
-    return $false
 }
 
-function Install-PythonPackages {
-    Write-ColorText "📦 Installing required Python packages..." $Blue
-    
-    $packages = @("flask", "flask-socketio", "qrcode[pil]", "requests", "psutil")
-    
-    foreach ($package in $packages) {
-        Write-ColorText "Installing $package..." $Yellow
-        try {
-            python -m pip install $package --quiet --upgrade
-            if ($LASTEXITCODE -ne 0) {
-                Write-ColorText "⚠️  Warning: Failed to install $package" $Yellow
-            }
-        }
-        catch {
-            Write-ColorText "⚠️  Warning: Error installing $package" $Yellow
-        }
-    }
-    
-    Write-ColorText "✅ Package installation complete" $Green
-}
+Write-ColorText "✅ Downloaded $downloaded mobile components" $Green
 
-function Test-V3Installation {
-    $claudeDir = "$env:USERPROFILE\.claude"
-    
-    if (-not (Test-Path $claudeDir)) {
-        Write-ColorText "❌ Claude Code V3+ not installed" $Red
-        Write-ColorText "Please run the installer first:" $Yellow
-        Write-ColorText 'iwr -Uri "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/installers/install-all.ps1" -UseBasicParsing | iex' $Blue
-        return $false
-    }
-    
-    # Check for key components
-    $agentsDir = "$claudeDir\agents"
-    $hooksDir = "$claudeDir\hooks"
-    $audioDir = "$claudeDir\audio"
-    
-    if (-not (Test-Path $agentsDir) -or -not (Test-Path $hooksDir) -or -not (Test-Path $audioDir)) {
-        Write-ColorText "❌ Incomplete V3+ installation detected" $Red
-        Write-ColorText "Please run the full installer:" $Yellow
-        Write-ColorText 'iwr -Uri "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/installers/install-all.ps1" -UseBasicParsing | iex' $Blue
-        return $false
-    }
-    
-    Write-ColorText "✅ Claude Code V3+ installation verified" $Green
-    return $true
-}
+# ALWAYS prompt for ngrok token
+Write-ColorText "`n🚀 Starting Claude Code V3+ Mobile Access..." $Green
+Write-ColorText ("=" * 60) $Blue
 
-function Download-MobileComponents {
-    $claudeDir = "$env:USERPROFILE\.claude"
-    $mobileDir = "$claudeDir\mobile"
-    $dashboardDir = "$claudeDir\dashboard"
-    $tunnelsDir = "$claudeDir\tunnels"
-    
-    # Create directories
-    @($mobileDir, $dashboardDir, $tunnelsDir) | ForEach-Object {
-        if (-not (Test-Path $_)) {
-            New-Item -ItemType Directory -Path $_ -Force | Out-Null
-        }
-    }
-    
-    Write-ColorText "📥 Downloading mobile components from GitHub..." $Blue
-    
-    $baseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example"
-    
-    # Mobile components
-    $mobileFiles = @(
-        "mobile/launch_mobile.py",
-        "mobile/mobile_display_server.py",  # CRITICAL: Web display for QR code
-        "mobile/mobile_auth.py", 
-        "mobile/qr_generator.py",
-        "mobile/README.md"
-    )
-    
-    # Dashboard components
-    $dashboardFiles = @(
-        "dashboard/dashboard_server.py",
-        "dashboard/requirements.txt",
-        "dashboard/templates/dashboard.html"
-    )
-    
-    # Tunnel components  
-    $tunnelFiles = @(
-        "tunnels/tunnel_manager.py",
-        "tunnels/setup_ngrok.py",
-        "tunnels/setup_cloudflare.py"
-    )
-    
-    $allFiles = $mobileFiles + $dashboardFiles + $tunnelFiles
-    $downloadedCount = 0
-    
-    foreach ($file in $allFiles) {
-        $url = "$baseUrl/$file"
-        $localPath = "$claudeDir\$($file.Replace('/', '\'))"
-        $localDir = Split-Path $localPath -Parent
-        
-        # Ensure directory exists
-        if (-not (Test-Path $localDir)) {
-            New-Item -ItemType Directory -Path $localDir -Force | Out-Null
-        }
-        
-        try {
-            Write-ColorText "  Downloading $file..." $Yellow
-            Invoke-WebRequest -Uri $url -OutFile $localPath -UseBasicParsing
-            $downloadedCount++
-        }
-        catch {
-            Write-ColorText "⚠️  Warning: Failed to download $file" $Yellow
-        }
-    }
-    
-    # Download dashboard template directory
-    $templateDir = "$dashboardDir\templates"
-    if (-not (Test-Path $templateDir)) {
-        New-Item -ItemType Directory -Path $templateDir -Force | Out-Null
-    }
-    
-    Write-ColorText "✅ Downloaded $downloadedCount mobile components" $Green
-    return $mobileDir
-}
-
-function Start-MobileAccess {
-    param($MobileDir)
-    
-    $launchScript = "$MobileDir\launch_mobile.py"
-    
-    if (-not (Test-Path $launchScript)) {
-        Write-ColorText "❌ Mobile launcher not found at $launchScript" $Red
-        return $false
-    }
-    
-    Write-ColorText "🚀 Starting Claude Code V3+ Mobile Access..." $Green
-    Write-ColorText "=" * 60 $Blue
-    
-    # ALWAYS prompt for ngrok auth token to ensure it's correct
-    Write-ColorText @"
+Write-ColorText @"
 
 🔐 ngrok Authentication Required
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -179,161 +109,64 @@ ngrok needs a free auth token to create secure tunnels.
 1. Go to: https://dashboard.ngrok.com/signup
 2. Sign up for a free account (takes 30 seconds)
 3. Copy your auth token from the dashboard
+
+Your token looks like: 2fN9S1K8VxH3n7wP1mQ4567890_1AbCdEfGhIjKlMnOpQrStUv
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 "@ $Yellow
-    
-    # Show current token if exists (masked)
-    if ($env:NGROK_AUTH_TOKEN) {
-        $maskedToken = $env:NGROK_AUTH_TOKEN.Substring(0, 10) + "..." + $env:NGROK_AUTH_TOKEN.Substring($env:NGROK_AUTH_TOKEN.Length - 4)
-        Write-ColorText "Current token: $maskedToken" $Gray
-    }
-    
-    Write-Host ""
-    $authToken = Read-Host "🔑 Enter your ngrok auth token (or press Enter to use existing)"
-    
-    if ($authToken) {
-        # Set for current session - ensure it's available to child processes
-        $env:NGROK_AUTH_TOKEN = $authToken
-        [System.Environment]::SetEnvironmentVariable("NGROK_AUTH_TOKEN", $authToken, "Process")
-        Write-ColorText "✅ Auth token set for this session" $Green
-        
-        # Also configure ngrok directly
-        try {
-            & C:\Users\Zach\ngrok.exe config add-authtoken $authToken 2>$null
-            Write-ColorText "✅ ngrok configured with token" $Green
-        }
-        catch {
-            Write-ColorText "⚠️ Could not configure ngrok directly" $Yellow
-        }
-        
-        # Save permanently for Windows
-        try {
-            [Environment]::SetEnvironmentVariable("NGROK_AUTH_TOKEN", $authToken, "User")
-            Write-ColorText "✅ Auth token saved for future sessions" $Green
-        }
-        catch {
-            Write-ColorText "⚠️ Could not save token permanently" $Yellow
-        }
-    }
-    elseif (-not $env:NGROK_AUTH_TOKEN) {
-        Write-ColorText "❌ No auth token provided and none found - tunnel will not work!" $Red
-        Write-ColorText "Please run again and provide your ngrok auth token" $Yellow
-        return $false
-    }
-    
-    Write-Host ""
-    
-    # Build arguments
-    $args = @()
-    if ($NoPhone) { $args += "--no-phone" }
-    if ($NoQR) { $args += "--no-qr" }
-    if ($Port -ne 8080) { $args += "--port", $Port }
-    
-    # Set working directory to mobile directory
-    Push-Location $MobileDir
-    
-    try {
-        Write-ColorText "🚀 Launching mobile access system..." $Green
-        Write-Host ""
-        
-        # Just run the Python script directly and let it handle everything
-        & python launch_mobile.py @args
-        
-        # Check if it worked
-        if ($LASTEXITCODE -eq 0) {
-            Write-ColorText "`n✅ Mobile launcher completed!" $Green
-            Write-ColorText "📱 Visit http://localhost:6000 for QR code and access info" $Cyan
-            return $true
-        } else {
-            Write-ColorText "`n❌ Mobile launcher encountered an error" $Red
-            Write-ColorText "Try running directly: python $MobileDir\launch_mobile.py" $Yellow
-            return $false
-        }
-    }
-    catch {
-        Write-ColorText "❌ Error: $_" $Red
-        return $false
-    }
-    finally {
-        Pop-Location
-    }
-    
-    return $true
-}
 
-function Show-Header {
-    Write-ColorText @"
-🚀 Claude Code V3+ Mobile Access Remote Launcher
-=================================================
-📱 Secure one-liner mobile access to your V3+ system
-🌐 Downloads components from GitHub automatically  
-🔒 Enterprise-grade security with token authentication
-📊 Real-time monitoring dashboard for Samsung Galaxy S25 Edge
-"@ $Blue
-    Write-Host ""
-}
+Write-Host ""
+$authToken = Read-Host "🔑 Enter your ngrok auth token"
 
-function Show-Usage {
-    Write-ColorText @"
-Usage Examples:
-
-Basic Launch:
-iwr -Uri "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/mobile/launch-mobile-remote.ps1" -UseBasicParsing | iex
-
-Advanced Options:
-```powershell
-# Download script first for options
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/mobile/launch-mobile-remote.ps1" -OutFile "launch-mobile.ps1"
-
-# Run with options
-.\launch-mobile.ps1 -NoPhone -Port 9090
-```
-
-Parameters:
-  -NoPhone    : Don't send notifications to phone
-  -NoQR       : Don't generate QR code  
-  -Port <num> : Custom dashboard port (default: 8080)
-  -Debug      : Enable debug mode
-"@ $Yellow
-}
-
-# Main execution
-try {
-    Show-Header
-    
-    # Check prerequisites
-    if (-not (Test-PythonInstallation)) {
-        exit 1
-    }
-    
-    # Check V3+ installation
-    if (-not (Test-V3Installation)) {
-        exit 1
-    }
-    
-    # Install Python packages
-    Install-PythonPackages
-    
-    # Download mobile components
-    $mobileDir = Download-MobileComponents
-    
-    if (-not $mobileDir) {
-        Write-ColorText "❌ Failed to download mobile components" $Red
-        exit 1
-    }
-    
-    # Start mobile access
-    if (-not (Start-MobileAccess $mobileDir)) {
-        Write-ColorText "❌ Failed to start mobile access" $Red
-        exit 1
-    }
-    
-}
-catch {
-    Write-ColorText "❌ Unexpected error: $_" $Red
-    Write-ColorText "Please try running the command again or check your internet connection." $Yellow
+if (-not $authToken) {
+    Write-ColorText "❌ No token provided - tunnel will not work!" $Red
+    Write-ColorText "Please run again with your ngrok auth token" $Yellow
     exit 1
 }
 
-# If we get here, everything worked
-Write-ColorText "✅ Mobile access launcher completed successfully!" $Green
+# Set token everywhere to ensure it works
+$env:NGROK_AUTH_TOKEN = $authToken
+[System.Environment]::SetEnvironmentVariable("NGROK_AUTH_TOKEN", $authToken, "Process")
+[System.Environment]::SetEnvironmentVariable("NGROK_AUTH_TOKEN", $authToken, "User")
+Write-ColorText "✅ Auth token set" $Green
+
+# Configure ngrok directly if possible
+$ngrokPath = "C:\Users\$env:USERNAME\ngrok.exe"
+if (Test-Path $ngrokPath) {
+    try {
+        & $ngrokPath config add-authtoken $authToken 2>$null
+        Write-ColorText "✅ ngrok configured with token" $Green
+    } catch {
+        Write-ColorText "⚠️ Could not configure ngrok directly" $Yellow
+    }
+}
+
+# Launch mobile access
+Write-ColorText "`n🚀 Launching mobile access system..." $Green
+Write-Host ""
+
+Push-Location $mobileDir
+
+try {
+    # Run Python script
+    & python launch_mobile.py
+    
+    if ($LASTEXITCODE -eq 0) {
+        Write-ColorText "`n✅ Mobile launcher completed!" $Green
+        Write-ColorText "📱 Visit http://localhost:6000 for QR code and access info" $Blue
+        Write-ColorText "" $White
+        Write-ColorText "The page at localhost:6000 will show:" $Yellow
+        Write-ColorText "  • QR code for mobile scanning" $Gray
+        Write-ColorText "  • Tunnel URL for remote access" $Gray
+        Write-ColorText "  • Auth token for secure connection" $Gray
+        Write-ColorText "  • Instructions for Samsung Galaxy S25 Edge" $Gray
+    } else {
+        Write-ColorText "`n❌ Mobile launcher encountered an error" $Red
+        Write-ColorText "Try running directly: python $mobileDir\launch_mobile.py" $Yellow
+    }
+} catch {
+    Write-ColorText "❌ Error: $_" $Red
+} finally {
+    Pop-Location
+}
+
+Write-ColorText "`n✅ Mobile access launcher completed!" $Green
