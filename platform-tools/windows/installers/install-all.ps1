@@ -29,20 +29,18 @@ Write-Log "Log file: $logFile"
 # Base URLs
 $baseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/windows/installers"
 
-Write-Log "Installing 5 V3.0 components:"
-Write-Log "1. Agents (28 V3-enhanced files with orchestration)"
-Write-Log "2. Commands (18 files with /orchestrate-demo)" 
-Write-Log "3. V3 Hooks (19 files - status line, context manager, smart orchestrator)"
-Write-Log "4. MCP configs (Playwright, Obsidian, Web Search)"
-Write-Log "5. V3 Audio System (50 phase-aware sounds + orchestrator)"
+Write-Log "Installing 4 V3.0+ components:"
+Write-Log "1. V3+ Agents (28 enhanced files with smart orchestration)"
+Write-Log "2. V3+ Commands (20+ files with /orchestrate-demo)" 
+Write-Log "3. V3+ Hooks & Audio (28 hooks + 102 audio files with mobile sync)"
+Write-Log "4. V3+ MCPs (Playwright, Web Search, GitHub, Obsidian)"
 
 # Component installers
 $components = @(
-    @{Name="Agents"; Script="install-agents.ps1"},
-    @{Name="Commands"; Script="install-commands.ps1"},
-    @{Name="Hooks"; Script="install-hooks.ps1"},
-    @{Name="MCPs"; Script="install-mcps.ps1"},
-    @{Name="Ultimate Audio"; Script="install-ultimate-audio.ps1"}
+    @{Name="V3+ Agents"; Script="install-agents.ps1"},
+    @{Name="V3+ Commands"; Script="install-commands.ps1"},
+    @{Name="V3+ Hooks & Audio"; Script="install-hooks.ps1"},
+    @{Name="V3+ MCPs"; Script="install-mcps.ps1"}
 )
 
 foreach ($component in $components) {

@@ -8,8 +8,9 @@ param(
 )
 
 Write-Host ""
-Write-Host "Claude Code MCP Server Installer v2.0" -ForegroundColor Cyan
-Write-Host "======================================" -ForegroundColor Cyan
+Write-Host "Claude Code MCP Server Installer v3.0+" -ForegroundColor Cyan
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "Installing: Playwright, Web Search, GitHub, Obsidian" -ForegroundColor Cyan
 Write-Host ""
 
 # Function to clean browser processes and cache
@@ -271,6 +272,89 @@ if (-not $Minimal) {
     }
 }
 
+# 4. Install GitHub MCP Server
+if (-not $Minimal) {
+    Write-Host ""
+    Write-Host "4. Installing GitHub MCP Server..." -ForegroundColor Yellow
+    
+    # Check if Docker is available for GitHub MCP
+    $hasDocker = $false
+    try {
+        docker --version 2>$null | Out-Null
+        $hasDocker = $true
+        Write-Host "   ✓ Docker detected" -ForegroundColor Green
+    } catch {
+        Write-Host "   ⚠ Docker not found - will use remote GitHub MCP server" -ForegroundColor Yellow
+    }
+    
+    if ($hasDocker) {
+        Write-Host "   Installing GitHub MCP with Docker..." -ForegroundColor Gray
+        
+        # Prompt for GitHub token
+        Write-Host ""
+        Write-Host "   GitHub Personal Access Token required:" -ForegroundColor Yellow
+        Write-Host "   1. Go to https://github.com/settings/tokens" -ForegroundColor Gray
+        Write-Host "   2. Generate new token (classic or fine-grained)" -ForegroundColor Gray
+        Write-Host "   3. Enable repository, issues, pull requests permissions" -ForegroundColor Gray
+        Write-Host ""
+        
+        $githubToken = Read-Host "   Enter GitHub token (or press Enter to skip)"
+        
+        if ($githubToken) {
+            try {
+                # Remove existing GitHub MCP if present
+                claude mcp remove github 2>$null | Out-Null
+                
+                # Add GitHub MCP with Docker
+                claude mcp add github --env GITHUB_PERSONAL_ACCESS_TOKEN=$githubToken -- docker run -i --rm -e GITHUB_PERSONAL_ACCESS_TOKEN ghcr.io/github/github-mcp-server
+                Write-Host "   ✓ GitHub MCP installed with Docker" -ForegroundColor Green
+            } catch {
+                Write-Host "   ✗ Failed to install GitHub MCP with Docker" -ForegroundColor Red
+                Write-Host "   Falling back to remote GitHub MCP..." -ForegroundColor Yellow
+                
+                # Fallback to remote MCP
+                try {
+                    claude mcp add github-remote --type http --url "https://api.githubcopilot.com/mcp/" --header "Authorization=Bearer $githubToken"
+                    Write-Host "   ✓ GitHub remote MCP installed" -ForegroundColor Green
+                } catch {
+                    Write-Host "   ✗ Failed to install GitHub remote MCP" -ForegroundColor Red
+                }
+            }
+        } else {
+            Write-Host "   ⚠ Skipping GitHub MCP (no token provided)" -ForegroundColor Yellow
+            Write-Host "   You can install it later with your GitHub token" -ForegroundColor Gray
+        }
+    } else {
+        # No Docker - try remote MCP server
+        Write-Host "   Installing remote GitHub MCP..." -ForegroundColor Gray
+        
+        Write-Host ""
+        Write-Host "   GitHub Personal Access Token required:" -ForegroundColor Yellow
+        Write-Host "   1. Go to https://github.com/settings/tokens" -ForegroundColor Gray
+        Write-Host "   2. Generate new token (classic or fine-grained)" -ForegroundColor Gray
+        Write-Host "   3. Enable repository, issues, pull requests permissions" -ForegroundColor Gray
+        Write-Host ""
+        
+        $githubToken = Read-Host "   Enter GitHub token (or press Enter to skip)"
+        
+        if ($githubToken) {
+            try {
+                # Remove existing GitHub MCP if present
+                claude mcp remove github 2>$null | Out-Null
+                claude mcp remove github-remote 2>$null | Out-Null
+                
+                # Add remote GitHub MCP
+                claude mcp add github --type http --url "https://api.githubcopilot.com/mcp/" --header "Authorization=Bearer $githubToken"
+                Write-Host "   ✓ GitHub remote MCP installed" -ForegroundColor Green
+            } catch {
+                Write-Host "   ✗ Failed to install GitHub remote MCP" -ForegroundColor Red
+            }
+        } else {
+            Write-Host "   ⚠ Skipping GitHub MCP (no token provided)" -ForegroundColor Yellow
+        }
+    }
+}
+
 # Create helper scripts
 Write-Host ""
 Write-Host "Creating helper scripts..." -ForegroundColor Yellow
@@ -310,6 +394,7 @@ Write-Host "Test your setup:" -ForegroundColor Yellow
 Write-Host '  claude "Use playwright to go to example.com"' -ForegroundColor Gray
 if (-not $Minimal) {
     Write-Host '  claude "Use web-search to find news about AI"' -ForegroundColor Gray
+    Write-Host '  claude "Use github to list my repositories"' -ForegroundColor Gray
 }
 
 Write-Host ""

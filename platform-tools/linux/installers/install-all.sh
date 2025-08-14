@@ -9,25 +9,25 @@ log() {
 }
 
 log "========================================="
-log "Claude Code Dev Stack Installer v2.1"
+log "Claude Code Dev Stack Installer V3.0+"
 log "========================================="
 log "Log file: $LOG_FILE"
 
 # Base URLs
 BASE_URL="https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/platform-tools/linux/installers"
 
-log "Installing 4 components:"
-log "1. Agents (28 files)"
-log "2. Commands (18 files)"
-log "3. Hooks (13 files)"
-log "4. MCP configs"
+log "Installing 4 V3.0+ components:"
+log "1. V3+ Agents (28 enhanced files with smart orchestration)"
+log "2. V3+ Commands (20+ files with /orchestrate-demo)"
+log "3. V3+ Hooks & Audio (28 hooks + 102 audio files with mobile sync)"
+log "4. V3+ MCPs (Playwright, Web Search, GitHub, Obsidian)"
 
 # Component installers
 COMPONENTS=(
-    "Agents:install-agents.sh"
-    "Commands:install-commands.sh"
-    "Hooks:install-hooks.sh"
-    "MCPs:install-mcps.sh"
+    "V3+ Agents:install-agents.sh"
+    "V3+ Commands:install-commands.sh"
+    "V3+ Hooks & Audio:install-hooks.sh"
+    "V3+ MCPs:install-mcps.sh"
 )
 
 for component in "${COMPONENTS[@]}"; do

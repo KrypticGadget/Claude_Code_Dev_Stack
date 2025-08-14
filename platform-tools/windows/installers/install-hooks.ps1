@@ -169,8 +169,8 @@ if ($failedCount -gt 0) {
     Write-Host "  Failed: $failedCount hooks" -ForegroundColor Red
 }
 
-# Step 5: Install Complete Audio System (69 descriptive sounds)
-Write-Host "`n🎵 Installing Complete Audio System v5.0 (69 descriptive audio files)..." -ForegroundColor Yellow
+# Step 5: Install Complete Audio System V3.0+ (102 phase-aware sounds)
+Write-Host "`n🎵 Installing Complete Audio System V3.0+ (102 phase-aware audio files)..." -ForegroundColor Yellow
 
 # Optimized 22 audio files with intelligent detection
 $audioFiles = @(
@@ -280,10 +280,10 @@ $audioFiles = @(
 # Check if we already have the audio files
 $existingAudio = (Get-ChildItem $audioDir -Filter "*.wav" -ErrorAction SilentlyContinue).Count
 
-if ($existingAudio -ge 69) {
-    Write-Host "  ✓ Complete audio system v5.0 already installed ($existingAudio files)" -ForegroundColor Green
+if ($existingAudio -ge 102) {
+    Write-Host "  ✓ Complete audio system V3.0+ already installed ($existingAudio files)" -ForegroundColor Green
 } else {
-    Write-Host "  Downloading 69 descriptive audio files from GitHub..." -ForegroundColor Cyan
+    Write-Host "  Downloading 102 phase-aware audio files from GitHub..." -ForegroundColor Cyan
     $audioBaseUrl = "https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/audio"
     
     $audioDownloaded = 0
@@ -324,18 +324,21 @@ if ($existingAudio -ge 69) {
 
 # Show audio system status
 $finalAudioCount = (Get-ChildItem $audioDir -Filter "*.wav" -ErrorAction SilentlyContinue).Count
-if ($finalAudioCount -ge 69) {
-    Write-Host "`n  🎉 Complete Audio System v5.0 Ready!" -ForegroundColor Green
-    Write-Host "    • 69 descriptive audio files" -ForegroundColor Gray
+if ($finalAudioCount -ge 102) {
+    Write-Host "`n  🎉 Complete Audio System V3.0+ Ready!" -ForegroundColor Green
+    Write-Host "    • 102 phase-aware audio files with mobile sync" -ForegroundColor Gray
     Write-Host "    • Specific operation feedback" -ForegroundColor Gray
     Write-Host "    • Agent-specific notifications" -ForegroundColor Gray
     Write-Host "    • Error-specific audio" -ForegroundColor Gray
+} elseif ($finalAudioCount -ge 70) {
+    Write-Host "`n  ✓ Standard audio system ($finalAudioCount files)" -ForegroundColor Yellow
+    Write-Host "    Most V3+ audio files present" -ForegroundColor Gray
 } elseif ($finalAudioCount -ge 22) {
     Write-Host "`n  ✓ Basic audio system ($finalAudioCount files)" -ForegroundColor Yellow
-    Write-Host "    Core files present, missing some specific audio" -ForegroundColor Yellow
+    Write-Host "    Core files present, missing some V3+ audio" -ForegroundColor Yellow
 } elseif ($finalAudioCount -gt 0) {
     Write-Host "`n  ⚠ Partial audio system ($finalAudioCount files)" -ForegroundColor Yellow
-    Write-Host "    Only $finalAudioCount of 69 files installed" -ForegroundColor Yellow
+    Write-Host "    Only $finalAudioCount of 102 V3+ files installed" -ForegroundColor Yellow
 }
 
 # Step 6: Download and merge hook configuration into settings.json
