@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Secure Mobile Launcher - V3.0+ One-Line Mobile Access
 Single command to securely start dashboard, tunnel, and send access to phone
@@ -15,6 +16,21 @@ import threading
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, Optional, Tuple
+
+# Fix Windows Unicode encoding issues
+if sys.platform.startswith('win'):
+    import codecs
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.detach())
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.detach())
+    
+def safe_print(text: str):
+    """Safe printing that handles Unicode on Windows"""
+    try:
+        print(text)
+    except UnicodeEncodeError:
+        # Fallback: replace problematic characters
+        safe_text = text.encode('ascii', 'replace').decode('ascii')
+        print(safe_text)
 
 # Add parent directories to path
 sys.path.append(str(Path(__file__).parent.parent / 'dashboard'))
@@ -107,7 +123,7 @@ class SecureMobileLauncher:
             # Generate auth token
             auth_token = self.generate_auth_token()
             
-            print("🔒 Starting secure dashboard with authentication...")
+            safe_safe_print("🔒 Starting secure dashboard with authentication...")
             
             # Set environment variable for dashboard authentication
             env = os.environ.copy()
@@ -128,23 +144,23 @@ class SecureMobileLauncher:
             
             # Check if dashboard is running
             if self.dashboard_process.poll() is None:
-                print(f"✅ Dashboard started securely on port {self.dashboard_port}")
+                safe_print(f"✅ Dashboard started securely on port {self.dashboard_port}")
                 return True
             else:
                 stdout, stderr = self.dashboard_process.communicate()
-                print(f"❌ Dashboard failed to start:")
+                safe_print(f"❌ Dashboard failed to start:")
                 print(f"stdout: {stdout.decode()}")
                 print(f"stderr: {stderr.decode()}")
                 return False
                 
         except Exception as e:
-            print(f"❌ Error starting dashboard: {e}")
+            safe_print(f"❌ Error starting dashboard: {e}")
             return False
     
     def start_tunnel(self) -> Optional[str]:
         """Start tunnel and return public URL"""
         try:
-            print("🌐 Starting secure tunnel...")
+            safe_print("🌐 Starting secure tunnel...")
             
             # Start tunnel manager
             tunnel_script = self.claude_dir.parent / '.claude-example' / 'tunnels' / 'tunnel_manager.py'
@@ -160,10 +176,10 @@ class SecureMobileLauncher:
                     tunnel_result = json.loads(result.stdout)
                     if tunnel_result.get('success'):
                         self.tunnel_url = tunnel_result.get('url')
-                        print(f"✅ Tunnel started: {self.tunnel_url}")
+                        safe_print(f"✅ Tunnel started: {self.tunnel_url}")
                         return self.tunnel_url
                     else:
-                        print(f"❌ Tunnel failed: {tunnel_result.get('error')}")
+                        safe_print(f"❌ Tunnel failed: {tunnel_result.get('error')}")
                         return None
                 except json.JSONDecodeError:
                     # Try to extract URL from text output
@@ -172,20 +188,20 @@ class SecureMobileLauncher:
                         if 'https://' in line and ('ngrok.io' in line or 'tunnel' in line):
                             url = line.split('https://')[1].split()[0]
                             self.tunnel_url = f"https://{url}"
-                            print(f"✅ Tunnel started: {self.tunnel_url}")
+                            safe_print(f"✅ Tunnel started: {self.tunnel_url}")
                             return self.tunnel_url
                     
                     print("❌ Could not extract tunnel URL from output")
                     return None
             else:
-                print(f"❌ Tunnel command failed: {result.stderr}")
+                safe_print(f"❌ Tunnel command failed: {result.stderr}")
                 return None
                 
         except subprocess.TimeoutExpired:
             print("❌ Tunnel startup timed out")
             return None
         except Exception as e:
-            print(f"❌ Error starting tunnel: {e}")
+            safe_print(f"❌ Error starting tunnel: {e}")
             return None
     
     def generate_qr_code(self, url: str, auth_token: str) -> str:
@@ -214,7 +230,7 @@ class SecureMobileLauncher:
             qr_file = self.mobile_dir / 'mobile_access_qr.png'
             img.save(qr_file)
             
-            print(f"📱 QR code saved: {qr_file}")
+            safe_print(f"📱 QR code saved: {qr_file}")
             
             # Also create ASCII QR for terminal display
             qr_ascii = qrcode.QRCode()
@@ -230,11 +246,11 @@ class SecureMobileLauncher:
             return str(qr_file)
             
         except ImportError:
-            print("⚠️  QR code generation requires 'qrcode' package")
+            safe_print("⚠️  QR code generation requires 'qrcode' package")
             print("Install with: pip install qrcode[pil]")
             return ""
         except Exception as e:
-            print(f"⚠️  Error generating QR code: {e}")
+            safe_print(f"⚠️  Error generating QR code: {e}")
             return ""
     
     def send_to_phone(self, url: str, auth_token: str) -> bool:
@@ -266,14 +282,14 @@ class SecureMobileLauncher:
             )
             
             if success:
-                print("📱 Secure access info sent to phone!")
+                safe_print("📱 Secure access info sent to phone!")
                 return True
             else:
-                print("⚠️  Could not send to phone - check notification settings")
+                safe_print("⚠️  Could not send to phone - check notification settings")
                 return False
                 
         except Exception as e:
-            print(f"⚠️  Error sending to phone: {e}")
+            safe_print(f"⚠️  Error sending to phone: {e}")
             return False
     
     def save_mobile_access_info(self, url: str, auth_token: str, qr_file: str = ""):
@@ -293,16 +309,16 @@ class SecureMobileLauncher:
                 json.dump(access_info, f, indent=2)
             print(f"💾 Access info saved: {self.mobile_access_file}")
         except Exception as e:
-            print(f"⚠️  Could not save access info: {e}")
+            safe_print(f"⚠️  Could not save access info: {e}")
     
     def display_access_info(self, url: str, auth_token: str):
         """Display mobile access information"""
         print("\n" + "=" * 60)
-        print("🚀 CLAUDE CODE V3+ MOBILE ACCESS READY!")
+        safe_print("🚀 CLAUDE CODE V3+ MOBILE ACCESS READY!")
         print("=" * 60)
-        print(f"📱 Mobile URL: {url}")
-        print(f"🔐 Auth Token: {auth_token}")
-        print(f"🌐 Quick Link: {url}?auth={auth_token}")
+        safe_print(f"📱 Mobile URL: {url}")
+        safe_print(f"🔐 Auth Token: {auth_token}")
+        safe_print(f"🌐 Quick Link: {url}?auth={auth_token}")
         print(f"⏰ Expires: {datetime.fromtimestamp(int(time.time()) + self.session_timeout).strftime('%Y-%m-%d %H:%M')}")
         print("")
         print("📋 To access on Samsung Galaxy S25 Edge:")
@@ -310,17 +326,17 @@ class SecureMobileLauncher:
         print("2. Navigate to the Quick Link above")
         print("3. Full V3+ dashboard access with authentication")
         print("")
-        print("🔒 Security Features:")
-        print("  ✅ HTTPS tunnel encryption (TLS 1.3)")
-        print("  ✅ Session-based authentication")
-        print("  ✅ Auto-expiring tokens (24 hours)")
-        print("  ✅ Secure token generation")
+        safe_print("🔒 Security Features:")
+        safe_print("  ✅ HTTPS tunnel encryption (TLS 1.3)")
+        safe_print("  ✅ Session-based authentication")
+        safe_print("  ✅ Auto-expiring tokens (24 hours)")
+        safe_print("  ✅ Secure token generation")
         print("=" * 60)
     
     def launch(self, send_to_phone: bool = True, generate_qr: bool = True) -> bool:
         """Main launch function - the one-liner entry point"""
-        print("🚀 Starting Claude Code V3+ Secure Mobile Access...")
-        print("=" * 60)
+        safe_safe_print("🚀 Starting Claude Code V3+ Secure Mobile Access...")
+        safe_print("=" * 60)
         
         try:
             # Step 1: Start secure dashboard
@@ -351,7 +367,7 @@ class SecureMobileLauncher:
             self.display_access_info(tunnel_url, self.auth_token)
             
             # Success!
-            print("\n✅ Mobile access launched successfully!")
+            safe_print("\n✅ Mobile access launched successfully!")
             print("🔄 Monitoring system... Press Ctrl+C to stop")
             
             # Keep running and monitor
@@ -364,7 +380,7 @@ class SecureMobileLauncher:
             self.cleanup()
             return True
         except Exception as e:
-            print(f"❌ Error during launch: {e}")
+            safe_print(f"❌ Error during launch: {e}")
             self.cleanup()
             return False
     
@@ -374,7 +390,7 @@ class SecureMobileLauncher:
             while True:
                 # Check dashboard
                 if self.dashboard_process and self.dashboard_process.poll() is not None:
-                    print("⚠️  Dashboard process stopped")
+                    safe_print("⚠️  Dashboard process stopped")
                     break
                 
                 # Sleep and continue monitoring
