@@ -117,9 +117,40 @@ class SecureMobileLauncher:
         self.auth_token = token
         return token
     
+    def download_component(self, component_name: str, file_name: str) -> bool:
+        """Download component from GitHub if not exists"""
+        component_dir = self.mobile_dir / component_name
+        component_dir.mkdir(exist_ok=True)
+        
+        file_path = component_dir / file_name
+        if file_path.exists():
+            return True
+            
+        try:
+            safe_print(f"📥 Downloading {component_name}/{file_name}...")
+            import requests
+            url = f"https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/main/.claude-example/{component_name}/{file_name}"
+            response = requests.get(url)
+            response.raise_for_status()
+            
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write(response.text)
+            
+            safe_print(f"✅ Downloaded {file_name}")
+            return True
+        except Exception as e:
+            safe_print(f"❌ Failed to download {file_name}: {e}")
+            return False
+
     def start_secure_dashboard(self) -> bool:
         """Start dashboard with authentication"""
         try:
+            # Download dashboard components if needed
+            if not self.download_component('dashboard', 'dashboard_server.py'):
+                return False
+            if not self.download_component('dashboard', 'requirements.txt'):
+                safe_print("⚠️ Could not download dashboard requirements")
+            
             # Generate auth token
             auth_token = self.generate_auth_token()
             
@@ -131,7 +162,7 @@ class SecureMobileLauncher:
             env['CLAUDE_MOBILE_AUTH_DIR'] = str(self.mobile_dir)
             
             # Start dashboard with authentication
-            dashboard_script = self.claude_dir.parent / '.claude-example' / 'dashboard' / 'dashboard_server.py'
+            dashboard_script = self.mobile_dir / 'dashboard' / 'dashboard_server.py'
             
             self.dashboard_process = subprocess.Popen([
                 sys.executable, str(dashboard_script),
@@ -160,10 +191,18 @@ class SecureMobileLauncher:
     def start_tunnel(self) -> Optional[str]:
         """Start tunnel and return public URL"""
         try:
+            # Download tunnel components if needed
+            if not self.download_component('tunnels', 'tunnel_manager.py'):
+                return None
+            if not self.download_component('tunnels', 'setup_ngrok.py'):
+                safe_print("⚠️ Could not download ngrok setup")
+            if not self.download_component('tunnels', 'setup_cloudflare.py'):
+                safe_print("⚠️ Could not download cloudflare setup")
+            
             safe_print("🌐 Starting secure tunnel...")
             
             # Start tunnel manager
-            tunnel_script = self.claude_dir.parent / '.claude-example' / 'tunnels' / 'tunnel_manager.py'
+            tunnel_script = self.mobile_dir / 'tunnels' / 'tunnel_manager.py'
             
             # Start tunnel in background
             tunnel_cmd = [sys.executable, str(tunnel_script), 'start']
@@ -417,8 +456,9 @@ class SecureMobileLauncher:
         
         # Stop tunnel (via tunnel manager)
         try:
-            tunnel_script = self.claude_dir.parent / '.claude-example' / 'tunnels' / 'tunnel_manager.py'
-            subprocess.run([sys.executable, str(tunnel_script), 'stop'], timeout=10)
+            tunnel_script = self.mobile_dir / 'tunnels' / 'tunnel_manager.py'
+            if tunnel_script.exists():
+                subprocess.run([sys.executable, str(tunnel_script), 'stop'], timeout=10)
             print("✅ Tunnel stopped")
         except:
             pass
