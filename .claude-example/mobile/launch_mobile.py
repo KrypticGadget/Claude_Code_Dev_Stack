@@ -22,7 +22,7 @@ if sys.platform.startswith('win'):
     import codecs
     sys.stdout = codecs.getwriter('utf-8')(sys.stdout.detach())
     sys.stderr = codecs.getwriter('utf-8')(sys.stderr.detach())
-    
+
 def safe_print(text: str):
     """Safe printing that handles Unicode on Windows"""
     try:
@@ -31,6 +31,63 @@ def safe_print(text: str):
         # Fallback: replace problematic characters
         safe_text = text.encode('ascii', 'replace').decode('ascii')
         print(safe_text)
+
+# Ensure we're using the virtual environment Python
+def ensure_virtual_environment():
+    """Ensure we're running in the virtual environment and create it if missing"""
+    current_dir = Path(__file__).parent
+    venv_dir = current_dir / '.venv'
+    venv_python = venv_dir / 'Scripts' / 'python.exe'
+    venv_activate = venv_dir / 'Scripts' / 'activate.bat'
+    
+    # Step 1: Create virtual environment if it doesn't exist
+    if not venv_dir.exists() or not venv_python.exists():
+        safe_print("🔧 Creating virtual environment...")
+        try:
+            # Create virtual environment using system Python
+            result = subprocess.run([
+                sys.executable, '-m', 'venv', str(venv_dir)
+            ], check=True, capture_output=True, text=True)
+            
+            safe_print("✅ Virtual environment created successfully")
+            
+            # Upgrade pip in the new environment
+            safe_print("📦 Upgrading pip...")
+            subprocess.run([
+                str(venv_python), '-m', 'pip', 'install', '--upgrade', 'pip'
+            ], check=True, capture_output=True, text=True)
+            
+        except subprocess.CalledProcessError as e:
+            safe_print(f"❌ Failed to create virtual environment: {e}")
+            safe_print(f"Error output: {e.stderr if hasattr(e, 'stderr') else 'No error details'}")
+            return False
+    
+    # Step 2: Check if we're already in the virtual environment
+    in_venv = (
+        hasattr(sys, 'real_prefix') or 
+        (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix) or
+        sys.executable == str(venv_python)
+    )
+    
+    if in_venv:
+        safe_print("✅ Already running in virtual environment")
+        return True
+    
+    # Step 3: If virtual environment exists and we're not in it, restart with venv python
+    if venv_python.exists() and sys.executable != str(venv_python):
+        safe_print("🔄 Switching to virtual environment...")
+        try:
+            # Restart the script with virtual environment Python
+            result = subprocess.run([str(venv_python)] + sys.argv, capture_output=False)
+            sys.exit(result.returncode)
+        except subprocess.CalledProcessError as e:
+            safe_print(f"❌ Failed to start with virtual environment: {e}")
+            return False
+    
+    return True
+
+# Ensure virtual environment is active
+ensure_virtual_environment()
 
 # Add parent directories to path
 sys.path.append(str(Path(__file__).parent.parent / 'dashboard'))
@@ -148,20 +205,82 @@ class SecureMobileLauncher:
             return False
 
     def install_dependencies(self, packages: list) -> bool:
-        """Install required Python packages"""
+        """Install required Python packages in virtual environment"""
         try:
-            safe_print(f"📦 Installing dependencies: {', '.join(packages)}")
+            # Ensure we're using virtual environment Python
+            venv_python = self.mobile_dir / '.venv' / 'Scripts' / 'python.exe'
+            if not venv_python.exists():
+                safe_print("❌ Virtual environment not found! Creating...")
+                if not ensure_virtual_environment():
+                    return False
+                    
+            python_exe = str(venv_python)
             
-            for package in packages:
+            safe_print(f"📦 Installing dependencies in virtual environment...")
+            safe_print(f"🐍 Using Python: {python_exe}")
+            
+            # First, ensure pip is up to date
+            safe_print("🔧 Updating pip...")
+            try:
+                result = subprocess.run([
+                    python_exe, '-m', 'pip', 'install', '--upgrade', 'pip'
+                ], capture_output=True, text=True, timeout=120)
+                
+                if result.returncode == 0:
+                    safe_print("✅ pip updated successfully")
+                else:
+                    safe_print(f"⚠️ Warning: Failed to update pip: {result.stderr[:200]}")
+            except Exception as e:
+                safe_print(f"⚠️ Error updating pip: {e}")
+            
+            # Check if requirements.txt exists and install from it
+            requirements_file = self.mobile_dir / 'requirements.txt'
+            if requirements_file.exists():
+                safe_print("📋 Installing from requirements.txt...")
                 try:
                     result = subprocess.run([
-                        sys.executable, '-m', 'pip', 'install', package
-                    ], capture_output=True, text=True, timeout=120)
+                        python_exe, '-m', 'pip', 'install', '-r', str(requirements_file), '--upgrade'
+                    ], capture_output=True, text=True, timeout=600)
+                    
+                    if result.returncode == 0:
+                        safe_print("✅ All requirements installed from requirements.txt")
+                        return True
+                    else:
+                        safe_print(f"⚠️ Warning: Failed to install from requirements.txt:")
+                        safe_print(f"   Error: {result.stderr[:500] if result.stderr else 'No error details'}")
+                        safe_print(f"   Output: {result.stdout[:500] if result.stdout else 'No output'}")
+                        # Continue with individual package installation
+                except subprocess.TimeoutExpired:
+                    safe_print("⚠️ Timeout installing from requirements.txt, trying individual packages...")
+                except Exception as e:
+                    safe_print(f"⚠️ Error with requirements.txt: {e}")
+            
+            # Fallback to individual package installation with essential packages
+            essential_packages = [
+                'flask>=2.3.0',
+                'flask-socketio>=5.3.0', 
+                'psutil>=5.9.0',
+                'requests>=2.31.0',
+                'qrcode[pil]>=7.4.0',
+                'watchdog>=3.0.0',
+                'GitPython>=3.1.0'
+            ]
+            
+            # Use essential packages if provided packages list is empty
+            packages_to_install = packages if packages else essential_packages
+            
+            safe_print("📦 Installing essential packages individually...")
+            for package in packages_to_install:
+                try:
+                    safe_print(f"   Installing {package}...")
+                    result = subprocess.run([
+                        python_exe, '-m', 'pip', 'install', package, '--upgrade'
+                    ], capture_output=True, text=True, timeout=180)
                     
                     if result.returncode == 0:
                         safe_print(f"✅ Installed {package}")
                     else:
-                        safe_print(f"⚠️ Warning: Failed to install {package}: {result.stderr}")
+                        safe_print(f"⚠️ Warning: Failed to install {package}: {result.stderr[:200] if result.stderr else 'No error'}")
                         
                 except subprocess.TimeoutExpired:
                     safe_print(f"⚠️ Timeout installing {package}")
@@ -212,13 +331,17 @@ class SecureMobileLauncher:
             
             if ttyd_script.exists():
                 try:
+                    # Use virtual environment Python
+                    venv_python = self.mobile_dir / '.venv' / 'Scripts' / 'python.exe'
+                    python_exe = str(venv_python)
+                    
                     # Set environment for ttyd manager
                     env = os.environ.copy()
                     env['CLAUDE_MOBILE_AUTH_TOKEN'] = auth_token
                     env['CLAUDE_MOBILE_AUTH_DIR'] = str(self.mobile_dir)
                     
                     self.ttyd_process = subprocess.Popen([
-                        sys.executable, str(ttyd_script),
+                        python_exe, str(ttyd_script),
                         '--port', str(self.ttyd_port),
                         '--auth', auth_token
                     ], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -240,6 +363,10 @@ class SecureMobileLauncher:
             safe_print("📊 Starting real-time dashboard...")
             dashboard_script = self.mobile_dir / 'dashboard' / 'realtime_dashboard.py'
             
+            # Use virtual environment Python
+            venv_python = self.mobile_dir / '.venv' / 'Scripts' / 'python.exe'
+            python_exe = str(venv_python)
+            
             # Set environment variables for dashboard
             env = os.environ.copy()
             env['CLAUDE_MOBILE_AUTH_TOKEN'] = auth_token
@@ -248,7 +375,7 @@ class SecureMobileLauncher:
             env['DASHBOARD_PORT'] = str(self.dashboard_port)
             
             self.realtime_dashboard_process = subprocess.Popen([
-                sys.executable, str(dashboard_script),
+                python_exe, str(dashboard_script),
                 '--port', str(self.dashboard_port),
                 '--auth', auth_token,
                 '--ttyd-port', str(self.ttyd_port)
@@ -298,6 +425,10 @@ class SecureMobileLauncher:
             
             safe_print("🔒 Starting secure dashboard with authentication...")
             
+            # Use virtual environment Python
+            venv_python = self.mobile_dir / '.venv' / 'Scripts' / 'python.exe'
+            python_exe = str(venv_python)
+            
             # Set environment variable for dashboard authentication
             env = os.environ.copy()
             env['CLAUDE_MOBILE_AUTH_TOKEN'] = auth_token
@@ -318,7 +449,7 @@ class SecureMobileLauncher:
                 return False
             
             self.dashboard_process = subprocess.Popen([
-                sys.executable, str(script_to_use),
+                python_exe, str(script_to_use),
                 '--mobile-auth', auth_token,
                 '--port', str(self.dashboard_port)
             ], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -414,11 +545,15 @@ class SecureMobileLauncher:
             # Start tunnel manager
             tunnel_script = self.mobile_dir / 'tunnels' / 'tunnel_manager.py'
             
+            # Use virtual environment Python
+            venv_python = self.mobile_dir / '.venv' / 'Scripts' / 'python.exe'
+            python_exe = str(venv_python)
+            
             # Pass auth token via environment
             env = os.environ.copy()
             env['NGROK_AUTH_TOKEN'] = auth_token
             
-            tunnel_cmd = [sys.executable, str(tunnel_script), 'start']
+            tunnel_cmd = [python_exe, str(tunnel_script), 'start']
             
             result = subprocess.run(tunnel_cmd, capture_output=True, text=True, timeout=30, env=env)
             
@@ -633,7 +768,7 @@ class SecureMobileLauncher:
             safe_print(f"🔐 Auth Token: {auth_token}")
             safe_print(f"🌐 Quick Link: {url}?auth={auth_token}")
     
-    def launch(self, send_to_phone: bool = True, generate_qr: bool = True) -> bool:
+    def launch(self, send_to_phone: bool = True, generate_qr: bool = True, local_only: bool = False) -> bool:
         """Main launch function - the one-liner entry point"""
         safe_print("🚀 Starting Claude Code V3+ Enhanced Mobile Access...")
         safe_print("=" * 60)
@@ -644,44 +779,58 @@ class SecureMobileLauncher:
                 print("❌ Failed to start dashboard")
                 return False
             
-            # Step 2: Start tunnel
-            tunnel_url = self.start_tunnel()
-            if not tunnel_url:
-                print("❌ Failed to start tunnel")
-                self.cleanup()
-                return False
+            # Step 2: Start tunnel (unless local_only mode)
+            tunnel_url = None
+            if not local_only:
+                tunnel_url = self.start_tunnel()
+                if not tunnel_url:
+                    safe_print("⚠️ Tunnel failed, running in local-only mode")
+                    local_only = True
             
-            # Step 3: Generate QR code
+            # Use local URL if no tunnel
+            if local_only or not tunnel_url:
+                tunnel_url = f"http://localhost:{self.dashboard_port}"
+                safe_print(f"🏠 Running in local-only mode: {tunnel_url}")
+            
+            # Step 3: Generate QR code (only if not local-only)
             qr_file = ""
-            if generate_qr:
+            if generate_qr and not local_only:
                 qr_file = self.generate_qr_code(tunnel_url, self.auth_token)
             
-            # Step 4: Send to phone
-            if send_to_phone:
+            # Step 4: Send to phone (only if not local-only)
+            if send_to_phone and not local_only:
                 self.send_to_phone(tunnel_url, self.auth_token)
             
             # Step 5: Save access info
             self.save_mobile_access_info(tunnel_url, self.auth_token, qr_file)
             
             # Step 6: Display info
-            self.display_access_info(tunnel_url, self.auth_token)
+            if not local_only:
+                self.display_access_info(tunnel_url, self.auth_token)
             
             # Success!
-            safe_print("\n✅ Enhanced mobile access launched successfully!")
-            safe_print("\n📱 IMPORTANT: Visit http://localhost:5555 to see:")
-            safe_print("   • QR code for mobile access")
-            safe_print("   • Tunnel URL and auth credentials")
-            safe_print("   • Samsung Galaxy S25 Edge instructions")
+            safe_print("\n✅ Enhanced dashboard launched successfully!")
+            if local_only:
+                safe_print("\n🏠 LOCAL ACCESS ONLY:")
+                safe_print(f"   • Dashboard: http://localhost:{self.dashboard_port}")
+                safe_print(f"   • Terminal: http://localhost:{self.ttyd_port}")
+                safe_print("   • This is only accessible from this computer")
+            else:
+                safe_print("\n📱 MOBILE ACCESS:")
+                safe_print("   • QR code for mobile access")
+                safe_print("   • Tunnel URL and auth credentials")
+                safe_print("   • Samsung Galaxy S25 Edge instructions")
             safe_print("")
             safe_print("📊 Enhanced features available:")
             safe_print(f"   • Real-time dashboard: {tunnel_url}")
-            safe_print(f"   • Terminal access: {tunnel_url.replace(str(self.dashboard_port), str(self.ttyd_port)) if self.ttyd_process else 'Not available'}")
+            safe_print(f"   • Terminal access: http://localhost:{self.ttyd_port}")
             safe_print("   • Live system monitoring")
             safe_print("   • File system watching")
             safe_print("   • Git integration")
             safe_print("")
-            safe_print("📱 Direct mobile access:")
-            safe_print(f"   {tunnel_url}")
+            safe_print("📱 Access URLs:")
+            safe_print(f"   Dashboard: {tunnel_url}")
+            safe_print(f"   Terminal: http://localhost:{self.ttyd_port}")
             safe_print("")
             print("🔄 Monitoring enhanced system... Press Ctrl+C to stop")
             
@@ -768,7 +917,10 @@ class SecureMobileLauncher:
         try:
             tunnel_script = self.mobile_dir / 'tunnels' / 'tunnel_manager.py'
             if tunnel_script.exists():
-                subprocess.run([sys.executable, str(tunnel_script), 'stop'], timeout=10)
+                # Use virtual environment Python
+                venv_python = self.mobile_dir / '.venv' / 'Scripts' / 'python.exe'
+                python_exe = str(venv_python)
+                subprocess.run([python_exe, str(tunnel_script), 'stop'], timeout=10)
             print("✅ Tunnel stopped")
         except:
             pass
@@ -783,6 +935,7 @@ def main():
     parser.add_argument('--no-phone', action='store_true', help='Don\'t send to phone')
     parser.add_argument('--no-qr', action='store_true', help='Don\'t generate QR code')
     parser.add_argument('--port', type=int, default=8080, help='Dashboard port')
+    parser.add_argument('--local-only', action='store_true', help='Run in local-only mode (no tunnel)')
     
     args = parser.parse_args()
     
@@ -793,7 +946,8 @@ def main():
     
     success = launcher.launch(
         send_to_phone=not args.no_phone,
-        generate_qr=not args.no_qr
+        generate_qr=not args.no_qr,
+        local_only=args.local_only
     )
     
     sys.exit(0 if success else 1)

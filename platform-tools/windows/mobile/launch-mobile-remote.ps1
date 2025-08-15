@@ -42,14 +42,105 @@ if (-not (Test-Path $claudeDir)) {
 
 Write-ColorText "✅ Claude Code V3+ installation verified" $Green
 
-# Install packages
-Write-ColorText "`n📦 Installing required Python packages..." $Blue
-$packages = @("flask", "flask-socketio", "qrcode[pil]", "requests", "psutil")
+# Setup Python Virtual Environment
+Write-ColorText "`n🔧 Setting up Python virtual environment..." $Blue
+
+$mobileDir = "$claudeDir\mobile"
+$venvDir = "$mobileDir\.venv"
+
+# Create mobile directory if it doesn't exist
+if (-not (Test-Path $mobileDir)) {
+    New-Item -ItemType Directory -Path $mobileDir -Force | Out-Null
+}
+
+# Check if virtual environment exists
+if (Test-Path $venvDir) {
+    Write-ColorText "✅ Virtual environment already exists" $Green
+} else {
+    Write-ColorText "Creating virtual environment..." $Yellow
+    try {
+        & python -m venv $venvDir
+        if ($LASTEXITCODE -eq 0) {
+            Write-ColorText "✅ Virtual environment created successfully" $Green
+        } else {
+            Write-ColorText "❌ Failed to create virtual environment" $Red
+            exit 1
+        }
+    } catch {
+        Write-ColorText "❌ Error creating virtual environment: $_" $Red
+        exit 1
+    }
+}
+
+# Setup venv paths
+$venvPython = "$venvDir\Scripts\python.exe"
+$venvPip = "$venvDir\Scripts\pip.exe"
+
+# Verify venv python exists
+if (-not (Test-Path $venvPython)) {
+    Write-ColorText "❌ Virtual environment Python not found at $venvPython" $Red
+    exit 1
+}
+
+# Upgrade pip in virtual environment
+Write-ColorText "Upgrading pip in virtual environment..." $Yellow
+try {
+    & $venvPython -m pip install --upgrade pip --quiet
+    Write-ColorText "✅ Pip upgraded successfully" $Green
+} catch {
+    Write-ColorText "⚠️ Warning: Could not upgrade pip" $Yellow
+}
+
+# Install packages in virtual environment
+Write-ColorText "`n📦 Installing required Python packages in virtual environment..." $Blue
+
+# Check if requirements.txt exists in mobile directory
+$requirementsFile = "$mobileDir\requirements.txt"
+if (Test-Path $requirementsFile) {
+    Write-ColorText "📋 Installing from requirements.txt..." $Yellow
+    try {
+        & $venvPython -m pip install -r $requirementsFile --upgrade --quiet
+        if ($LASTEXITCODE -eq 0) {
+            Write-ColorText "✅ All packages installed from requirements.txt" $Green
+        } else {
+            Write-ColorText "⚠️ Some packages may have failed, installing individually..." $Yellow
+        }
+    } catch {
+        Write-ColorText "⚠️ Error with requirements.txt, installing individually..." $Yellow
+    }
+} else {
+    Write-ColorText "⚠️ requirements.txt not found, installing essential packages..." $Yellow
+}
+
+# Fallback: Install essential packages individually
+$packages = @(
+    "flask>=2.3.0",
+    "flask-socketio>=5.3.0", 
+    "flask-cors>=2.0.0",
+    "python-socketio>=5.8.0",
+    "eventlet>=0.33.0",
+    "GitPython>=3.1.0",
+    "watchdog>=3.0.0",
+    "psutil>=5.9.0",
+    "qrcode[pil]>=7.4.0",
+    "requests>=2.31.0"
+)
+
 foreach ($pkg in $packages) {
     Write-ColorText "Installing $pkg..." $Yellow
-    pip install $pkg --quiet --disable-pip-version-check 2>$null
+    try {
+        & $venvPython -m pip install $pkg --upgrade --quiet --disable-pip-version-check
+        if ($LASTEXITCODE -eq 0) {
+            Write-ColorText "✅ Installed $pkg" $Green
+        } else {
+            Write-ColorText "⚠️ Warning: Failed to install $pkg" $Yellow
+        }
+    } catch {
+        Write-ColorText "⚠️ Warning: Error installing $pkg : $_" $Yellow
+    }
 }
-Write-ColorText "✅ Package installation complete" $Green
+
+Write-ColorText "✅ Virtual environment setup complete" $Green
 
 # Download components
 Write-ColorText "`n📥 Downloading mobile components from GitHub..." $Blue
@@ -72,6 +163,7 @@ $files = @(
     @{path="mobile/mobile_display_server.py"; dest="$mobileDir\mobile_display_server.py"},
     @{path="mobile/mobile_auth.py"; dest="$mobileDir\mobile_auth.py"},
     @{path="mobile/qr_generator.py"; dest="$mobileDir\qr_generator.py"},
+    @{path="mobile/requirements.txt"; dest="$mobileDir\requirements.txt"},
     @{path="mobile/README.md"; dest="$mobileDir\README.md"},
     @{path="dashboard/simple_dashboard.py"; dest="$dashboardDir\simple_dashboard.py"},
     @{path="dashboard/dashboard_server.py"; dest="$dashboardDir\dashboard_server.py"},
@@ -147,9 +239,48 @@ Write-Host ""
 
 Push-Location $mobileDir
 
+# Download required management files if needed
+$venvManagerFile = "$mobileDir\venv_manager.py"
+if (-not (Test-Path $venvManagerFile)) {
+    Write-ColorText "📥 Downloading venv_manager.py..." $Yellow
+    try {
+        $url = "$baseUrl/mobile/venv_manager.py"
+        Invoke-WebRequest -Uri $url -OutFile $venvManagerFile -UseBasicParsing
+        Write-ColorText "✅ Downloaded venv_manager.py" $Green
+    } catch {
+        Write-ColorText "❌ Failed to download venv_manager.py" $Red
+    }
+}
+
+$startupCheckFile = "$mobileDir\startup_check.py"
+if (-not (Test-Path $startupCheckFile)) {
+    Write-ColorText "📥 Downloading startup_check.py..." $Yellow
+    try {
+        $url = "$baseUrl/mobile/startup_check.py"
+        Invoke-WebRequest -Uri $url -OutFile $startupCheckFile -UseBasicParsing
+        Write-ColorText "✅ Downloaded startup_check.py" $Green
+    } catch {
+        Write-ColorText "❌ Failed to download startup_check.py" $Red
+    }
+}
+
+# Run startup diagnostics first
+Write-ColorText "`n🔍 Running startup diagnostics..." $Blue
 try {
-    # Run Python script
-    & python launch_mobile.py
+    & $venvPython "$startupCheckFile"
+    if ($LASTEXITCODE -eq 0) {
+        Write-ColorText "✅ Startup diagnostics passed" $Green
+    } else {
+        Write-ColorText "⚠️ Some diagnostic checks failed - continuing anyway" $Yellow
+    }
+} catch {
+    Write-ColorText "⚠️ Could not run diagnostics: $_" $Yellow
+}
+
+try {
+    # Run Python script using virtual environment Python
+    Write-ColorText "`n🚀 Launching mobile access with virtual environment..." $Green
+    & $venvPython launch_mobile.py
     
     if ($LASTEXITCODE -eq 0) {
         Write-ColorText "`n✅ Mobile launcher completed!" $Green
@@ -162,10 +293,13 @@ try {
         Write-ColorText "  • Instructions for Samsung Galaxy S25 Edge" $Gray
     } else {
         Write-ColorText "`n❌ Mobile launcher encountered an error" $Red
-        Write-ColorText "Try running directly: python $mobileDir\launch_mobile.py" $Yellow
+        Write-ColorText "Try running diagnostics: $venvPython $startupCheckFile" $Yellow
+        Write-ColorText "Or run directly: $venvPython $mobileDir\launch_mobile.py" $Yellow
     }
 } catch {
     Write-ColorText "❌ Error: $_" $Red
+    Write-ColorText "Virtual Environment Python: $venvPython" $Gray
+    Write-ColorText "Try running diagnostics for troubleshooting" $Yellow
 } finally {
     Pop-Location
 }

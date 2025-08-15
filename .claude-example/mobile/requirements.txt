@@ -1,0 +1,30 @@
+# Claude Code Mobile Monitoring System Dependencies
+# Flask web framework and extensions
+flask>=2.3.0
+flask-socketio>=5.3.0
+flask-cors>=2.0.0
+
+# Socket.IO for real-time communication
+python-socketio>=5.8.0
+
+# Async server for better performance
+eventlet>=0.33.0
+
+# Git integration
+GitPython>=3.1.0
+
+# File system monitoring
+watchdog>=3.0.0
+
+# System monitoring
+psutil>=5.9.0
+
+# QR code generation
+qrcode[pil]>=7.4.0
+
+# HTTP requests
+requests>=2.31.0
+
+# Additional useful packages for development
+colorama>=0.4.6
+python-dotenv>=1.0.0

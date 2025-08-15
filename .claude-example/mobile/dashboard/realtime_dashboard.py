@@ -1107,36 +1107,15 @@ def start_background_tasks():
         logger.info(f"Started background task: {task.name}")
 
 if __name__ == '__main__':
-    import argparse
-    
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Claude Code V3+ Real-time Dashboard')
-    parser.add_argument('--port', type=int, default=8080, help='Port to run the dashboard on (default: 8080)')
-    parser.add_argument('--auth', type=str, help='Authentication token')
-    parser.add_argument('--ttyd-port', type=int, default=7681, help='ttyd terminal port')
-    parser.add_argument('--host', type=str, default='0.0.0.0', help='Host to bind to (default: 0.0.0.0)')
-    
-    args = parser.parse_args()
-    
     try:
-        # Update terminal iframe URL if ttyd port is specified
-        if args.ttyd_port != 7681:
-            global HTML_TEMPLATE
-            HTML_TEMPLATE = HTML_TEMPLATE.replace(
-                'src="http://localhost:7681"',
-                f'src="http://localhost:{args.ttyd_port}"'
-            )
-        
         # Print startup information
         print("\n" + "="*60)
         print("🚀 Claude Code V3+ Real-time Dashboard")
         print("="*60)
         print(f"📁 Working Directory: {dashboard_data.working_directory}")
         print(f"🔧 Git Repository: {'Yes' if dashboard_data.is_git_repo else 'No'}")
-        print(f"🌐 Dashboard URL: http://localhost:{args.port}")
-        print(f"💻 Terminal URL: http://localhost:{args.ttyd_port}")
-        if args.auth:
-            print(f"🔐 Authentication: Enabled")
+        print(f"🌐 Dashboard URL: http://localhost:5000")
+        print(f"💻 Terminal URL: http://localhost:7681")
         print("="*60)
         
         # Start background tasks
@@ -1145,8 +1124,8 @@ if __name__ == '__main__':
         # Start the Flask-SocketIO server
         socketio.run(
             app,
-            host=args.host,
-            port=args.port,
+            host='0.0.0.0',
+            port=5000,
             debug=False,
             allow_unsafe_werkzeug=True
         )

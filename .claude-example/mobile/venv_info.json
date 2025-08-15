@@ -1,0 +1,19 @@
+{
+  "venv_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\.claude-example\\mobile\\.venv",
+  "python_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\.claude-example\\mobile\\.venv\\Scripts\\python.exe",
+  "pip_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\.claude-example\\mobile\\.venv\\Scripts\\pip.exe",
+  "created": true,
+  "tested_imports": [
+    "flask",
+    "flask_socketio",
+    "flask_cors",
+    "socketio",
+    "eventlet",
+    "git",
+    "watchdog",
+    "psutil",
+    "qrcode",
+    "requests"
+  ],
+  "failed_imports": []
+}

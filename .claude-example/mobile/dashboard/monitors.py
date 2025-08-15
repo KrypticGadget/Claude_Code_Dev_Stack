@@ -29,7 +29,11 @@ except ImportError:
     Observer = None
     FileSystemEventHandler = None
 
-# SocketIO instance is passed during initialization, not imported
+# Import socketio from dashboard_server to emit events
+try:
+    from dashboard_server import DashboardServer
+except ImportError:
+    DashboardServer = None
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
