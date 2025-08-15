@@ -11,7 +11,14 @@ This project integrates and extends several excellent open-source projects. We a
 - **Repository**: https://github.com/zainhoda/claude-code-browser
 - **License**: AGPL-3.0
 - **Purpose**: Session monitoring and browser automation
-- **Modifications**: Extended for real-time monitoring and hook integration
+- **Integration**: Adapter pattern with Dev Stack API extensions
+- **Features Added**: 
+  - Real-time WebSocket communication
+  - Dev Stack agent/task/hook monitoring
+  - WebRTC/noVNC streaming capabilities
+  - PWA integration with BrowserMonitor component
+  - Extended API endpoints while preserving original functionality
+- **Compliance**: Full AGPL-3.0 compliance maintained with proper attribution
 
 ### Claude Code Mobile App
 - **Original Authors**: 9CAT (@9cat), Claude (Anthropic contributor)

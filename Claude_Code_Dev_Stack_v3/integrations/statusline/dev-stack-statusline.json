@@ -1,0 +1,96 @@
+{
+  "theme": "dark",
+  "display": {
+    "style": "powerline",
+    "lines": [
+      {
+        "segments": {
+          "directory": { "enabled": true, "showBasename": true },
+          "git": {
+            "enabled": true,
+            "showSha": true,
+            "showWorkingTree": true,
+            "showOperation": true,
+            "showTag": false,
+            "showTimeSinceCommit": false,
+            "showStashCount": true,
+            "showUpstream": true,
+            "showRepoName": false
+          },
+          "model": { "enabled": true }
+        }
+      },
+      {
+        "segments": {
+          "agent": {
+            "enabled": true,
+            "showCount": true,
+            "showList": false,
+            "showStatus": true,
+            "maxDisplay": 3
+          },
+          "task": {
+            "enabled": true,
+            "showCount": true,
+            "showCurrent": false,
+            "showProgress": true,
+            "maxTaskLength": 15
+          },
+          "hook": {
+            "enabled": true,
+            "showCount": true,
+            "showTypes": false,
+            "showErrors": true,
+            "showLastTrigger": false,
+            "maxTypes": 2
+          },
+          "audio": {
+            "enabled": true,
+            "showVolume": false,
+            "showQueue": true,
+            "showCount": false,
+            "showLastActivity": false
+          }
+        }
+      },
+      {
+        "segments": {
+          "session": { "enabled": true, "type": "cost" },
+          "today": { "enabled": true, "type": "cost" },
+          "block": { "enabled": true, "type": "cost", "burnType": "cost" },
+          "context": { "enabled": true },
+          "metrics": {
+            "enabled": true,
+            "showResponseTime": true,
+            "showLastResponseTime": false,
+            "showDuration": false,
+            "showMessageCount": true
+          },
+          "version": { "enabled": true }
+        }
+      }
+    ]
+  },
+  "colors": {
+    "custom": {
+      "directory": { "bg": "#8b4513", "fg": "#ffffff" },
+      "git": { "bg": "#404040", "fg": "#ffffff" },
+      "model": { "bg": "#2d2d2d", "fg": "#ffffff" },
+      "session": { "bg": "#202020", "fg": "#00ffff" },
+      "block": { "bg": "#2a2a2a", "fg": "#87ceeb" },
+      "today": { "bg": "#1a1a1a", "fg": "#98fb98" },
+      "tmux": { "bg": "#2f4f2f", "fg": "#90ee90" },
+      "context": { "bg": "#4a5568", "fg": "#cbd5e0" },
+      "metrics": { "bg": "#374151", "fg": "#d1d5db" },
+      "version": { "bg": "#3a3a4a", "fg": "#b8b8d0" },
+      "agent": { "bg": "#4c1d95", "fg": "#e0e7ff" },
+      "task": { "bg": "#059669", "fg": "#d1fae5" },
+      "hook": { "bg": "#dc2626", "fg": "#fef2f2" },
+      "audio": { "bg": "#7c2d12", "fg": "#fef2f2" }
+    }
+  },
+  "budget": {
+    "session": { "warningThreshold": 80 },
+    "today": { "amount": 10.0, "warningThreshold": 80 }
+  }
+}

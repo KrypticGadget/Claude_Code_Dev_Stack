@@ -1,0 +1,200 @@
+# MCP Manager Configuration
+# Original concept by @qdhenry (MIT License)
+# Enhanced for Claude Code Dev Stack by DevOps Agent
+
+# Global settings
+health_check_interval: 30
+service_discovery_interval: 300
+max_retry_attempts: 3
+
+# Load balancing configuration
+load_balancing:
+  default_algorithm: "round_robin"  # round_robin, least_connections, response_time
+  health_check_timeout: 10
+  circuit_breaker:
+    failure_threshold: 5
+    recovery_timeout: 60
+
+# Logging configuration
+logging:
+  level: "INFO"
+  file: "logs/mcp-manager.log"
+  max_size: "100MB"
+  backup_count: 5
+
+# Service definitions
+services:
+  - id: "playwright-mcp-8080"
+    name: "Playwright MCP Service"
+    type: "playwright"
+    host: "localhost"
+    port: 8080
+    path: "/"
+    protocol: "http"
+    description: "Browser automation and testing service using Playwright"
+    version: "1.0.0"
+    tags: ["automation", "testing", "browser", "playwright"]
+    metadata:
+      browser_type: "chromium"
+      headless: true
+      supported_browsers: ["chromium", "firefox", "webkit"]
+    health_check_url: "http://localhost:8080/health"
+    startup_command: "python playwright_mcp_server.py 8080"
+    auto_start: true
+    restart_policy: "always"
+
+  - id: "github-mcp-8081"
+    name: "GitHub MCP Service"
+    type: "github"
+    host: "localhost"
+    port: 8081
+    path: "/"
+    protocol: "http"
+    description: "GitHub repository management and Git operations service"
+    version: "1.0.0"
+    tags: ["git", "github", "repository", "vcs"]
+    metadata:
+      github_token_required: true
+      supported_operations: ["repository_management", "file_operations", "branch_operations", "pull_requests", "issues", "releases"]
+    health_check_url: "http://localhost:8081/health"
+    startup_command: "python github_mcp_server.py 8081"
+    auto_start: true
+    restart_policy: "always"
+    environment:
+      - name: "GITHUB_TOKEN"
+        required: true
+        description: "GitHub personal access token"
+
+  - id: "websearch-mcp-8082"
+    name: "WebSearch MCP Service"
+    type: "websearch"
+    host: "localhost"
+    port: 8082
+    path: "/"
+    protocol: "http"
+    description: "Web search and scraping service with multiple search engines"
+    version: "1.0.0"
+    tags: ["search", "web", "scraping", "data", "extraction"]
+    metadata:
+      search_engines: ["duckduckgo", "bing"]
+      supported_operations: ["web_search", "page_scraping", "content_extraction", "link_analysis", "metadata_extraction"]
+    health_check_url: "http://localhost:8082/health"
+    startup_command: "python websearch_mcp_server.py 8082"
+    auto_start: true
+    restart_policy: "always"
+
+  # Custom services can be added here
+  - id: "custom-proxy-8090"
+    name: "MCP Proxy Gateway"
+    type: "proxy"
+    host: "localhost"
+    port: 8090
+    path: "/"
+    protocol: "http"
+    description: "Proxy gateway for routing MCP requests"
+    version: "1.0.0"
+    tags: ["proxy", "gateway", "routing"]
+    metadata:
+      upstream_services: ["playwright-mcp-8080", "github-mcp-8081", "websearch-mcp-8082"]
+    health_check_url: "http://localhost:8090/health"
+    auto_start: false
+    restart_policy: "on-failure"
+
+# Service groups for load balancing
+service_groups:
+  browser_automation:
+    - "playwright-mcp-8080"
+  version_control:
+    - "github-mcp-8081"
+  web_services:
+    - "websearch-mcp-8082"
+  all_services:
+    - "playwright-mcp-8080"
+    - "github-mcp-8081"
+    - "websearch-mcp-8082"
+
+# Monitoring and alerting
+monitoring:
+  enable_prometheus: false
+  prometheus_port: 9090
+  metrics_interval: 30
+  
+  alerts:
+    - name: "service_down"
+      condition: "service_status != 'running'"
+      severity: "critical"
+      notification_channels: ["email", "webhook"]
+    
+    - name: "high_error_rate"
+      condition: "error_rate > 5%"
+      severity: "warning"
+      notification_channels: ["email"]
+    
+    - name: "slow_response"
+      condition: "avg_response_time > 5000ms"
+      severity: "warning"
+      notification_channels: ["email"]
+
+# Security settings
+security:
+  enable_authentication: false
+  api_key_required: false
+  allowed_origins: ["*"]
+  rate_limiting:
+    requests_per_minute: 1000
+    burst_size: 100
+
+# Network discovery settings
+discovery:
+  enable_network_scan: true
+  scan_ports: [8080, 8081, 8082, 8083, 8084, 8090, 8091, 8092]
+  scan_interval: 300
+  timeout: 5
+
+# Data persistence
+persistence:
+  enable_state_persistence: true
+  state_file: "data/mcp-manager-state.json"
+  backup_interval: 3600
+  max_backups: 24
+
+# Integration settings
+integrations:
+  pwa:
+    enable_websocket: true
+    websocket_port: 8000
+    real_time_updates: true
+  
+  mobile:
+    enable_mobile_api: true
+    mobile_api_port: 8001
+    push_notifications: false
+  
+  powershell:
+    enable_powershell_module: true
+    module_path: "powershell/MCPManager.psm1"
+  
+  rest_api:
+    enable_rest_api: true
+    api_port: 8000
+    swagger_ui: true
+    api_docs: true
+
+# Performance tuning
+performance:
+  max_concurrent_requests: 100
+  request_timeout: 30
+  connection_pool_size: 20
+  keep_alive_timeout: 60
+  
+  caching:
+    enable_response_cache: true
+    cache_ttl: 300
+    max_cache_size: "100MB"
+
+# Development and testing
+development:
+  debug_mode: false
+  test_mode: false
+  mock_services: false
+  log_level: "DEBUG"

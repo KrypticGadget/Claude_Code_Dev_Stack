@@ -27,8 +27,10 @@ export default defineConfig({
                 maxEntries: 50,
                 maxAgeSeconds: 300 // 5 minutes
               },
-              cacheKeyWillBeUsed: async ({ request }) => {
-                return `${request.url}?${Date.now()}`
+              cacheKeyWillBeUsed: async ({ request, mode }) => {
+                // Fix: Use proper workbox cache key format
+                const url = new URL(request.url);
+                return mode === 'read' ? url.href : `${url.href}?cache-bust=${Date.now()}`;
               }
             }
           },

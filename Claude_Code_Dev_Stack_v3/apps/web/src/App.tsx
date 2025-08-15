@@ -6,6 +6,7 @@ import { AgentDashboard } from './components/AgentDashboard'
 import { TaskMonitor } from './components/TaskMonitor'
 import { AudioController } from './components/AudioController'
 import { MCPManager } from './components/MCPManager'
+import { BrowserMonitor } from './components/BrowserMonitor'
 import { useWebSocket } from './hooks/useWebSocket'
 import './App.css'
 
@@ -26,7 +27,8 @@ function App() {
   const [lastAudio, setLastAudio] = useState<string>('')
 
   // WebSocket connection for real-time updates (100ms)
-  const { data, isConnected } = useWebSocket('ws://localhost:8080/ws', {
+  // Connect to Dev Stack API WebSocket (integrates with browser adapter)
+  const { data, isConnected } = useWebSocket('ws://localhost:8081/ws', {
     reconnectInterval: 1000,
     heartbeatInterval: 100
   })
@@ -65,6 +67,7 @@ function App() {
               <Route path="/tasks" element={<TaskMonitor tasks={tasks} />} />
               <Route path="/audio" element={<AudioController lastAudio={lastAudio} />} />
               <Route path="/mcp" element={<MCPManager />} />
+              <Route path="/browser" element={<BrowserMonitor />} />
             </Routes>
           </main>
         </div>
