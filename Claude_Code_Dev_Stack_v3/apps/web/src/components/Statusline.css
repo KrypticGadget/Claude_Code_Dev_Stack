@@ -1,0 +1,359 @@
+/* Claude Code Dev Stack v3.0 - Statusline Component */
+/* Ultimate Statusline combining Powerline + Dev Stack Monitoring */
+
+.statusline {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-dropdown);
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  border-bottom: 1px solid var(--bg-tertiary);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Statusline Rows */
+.statusline-row {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-md);
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.statusline-row::-webkit-scrollbar {
+  display: none;
+}
+
+/* Powerline Style (First Row) */
+.statusline-row.powerline {
+  background: linear-gradient(90deg, #2d3748 0%, #4a5568 100%);
+  color: white;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Dev Stack Style (Second Row) */
+.statusline-row.devstack {
+  background: linear-gradient(90deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  border-top: 1px solid var(--bg-tertiary);
+}
+
+/* Segment Styling */
+.segment {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  position: relative;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+/* Powerline Arrow Separators */
+.statusline-row.powerline .segment {
+  background-color: #4a5568;
+  position: relative;
+  margin-right: 12px;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%);
+}
+
+.statusline-row.powerline .segment:first-child {
+  padding-left: var(--spacing-md);
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%);
+}
+
+.statusline-row.powerline .segment:last-child {
+  clip-path: none;
+  margin-right: 0;
+}
+
+/* Powerline Segment Colors */
+.statusline-row.powerline .segment.directory {
+  background-color: #2d3748;
+}
+
+.statusline-row.powerline .segment.git {
+  background-color: #38a169;
+}
+
+.statusline-row.powerline .segment.model {
+  background-color: #3182ce;
+}
+
+.statusline-row.powerline .segment.cost {
+  background-color: #d69e2e;
+}
+
+.statusline-row.powerline .segment.cost.text-red-500 {
+  background-color: #e53e3e;
+}
+
+.statusline-row.powerline .segment.cost.text-green-500 {
+  background-color: #38a169;
+}
+
+.statusline-row.powerline .segment.context {
+  background-color: #805ad5;
+}
+
+/* Dev Stack Segments */
+.statusline-row.devstack .segment {
+  border-radius: var(--radius-sm);
+  background-color: rgba(255, 255, 255, 0.05);
+  margin-right: var(--spacing-xs);
+  border: 1px solid transparent;
+}
+
+.statusline-row.devstack .segment:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--accent-primary);
+  transform: translateY(-1px);
+}
+
+/* Icon Styling */
+.segment .icon {
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
+.segment svg {
+  width: 14px;
+  height: 14px;
+  opacity: 0.9;
+}
+
+/* Value Styling */
+.segment .value {
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* Color Variants */
+.text-green-500 {
+  color: var(--success) !important;
+}
+
+.text-yellow-500 {
+  color: var(--warning) !important;
+}
+
+.text-red-500 {
+  color: var(--error) !important;
+}
+
+.text-purple-500 {
+  color: var(--accent-secondary) !important;
+}
+
+.text-gray-500 {
+  color: var(--text-muted) !important;
+}
+
+.text-gray-400 {
+  color: var(--text-muted) !important;
+  opacity: 0.8;
+}
+
+/* Specific Segment Styles */
+.segment.connection {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.segment.connection .value {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.segment.timestamp {
+  margin-left: auto;
+}
+
+.segment.timestamp .value {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
+/* Real-time Indicators */
+.segment.agents .value.text-green-500::after {
+  content: '●';
+  color: var(--success);
+  animation: blink 1s infinite;
+  margin-left: var(--spacing-xs);
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.3; }
+}
+
+/* Progress Indicators */
+.segment.tasks .value::after {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  background-color: currentColor;
+  border-radius: 50%;
+  margin-left: var(--spacing-xs);
+  animation: progress-dot 2s ease-in-out infinite;
+}
+
+@keyframes progress-dot {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.5); opacity: 1; }
+}
+
+/* Connection Status Animation */
+.segment.connection svg.text-green-500 {
+  animation: wifi-pulse 2s ease-in-out infinite;
+}
+
+@keyframes wifi-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .statusline-row {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.75rem;
+  }
+  
+  .statusline-row.powerline {
+    font-size: 0.75rem;
+  }
+  
+  .statusline-row.devstack {
+    font-size: 0.7rem;
+  }
+  
+  .segment {
+    padding: var(--spacing-xs);
+    gap: calc(var(--spacing-xs) / 2);
+  }
+  
+  .segment .icon {
+    font-size: 0.75rem;
+  }
+  
+  .segment svg {
+    width: 12px;
+    height: 12px;
+  }
+  
+  /* Hide less critical segments on mobile */
+  .segment.context,
+  .segment.timestamp {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .statusline-row {
+    font-size: 0.7rem;
+  }
+  
+  .statusline-row.powerline .segment {
+    margin-right: 8px;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%);
+  }
+  
+  /* Hide additional segments on very small screens */
+  .segment.cost:last-of-type,
+  .segment.audio {
+    display: none;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .statusline {
+    border-bottom: 2px solid var(--text-primary);
+  }
+  
+  .statusline-row.powerline {
+    background: #000000;
+    color: #ffffff;
+  }
+  
+  .statusline-row.devstack {
+    background: #ffffff;
+    color: #000000;
+  }
+  
+  .statusline-row.powerline .segment {
+    background-color: #333333 !important;
+    border: 1px solid #ffffff;
+  }
+  
+  .statusline-row.devstack .segment {
+    background-color: #f0f0f0 !important;
+    border: 1px solid #000000;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .segment,
+  .segment.connection,
+  .segment.agents .value::after,
+  .segment.tasks .value::after,
+  .segment.connection svg {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .statusline {
+    display: none;
+  }
+}
+
+/* Focus Management */
+.segment:focus {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Tooltips for Segments */
+.segment[title] {
+  cursor: help;
+}
+
+.segment[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: var(--z-tooltip);
+  box-shadow: var(--shadow-md);
+  margin-bottom: var(--spacing-xs);
+}
+
+/* Performance Optimization */
+.statusline-row {
+  will-change: transform;
+  contain: layout style paint;
+}
+
+.segment {
+  contain: layout style;
+}

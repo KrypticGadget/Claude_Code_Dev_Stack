@@ -1,0 +1,45 @@
+# Claude Code Browser Integration Requirements
+# ==========================================
+# Dependencies for the adapter pattern integration that extends
+# the original Claude Code Browser (@zainhoda, AGPL-3.0) with
+# Dev Stack v3.0 functionality while maintaining license compliance.
+
+# Core web framework for API endpoints
+aiohttp>=3.8.0
+aiofiles>=23.0.0
+
+# WebSocket support for real-time communication
+websockets>=11.0.0
+
+# JSON handling and data serialization
+pydantic>=2.0.0
+
+# Image processing for streaming
+Pillow>=10.0.0
+opencv-python>=4.8.0
+numpy>=1.24.0
+
+# Screen capture (platform-specific, optional)
+pyscreenshot>=3.1.0  # Linux/Mac
+pywin32>=306; sys_platform == "win32"  # Windows
+
+# HTTP client for proxying requests
+requests>=2.31.0
+
+# Async utilities
+asyncio-mqtt>=0.16.0  # Optional for MQTT integration
+
+# Development and testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+black>=23.0.0
+flake8>=6.0.0
+
+# Optional streaming dependencies
+# aiortc>=1.6.0  # WebRTC support (requires additional system dependencies)
+# python-socketio>=5.8.0  # Enhanced WebSocket support
+
+# Note: Some dependencies may require additional system packages:
+# - For WebRTC: libavformat, libavcodec, libavutil
+# - For screen capture: X11 libraries (Linux), Quartz (Mac)
+# - For VNC: x11vnc (Linux), TightVNC (Windows)

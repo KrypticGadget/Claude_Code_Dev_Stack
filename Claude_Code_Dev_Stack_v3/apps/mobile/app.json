@@ -1,0 +1,47 @@
+{
+  "name": "ClaudeCodeMobile",
+  "displayName": "Claude Code Mobile",
+  "expo": {
+    "name": "Claude Code Mobile",
+    "slug": "claude-code-mobile",
+    "version": "3.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1E1E1E"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.claudecode.mobile"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1E1E1E"
+      },
+      "package": "com.claudecode.mobile",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-speech",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone for voice commands."
+        }
+      ]
+    ]
+  }
+}
