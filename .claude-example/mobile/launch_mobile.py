@@ -53,11 +53,15 @@ class SecureMobileLauncher:
         self.auth_token = None
         self.tunnel_url = None
         self.dashboard_port = 8080
+        self.ttyd_port = 7681
+        self.use_enhanced_dashboard = True
         
         # Processes
         self.dashboard_process = None
         self.tunnel_process = None
         self.display_thread = None
+        self.ttyd_process = None
+        self.realtime_dashboard_process = None
         
         # Mobile access info
         self.mobile_access_file = self.mobile_dir / 'current_access.json'
@@ -143,8 +147,141 @@ class SecureMobileLauncher:
             safe_print(f"❌ Failed to download {file_name}: {e}")
             return False
 
+    def install_dependencies(self, packages: list) -> bool:
+        """Install required Python packages"""
+        try:
+            safe_print(f"📦 Installing dependencies: {', '.join(packages)}")
+            
+            for package in packages:
+                try:
+                    result = subprocess.run([
+                        sys.executable, '-m', 'pip', 'install', package
+                    ], capture_output=True, text=True, timeout=120)
+                    
+                    if result.returncode == 0:
+                        safe_print(f"✅ Installed {package}")
+                    else:
+                        safe_print(f"⚠️ Warning: Failed to install {package}: {result.stderr}")
+                        
+                except subprocess.TimeoutExpired:
+                    safe_print(f"⚠️ Timeout installing {package}")
+                except Exception as e:
+                    safe_print(f"⚠️ Error installing {package}: {e}")
+            
+            return True
+            
+        except Exception as e:
+            safe_print(f"❌ Error during dependency installation: {e}")
+            return False
+
+    def start_enhanced_dashboard(self) -> bool:
+        """Start enhanced dashboard with real-time monitoring and ttyd terminal"""
+        try:
+            safe_print("🚀 Starting Enhanced Dashboard with Real-time Monitoring...")
+            
+            # Step 1: Download required components
+            components = [
+                ('dashboard', 'realtime_dashboard.py'),
+                ('dashboard', 'monitors.py'),
+                ('dashboard', 'ttyd_manager.py')
+            ]
+            
+            for component_dir, filename in components:
+                if not self.download_component(component_dir, filename):
+                    safe_print(f"❌ Failed to download {filename}, falling back to secure dashboard...")
+                    return self.start_secure_dashboard()
+            
+            # Step 2: Install dependencies
+            dependencies = [
+                'flask',
+                'flask-socketio',
+                'flask-cors',
+                'gitpython',
+                'watchdog',
+                'psutil'
+            ]
+            
+            self.install_dependencies(dependencies)
+            
+            # Step 3: Generate auth token
+            auth_token = self.generate_auth_token()
+            
+            # Step 4: Start ttyd terminal manager
+            safe_print("🖥️ Starting ttyd terminal manager...")
+            ttyd_script = self.mobile_dir / 'dashboard' / 'ttyd_manager.py'
+            
+            if ttyd_script.exists():
+                try:
+                    # Set environment for ttyd manager
+                    env = os.environ.copy()
+                    env['CLAUDE_MOBILE_AUTH_TOKEN'] = auth_token
+                    env['CLAUDE_MOBILE_AUTH_DIR'] = str(self.mobile_dir)
+                    
+                    self.ttyd_process = subprocess.Popen([
+                        sys.executable, str(ttyd_script),
+                        '--port', str(self.ttyd_port),
+                        '--auth', auth_token
+                    ], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    
+                    # Wait for ttyd to start
+                    time.sleep(3)
+                    
+                    if self.ttyd_process.poll() is None:
+                        safe_print(f"✅ ttyd terminal manager started on port {self.ttyd_port}")
+                    else:
+                        safe_print("⚠️ ttyd terminal manager failed to start (continuing without terminal)")
+                        self.ttyd_process = None
+                        
+                except Exception as e:
+                    safe_print(f"⚠️ Error starting ttyd manager: {e}")
+                    self.ttyd_process = None
+            
+            # Step 5: Start real-time dashboard
+            safe_print("📊 Starting real-time dashboard...")
+            dashboard_script = self.mobile_dir / 'dashboard' / 'realtime_dashboard.py'
+            
+            # Set environment variables for dashboard
+            env = os.environ.copy()
+            env['CLAUDE_MOBILE_AUTH_TOKEN'] = auth_token
+            env['CLAUDE_MOBILE_AUTH_DIR'] = str(self.mobile_dir)
+            env['TTYD_PORT'] = str(self.ttyd_port)
+            env['DASHBOARD_PORT'] = str(self.dashboard_port)
+            
+            self.realtime_dashboard_process = subprocess.Popen([
+                sys.executable, str(dashboard_script),
+                '--port', str(self.dashboard_port),
+                '--auth', auth_token,
+                '--ttyd-port', str(self.ttyd_port)
+            ], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            
+            # Wait for dashboard to start
+            time.sleep(5)
+            
+            # Check if dashboard is running
+            if self.realtime_dashboard_process.poll() is None:
+                safe_print(f"✅ Enhanced dashboard started on port {self.dashboard_port}")
+                safe_print(f"📊 Real-time monitoring: http://localhost:{self.dashboard_port}")
+                safe_print(f"🖥️ Terminal access: http://localhost:{self.ttyd_port}")
+                return True
+            else:
+                stdout, stderr = self.realtime_dashboard_process.communicate()
+                safe_print("❌ Enhanced dashboard failed to start:")
+                if stdout:
+                    safe_print(f"stdout: {stdout.decode()[:500]}")
+                if stderr:
+                    safe_print(f"stderr: {stderr.decode()[:500]}")
+                
+                # Fallback to secure dashboard
+                safe_print("🔄 Falling back to secure dashboard...")
+                return self.start_secure_dashboard()
+                
+        except Exception as e:
+            safe_print(f"❌ Error starting enhanced dashboard: {e}")
+            safe_print("🔄 Falling back to secure dashboard...")
+            return self.start_secure_dashboard()
+
     def start_secure_dashboard(self) -> bool:
-        """Start dashboard with authentication"""
+        """Start dashboard with authentication (fallback method)"""
         try:
             # Download dashboard components if needed
             # Try simple dashboard first
@@ -153,8 +290,11 @@ class SecureMobileLauncher:
                 if not self.download_component('dashboard', 'dashboard_server.py'):
                     return False
             
-            # Generate auth token
-            auth_token = self.generate_auth_token()
+            # Generate auth token if not already generated
+            if not self.auth_token:
+                auth_token = self.generate_auth_token()
+            else:
+                auth_token = self.auth_token
             
             safe_print("🔒 Starting secure dashboard with authentication...")
             
@@ -495,12 +635,12 @@ class SecureMobileLauncher:
     
     def launch(self, send_to_phone: bool = True, generate_qr: bool = True) -> bool:
         """Main launch function - the one-liner entry point"""
-        safe_print("🚀 Starting Claude Code V3+ Secure Mobile Access...")
+        safe_print("🚀 Starting Claude Code V3+ Enhanced Mobile Access...")
         safe_print("=" * 60)
         
         try:
-            # Step 1: Start secure dashboard
-            if not self.start_secure_dashboard():
+            # Step 1: Start enhanced dashboard (with fallback to secure dashboard)
+            if not self.start_enhanced_dashboard():
                 print("❌ Failed to start dashboard")
                 return False
             
@@ -527,16 +667,23 @@ class SecureMobileLauncher:
             self.display_access_info(tunnel_url, self.auth_token)
             
             # Success!
-            safe_print("\n✅ Mobile access launched successfully!")
+            safe_print("\n✅ Enhanced mobile access launched successfully!")
             safe_print("\n📱 IMPORTANT: Visit http://localhost:5555 to see:")
             safe_print("   • QR code for mobile access")
             safe_print("   • Tunnel URL and auth credentials")
             safe_print("   • Samsung Galaxy S25 Edge instructions")
             safe_print("")
+            safe_print("📊 Enhanced features available:")
+            safe_print(f"   • Real-time dashboard: {tunnel_url}")
+            safe_print(f"   • Terminal access: {tunnel_url.replace(str(self.dashboard_port), str(self.ttyd_port)) if self.ttyd_process else 'Not available'}")
+            safe_print("   • Live system monitoring")
+            safe_print("   • File system watching")
+            safe_print("   • Git integration")
+            safe_print("")
             safe_print("📱 Direct mobile access:")
             safe_print(f"   {tunnel_url}")
             safe_print("")
-            print("🔄 Monitoring system... Press Ctrl+C to stop")
+            print("🔄 Monitoring enhanced system... Press Ctrl+C to stop")
             
             # Keep running and monitor
             self.monitor_system()
@@ -553,12 +700,22 @@ class SecureMobileLauncher:
             return False
     
     def monitor_system(self):
-        """Monitor dashboard and tunnel"""
+        """Monitor dashboard, ttyd terminal, and tunnel"""
         try:
             while True:
-                # Check dashboard
+                # Check realtime dashboard
+                if self.realtime_dashboard_process and self.realtime_dashboard_process.poll() is not None:
+                    safe_print("⚠️ Real-time dashboard process stopped")
+                    break
+                
+                # Check ttyd terminal manager
+                if self.ttyd_process and self.ttyd_process.poll() is not None:
+                    safe_print("⚠️ ttyd terminal manager process stopped")
+                    # Continue monitoring other processes
+                
+                # Check fallback dashboard
                 if self.dashboard_process and self.dashboard_process.poll() is not None:
-                    safe_print("⚠️  Dashboard process stopped")
+                    safe_print("⚠️ Dashboard process stopped")
                     break
                 
                 # Sleep and continue monitoring
@@ -571,7 +728,31 @@ class SecureMobileLauncher:
         """Clean up processes"""
         print("🧹 Cleaning up...")
         
-        # Stop dashboard
+        # Stop realtime dashboard
+        if self.realtime_dashboard_process:
+            try:
+                self.realtime_dashboard_process.terminate()
+                self.realtime_dashboard_process.wait(timeout=5)
+                print("✅ Real-time dashboard stopped")
+            except:
+                try:
+                    self.realtime_dashboard_process.kill()
+                except:
+                    pass
+        
+        # Stop ttyd terminal manager
+        if self.ttyd_process:
+            try:
+                self.ttyd_process.terminate()
+                self.ttyd_process.wait(timeout=5)
+                print("✅ ttyd terminal manager stopped")
+            except:
+                try:
+                    self.ttyd_process.kill()
+                except:
+                    pass
+        
+        # Stop fallback dashboard
         if self.dashboard_process:
             try:
                 self.dashboard_process.terminate()
