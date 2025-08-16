@@ -1,0 +1,26 @@
+{
+  "current_phase": "DevelopmentPhase.INITIALIZATION",
+  "active_agents": [],
+  "current_operation": "startup",
+  "session_id": "session_1755306130",
+  "platform": "Windows",
+  "user_preferences": {
+    "notification_frequency": "normal",
+    "quiet_hours": {
+      "enabled": false,
+      "start": "22:00",
+      "end": "08:00"
+    },
+    "priority_filter": "normal",
+    "categories": {
+      "system": true,
+      "agent": true,
+      "phase": true,
+      "error": true,
+      "warning": true,
+      "success": true,
+      "notification": true
+    }
+  },
+  "start_time": 1755306130.4802747
+}

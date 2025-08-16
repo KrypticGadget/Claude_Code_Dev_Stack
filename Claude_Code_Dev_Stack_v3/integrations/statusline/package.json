@@ -1,20 +1,24 @@
 {
-  "name": "@claude-code-dev-stack/statusline",
-  "version": "1.0.0",
-  "description": "Claude Powerline integration for Claude Code Dev Stack - Extended statusline with agent monitoring, task tracking, hook status, and audio notifications",
+  "name": "@claude-code-dev-stack/ultimate-statusline",
+  "version": "3.0.0",
+  "description": "Ultimate Statusline integration combining @Owloops/claude-powerline with Dev Stack monitoring - Real-time 100ms updates with WebSocket support",
   "type": "module",
-  "main": "./dist/pwa-integration.js",
-  "module": "./dist/pwa-integration.js",
-  "types": "./dist/pwa-integration.d.ts",
+  "main": "./ultimate-statusline.js",
+  "module": "./ultimate-statusline.js",
+  "types": "./ultimate-statusline.d.ts",
   "bin": {
-    "dev-stack-statusline": "./dist/src/index.js"
+    "ultimate-statusline": "./ultimate-statusline-cli.js",
+    "dev-stack-statusline": "./ultimate-statusline-cli.js"
   },
   "scripts": {
+    "start": "node ultimate-statusline-cli.js",
+    "dev": "node ultimate-statusline-cli.js --interval 100",
     "build": "tsc",
-    "dev": "tsc --watch",
+    "watch": "tsc --watch",
     "clean": "rm -rf dist",
     "lint": "eslint src/ --ext .ts",
-    "lint:fix": "eslint src/ --ext .ts --fix"
+    "lint:fix": "eslint src/ --ext .ts --fix",
+    "test": "echo \"No tests yet\" && exit 0"
   },
   "keywords": [
     "claude",
@@ -46,20 +50,57 @@
     "dev-stack-statusline.json"
   ],
   "dependencies": {
-    "@types/node": "^20.0.0"
+    "@types/node": "^20.0.0",
+    "ws": "^8.14.2"
   },
   "devDependencies": {
     "typescript": "^5.0.0",
     "eslint": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
-    "@typescript-eslint/parser": "^8.0.0"
+    "@typescript-eslint/parser": "^8.0.0",
+    "@types/ws": "^8.5.0"
+  },
+  "peerDependencies": {
+    "@owloops/claude-powerline": ">=1.0.0"
   },
   "attribution": {
-    "original": {
-      "name": "claude-powerline",
+    "powerline": {
+      "name": "@Owloops/claude-powerline",
       "author": "Owloops",
-      "url": "https://github.com/Owloops/claude-powerline",
-      "license": "MIT"
+      "url": "https://github.com/owloops/claude-powerline",
+      "license": "MIT",
+      "description": "Original powerline implementation for Claude cost/git/model tracking"
+    },
+    "devStack": {
+      "name": "Dev Stack Monitoring",
+      "author": "Zach",
+      "description": "Agent/Task/Hook orchestration and performance monitoring for Claude Code v3.0"
+    },
+    "integration": {
+      "name": "Ultimate Statusline v3.0",
+      "description": "Real-time integration with 100ms updates, WebSocket support, and dashboard synchronization"
+    }
+  },
+  "ultimateStatusline": {
+    "features": [
+      "100ms real-time updates",
+      "WebSocket server for live client connections",
+      "Integration with @Owloops/claude-powerline",
+      "Dev Stack agent/task/hook monitoring",
+      "Performance metrics tracking",
+      "Dashboard and mobile app synchronization",
+      "Audio event notification system",
+      "System resource monitoring"
+    ],
+    "config": {
+      "defaultUpdateInterval": 100,
+      "defaultWebSocketPort": 8087,
+      "enabledByDefault": {
+        "webSocket": true,
+        "performanceMetrics": true,
+        "dashboardIntegration": true,
+        "mobileSync": true
+      }
     }
   }
 }

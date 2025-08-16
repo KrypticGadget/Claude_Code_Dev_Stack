@@ -1,6 +1,8 @@
-# Claude Code Dev Stack - Enhanced Statusline
+# Ultimate Statusline v3.0
 
-An enhanced statusline integration for Claude Code Dev Stack, built on top of Claude Powerline by @Owloops. This statusline provides real-time monitoring of Dev Stack components including agents, tasks, hooks, and audio notifications.
+**Performance-Optimized Real-Time Statusline Integration for Claude Code Dev Stack**
+
+Combines the power of [@Owloops/claude-powerline](https://github.com/owloops/claude-powerline) with comprehensive Dev Stack monitoring to provide real-time insights into your Claude development environment with 100ms update precision.
 
 ## Features
 

@@ -1,0 +1,158 @@
+# MCP Service Orchestrator Configuration - PHASE 7.3
+# Unified service management with load balancing, health monitoring, and failover
+
+# Service pool configurations
+service_pools:
+  playwright:
+    strategy: "round_robin"  # round_robin, least_connections, fastest_response, weighted_round_robin, consistent_hash, resource_aware
+    failover_policy: "graceful"  # immediate, graceful, circuit_breaker, retry_with_backoff
+    circuit_breaker_threshold: 0.5
+    health_check_interval: 30
+    max_retries: 3
+    retry_delay: 1.0
+    weights:
+      # service_id: weight (optional for weighted_round_robin)
+      
+  github:
+    strategy: "least_connections"
+    failover_policy: "circuit_breaker"
+    circuit_breaker_threshold: 0.6
+    health_check_interval: 20
+    max_retries: 2
+    retry_delay: 2.0
+    
+  websearch:
+    strategy: "fastest_response"
+    failover_policy: "retry_with_backoff"
+    circuit_breaker_threshold: 0.7
+    health_check_interval: 15
+    max_retries: 5
+    retry_delay: 0.5
+    
+  custom:
+    strategy: "resource_aware"
+    failover_policy: "graceful"
+    circuit_breaker_threshold: 0.5
+    health_check_interval: 30
+    max_retries: 3
+    retry_delay: 1.0
+    
+  core:
+    strategy: "round_robin"
+    failover_policy: "immediate"
+    circuit_breaker_threshold: 0.3
+    health_check_interval: 10
+    max_retries: 1
+    retry_delay: 0.1
+    
+  proxy:
+    strategy: "consistent_hash"
+    failover_policy: "graceful"
+    circuit_breaker_threshold: 0.4
+    health_check_interval: 25
+    max_retries: 2
+    retry_delay: 1.5
+    
+  gateway:
+    strategy: "resource_aware"
+    failover_policy: "circuit_breaker"
+    circuit_breaker_threshold: 0.6
+    health_check_interval: 20
+    max_retries: 3
+    retry_delay: 2.0
+
+# Health monitoring configuration
+health_monitoring:
+  check_interval: 15  # seconds
+  prediction_window: 300  # seconds (5 minutes)
+  enable_predictive_monitoring: true
+  enable_resource_monitoring: true
+  cpu_threshold: 80  # percent
+  memory_threshold: 85  # percent
+  response_time_threshold: 5.0  # seconds
+  
+# Message queue configuration
+message_queue:
+  type: "redis"  # redis, in_memory
+  redis_url: "redis://localhost:6379"
+  enable_persistence: true
+  channel_prefix: "mcp_orchestrator"
+  
+# Load balancing configuration
+load_balancing:
+  enable_sticky_sessions: true
+  session_timeout: 3600  # seconds
+  health_weight_factor: 0.3
+  response_time_weight_factor: 0.4
+  resource_weight_factor: 0.3
+  
+# Circuit breaker configuration
+circuit_breaker:
+  default_failure_threshold: 0.5
+  default_timeout: 60  # seconds
+  half_open_max_calls: 5
+  enable_metrics_based_tripping: true
+  
+# Failover configuration
+failover:
+  enable_cross_type_fallback: false
+  enable_degraded_mode: true
+  degraded_mode_timeout: 300  # seconds
+  enable_automatic_recovery: true
+  recovery_check_interval: 60  # seconds
+  
+# Metrics and monitoring
+metrics:
+  enable_detailed_metrics: true
+  metrics_retention_period: 86400  # seconds (24 hours)
+  enable_performance_analytics: true
+  enable_predictive_scaling: false
+  
+# Integration settings
+integration:
+  v3_orchestrator:
+    enable: true
+    sync_status: true
+    forward_events: ["health_warning", "failover", "recovery"]
+    
+  mcp_manager:
+    enable: true
+    auto_discovery: true
+    sync_services: true
+    
+  external_apis:
+    enable_webhooks: false
+    webhook_endpoints: []
+    
+# Logging configuration
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  enable_file_logging: true
+  log_file: "mcp-orchestrator.log"
+  max_log_size: "10MB"
+  backup_count: 5
+  enable_structured_logging: true
+  
+# Security settings
+security:
+  enable_service_authentication: false
+  enable_request_validation: true
+  enable_rate_limiting: true
+  rate_limit_requests_per_minute: 1000
+  enable_audit_logging: true
+  
+# Performance tuning
+performance:
+  max_concurrent_requests: 100
+  request_timeout: 30  # seconds
+  connection_pool_size: 20
+  enable_request_queuing: true
+  max_queue_size: 500
+  
+# Development and testing
+development:
+  enable_debug_mode: false
+  enable_mock_services: false
+  enable_chaos_engineering: false
+  chaos_failure_rate: 0.01  # 1%
+  enable_detailed_tracing: false

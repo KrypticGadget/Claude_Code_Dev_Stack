@@ -41,7 +41,12 @@ class PlaywrightMCPService:
         self.host = self.config.get('host', 'localhost')
         self.port = self.config.get('port', 8080)
         self.browser_type = self.config.get('browser_type', 'chromium')
-        self.headless = self.config.get('headless', True)
+        self.headless = self.config.get('headless', False)  # Default to headed mode for visual testing
+        self.viewport = self.config.get('viewport', {'width': 1920, 'height': 1080})
+        self.slow_mo = self.config.get('slow_mo', 0)  # Slow motion for visual testing
+        self.record_video = self.config.get('record_video', False)
+        self.record_har = self.config.get('record_har', False)
+        self.devtools = self.config.get('devtools', not self.headless)  # Enable devtools in headed mode
         self.server_script = self.config.get('server_script', self._get_default_server_script())
         
         # Initialize service instance
@@ -121,8 +126,33 @@ async def startup():
     global playwright_instance, browser
     try:
         playwright_instance = await async_playwright().start()
-        browser = await playwright_instance.chromium.launch(headless=True)
-        logger.info("Playwright browser started successfully")
+        
+        # Get configuration from environment or defaults
+        browser_type = os.getenv('BROWSER_TYPE', 'chromium')
+        headless = os.getenv('HEADLESS', 'false').lower() == 'true'
+        slow_mo = int(os.getenv('SLOW_MO', '0'))
+        record_video = os.getenv('RECORD_VIDEO', 'false').lower() == 'true'
+        
+        # Launch options for headed browser support
+        launch_options = {
+            'headless': headless,
+            'slow_mo': slow_mo,
+            'devtools': not headless,  # Enable devtools in headed mode
+        }
+        
+        # Add video recording if enabled
+        if record_video:
+            launch_options['record_video_dir'] = './test-videos'
+        
+        # Launch the specified browser
+        if browser_type == 'firefox':
+            browser = await playwright_instance.firefox.launch(**launch_options)
+        elif browser_type == 'webkit':
+            browser = await playwright_instance.webkit.launch(**launch_options)
+        else:
+            browser = await playwright_instance.chromium.launch(**launch_options)
+        
+        logger.info(f"Playwright {browser_type} browser started successfully (headless={headless})")
     except Exception as e:
         logger.error(f"Failed to start Playwright: {e}")
         raise
@@ -204,6 +234,15 @@ async def create_browser_context(config: Dict[str, Any] = None):
             raise HTTPException(status_code=500, detail="Browser not available")
         
         context_config = config or {}
+        
+        # Set default viewport for visual testing
+        if 'viewport' not in context_config:
+            context_config['viewport'] = {'width': 1920, 'height': 1080}
+        
+        # Enable HAR recording if requested
+        if context_config.get('record_har'):
+            context_config['record_har_path'] = f"./test-har/session_{len(contexts)}.har"
+        
         context = await browser.new_context(**context_config)
         context_id = f"context_{len(contexts)}"
         contexts[context_id] = context
@@ -212,7 +251,8 @@ async def create_browser_context(config: Dict[str, Any] = None):
         
         return {
             "context_id": context_id,
-            "status": "created"
+            "status": "created",
+            "viewport": context_config.get('viewport')
         }
     except Exception as e:
         service_metrics["error_count"] += 1
@@ -430,8 +470,192 @@ async def close_context(context_id: str):
         logger.error(f"Failed to close context: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/page/{page_id}/visual-test")
+async def visual_regression_test(page_id: str, test_config: Dict[str, Any]):
+    """Perform visual regression testing"""
+    service_metrics["requests_total"] += 1
+    
+    try:
+        if page_id not in pages:
+            raise HTTPException(status_code=404, detail="Page not found")
+        
+        page = pages[page_id]
+        test_name = test_config.get('test_name', 'unnamed_test')
+        selector = test_config.get('selector')
+        full_page = test_config.get('full_page', True)
+        mask_selectors = test_config.get('mask_selectors', [])
+        
+        # Mask dynamic elements if specified
+        if mask_selectors:
+            mask_script = f"""
+            (selectors) => {{
+                selectors.forEach(selector => {{
+                    const elements = document.querySelectorAll(selector);
+                    elements.forEach(el => {{
+                        el.style.visibility = 'hidden';
+                    }});
+                }});
+            }}
+            """
+            await page.evaluate(mask_script, mask_selectors)
+        
+        # Take screenshot
+        screenshot_options = {'full_page': full_page}
+        if selector:
+            element = page.locator(selector)
+            screenshot = await element.screenshot(**screenshot_options)
+        else:
+            screenshot = await page.screenshot(**screenshot_options)
+        
+        # Convert to base64
+        screenshot_b64 = base64.b64encode(screenshot).decode()
+        
+        return {
+            "test_name": test_name,
+            "screenshot": screenshot_b64,
+            "timestamp": datetime.now().isoformat(),
+            "viewport": await page.evaluate("() => ({width: window.innerWidth, height: window.innerHeight})"),
+            "url": page.url
+        }
+    except Exception as e:
+        service_metrics["error_count"] += 1
+        logger.error(f"Failed to perform visual test: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/page/{page_id}/form-automation")
+async def automate_form(page_id: str, form_config: Dict[str, Any]):
+    """Automate form filling and submission"""
+    service_metrics["requests_total"] += 1
+    
+    try:
+        if page_id not in pages:
+            raise HTTPException(status_code=404, detail="Page not found")
+        
+        page = pages[page_id]
+        form_data = form_config.get('form_data', {})
+        submit_selector = form_config.get('submit_selector')
+        wait_after_submit = form_config.get('wait_after_submit', 2000)
+        
+        results = {
+            "filled_fields": {},
+            "errors": [],
+            "form_submitted": False,
+            "success": True
+        }
+        
+        # Fill form fields
+        for field_name, field_config in form_data.items():
+            try:
+                selector = field_config.get('selector')
+                value = field_config.get('value')
+                field_type = field_config.get('type', 'text')
+                
+                if not selector:
+                    continue
+                
+                element = page.locator(selector)
+                await element.wait_for(state="visible", timeout=5000)
+                
+                if field_type in ['text', 'email', 'password']:
+                    await element.fill(str(value))
+                elif field_type == 'select':
+                    await element.select_option(str(value))
+                elif field_type == 'checkbox':
+                    if value:
+                        await element.check()
+                    else:
+                        await element.uncheck()
+                elif field_type == 'radio':
+                    await element.click()
+                elif field_type == 'file':
+                    await element.set_input_files(str(value))
+                
+                results["filled_fields"][field_name] = {
+                    "selector": selector,
+                    "value": value,
+                    "type": field_type,
+                    "success": True
+                }
+                
+            except Exception as e:
+                error_msg = f"Failed to fill field {field_name}: {str(e)}"
+                results["errors"].append(error_msg)
+                results["success"] = False
+        
+        # Submit form if requested
+        if submit_selector:
+            try:
+                submit_button = page.locator(submit_selector)
+                await submit_button.click()
+                await page.wait_for_timeout(wait_after_submit)
+                results["form_submitted"] = True
+            except Exception as e:
+                error_msg = f"Failed to submit form: {str(e)}"
+                results["errors"].append(error_msg)
+                results["success"] = False
+        
+        return results
+    except Exception as e:
+        service_metrics["error_count"] += 1
+        logger.error(f"Failed to automate form: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/page/{page_id}/accessibility-test")
+async def accessibility_test(page_id: str):
+    """Run accessibility tests using axe-core"""
+    service_metrics["requests_total"] += 1
+    
+    try:
+        if page_id not in pages:
+            raise HTTPException(status_code=404, detail="Page not found")
+        
+        page = pages[page_id]
+        
+        # Inject axe-core
+        await page.add_script_tag(url="https://unpkg.com/axe-core@4.7.0/axe.min.js")
+        
+        # Run accessibility analysis
+        results = await page.evaluate("""
+            () => {
+                return new Promise((resolve) => {
+                    axe.run().then((results) => {
+                        resolve(results);
+                    });
+                });
+            }
+        """)
+        
+        # Process violations
+        violations = []
+        for violation in results.get('violations', []):
+            violations.append({
+                'id': violation['id'],
+                'impact': violation['impact'],
+                'description': violation['description'],
+                'help': violation['help'],
+                'helpUrl': violation['helpUrl'],
+                'nodes': len(violation['nodes'])
+            })
+        
+        return {
+            "url": page.url,
+            "timestamp": datetime.now().isoformat(),
+            "violations": violations,
+            "passes": len(results.get('passes', [])),
+            "incomplete": len(results.get('incomplete', [])),
+            "inapplicable": len(results.get('inapplicable', [])),
+            "total_violations": len(violations),
+            "critical_violations": len([v for v in violations if v['impact'] == 'critical']),
+            "serious_violations": len([v for v in violations if v['impact'] == 'serious'])
+        }
+    except Exception as e:
+        service_metrics["error_count"] += 1
+        logger.error(f"Failed to run accessibility test: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
     import sys
+    import os
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8080
     uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
 '''

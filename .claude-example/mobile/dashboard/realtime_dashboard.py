@@ -275,9 +275,10 @@ HTML_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Claude Code V3+ Dashboard</title>
+    <title>Claude Code V3+ IDE Dashboard</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -286,21 +287,553 @@ HTML_TEMPLATE = """
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #333;
+            font-family: 'SF Pro Display', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        .ide-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: #252526;
+            border-right: 1px solid #3e3e42;
+            display: flex;
+            flex-direction: column;
+            min-width: 240px;
+            resize: horizontal;
+            overflow: hidden;
+        }
+        
+        .sidebar-tabs {
+            display: flex;
+            background: #2d2d30;
+            border-bottom: 1px solid #3e3e42;
+            min-height: 35px;
+        }
+        
+        .sidebar-tab {
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            color: #cccccc;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+        
+        .sidebar-tab.active {
+            color: #ffffff;
+            border-bottom-color: #007acc;
+            background: rgba(0, 122, 204, 0.1);
+        }
+        
+        .sidebar-tab:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
             overflow-x: hidden;
         }
         
-        .dashboard {
-            min-height: 100vh;
-            padding: 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            grid-gap: 20px;
-            max-width: 1400px;
-            margin: 0 auto;
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
+        
+        .toolbar {
+            height: 35px;
+            background: #2d2d30;
+            border-bottom: 1px solid #3e3e42;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+        }
+        
+        .toolbar-button {
+            background: transparent;
+            border: 1px solid #464647;
+            color: #cccccc;
+            padding: 4px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .toolbar-button:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: #6c6c6c;
+        }
+        
+        .search-box {
+            flex: 1;
+            max-width: 300px;
+            padding: 4px 8px;
+            background: #3c3c3c;
+            border: 1px solid #464647;
+            border-radius: 3px;
+            color: #cccccc;
+            font-size: 13px;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #007acc;
+            background: #404040;
+        }
+        
+        .editor-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        .editor-tabs {
+            display: flex;
+            background: #2d2d30;
+            border-bottom: 1px solid #3e3e42;
+            min-height: 35px;
+            overflow-x: auto;
+        }
+        
+        .editor-tab {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            color: #cccccc;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-size: 13px;
+            white-space: nowrap;
+            min-width: 120px;
+        }
+        
+        .editor-tab.active {
+            color: #ffffff;
+            border-bottom-color: #007acc;
+            background: #1e1e1e;
+        }
+        
+        .editor-tab:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .editor-tab .close-btn {
+            margin-left: 8px;
+            color: #858585;
+            font-size: 16px;
+            line-height: 1;
+        }
+        
+        .editor-tab .close-btn:hover {
+            color: #ffffff;
+        }
+        
+        .editor-pane {
+            flex: 1;
+            background: #1e1e1e;
+            position: relative;
+        }
+        
+        .monaco-editor-container {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .status-bar {
+            height: 22px;
+            background: #007acc;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 12px;
+            gap: 16px;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        /* File Explorer Styles */
+        .file-explorer {
+            padding: 8px;
+        }
+        
+        .file-tree {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .file-tree-item {
+            position: relative;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .file-tree-node {
+            display: flex;
+            align-items: center;
+            padding: 4px 8px;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: background-color 0.2s ease;
+            user-select: none;
+            font-size: 13px;
+        }
+        
+        .file-tree-node:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .file-tree-node.selected {
+            background: rgba(0, 122, 204, 0.3);
+        }
+        
+        .file-tree-node.modified {
+            color: #f0c674;
+        }
+        
+        .file-tree-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 6px;
+            flex-shrink: 0;
+        }
+        
+        .file-tree-expand {
+            width: 16px;
+            height: 16px;
+            margin-right: 2px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 2px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .file-tree-expand:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .file-tree-expand::after {
+            content: '▶';
+            font-size: 10px;
+            color: #cccccc;
+            transition: transform 0.2s ease;
+        }
+        
+        .file-tree-expand.expanded::after {
+            transform: rotate(90deg);
+        }
+        
+        .file-tree-children {
+            margin-left: 18px;
+            border-left: 1px solid #464647;
+            padding-left: 8px;
+        }
+        
+        .file-tree-children.collapsed {
+            display: none;
+        }
+        
+        /* Git Panel Styles */
+        .git-panel {
+            padding: 16px;
+        }
+        
+        .git-status {
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #2d2d30;
+            border-radius: 4px;
+            border-left: 3px solid #007acc;
+        }
+        
+        .git-branch {
+            font-weight: 600;
+            color: #4ec9b0;
+            margin-bottom: 4px;
+        }
+        
+        .git-changes {
+            font-size: 12px;
+            color: #cccccc;
+        }
+        
+        .git-file-changes {
+            margin-top: 16px;
+        }
+        
+        .git-file-change {
+            display: flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 3px;
+            margin: 2px 0;
+            font-size: 13px;
+        }
+        
+        .git-file-change:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .git-status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+        
+        .git-status-modified {
+            background: #f0c674;
+        }
+        
+        .git-status-added {
+            background: #b5bd68;
+        }
+        
+        .git-status-deleted {
+            background: #cc6666;
+        }
+        
+        .git-status-untracked {
+            background: #de935f;
+        }
+        
+        /* Search Panel Styles */
+        .search-panel {
+            padding: 16px;
+        }
+        
+        .search-input-container {
+            position: relative;
+            margin-bottom: 16px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 8px 32px 8px 12px;
+            background: #3c3c3c;
+            border: 1px solid #464647;
+            border-radius: 3px;
+            color: #cccccc;
+            font-size: 13px;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #007acc;
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            color: #858585;
+        }
+        
+        .search-results {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .search-result {
+            padding: 8px;
+            border-radius: 3px;
+            margin: 2px 0;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .search-result:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .search-result-file {
+            font-weight: 600;
+            color: #4ec9b0;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+        
+        .search-result-line {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 11px;
+            color: #d4d4d4;
+            white-space: pre-wrap;
+            overflow: hidden;
+        }
+        
+        .search-result-match {
+            background: rgba(255, 215, 0, 0.3);
+            color: #000;
+        }
+        
+        /* Extensions Panel Styles */
+        .extensions-panel {
+            padding: 16px;
+        }
+        
+        .extension-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #2d2d30;
+            border-radius: 4px;
+            margin: 8px 0;
+            transition: background-color 0.2s ease;
+        }
+        
+        .extension-item:hover {
+            background: #3c3c3c;
+        }
+        
+        .extension-icon {
+            width: 32px;
+            height: 32px;
+            margin-right: 12px;
+            border-radius: 4px;
+            background: #007acc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .extension-info {
+            flex: 1;
+        }
+        
+        .extension-name {
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 2px;
+        }
+        
+        .extension-description {
+            font-size: 12px;
+            color: #cccccc;
+        }
+        
+        /* Terminal Panel Styles */
+        .terminal-panel {
+            height: 300px;
+            background: #1e1e1e;
+            border-top: 1px solid #3e3e42;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .terminal-tabs {
+            display: flex;
+            background: #2d2d30;
+            border-bottom: 1px solid #3e3e42;
+            min-height: 30px;
+        }
+        
+        .terminal-tab {
+            padding: 6px 12px;
+            background: transparent;
+            border: none;
+            color: #cccccc;
+            cursor: pointer;
+            font-size: 12px;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .terminal-tab.active {
+            color: #ffffff;
+            border-bottom-color: #007acc;
+        }
+        
+        .terminal-content {
+            flex: 1;
+            background: #1e1e1e;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            padding: 8px;
+            overflow-y: auto;
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: absolute;
+                z-index: 1000;
+                height: 100vh;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                width: 100%;
+            }
+            
+            .toolbar {
+                padding: 0 8px;
+            }
+            
+            .search-box {
+                max-width: 200px;
+            }
+        }
+        
+        /* File Type Icons */
+        .icon-python { color: #3776ab; }
+        .icon-javascript { color: #f7df1e; }
+        .icon-typescript { color: #3178c6; }
+        .icon-react { color: #61dafb; }
+        .icon-vue { color: #4fc08d; }
+        .icon-angular { color: #dd0031; }
+        .icon-html { color: #e34f26; }
+        .icon-css { color: #1572b6; }
+        .icon-scss { color: #cf649a; }
+        .icon-json { color: #cbcb41; }
+        .icon-xml { color: #e37933; }
+        .icon-markdown { color: #083fa1; }
+        .icon-yaml { color: #cb171e; }
+        .icon-dockerfile { color: #2496ed; }
+        .icon-shell { color: #89e051; }
+        .icon-sql { color: #336791; }
+        .icon-php { color: #777bb4; }
+        .icon-ruby { color: #cc342d; }
+        .icon-go { color: #00add8; }
+        .icon-rust { color: #ce422b; }
+        .icon-java { color: #ed8b00; }
+        .icon-csharp { color: #239120; }
+        .icon-cpp { color: #00599c; }
+        .icon-folder { color: #f0c674; }
+        .icon-file { color: #d4d4d4; }
         
         .card {
             background: rgba(255, 255, 255, 0.95);
@@ -567,83 +1100,124 @@ HTML_TEMPLATE = """
     </style>
 </head>
 <body>
-    <div class="connection-status" id="connectionStatus">
-        <span class="status-indicator status-active"></span>
-        Connecting...
-    </div>
-    
-    <div class="dashboard">
-        <!-- Terminal Access -->
-        <div class="card terminal-container">
-            <div class="card-header">
-                <svg class="icon" viewBox="0 0 24 24">
-                    <path d="M20,19V7H4V19H20M20,3A2,2 0 0,1 22,5V19A2,2 0 0,1 20,21H4A2,2 0 0,1 2,19V5A2,2 0 0,1 4,3H20M13,17V15H18V17H13M9.58,13L5.57,9H8.4L11.7,12.3C12.09,12.69 12.09,13.33 11.7,13.72L8.42,17H5.59L9.58,13Z"/>
-                </svg>
-                <h2 class="card-title">Terminal Access</h2>
+    <div class="ide-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-tabs">
+                <button class="sidebar-tab active" onclick="switchSidebarTab('files')">📁 Files</button>
+                <button class="sidebar-tab" onclick="switchSidebarTab('search')">🔍 Search</button>
+                <button class="sidebar-tab" onclick="switchSidebarTab('git')">🔀 Git</button>
+                <button class="sidebar-tab" onclick="switchSidebarTab('extensions')">🧩 Extensions</button>
             </div>
-            <iframe src="http://localhost:7681" class="terminal-iframe" title="Terminal"></iframe>
-        </div>
-        
-        <!-- Claude Sessions -->
-        <div class="card">
-            <div class="card-header">
-                <svg class="icon" viewBox="0 0 24 24">
-                    <path d="M12,2A2,2 0 0,1 14,4C14,4.74 13.6,5.39 13,5.73V7H14A7,7 0 0,1 21,14H22A1,1 0 0,1 23,15V18A1,1 0 0,1 22,19H21V20A2,2 0 0,1 19,22H5A2,2 0 0,1 3,20V19H2A1,1 0 0,1 1,18V15A1,1 0 0,1 2,14H3A7,7 0 0,1 10,7H11V5.73C10.4,5.39 10,4.74 10,4A2,2 0 0,1 12,2M7.5,13A2.5,2.5 0 0,0 5,15.5A2.5,2.5 0 0,0 7.5,18A2.5,2.5 0 0,0 10,15.5A2.5,2.5 0 0,0 7.5,13M16.5,13A2.5,2.5 0 0,0 14,15.5A2.5,2.5 0 0,0 16.5,18A2.5,2.5 0 0,0 19,15.5A2.5,2.5 0 0,0 16.5,13Z"/>
-                </svg>
-                <h2 class="card-title">Claude Sessions</h2>
-            </div>
-            <div id="claudeSessions"></div>
-        </div>
-        
-        <!-- Git Activity -->
-        <div class="card">
-            <div class="card-header">
-                <svg class="icon" viewBox="0 0 24 24">
-                    <path d="M2.6,10.59L8.38,4.8L10.07,6.5C9.83,7.35 10.22,8.28 11,8.73V14.27C10.4,14.61 10,15.26 10,16A2,2 0 0,0 12,18A2,2 0 0,0 14,16C14,15.26 13.6,14.61 13,14.27V9.41L15.07,11.5C15,11.65 15,11.82 15,12A2,2 0 0,0 17,14A2,2 0 0,0 19,12A2,2 0 0,0 17,10C16.82,10 16.65,10 16.5,10.07L13.93,7.5C14.19,6.57 13.71,5.55 12.78,5.16C11.85,4.77 10.83,5.25 10.44,6.18C10.05,7.11 10.53,8.13 11.46,8.52C11.64,8.6 11.82,8.65 12,8.65V9.41L9.93,7.35C10.19,6.57 9.71,5.55 8.78,5.16C7.85,4.77 6.83,5.25 6.44,6.18C6.05,7.11 6.53,8.13 7.46,8.52C7.64,8.6 7.82,8.65 8,8.65C8.18,8.65 8.36,8.6 8.54,8.52L2.6,10.59Z"/>
-                </svg>
-                <h2 class="card-title">Git Activity</h2>
-            </div>
-            <div id="gitActivity"></div>
-        </div>
-        
-        <!-- File Changes -->
-        <div class="card">
-            <div class="card-header">
-                <svg class="icon" viewBox="0 0 24 24">
-                    <path d="M13,9V3.5L18.5,9M6,2C4.89,2 4,2.89 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2H6Z"/>
-                </svg>
-                <h2 class="card-title">File Changes</h2>
-            </div>
-            <div id="fileChanges"></div>
-        </div>
-        
-        <!-- System Metrics -->
-        <div class="card">
-            <div class="card-header">
-                <svg class="icon" viewBox="0 0 24 24">
-                    <path d="M13,2.05V5.08C16.39,5.57 19,8.47 19,12C19,12.9 18.82,13.75 18.5,14.54L21.12,16.07C21.68,14.83 22,13.45 22,12C22,6.82 18.05,2.55 13,2.05M12,19C8.47,19 5.57,16.39 5.08,13H2.05C2.55,18.05 6.82,22 12,22C13.45,22 14.83,21.68 16.07,21.12L14.54,18.5C13.75,18.82 12.9,19 12,19M2.05,11H5.08C5.57,7.61 8.47,5 12,5C12.9,5 13.75,5.18 14.54,5.5L16.07,2.88C14.83,2.32 13.45,2 12,2C6.82,2 2.55,6.95 2.05,11Z"/>
-                </svg>
-                <h2 class="card-title">System Metrics</h2>
-            </div>
-            <div class="metrics-grid" id="systemMetrics"></div>
-            <div class="chart-container">
-                <canvas id="metricsChart"></canvas>
+            
+            <div class="sidebar-content">
+                <!-- File Explorer Panel -->
+                <div id="fileExplorerPanel" class="file-explorer">
+                    <div class="file-tree" id="fileTree"></div>
+                </div>
+                
+                <!-- Search Panel -->
+                <div id="searchPanel" class="search-panel" style="display: none;">
+                    <div class="search-input-container">
+                        <input type="text" class="search-input" id="searchInput" placeholder="Search in files...">
+                        <div class="search-icon">🔍</div>
+                    </div>
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+                
+                <!-- Git Panel -->
+                <div id="gitPanel" class="git-panel" style="display: none;">
+                    <div class="git-status" id="gitStatus">
+                        <div class="git-branch">main</div>
+                        <div class="git-changes">No changes</div>
+                    </div>
+                    <div class="git-file-changes" id="gitFileChanges"></div>
+                </div>
+                
+                <!-- Extensions Panel -->
+                <div id="extensionsPanel" class="extensions-panel" style="display: none;">
+                    <div class="extension-item">
+                        <div class="extension-icon">PY</div>
+                        <div class="extension-info">
+                            <div class="extension-name">Python Language Support</div>
+                            <div class="extension-description">Syntax highlighting and IntelliSense for Python</div>
+                        </div>
+                    </div>
+                    <div class="extension-item">
+                        <div class="extension-icon">JS</div>
+                        <div class="extension-info">
+                            <div class="extension-name">JavaScript & TypeScript</div>
+                            <div class="extension-description">Rich language support for JS/TS</div>
+                        </div>
+                    </div>
+                    <div class="extension-item">
+                        <div class="extension-icon">GIT</div>
+                        <div class="extension-info">
+                            <div class="extension-name">Git Integration</div>
+                            <div class="extension-description">Built-in Git version control</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         
-        <!-- Command Execution -->
-        <div class="card">
-            <div class="card-header">
-                <svg class="icon" viewBox="0 0 24 24">
-                    <path d="M20,4C21.11,4 22,4.89 22,6V18C22,19.11 21.11,20 20,20H4C2.89,20 2,19.11 2,18V6C2,4.89 2.89,4 4,4H20M13,17V15H18V17H13M9.58,13L5.57,9H8.4L11.7,12.3C12.09,12.69 12.09,13.33 11.7,13.72L8.42,17H5.59L9.58,13Z"/>
-                </svg>
-                <h2 class="card-title">Command Execution</h2>
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <button class="toolbar-button" onclick="toggleSidebar()">☰</button>
+                <button class="toolbar-button" onclick="createNewFile()">📄 New</button>
+                <button class="toolbar-button" onclick="openFile()">📂 Open</button>
+                <button class="toolbar-button" onclick="saveFile()">💾 Save</button>
+                <button class="toolbar-button" onclick="gitCommit()">🔄 Commit</button>
+                <input type="text" class="search-box" id="globalSearch" placeholder="Search everywhere...">
+                <button class="toolbar-button" onclick="runCode()">▶️ Run</button>
+                <button class="toolbar-button" onclick="toggleTerminal()">💻 Terminal</button>
             </div>
-            <div class="command-input">
-                <input type="text" id="commandInput" placeholder="Enter command..." />
-                <button onclick="executeCommand()">Execute</button>
+            
+            <!-- Editor Container -->
+            <div class="editor-container">
+                <div class="editor-pane">
+                    <div class="editor-tabs" id="editorTabs">
+                        <div class="editor-tab active" data-file="welcome.md">
+                            <span>📋 Welcome</span>
+                            <span class="close-btn" onclick="closeTab('welcome.md')">×</span>
+                        </div>
+                    </div>
+                    <div class="monaco-editor-container" id="monacoEditor"></div>
+                </div>
             </div>
-            <div class="log-container" id="commandLog"></div>
+            
+            <!-- Terminal Panel -->
+            <div class="terminal-panel" id="terminalPanel" style="display: none;">
+                <div class="terminal-tabs">
+                    <button class="terminal-tab active">bash</button>
+                    <button class="terminal-tab">python</button>
+                    <button class="terminal-tab">+</button>
+                </div>
+                <div class="terminal-content">
+                    <iframe src="http://localhost:7681" style="width: 100%; height: 100%; border: none;"></iframe>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <span id="connectionStatus">🔗 Connected</span>
+            </div>
+            <div class="status-item">
+                <span id="currentBranch">🌿 main</span>
+            </div>
+            <div class="status-item">
+                <span id="cursorPosition">Ln 1, Col 1</span>
+            </div>
+            <div class="status-item">
+                <span id="fileEncoding">UTF-8</span>
+            </div>
+            <div class="status-item">
+                <span id="fileType">Markdown</span>
+            </div>
         </div>
     </div>
 
@@ -651,264 +1225,850 @@ HTML_TEMPLATE = """
         // Initialize SocketIO connection
         const socket = io();
         
-        // Chart instance for metrics
-        let metricsChart;
+        // Monaco Editor instance
+        let monacoEditor;
         
-        // Data stores
-        let metricsHistory = [];
+        // IDE State
+        let currentTab = 'welcome.md';
+        let openTabs = new Map();
+        let fileTree = new Map();
+        let sidebarVisible = true;
+        let terminalVisible = false;
+        let currentSidebarTab = 'files';
         
-        // Connection status
-        const connectionStatus = document.getElementById('connectionStatus');
+        // File type language mapping
+        const fileLanguageMap = {
+            '.py': 'python',
+            '.js': 'javascript',
+            '.ts': 'typescript',
+            '.jsx': 'javascript',
+            '.tsx': 'typescript',
+            '.html': 'html',
+            '.css': 'css',
+            '.scss': 'scss',
+            '.sass': 'sass',
+            '.json': 'json',
+            '.xml': 'xml',
+            '.yaml': 'yaml',
+            '.yml': 'yaml',
+            '.md': 'markdown',
+            '.txt': 'plaintext',
+            '.sh': 'shell',
+            '.bash': 'shell',
+            '.sql': 'sql',
+            '.php': 'php',
+            '.rb': 'ruby',
+            '.go': 'go',
+            '.rs': 'rust',
+            '.java': 'java',
+            '.cs': 'csharp',
+            '.cpp': 'cpp',
+            '.c': 'c',
+            '.dockerfile': 'dockerfile'
+        };
         
+        // Initialize Monaco Editor
+        function initializeMonacoEditor() {
+            require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' } });
+            require(['vs/editor/editor.main'], function () {
+                monacoEditor = monaco.editor.create(document.getElementById('monacoEditor'), {
+                    value: `# Welcome to Claude Code V3+ IDE
+
+## Features
+
+### 🌲 File Tree Explorer
+- Navigate through your project files
+- Tree view with expand/collapse functionality
+- File type icons and syntax highlighting
+- Git status indicators for modified files
+
+### 🔍 Global Search
+- Search across all files in your project
+- Regex support for advanced patterns
+- Jump to specific line numbers
+- Real-time search results
+
+### 🔀 Git Integration
+- View repository status and branch information
+- See modified, added, and untracked files
+- Commit changes directly from the IDE
+- Visual diff for file changes
+
+### 💻 Integrated Terminal
+- Full terminal access with ttyd integration
+- Multiple terminal sessions
+- Execute commands directly in your project
+
+### 🎨 Syntax Highlighting
+Support for 20+ programming languages:
+- Python, JavaScript, TypeScript
+- HTML, CSS, SCSS, Sass
+- React, Vue, Angular
+- JSON, XML, YAML
+- Markdown, SQL, PHP
+- Ruby, Go, Rust, Java
+- C#, C++, Shell scripts
+- And many more...
+
+### ⚡ Code Intelligence
+- Auto-completion and IntelliSense
+- Error highlighting and diagnostics
+- Code formatting and linting
+- Jump to definition
+
+## Quick Start
+
+1. **Open Files**: Click 📂 Open in the toolbar or use the file explorer
+2. **Create New**: Click 📄 New to create a new file
+3. **Search**: Use 🔍 in the sidebar for project-wide search
+4. **Terminal**: Click 💻 Terminal to open the integrated terminal
+5. **Git**: Use 🔀 Git panel to manage version control
+
+Start coding and enjoy the full IDE experience!
+`,
+                    language: 'markdown',
+                    theme: 'vs-dark',
+                    automaticLayout: true,
+                    minimap: { enabled: true },
+                    fontSize: 14,
+                    fontFamily: 'Consolas, Monaco, monospace',
+                    wordWrap: 'on',
+                    lineNumbers: 'on',
+                    scrollBeyondLastLine: false,
+                    renderWhitespace: 'boundary',
+                    formatOnPaste: true,
+                    formatOnType: true
+                });
+                
+                // Add editor event listeners
+                monacoEditor.onDidChangeCursorPosition((e) => {
+                    updateStatusBar('position', `Ln ${e.position.lineNumber}, Col ${e.position.column}`);
+                });
+                
+                monacoEditor.onDidChangeModelContent(() => {
+                    markTabAsModified(currentTab);
+                });
+                
+                // Initialize welcome tab
+                openTabs.set('welcome.md', {
+                    content: monacoEditor.getValue(),
+                    language: 'markdown',
+                    modified: false
+                });
+            });
+        }
+        
+        // Sidebar tab switching
+        function switchSidebarTab(tabName) {
+            // Update tab appearance
+            document.querySelectorAll('.sidebar-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Hide all panels
+            document.getElementById('fileExplorerPanel').style.display = 'none';
+            document.getElementById('searchPanel').style.display = 'none';
+            document.getElementById('gitPanel').style.display = 'none';
+            document.getElementById('extensionsPanel').style.display = 'none';
+            
+            // Show selected panel
+            switch(tabName) {
+                case 'files':
+                    document.getElementById('fileExplorerPanel').style.display = 'block';
+                    loadFileTree();
+                    break;
+                case 'search':
+                    document.getElementById('searchPanel').style.display = 'block';
+                    break;
+                case 'git':
+                    document.getElementById('gitPanel').style.display = 'block';
+                    loadGitStatus();
+                    break;
+                case 'extensions':
+                    document.getElementById('extensionsPanel').style.display = 'block';
+                    break;
+            }
+            
+            currentSidebarTab = tabName;
+        }
+        
+        // Toggle sidebar visibility
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebarVisible = !sidebarVisible;
+            
+            if (sidebarVisible) {
+                sidebar.style.display = 'flex';
+            } else {
+                sidebar.style.display = 'none';
+            }
+        }
+        
+        // Toggle terminal visibility
+        function toggleTerminal() {
+            const terminal = document.getElementById('terminalPanel');
+            terminalVisible = !terminalVisible;
+            
+            if (terminalVisible) {
+                terminal.style.display = 'flex';
+                terminal.style.height = '300px';
+            } else {
+                terminal.style.display = 'none';
+            }
+        }
+        
+        // File management functions
+        function createNewFile() {
+            const fileName = prompt('Enter file name:');
+            if (fileName) {
+                const language = getLanguageFromExtension(fileName);
+                openTab(fileName, '', language, true);
+                socket.emit('create_file', { path: fileName, content: '' });
+            }
+        }
+        
+        function openFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.multiple = true;
+            input.onchange = (e) => {
+                Array.from(e.target.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const language = getLanguageFromExtension(file.name);
+                        openTab(file.name, e.target.result, language, false);
+                    };
+                    reader.readAsText(file);
+                });
+            };
+            input.click();
+        }
+        
+        function saveFile() {
+            if (monacoEditor && currentTab) {
+                const content = monacoEditor.getValue();
+                const tabData = openTabs.get(currentTab);
+                if (tabData) {
+                    tabData.content = content;
+                    tabData.modified = false;
+                    updateTabTitle(currentTab, false);
+                    socket.emit('save_file', { path: currentTab, content: content });
+                    updateStatusBar('message', 'File saved successfully');
+                }
+            }
+        }
+        
+        function runCode() {
+            if (monacoEditor && currentTab) {
+                const content = monacoEditor.getValue();
+                const language = openTabs.get(currentTab)?.language;
+                
+                if (language === 'python') {
+                    socket.emit('run_python', { code: content });
+                } else if (language === 'javascript') {
+                    socket.emit('run_javascript', { code: content });
+                } else {
+                    updateStatusBar('message', 'Run not supported for this language');
+                }
+            }
+        }
+        
+        function gitCommit() {
+            const message = prompt('Commit message:');
+            if (message) {
+                socket.emit('git_commit', { message: message });
+            }
+        }
+        
+        // Tab management
+        function openTab(fileName, content, language, isNew) {
+            // Save current tab content
+            if (monacoEditor && currentTab && openTabs.has(currentTab)) {
+                openTabs.get(currentTab).content = monacoEditor.getValue();
+            }
+            
+            // Add to open tabs if not already open
+            if (!openTabs.has(fileName)) {
+                openTabs.set(fileName, {
+                    content: content,
+                    language: language,
+                    modified: isNew
+                });
+                
+                // Add tab to UI
+                const tabsContainer = document.getElementById('editorTabs');
+                const tabElement = document.createElement('div');
+                tabElement.className = 'editor-tab';
+                tabElement.setAttribute('data-file', fileName);
+                tabElement.innerHTML = `
+                    <span>${getFileIcon(fileName)} ${fileName}</span>
+                    <span class="close-btn" onclick="closeTab('${fileName}')">×</span>
+                `;
+                tabElement.onclick = (e) => {
+                    if (!e.target.classList.contains('close-btn')) {
+                        switchTab(fileName);
+                    }
+                };
+                tabsContainer.appendChild(tabElement);
+            }
+            
+            // Switch to the tab
+            switchTab(fileName);
+        }
+        
+        function switchTab(fileName) {
+            // Save current content
+            if (monacoEditor && currentTab && openTabs.has(currentTab)) {
+                openTabs.get(currentTab).content = monacoEditor.getValue();
+            }
+            
+            // Update tab appearance
+            document.querySelectorAll('.editor-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-file="${fileName}"]`).classList.add('active');
+            
+            // Load tab content
+            const tabData = openTabs.get(fileName);
+            if (tabData && monacoEditor) {
+                monaco.editor.setModelLanguage(monacoEditor.getModel(), tabData.language);
+                monacoEditor.setValue(tabData.content);
+                currentTab = fileName;
+                
+                // Update status bar
+                updateStatusBar('fileType', tabData.language);
+                updateStatusBar('encoding', 'UTF-8');
+            }
+        }
+        
+        function closeTab(fileName) {
+            const tabData = openTabs.get(fileName);
+            if (tabData && tabData.modified) {
+                if (!confirm(`File ${fileName} has unsaved changes. Close anyway?`)) {
+                    return;
+                }
+            }
+            
+            // Remove from open tabs
+            openTabs.delete(fileName);
+            
+            // Remove from UI
+            document.querySelector(`[data-file="${fileName}"]`).remove();
+            
+            // Switch to another tab if this was the current tab
+            if (currentTab === fileName) {
+                const remainingTabs = Array.from(openTabs.keys());
+                if (remainingTabs.length > 0) {
+                    switchTab(remainingTabs[0]);
+                } else {
+                    // Open welcome tab if no tabs remain
+                    openTab('welcome.md', '# Welcome to Claude Code V3+ IDE', 'markdown', false);
+                }
+            }
+        }
+        
+        function markTabAsModified(fileName) {
+            const tabData = openTabs.get(fileName);
+            if (tabData) {
+                tabData.modified = true;
+                updateTabTitle(fileName, true);
+            }
+        }
+        
+        function updateTabTitle(fileName, modified) {
+            const tabElement = document.querySelector(`[data-file="${fileName}"]`);
+            if (tabElement) {
+                const span = tabElement.querySelector('span');
+                const icon = getFileIcon(fileName);
+                span.textContent = `${icon} ${fileName}${modified ? ' •' : ''}`;
+            }
+        }
+        
+        // File explorer functions
+        function loadFileTree() {
+            socket.emit('get_file_tree');
+        }
+        
+        function createFileTreeNode(item, parentElement, level = 0) {
+            const li = document.createElement('li');
+            li.className = 'file-tree-item';
+            
+            const node = document.createElement('div');
+            node.className = 'file-tree-node';
+            node.style.paddingLeft = `${level * 16}px`;
+            
+            if (item.type === 'directory') {
+                const expand = document.createElement('div');
+                expand.className = 'file-tree-expand';
+                expand.onclick = () => toggleDirectory(item.path, li);
+                node.appendChild(expand);
+                
+                const icon = document.createElement('span');
+                icon.className = 'file-tree-icon icon-folder';
+                icon.textContent = '📁';
+                node.appendChild(icon);
+                
+                const name = document.createElement('span');
+                name.textContent = item.name;
+                node.appendChild(name);
+                
+                li.appendChild(node);
+                
+                if (item.children && item.children.length > 0) {
+                    const childrenUl = document.createElement('ul');
+                    childrenUl.className = 'file-tree-children collapsed';
+                    
+                    item.children.forEach(child => {
+                        createFileTreeNode(child, childrenUl, level + 1);
+                    });
+                    
+                    li.appendChild(childrenUl);
+                }
+            } else {
+                const icon = document.createElement('span');
+                icon.className = 'file-tree-icon';
+                icon.textContent = getFileIcon(item.name);
+                node.appendChild(icon);
+                
+                const name = document.createElement('span');
+                name.textContent = item.name;
+                node.appendChild(name);
+                
+                node.onclick = () => openFileFromTree(item.path);
+                
+                li.appendChild(node);
+            }
+            
+            parentElement.appendChild(li);
+        }
+        
+        function toggleDirectory(path, element) {
+            const children = element.querySelector('.file-tree-children');
+            const expand = element.querySelector('.file-tree-expand');
+            
+            if (children) {
+                if (children.classList.contains('collapsed')) {
+                    children.classList.remove('collapsed');
+                    expand.classList.add('expanded');
+                } else {
+                    children.classList.add('collapsed');
+                    expand.classList.remove('expanded');
+                }
+            }
+        }
+        
+        function openFileFromTree(filePath) {
+            socket.emit('read_file', { path: filePath });
+        }
+        
+        // Search functionality
+        function performSearch() {
+            const query = document.getElementById('searchInput').value;
+            if (query.trim()) {
+                socket.emit('search_files', { query: query });
+            }
+        }
+        
+        function displaySearchResults(results) {
+            const container = document.getElementById('searchResults');
+            container.innerHTML = '';
+            
+            results.forEach(result => {
+                const resultElement = document.createElement('div');
+                resultElement.className = 'search-result';
+                resultElement.onclick = () => openSearchResult(result);
+                
+                resultElement.innerHTML = `
+                    <div class="search-result-file">${result.file}</div>
+                    <div class="search-result-line">${highlightSearchMatch(result.line, result.match)}</div>
+                `;
+                
+                container.appendChild(resultElement);
+            });
+        }
+        
+        function highlightSearchMatch(line, match) {
+            return line.replace(new RegExp(match, 'gi'), `<span class="search-result-match">${match}</span>`);
+        }
+        
+        function openSearchResult(result) {
+            socket.emit('read_file', { path: result.file });
+            // TODO: Jump to specific line number
+        }
+        
+        // Git functionality
+        function loadGitStatus() {
+            socket.emit('get_git_status');
+        }
+        
+        function displayGitStatus(gitData) {
+            const statusElement = document.getElementById('gitStatus');
+            statusElement.innerHTML = `
+                <div class="git-branch">${gitData.current_branch || 'main'}</div>
+                <div class="git-changes">${gitData.modified_files || 0} files changed</div>
+            `;
+            
+            const changesElement = document.getElementById('gitFileChanges');
+            changesElement.innerHTML = '';
+            
+            if (gitData.changes && gitData.changes.length > 0) {
+                gitData.changes.forEach(change => {
+                    const changeElement = document.createElement('div');
+                    changeElement.className = 'git-file-change';
+                    
+                    changeElement.innerHTML = `
+                        <div class="git-status-indicator git-status-${change.status}"></div>
+                        <span>${change.file}</span>
+                    `;
+                    
+                    changesElement.appendChild(changeElement);
+                });
+            }
+        }
+        
+        // Utility functions
+        function getFileIcon(fileName) {
+            const ext = fileName.toLowerCase().split('.').pop();
+            const iconMap = {
+                'py': '🐍', 'js': '📜', 'ts': '📘', 'jsx': '⚛️', 'tsx': '⚛️',
+                'html': '🌐', 'css': '🎨', 'scss': '🎨', 'sass': '🎨',
+                'json': '📋', 'xml': '📄', 'yaml': '⚙️', 'yml': '⚙️',
+                'md': '📝', 'txt': '📄', 'sh': '💻', 'bash': '💻',
+                'sql': '🗄️', 'php': '🐘', 'rb': '💎', 'go': '🐹',
+                'rs': '🦀', 'java': '☕', 'cs': '🔷', 'cpp': '⚙️', 'c': '⚙️'
+            };
+            return iconMap[ext] || '📄';
+        }
+        
+        function getLanguageFromExtension(fileName) {
+            const ext = '.' + fileName.toLowerCase().split('.').pop();
+            return fileLanguageMap[ext] || 'plaintext';
+        }
+        
+        function updateStatusBar(type, content) {
+            switch(type) {
+                case 'position':
+                    document.getElementById('cursorPosition').textContent = content;
+                    break;
+                case 'fileType':
+                    document.getElementById('fileType').textContent = content;
+                    break;
+                case 'encoding':
+                    document.getElementById('fileEncoding').textContent = content;
+                    break;
+                case 'branch':
+                    document.getElementById('currentBranch').textContent = `🌿 ${content}`;
+                    break;
+                case 'connection':
+                    document.getElementById('connectionStatus').textContent = content;
+                    break;
+                case 'message':
+                    // Show temporary message
+                    const originalText = document.getElementById('connectionStatus').textContent;
+                    document.getElementById('connectionStatus').textContent = content;
+                    setTimeout(() => {
+                        document.getElementById('connectionStatus').textContent = originalText;
+                    }, 3000);
+                    break;
+            }
+        }
+        
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('input', performSearch);
+        document.getElementById('globalSearch').addEventListener('input', function() {
+            const query = this.value;
+            if (query.trim()) {
+                socket.emit('global_search', { query: query });
+            }
+        });
+        
+        // Socket event handlers
         socket.on('connect', function() {
             console.log('Connected to server');
-            connectionStatus.innerHTML = '<span class="status-indicator status-active"></span>Connected';
+            updateStatusBar('connection', '🔗 Connected');
             connectionStatus.className = 'connection-status connected';
         });
         
         socket.on('disconnect', function() {
             console.log('Disconnected from server');
-            connectionStatus.innerHTML = '<span class="status-indicator status-error"></span>Disconnected';
-            connectionStatus.className = 'connection-status disconnected';
+            updateStatusBar('connection', '🔗 Disconnected');
         });
         
-        // Claude Sessions handler
-        socket.on('claude_sessions', function(data) {
-            const container = document.getElementById('claudeSessions');
-            container.innerHTML = '';
+        // IDE-specific socket handlers
+        socket.on('file_tree', function(data) {
+            const fileTreeContainer = document.getElementById('fileTree');
+            fileTreeContainer.innerHTML = '';
             
-            data.sessions.forEach(session => {
-                const sessionDiv = document.createElement('div');
-                sessionDiv.className = 'session-item';
-                
-                const tokensUsed = ((session.tokens_used / session.max_tokens) * 100).toFixed(1);
-                
-                sessionDiv.innerHTML = `
-                    <div class="session-header">
-                        <span class="session-id">${session.id}</span>
-                        <span class="session-model">${session.model.split('-').pop()}</span>
-                    </div>
-                    <div>Status: <span class="status-indicator status-${session.status}"></span>${session.status}</div>
-                    <div>Task: ${session.current_task}</div>
-                    <div>Tokens: ${session.tokens_used.toLocaleString()} / ${session.max_tokens.toLocaleString()}</div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${tokensUsed}%"></div>
-                    </div>
-                    <div>Files modified: ${session.files_modified}</div>
-                    <div>Tools: ${session.tools_used.join(', ')}</div>
-                `;
-                
-                container.appendChild(sessionDiv);
-            });
-        });
-        
-        // Git Activity handler
-        socket.on('git_activity', function(data) {
-            const container = document.getElementById('gitActivity');
-            container.innerHTML = '';
-            
-            // Current status
-            const statusDiv = document.createElement('div');
-            statusDiv.className = 'activity-item';
-            statusDiv.innerHTML = `
-                <div><strong>Current Branch:</strong> ${data.current_branch}</div>
-                <div><strong>Modified Files:</strong> ${data.modified_files}</div>
-            `;
-            container.appendChild(statusDiv);
-            
-            // Recent commits
-            if (data.recent_commits && data.recent_commits.length > 0) {
-                data.recent_commits.forEach(commit => {
-                    const commitDiv = document.createElement('div');
-                    commitDiv.className = 'activity-item';
-                    commitDiv.innerHTML = `
-                        <div><strong>${commit.hash}</strong> - ${commit.message}</div>
-                        <div class="timestamp">by ${commit.author} on ${new Date(commit.timestamp).toLocaleString()}</div>
-                    `;
-                    container.appendChild(commitDiv);
+            if (data.tree && data.tree.length > 0) {
+                data.tree.forEach(item => {
+                    createFileTreeNode(item, fileTreeContainer);
                 });
             }
         });
         
-        // File Changes handler
-        socket.on('file_changes', function(data) {
-            const container = document.getElementById('fileChanges');
-            container.innerHTML = '';
-            
-            data.changes.slice(0, 10).forEach(change => {
-                const fileDiv = document.createElement('div');
-                fileDiv.className = `file-item file-type-${change.type}`;
-                
-                const fileSize = (change.size / 1024).toFixed(1);
-                const modifiedTime = new Date(change.modified).toLocaleString();
-                
-                fileDiv.innerHTML = `
-                    <div><strong>${change.file}</strong></div>
-                    <div>Type: ${change.type} | Size: ${fileSize} KB</div>
-                    <div class="timestamp">Modified: ${modifiedTime}</div>
-                `;
-                
-                container.appendChild(fileDiv);
-            });
-        });
-        
-        // System Metrics handler
-        socket.on('system_metrics', function(data) {
-            updateSystemMetrics(data);
-            updateMetricsChart(data);
-        });
-        
-        function updateSystemMetrics(metrics) {
-            const container = document.getElementById('systemMetrics');
-            container.innerHTML = `
-                <div class="metric-item">
-                    <div class="metric-value">${metrics.cpu.percent}%</div>
-                    <div class="metric-label">CPU</div>
-                </div>
-                <div class="metric-item">
-                    <div class="metric-value">${metrics.memory.percent}%</div>
-                    <div class="metric-label">Memory</div>
-                </div>
-                <div class="metric-item">
-                    <div class="metric-value">${metrics.disk.percent}%</div>
-                    <div class="metric-label">Disk</div>
-                </div>
-                <div class="metric-item">
-                    <div class="metric-value">${metrics.processes}</div>
-                    <div class="metric-label">Processes</div>
-                </div>
-                <div class="metric-item">
-                    <div class="metric-value">${metrics.memory.used_gb}GB</div>
-                    <div class="metric-label">RAM Used</div>
-                </div>
-                <div class="metric-item">
-                    <div class="metric-value">${metrics.uptime}</div>
-                    <div class="metric-label">Uptime</div>
-                </div>
-            `;
-        }
-        
-        function updateMetricsChart(metrics) {
-            metricsHistory.push({
-                timestamp: new Date(metrics.timestamp),
-                cpu: metrics.cpu.percent,
-                memory: metrics.memory.percent,
-                disk: metrics.disk.percent
-            });
-            
-            // Keep last 30 data points
-            if (metricsHistory.length > 30) {
-                metricsHistory.shift();
+        socket.on('file_content', function(data) {
+            if (data.success) {
+                const language = getLanguageFromExtension(data.path);
+                openTab(data.path, data.content, language, false);
+            } else {
+                updateStatusBar('message', `Error reading file: ${data.error}`);
             }
+        });
+        
+        socket.on('file_saved', function(data) {
+            if (data.success) {
+                updateStatusBar('message', `File ${data.path} saved successfully`);
+            } else {
+                updateStatusBar('message', `Error saving file: ${data.error}`);
+            }
+        });
+        
+        socket.on('search_results', function(data) {
+            displaySearchResults(data.results || []);
+        });
+        
+        socket.on('git_status_response', function(data) {
+            displayGitStatus(data);
+            updateStatusBar('branch', data.current_branch || 'main');
+        });
+        
+        socket.on('code_execution_result', function(data) {
+            if (terminalVisible) {
+                // Display in terminal if visible
+                const terminalContent = document.querySelector('.terminal-content');
+                if (terminalContent) {
+                    const output = document.createElement('div');
+                    output.style.color = data.success ? '#00ff00' : '#ff0000';
+                    output.textContent = data.output || data.error;
+                    terminalContent.appendChild(output);
+                }
+            } else {
+                updateStatusBar('message', data.success ? 'Code executed successfully' : `Error: ${data.error}`);
+            }
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'n':
+                        e.preventDefault();
+                        createNewFile();
+                        break;
+                    case 'o':
+                        e.preventDefault();
+                        openFile();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        saveFile();
+                        break;
+                    case '`':
+                        e.preventDefault();
+                        toggleTerminal();
+                        break;
+                    case 'b':
+                        e.preventDefault();
+                        toggleSidebar();
+                        break;
+                    case 'f':
+                        e.preventDefault();
+                        document.getElementById('globalSearch').focus();
+                        break;
+                }
+            }
+        });
+        
+        // Initialize the IDE when page loads
+        window.addEventListener('load', function() {
+            initializeMonacoEditor();
+            loadFileTree();
+            loadGitStatus();
             
-            if (!metricsChart) {
-                const ctx = document.getElementById('metricsChart').getContext('2d');
-                metricsChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: [],
-                        datasets: [
-                            {
-                                label: 'CPU %',
-                                data: [],
-                                borderColor: '#007bff',
-                                backgroundColor: 'rgba(0, 123, 255, 0.1)',
-                                tension: 0.4
-                            },
-                            {
-                                label: 'Memory %',
-                                data: [],
-                                borderColor: '#28a745',
-                                backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                                tension: 0.4
-                            },
-                            {
-                                label: 'Disk %',
-                                data: [],
-                                borderColor: '#ffc107',
-                                backgroundColor: 'rgba(255, 193, 7, 0.1)',
-                                tension: 0.4
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 100
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                position: 'top'
-                            }
-                        }
+            // Set up auto-save
+            setInterval(() => {
+                if (monacoEditor && currentTab && openTabs.has(currentTab)) {
+                    const tabData = openTabs.get(currentTab);
+                    if (tabData && tabData.modified) {
+                        // Auto-save after 30 seconds of inactivity
+                        saveFile();
                     }
-                });
-            }
+                }
+            }, 30000);
             
-            // Update chart data
-            metricsChart.data.labels = metricsHistory.map(m => 
-                m.timestamp.toLocaleTimeString()
-            );
-            metricsChart.data.datasets[0].data = metricsHistory.map(m => m.cpu);
-            metricsChart.data.datasets[1].data = metricsHistory.map(m => m.memory);
-            metricsChart.data.datasets[2].data = metricsHistory.map(m => m.disk);
-            metricsChart.update('none');
-        }
-        
-        // Command execution
-        function executeCommand() {
-            const input = document.getElementById('commandInput');
-            const command = input.value.trim();
-            
-            if (command) {
-                socket.emit('execute_command', { command: command });
-                
-                // Add to log
-                addToCommandLog(`> ${command}`, 'command');
-                input.value = '';
-            }
-        }
-        
-        // Command result handler
-        socket.on('command_result', function(data) {
-            addToCommandLog(data.output || data.error, data.success ? 'output' : 'error');
+            console.log('Claude Code V3+ IDE initialized successfully');
         });
         
-        function addToCommandLog(message, type) {
-            const log = document.getElementById('commandLog');
-            const entry = document.createElement('div');
-            entry.className = `log-entry ${type}`;
-            
-            const timestamp = new Date().toLocaleTimeString();
-            entry.innerHTML = `
-                <span class="timestamp">[${timestamp}]</span> ${message}
-            `;
-            
-            log.appendChild(entry);
-            log.scrollTop = log.scrollHeight;
-            
-            // Keep last 50 entries
-            while (log.children.length > 50) {
-                log.removeChild(log.firstChild);
+        // Handle mobile responsiveness
+        function handleResize() {
+            if (window.innerWidth <= 768) {
+                // Mobile view
+                if (sidebarVisible) {
+                    document.getElementById('sidebar').classList.add('open');
+                }
+            } else {
+                // Desktop view
+                document.getElementById('sidebar').classList.remove('open');
             }
         }
         
-        // Enter key for command input
-        document.getElementById('commandInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                executeCommand();
-            }
-        });
-        
-        console.log('Dashboard initialized');
+        window.addEventListener('resize', handleResize);
+        handleResize(); // Initial call
     </script>
 </body>
 </html>
 """
+
+# File system utilities for IDE functionality
+def get_file_tree(directory_path: str, max_depth: int = 3, current_depth: int = 0):
+    """Generate file tree structure for the IDE"""
+    if current_depth >= max_depth:
+        return []
+    
+    tree = []
+    try:
+        items = sorted(os.listdir(directory_path))
+        
+        # Separate directories and files
+        directories = []
+        files = []
+        
+        for item in items:
+            # Skip hidden files and common ignore patterns
+            if item.startswith('.') and item not in ['.env', '.gitignore']:
+                continue
+            if item in ['node_modules', '__pycache__', '.git', 'venv', '.venv']:
+                continue
+                
+            item_path = os.path.join(directory_path, item)
+            
+            if os.path.isdir(item_path):
+                directories.append(item)
+            else:
+                files.append(item)
+        
+        # Add directories first
+        for directory in directories:
+            dir_path = os.path.join(directory_path, directory)
+            children = get_file_tree(dir_path, max_depth, current_depth + 1)
+            
+            tree.append({
+                'name': directory,
+                'path': os.path.relpath(dir_path, dashboard_data.working_directory),
+                'type': 'directory',
+                'children': children
+            })
+        
+        # Add files
+        for file in files:
+            file_path = os.path.join(directory_path, file)
+            tree.append({
+                'name': file,
+                'path': os.path.relpath(file_path, dashboard_data.working_directory),
+                'type': 'file',
+                'size': os.path.getsize(file_path) if os.path.exists(file_path) else 0
+            })
+            
+    except (OSError, PermissionError) as e:
+        logger.error(f"Error reading directory {directory_path}: {e}")
+    
+    return tree
+
+def search_in_files(query: str, directory: str, file_extensions: list = None):
+    """Search for text in files"""
+    if not file_extensions:
+        file_extensions = ['.py', '.js', '.ts', '.jsx', '.tsx', '.html', '.css', '.scss', 
+                         '.json', '.md', '.txt', '.sql', '.yaml', '.yml']
+    
+    results = []
+    try:
+        for root, dirs, files in os.walk(directory):
+            # Skip common directories
+            dirs[:] = [d for d in dirs if d not in ['.git', 'node_modules', '__pycache__', '.venv', 'venv']]
+            
+            for file in files:
+                if any(file.endswith(ext) for ext in file_extensions):
+                    file_path = os.path.join(root, file)
+                    try:
+                        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                            for line_num, line in enumerate(f, 1):
+                                if query.lower() in line.lower():
+                                    results.append({
+                                        'file': os.path.relpath(file_path, directory),
+                                        'line_number': line_num,
+                                        'line': line.strip(),
+                                        'match': query
+                                    })
+                                    
+                                    # Limit results per file
+                                    if len([r for r in results if r['file'] == os.path.relpath(file_path, directory)]) >= 5:
+                                        break
+                    except Exception as e:
+                        continue
+                        
+            # Limit total results
+            if len(results) >= 50:
+                break
+                
+    except Exception as e:
+        logger.error(f"Error searching files: {e}")
+    
+    return results
+
+def get_enhanced_git_status():
+    """Get enhanced git status with file changes"""
+    if not dashboard_data.is_git_repo:
+        return {'current_branch': 'main', 'modified_files': 0, 'changes': []}
+    
+    try:
+        # Get current branch
+        branch_result = subprocess.run([
+            'git', 'branch', '--show-current'
+        ], capture_output=True, text=True, cwd=dashboard_data.working_directory)
+        
+        current_branch = branch_result.stdout.strip() if branch_result.returncode == 0 else 'main'
+        
+        # Get detailed status
+        status_result = subprocess.run([
+            'git', 'status', '--porcelain'
+        ], capture_output=True, text=True, cwd=dashboard_data.working_directory)
+        
+        changes = []
+        if status_result.returncode == 0 and status_result.stdout.strip():
+            for line in status_result.stdout.strip().split('\n'):
+                if line:
+                    status_code = line[:2]
+                    file_path = line[3:]
+                    
+                    # Map git status codes to readable status
+                    status_map = {
+                        'M ': 'modified',
+                        ' M': 'modified',
+                        'A ': 'added',
+                        ' A': 'added',
+                        'D ': 'deleted',
+                        ' D': 'deleted',
+                        '??': 'untracked',
+                        'R ': 'renamed',
+                        'C ': 'copied'
+                    }
+                    
+                    status = status_map.get(status_code, 'unknown')
+                    changes.append({
+                        'file': file_path,
+                        'status': status
+                    })
+        
+        return {
+            'current_branch': current_branch,
+            'modified_files': len(changes),
+            'changes': changes
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting git status: {e}")
+        return {'current_branch': 'main', 'modified_files': 0, 'changes': []}
 
 # WebSocket Event Handlers
 @socketio.on('connect')
@@ -918,11 +2078,9 @@ def handle_connect():
     connected_clients.add(client_id)
     logger.info(f"Client connected: {client_id}")
     
-    # Send initial data
-    emit('claude_sessions', {'sessions': dashboard_data.get_claude_sessions()})
-    emit('git_activity', dashboard_data.get_git_activity())
-    emit('file_changes', {'changes': dashboard_data.get_file_changes()})
-    emit('system_metrics', dashboard_data.get_system_metrics())
+    # Send initial data for IDE
+    emit('file_tree', {'tree': get_file_tree(dashboard_data.working_directory)})
+    emit('git_status_response', get_enhanced_git_status())
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -1005,6 +2163,307 @@ def handle_execute_command(data):
             'success': False,
             'error': str(e),
             'command': command
+        })
+
+# IDE-specific socket event handlers
+@socketio.on('get_file_tree')
+def handle_get_file_tree():
+    """Handle file tree request"""
+    try:
+        tree = get_file_tree(dashboard_data.working_directory)
+        emit('file_tree', {'tree': tree})
+    except Exception as e:
+        logger.error(f"Error getting file tree: {e}")
+        emit('file_tree', {'tree': [], 'error': str(e)})
+
+@socketio.on('read_file')
+def handle_read_file(data):
+    """Handle file read request"""
+    file_path = data.get('path', '')
+    if not file_path:
+        emit('file_content', {'success': False, 'error': 'No file path provided'})
+        return
+    
+    try:
+        # Ensure path is within working directory for security
+        full_path = os.path.join(dashboard_data.working_directory, file_path)
+        full_path = os.path.abspath(full_path)
+        
+        if not full_path.startswith(os.path.abspath(dashboard_data.working_directory)):
+            emit('file_content', {'success': False, 'error': 'Access denied'})
+            return
+        
+        with open(full_path, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+        
+        emit('file_content', {
+            'success': True,
+            'path': file_path,
+            'content': content
+        })
+        
+    except Exception as e:
+        logger.error(f"Error reading file {file_path}: {e}")
+        emit('file_content', {
+            'success': False,
+            'path': file_path,
+            'error': str(e)
+        })
+
+@socketio.on('save_file')
+def handle_save_file(data):
+    """Handle file save request"""
+    file_path = data.get('path', '')
+    content = data.get('content', '')
+    
+    if not file_path:
+        emit('file_saved', {'success': False, 'error': 'No file path provided'})
+        return
+    
+    try:
+        # Ensure path is within working directory for security
+        full_path = os.path.join(dashboard_data.working_directory, file_path)
+        full_path = os.path.abspath(full_path)
+        
+        if not full_path.startswith(os.path.abspath(dashboard_data.working_directory)):
+            emit('file_saved', {'success': False, 'error': 'Access denied'})
+            return
+        
+        # Create directory if it doesn't exist
+        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+        
+        with open(full_path, 'w', encoding='utf-8') as f:
+            f.write(content)
+        
+        emit('file_saved', {
+            'success': True,
+            'path': file_path
+        })
+        
+        # Refresh file tree
+        emit('file_tree', {'tree': get_file_tree(dashboard_data.working_directory)})
+        
+    except Exception as e:
+        logger.error(f"Error saving file {file_path}: {e}")
+        emit('file_saved', {
+            'success': False,
+            'path': file_path,
+            'error': str(e)
+        })
+
+@socketio.on('create_file')
+def handle_create_file(data):
+    """Handle file creation request"""
+    file_path = data.get('path', '')
+    content = data.get('content', '')
+    
+    if not file_path:
+        emit('file_saved', {'success': False, 'error': 'No file path provided'})
+        return
+    
+    try:
+        # Ensure path is within working directory for security
+        full_path = os.path.join(dashboard_data.working_directory, file_path)
+        full_path = os.path.abspath(full_path)
+        
+        if not full_path.startswith(os.path.abspath(dashboard_data.working_directory)):
+            emit('file_saved', {'success': False, 'error': 'Access denied'})
+            return
+        
+        # Create directory if it doesn't exist
+        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+        
+        # Only create if file doesn't exist
+        if not os.path.exists(full_path):
+            with open(full_path, 'w', encoding='utf-8') as f:
+                f.write(content)
+            
+            emit('file_saved', {
+                'success': True,
+                'path': file_path
+            })
+            
+            # Refresh file tree
+            emit('file_tree', {'tree': get_file_tree(dashboard_data.working_directory)})
+        else:
+            emit('file_saved', {
+                'success': False,
+                'path': file_path,
+                'error': 'File already exists'
+            })
+        
+    except Exception as e:
+        logger.error(f"Error creating file {file_path}: {e}")
+        emit('file_saved', {
+            'success': False,
+            'path': file_path,
+            'error': str(e)
+        })
+
+@socketio.on('search_files')
+def handle_search_files(data):
+    """Handle file search request"""
+    query = data.get('query', '')
+    if not query.strip():
+        emit('search_results', {'results': []})
+        return
+    
+    try:
+        results = search_in_files(query, dashboard_data.working_directory)
+        emit('search_results', {'results': results})
+    except Exception as e:
+        logger.error(f"Error searching files: {e}")
+        emit('search_results', {'results': [], 'error': str(e)})
+
+@socketio.on('global_search')
+def handle_global_search(data):
+    """Handle global search request"""
+    query = data.get('query', '')
+    if not query.strip():
+        return
+    
+    try:
+        results = search_in_files(query, dashboard_data.working_directory)
+        emit('search_results', {'results': results})
+    except Exception as e:
+        logger.error(f"Error in global search: {e}")
+
+@socketio.on('get_git_status')
+def handle_get_git_status():
+    """Handle git status request"""
+    try:
+        git_status = get_enhanced_git_status()
+        emit('git_status_response', git_status)
+    except Exception as e:
+        logger.error(f"Error getting git status: {e}")
+        emit('git_status_response', {
+            'current_branch': 'main',
+            'modified_files': 0,
+            'changes': [],
+            'error': str(e)
+        })
+
+@socketio.on('git_commit')
+def handle_git_commit(data):
+    """Handle git commit request"""
+    message = data.get('message', '')
+    if not message.strip():
+        emit('git_commit_result', {'success': False, 'error': 'No commit message provided'})
+        return
+    
+    try:
+        # Add all changes
+        add_result = subprocess.run([
+            'git', 'add', '.'
+        ], capture_output=True, text=True, cwd=dashboard_data.working_directory)
+        
+        if add_result.returncode != 0:
+            emit('git_commit_result', {
+                'success': False,
+                'error': f'Failed to stage files: {add_result.stderr}'
+            })
+            return
+        
+        # Commit changes
+        commit_result = subprocess.run([
+            'git', 'commit', '-m', message
+        ], capture_output=True, text=True, cwd=dashboard_data.working_directory)
+        
+        if commit_result.returncode == 0:
+            emit('git_commit_result', {
+                'success': True,
+                'message': 'Changes committed successfully'
+            })
+            
+            # Refresh git status
+            emit('git_status_response', get_enhanced_git_status())
+        else:
+            emit('git_commit_result', {
+                'success': False,
+                'error': commit_result.stderr or 'Commit failed'
+            })
+        
+    except Exception as e:
+        logger.error(f"Error committing changes: {e}")
+        emit('git_commit_result', {
+            'success': False,
+            'error': str(e)
+        })
+
+@socketio.on('run_python')
+def handle_run_python(data):
+    """Handle Python code execution"""
+    code = data.get('code', '')
+    if not code.strip():
+        emit('code_execution_result', {'success': False, 'error': 'No code provided'})
+        return
+    
+    try:
+        # Execute Python code with timeout
+        result = subprocess.run([
+            sys.executable, '-c', code
+        ], capture_output=True, text=True, timeout=30, cwd=dashboard_data.working_directory)
+        
+        emit('code_execution_result', {
+            'success': result.returncode == 0,
+            'output': result.stdout,
+            'error': result.stderr,
+            'language': 'python'
+        })
+        
+    except subprocess.TimeoutExpired:
+        emit('code_execution_result', {
+            'success': False,
+            'error': 'Code execution timed out (30s limit)',
+            'language': 'python'
+        })
+    except Exception as e:
+        logger.error(f"Error executing Python code: {e}")
+        emit('code_execution_result', {
+            'success': False,
+            'error': str(e),
+            'language': 'python'
+        })
+
+@socketio.on('run_javascript')
+def handle_run_javascript(data):
+    """Handle JavaScript code execution"""
+    code = data.get('code', '')
+    if not code.strip():
+        emit('code_execution_result', {'success': False, 'error': 'No code provided'})
+        return
+    
+    try:
+        # Execute JavaScript code with Node.js
+        result = subprocess.run([
+            'node', '-e', code
+        ], capture_output=True, text=True, timeout=30, cwd=dashboard_data.working_directory)
+        
+        emit('code_execution_result', {
+            'success': result.returncode == 0,
+            'output': result.stdout,
+            'error': result.stderr,
+            'language': 'javascript'
+        })
+        
+    except subprocess.TimeoutExpired:
+        emit('code_execution_result', {
+            'success': False,
+            'error': 'Code execution timed out (30s limit)',
+            'language': 'javascript'
+        })
+    except FileNotFoundError:
+        emit('code_execution_result', {
+            'success': False,
+            'error': 'Node.js not found. Please install Node.js to run JavaScript code.',
+            'language': 'javascript'
+        })
+    except Exception as e:
+        logger.error(f"Error executing JavaScript code: {e}")
+        emit('code_execution_result', {
+            'success': False,
+            'error': str(e),
+            'language': 'javascript'
         })
 
 # Periodic data emission functions

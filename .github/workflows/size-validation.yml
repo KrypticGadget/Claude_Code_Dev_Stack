@@ -1,0 +1,434 @@
+name: Size & Performance Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      performance_budget:
+        description: 'Performance budget in KB'
+        required: false
+        default: '2048'
+        type: string
+
+env:
+  MAX_BUNDLE_SIZE_KB: 2048
+  MAX_ASSET_SIZE_KB: 512
+  MAX_FILE_SIZE_KB: 100
+  PERFORMANCE_BUDGET_KB: ${{ github.event.inputs.performance_budget || '2048' }}
+
+jobs:
+  bundle-size-check:
+    name: Bundle Size Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install Dependencies & Build
+        run: |
+          echo "::group::Installing dependencies and building"
+          
+          # Build web app
+          if [ -d "Claude_Code_Dev_Stack_v3/apps/web" ]; then
+            cd Claude_Code_Dev_Stack_v3/apps/web
+            npm ci
+            npm run build
+            cd - > /dev/null
+          fi
+          
+          # Build backend
+          if [ -d "Claude_Code_Dev_Stack_v3/apps/backend" ]; then
+            cd Claude_Code_Dev_Stack_v3/apps/backend
+            npm ci
+            cd - > /dev/null
+          fi
+          
+          echo "::endgroup::"
+
+      - name: Install Bundle Analysis Tools
+        run: |
+          npm install -g bundlesize webpack-bundle-analyzer
+          pip install gzip-size
+
+      - name: Analyze Bundle Sizes
+        run: |
+          echo "::group::Bundle Size Analysis"
+          
+          cat > analyze_bundles.py << 'EOF'
+          import os
+          import json
+          import gzip
+          from pathlib import Path
+          
+          def get_file_size(file_path, compressed=False):
+              """Get file size in KB"""
+              if compressed:
+                  with open(file_path, 'rb') as f:
+                      return len(gzip.compress(f.read())) / 1024
+              else:
+                  return os.path.getsize(file_path) / 1024
+          
+          def analyze_build_artifacts():
+              """Analyze build artifacts for size"""
+              results = {
+                  'web_app': {'files': [], 'total_size': 0, 'total_gzipped': 0},
+                  'backend': {'files': [], 'total_size': 0, 'total_gzipped': 0},
+                  'violations': []
+              }
+              
+              max_bundle_size = float(os.environ.get('MAX_BUNDLE_SIZE_KB', 2048))
+              max_asset_size = float(os.environ.get('MAX_ASSET_SIZE_KB', 512))
+              
+              # Analyze web app build
+              web_dist = Path('Claude_Code_Dev_Stack_v3/apps/web/dist')
+              if web_dist.exists():
+                  for file_path in web_dist.rglob('*'):
+                      if file_path.is_file():
+                          size_kb = get_file_size(file_path)
+                          gzipped_kb = get_file_size(file_path, compressed=True)
+                          
+                          results['web_app']['files'].append({
+                              'name': str(file_path.relative_to(web_dist)),
+                              'size_kb': round(size_kb, 2),
+                              'gzipped_kb': round(gzipped_kb, 2)
+                          })
+                          
+                          results['web_app']['total_size'] += size_kb
+                          results['web_app']['total_gzipped'] += gzipped_kb
+                          
+                          # Check for violations
+                          if size_kb > max_asset_size:
+                              results['violations'].append(f"Asset too large: {file_path.name} ({size_kb:.2f}KB > {max_asset_size}KB)")
+              
+              # Check total bundle size
+              if results['web_app']['total_gzipped'] > max_bundle_size:
+                  results['violations'].append(f"Total bundle too large: {results['web_app']['total_gzipped']:.2f}KB > {max_bundle_size}KB")
+              
+              return results
+          
+          def generate_size_report(results):
+              """Generate size analysis report"""
+              print("# Bundle Size Analysis Report")
+              print()
+              print(f"**Performance Budget**: {os.environ.get('PERFORMANCE_BUDGET_KB', 2048)}KB")
+              print()
+              
+              # Web App Analysis
+              web_data = results['web_app']
+              print("## Web Application")
+              print(f"- **Total Size**: {web_data['total_size']:.2f}KB")
+              print(f"- **Gzipped Size**: {web_data['total_gzipped']:.2f}KB")
+              print(f"- **File Count**: {len(web_data['files'])}")
+              
+              if web_data['files']:
+                  print("\n### Largest Files:")
+                  sorted_files = sorted(web_data['files'], key=lambda x: x['size_kb'], reverse=True)[:10]
+                  for file_info in sorted_files:
+                      print(f"- {file_info['name']}: {file_info['size_kb']:.2f}KB ({file_info['gzipped_kb']:.2f}KB gzipped)")
+              
+              # Violations
+              if results['violations']:
+                  print("\n## ❌ Size Violations")
+                  for violation in results['violations']:
+                      print(f"- {violation}")
+                  return False
+              else:
+                  print("\n## ✅ All Size Checks Passed")
+                  return True
+          
+          if __name__ == "__main__":
+              results = analyze_build_artifacts()
+              success = generate_size_report(results)
+              
+              # Save results for later steps
+              with open('size_analysis.json', 'w') as f:
+                  json.dump(results, f, indent=2)
+              
+              if not success:
+                  exit(1)
+          EOF
+          
+          python analyze_bundles.py
+          echo "::endgroup::"
+
+      - name: Check Individual File Sizes
+        run: |
+          echo "::group::Individual File Size Check"
+          
+          max_file_size=${{ env.MAX_FILE_SIZE_KB }}
+          violations=0
+          
+          # Check Python files
+          find . -name "*.py" -not -path "./.git/*" -not -path "./*/node_modules/*" -not -path "./*/venv/*" | while read -r file; do
+            size_kb=$(du -k "$file" | cut -f1)
+            if [ "$size_kb" -gt "$max_file_size" ]; then
+              echo "❌ Python file too large: $file (${size_kb}KB > ${max_file_size}KB)"
+              violations=$((violations + 1))
+            fi
+          done
+          
+          # Check JavaScript/TypeScript files
+          find . \( -name "*.js" -o -name "*.ts" -o -name "*.tsx" -o -name "*.jsx" \) \
+            -not -path "./.git/*" -not -path "./*/node_modules/*" | while read -r file; do
+            size_kb=$(du -k "$file" | cut -f1)
+            if [ "$size_kb" -gt "$max_file_size" ]; then
+              echo "❌ JS/TS file too large: $file (${size_kb}KB > ${max_file_size}KB)"
+              violations=$((violations + 1))
+            fi
+          done
+          
+          if [ "$violations" -eq 0 ]; then
+            echo "✅ All individual files are within size limits"
+          else
+            echo "❌ Found $violations file size violations"
+            exit 1
+          fi
+          
+          echo "::endgroup::"
+
+      - name: Repository Size Analysis
+        run: |
+          echo "::group::Repository Size Analysis"
+          
+          # Total repository size
+          total_size=$(du -sh . | cut -f1)
+          echo "**Total Repository Size**: $total_size"
+          
+          # Largest directories
+          echo "**Largest Directories**:"
+          du -sh */ 2>/dev/null | sort -hr | head -10 || true
+          
+          # Check for large files in git
+          echo "**Large Files in Git**:"
+          git ls-files | xargs ls -la | sort -k5 -nr | head -20 | awk '{print $5/1024"KB", $9}' || true
+          
+          # Git repository size
+          git_size=$(du -sh .git | cut -f1)
+          echo "**Git Repository Size**: $git_size"
+          
+          echo "::endgroup::"
+
+      - name: Performance Budget Check
+        run: |
+          echo "::group::Performance Budget Validation"
+          
+          performance_budget=${{ env.PERFORMANCE_BUDGET_KB }}
+          
+          if [ -f "size_analysis.json" ]; then
+            total_gzipped=$(python3 -c "
+import json
+with open('size_analysis.json') as f:
+    data = json.load(f)
+print(data['web_app']['total_gzipped'])
+")
+            
+            if (( $(echo "$total_gzipped > $performance_budget" | bc -l) )); then
+              echo "❌ Performance budget exceeded: ${total_gzipped}KB > ${performance_budget}KB"
+              echo "::error::Bundle size exceeds performance budget"
+              exit 1
+            else
+              echo "✅ Performance budget met: ${total_gzipped}KB ≤ ${performance_budget}KB"
+            fi
+          fi
+          
+          echo "::endgroup::"
+
+      - name: Generate Bundle Report
+        run: |
+          echo "::group::Bundle Report Generation"
+          
+          # Create visual bundle report
+          if [ -d "Claude_Code_Dev_Stack_v3/apps/web/dist" ]; then
+            cd Claude_Code_Dev_Stack_v3/apps/web
+            
+            # Generate bundle analysis if webpack stats are available
+            if [ -f "dist/stats.json" ]; then
+              npx webpack-bundle-analyzer dist/stats.json dist --report --mode static --no-open
+            fi
+            
+            cd - > /dev/null
+          fi
+          
+          # Create comprehensive size report
+          cat > bundle_report.md << 'EOF'
+          # Bundle Size & Performance Report
+          
+          Generated on: $(date)
+          Commit: ${{ github.sha }}
+          Performance Budget: ${{ env.PERFORMANCE_BUDGET_KB }}KB
+          
+          ## Summary
+          EOF
+          
+          if [ -f "size_analysis.json" ]; then
+            python3 -c "
+import json
+with open('size_analysis.json') as f:
+    data = json.load(f)
+
+web = data['web_app']
+print(f'- Web App Bundle: {web[\"total_gzipped\"]:.2f}KB (gzipped)')
+print(f'- Total Files: {len(web[\"files\"])}')
+print(f'- Performance Budget: ${{ env.PERFORMANCE_BUDGET_KB }}KB')
+
+if data['violations']:
+    print(f'- Violations: {len(data[\"violations\"])}')
+else:
+    print('- Violations: 0 ✅')
+" >> bundle_report.md
+          fi
+          
+          echo "" >> bundle_report.md
+          echo "## Recommendations" >> bundle_report.md
+          echo "- Consider code splitting for large bundles" >> bundle_report.md
+          echo "- Use compression for static assets" >> bundle_report.md
+          echo "- Implement lazy loading for non-critical resources" >> bundle_report.md
+          echo "- Regular size audits to prevent bundle bloat" >> bundle_report.md
+          
+          echo "::endgroup::"
+
+      - name: Upload Size Analysis Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: size-analysis-report
+          path: |
+            size_analysis.json
+            bundle_report.md
+            Claude_Code_Dev_Stack_v3/apps/web/dist/report.html
+
+      - name: Comment PR with Size Info
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            
+            let sizeInfo = '## Bundle Size Analysis\n\n';
+            
+            try {
+              const sizeData = JSON.parse(fs.readFileSync('size_analysis.json', 'utf8'));
+              const webApp = sizeData.web_app;
+              
+              sizeInfo += `### Web Application\n`;
+              sizeInfo += `- **Total Size**: ${webApp.total_size.toFixed(2)}KB\n`;
+              sizeInfo += `- **Gzipped**: ${webApp.total_gzipped.toFixed(2)}KB\n`;
+              sizeInfo += `- **Files**: ${webApp.files.length}\n`;
+              sizeInfo += `- **Performance Budget**: ${{ env.PERFORMANCE_BUDGET_KB }}KB\n\n`;
+              
+              if (sizeData.violations.length > 0) {
+                sizeInfo += `### ❌ Size Violations\n`;
+                sizeData.violations.forEach(violation => {
+                  sizeInfo += `- ${violation}\n`;
+                });
+              } else {
+                sizeInfo += `### ✅ All Size Checks Passed\n`;
+              }
+              
+            } catch (error) {
+              sizeInfo += 'Size analysis data not available.\n';
+            }
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: sizeInfo
+            });
+
+      - name: Size Check Summary
+        run: |
+          echo "### Bundle Size Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f "size_analysis.json" ]; then
+            python3 -c "
+import json
+with open('size_analysis.json') as f:
+    data = json.load(f)
+
+web = data['web_app']
+print(f'**Web App Bundle**: {web[\"total_gzipped\"]:.2f}KB (gzipped)')
+print(f'**Performance Budget**: ${{ env.PERFORMANCE_BUDGET_KB }}KB')
+
+if data['violations']:
+    print('**Status**: ❌ Size violations found')
+else:
+    print('**Status**: ✅ All checks passed')
+" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Status**: ⚠️ Analysis incomplete" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  dependency-size-audit:
+    name: Dependency Size Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Analyze Dependency Impact
+        run: |
+          echo "::group::Dependency Size Analysis"
+          
+          npm install -g cost-of-modules package-size
+          
+          # Analyze each package.json
+          find . -name "package.json" -not -path "*/node_modules/*" | while read -r pkg; do
+            echo "### Analyzing $(dirname "$pkg")"
+            cd "$(dirname "$pkg")"
+            
+            if [ -f "package-lock.json" ]; then
+              npm ci --only=production
+              cost-of-modules --less || true
+              
+              echo "Top 10 largest dependencies:"
+              cost-of-modules | head -20 || true
+            fi
+            
+            cd - > /dev/null
+          done
+          
+          echo "::endgroup::"
+
+      - name: Generate Dependency Report
+        run: |
+          cat > dependency_size_report.md << 'EOF'
+          # Dependency Size Impact Report
+          
+          This report analyzes the size impact of project dependencies.
+          
+          ## Key Metrics
+          - Total dependency count
+          - Largest dependencies by size
+          - Recommendations for optimization
+          
+          ## Recommendations
+          1. Consider lighter alternatives for large dependencies
+          2. Use tree-shaking for unused exports
+          3. Implement dynamic imports for large libraries
+          4. Regular dependency audits
+          EOF
+
+      - name: Upload Dependency Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: dependency-size-report
+          path: dependency_size_report.md

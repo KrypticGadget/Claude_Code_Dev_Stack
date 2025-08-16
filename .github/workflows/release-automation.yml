@@ -1,0 +1,553 @@
+name: Release Automation & Changelog
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+        - prerelease
+      pre_release:
+        description: 'Create pre-release'
+        required: false
+        default: false
+        type: boolean
+      draft_release:
+        description: 'Create draft release'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  version-check:
+    name: Version Management
+    runs-on: ubuntu-latest
+    outputs:
+      current_version: ${{ steps.version.outputs.current }}
+      new_version: ${{ steps.version.outputs.new }}
+      should_release: ${{ steps.version.outputs.should_release }}
+      is_tag_release: ${{ steps.version.outputs.is_tag_release }}
+      
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Determine Version Strategy
+        id: version
+        run: |
+          # Check if this is a tag-based release
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            echo "is_tag_release=true" >> $GITHUB_OUTPUT
+            echo "current=$(echo ${{ github.ref_name }} | sed 's/^v//')" >> $GITHUB_OUTPUT
+            echo "new=$(echo ${{ github.ref_name }} | sed 's/^v//')" >> $GITHUB_OUTPUT
+            echo "should_release=true" >> $GITHUB_OUTPUT
+            exit 0
+          else
+            echo "is_tag_release=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Get current version from package.json
+          if [ -f "Claude_Code_Dev_Stack_v3/apps/web/package.json" ]; then
+            current_version=$(node -p "require('./Claude_Code_Dev_Stack_v3/apps/web/package.json').version")
+          else
+            current_version="3.0.0"
+          fi
+          
+          echo "current=$current_version" >> $GITHUB_OUTPUT
+          
+          # Determine if we should create a release
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "should_release=true" >> $GITHUB_OUTPUT
+            
+            # Calculate new version based on release type
+            release_type="${{ github.event.inputs.release_type }}"
+            
+            IFS='.' read -ra VERSION_PARTS <<< "$current_version"
+            major=${VERSION_PARTS[0]}
+            minor=${VERSION_PARTS[1]}
+            patch=${VERSION_PARTS[2]}
+            
+            case $release_type in
+              major)
+                new_version="$((major + 1)).0.0"
+                ;;
+              minor)
+                new_version="$major.$((minor + 1)).0"
+                ;;
+              patch)
+                new_version="$major.$minor.$((patch + 1))"
+                ;;
+              prerelease)
+                new_version="$major.$minor.$((patch + 1))-pre.$(date +%Y%m%d%H%M%S)"
+                ;;
+            esac
+            
+            echo "new=$new_version" >> $GITHUB_OUTPUT
+          else
+            # Check if there are changes since last release
+            last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+            commits_since_tag=$(git rev-list ${last_tag}..HEAD --count)
+            
+            if [ "$commits_since_tag" -gt 0 ]; then
+              echo "should_release=true" >> $GITHUB_OUTPUT
+              # Auto-increment patch version
+              IFS='.' read -ra VERSION_PARTS <<< "$current_version"
+              major=${VERSION_PARTS[0]}
+              minor=${VERSION_PARTS[1]}
+              patch=${VERSION_PARTS[2]}
+              new_version="$major.$minor.$((patch + 1))"
+              echo "new=$new_version" >> $GITHUB_OUTPUT
+            else
+              echo "should_release=false" >> $GITHUB_OUTPUT
+              echo "new=$current_version" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+  changelog-generation:
+    name: Generate Changelog
+    runs-on: ubuntu-latest
+    needs: version-check
+    if: needs.version-check.outputs.should_release == 'true'
+    outputs:
+      changelog_content: ${{ steps.changelog.outputs.content }}
+      
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Changelog Tools
+        run: |
+          npm install -g conventional-changelog-cli auto-changelog
+          pip install gitpython
+
+      - name: Generate Changelog Content
+        id: changelog
+        run: |
+          echo "::group::Changelog Generation"
+          
+          # Get the last tag for comparison
+          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          current_version="${{ needs.version-check.outputs.new_version }}"
+          
+          # Create comprehensive changelog script
+          cat > generate_changelog.py << 'EOF'
+          import subprocess
+          import json
+          import re
+          from datetime import datetime
+          from collections import defaultdict
+          
+          def get_commits_since_tag(tag=""):
+              """Get commits since the last tag"""
+              if tag:
+                  cmd = f"git log {tag}..HEAD --pretty=format:'%h|%s|%an|%ad' --date=short"
+              else:
+                  cmd = "git log --pretty=format:'%h|%s|%an|%ad' --date=short"
+              
+              result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+              
+              commits = []
+              for line in result.stdout.strip().split('\n'):
+                  if line:
+                      parts = line.split('|')
+                      if len(parts) >= 4:
+                          commits.append({
+                              'hash': parts[0],
+                              'message': parts[1],
+                              'author': parts[2],
+                              'date': parts[3]
+                          })
+              return commits
+          
+          def categorize_commits(commits):
+              """Categorize commits by type"""
+              categories = {
+                  'Features': [],
+                  'Bug Fixes': [],
+                  'Performance': [],
+                  'Documentation': [],
+                  'Refactoring': [],
+                  'Testing': [],
+                  'CI/CD': [],
+                  'Dependencies': [],
+                  'Other': []
+              }
+              
+              patterns = {
+                  'Features': [r'^feat', r'^add', r'^implement', r'^new'],
+                  'Bug Fixes': [r'^fix', r'^bug', r'^resolve', r'^patch'],
+                  'Performance': [r'^perf', r'^optimize', r'^improve'],
+                  'Documentation': [r'^doc', r'^readme', r'^comment'],
+                  'Refactoring': [r'^refactor', r'^clean', r'^restructure'],
+                  'Testing': [r'^test', r'^spec', r'^coverage'],
+                  'CI/CD': [r'^ci', r'^cd', r'^build', r'^deploy', r'^workflow'],
+                  'Dependencies': [r'^dep', r'^bump', r'^upgrade', r'^update.*dep']
+              }
+              
+              for commit in commits:
+                  message = commit['message'].lower()
+                  categorized = False
+                  
+                  for category, category_patterns in patterns.items():
+                      for pattern in category_patterns:
+                          if re.search(pattern, message):
+                              categories[category].append(commit)
+                              categorized = True
+                              break
+                      if categorized:
+                          break
+                  
+                  if not categorized:
+                      categories['Other'].append(commit)
+              
+              return categories
+          
+          def generate_changelog_content(version, categories, last_tag):
+              """Generate changelog content"""
+              changelog = f"# Changelog\n\n"
+              changelog += f"## [{version}] - {datetime.now().strftime('%Y-%m-%d')}\n\n"
+              
+              if last_tag:
+                  changelog += f"**Full Changelog**: https://github.com/${{ github.repository }}/compare/{last_tag}...v{version}\n\n"
+              
+              total_commits = sum(len(commits) for commits in categories.values())
+              changelog += f"**Total Changes**: {total_commits} commits\n\n"
+              
+              for category, commits in categories.items():
+                  if commits:
+                      changelog += f"### {category}\n\n"
+                      for commit in commits[:10]:  # Limit to 10 per category
+                          changelog += f"- {commit['message']} ([{commit['hash']}](https://github.com/${{ github.repository }}/commit/{commit['hash']})) by @{commit['author']}\n"
+                      
+                      if len(commits) > 10:
+                          changelog += f"- ... and {len(commits) - 10} more changes\n"
+                      changelog += "\n"
+              
+              # Add contributors section
+              authors = set()
+              for commits in categories.values():
+                  for commit in commits:
+                      authors.add(commit['author'])
+              
+              if authors:
+                  changelog += "### Contributors\n\n"
+                  changelog += "Thanks to all contributors:\n"
+                  for author in sorted(authors):
+                      changelog += f"- @{author}\n"
+                  changelog += "\n"
+              
+              return changelog
+          
+          if __name__ == "__main__":
+              import sys
+              
+              last_tag = sys.argv[1] if len(sys.argv) > 1 else ""
+              version = sys.argv[2] if len(sys.argv) > 2 else "unreleased"
+              
+              commits = get_commits_since_tag(last_tag)
+              categories = categorize_commits(commits)
+              changelog_content = generate_changelog_content(version, categories, last_tag)
+              
+              print(changelog_content)
+          EOF
+          
+          # Generate the changelog
+          python generate_changelog.py "$last_tag" "$current_version" > generated_changelog.md
+          
+          # Save changelog content for output
+          changelog_content=$(cat generated_changelog.md)
+          
+          # Escape content for GitHub output
+          echo "content<<EOF" >> $GITHUB_OUTPUT
+          echo "$changelog_content" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          echo "::endgroup::"
+
+      - name: Update CHANGELOG.md
+        run: |
+          echo "::group::Update CHANGELOG.md"
+          
+          # Create or update CHANGELOG.md
+          if [ ! -f "CHANGELOG.md" ]; then
+            cat > CHANGELOG.md << 'EOF'
+          # Changelog
+          
+          All notable changes to this project will be documented in this file.
+          
+          The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+          and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+          
+          EOF
+          fi
+          
+          # Prepend new changelog content
+          temp_file=$(mktemp)
+          cat generated_changelog.md > "$temp_file"
+          echo "" >> "$temp_file"
+          tail -n +4 CHANGELOG.md >> "$temp_file"  # Skip the header
+          mv "$temp_file" CHANGELOG.md
+          
+          echo "::endgroup::"
+
+      - name: Upload Changelog Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: changelog-${{ needs.version-check.outputs.new_version }}
+          path: |
+            CHANGELOG.md
+            generated_changelog.md
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [version-check, changelog-generation]
+    if: needs.version-check.outputs.should_release == 'true'
+    permissions:
+      contents: write
+      
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download Changelog
+        uses: actions/download-artifact@v3
+        with:
+          name: changelog-${{ needs.version-check.outputs.new_version }}
+
+      - name: Create Git Tag
+        if: needs.version-check.outputs.is_tag_release != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          new_version="${{ needs.version-check.outputs.new_version }}"
+          
+          # Update package.json versions
+          if [ -f "Claude_Code_Dev_Stack_v3/apps/web/package.json" ]; then
+            sed -i "s/\"version\": \".*\"/\"version\": \"$new_version\"/" Claude_Code_Dev_Stack_v3/apps/web/package.json
+          fi
+          
+          if [ -f "Claude_Code_Dev_Stack_v3/apps/backend/package.json" ]; then
+            sed -i "s/\"version\": \".*\"/\"version\": \"$new_version\"/" Claude_Code_Dev_Stack_v3/apps/backend/package.json
+          fi
+          
+          # Commit version updates
+          git add .
+          git commit -m "🔖 Release v$new_version
+
+          📝 Generated with [Claude Code](https://claude.ai/code)
+
+          Co-Authored-By: Claude <noreply@anthropic.com>" || true
+          
+          # Create and push tag
+          git tag -a "v$new_version" -m "Release v$new_version"
+          git push origin main
+          git push origin "v$new_version"
+
+      - name: Generate Release Assets
+        run: |
+          echo "::group::Release Assets"
+          
+          # Create release assets directory
+          mkdir -p release-assets
+          
+          # Create source archive
+          git archive --format=tar.gz --prefix=claude-code-dev-stack-${{ needs.version-check.outputs.new_version }}/ HEAD > release-assets/source-code.tar.gz
+          
+          # Create checksums
+          cd release-assets
+          sha256sum *.tar.gz > checksums.sha256
+          cd ..
+          
+          # Create release info
+          cat > release-assets/release-info.json << EOF
+          {
+            "version": "${{ needs.version-check.outputs.new_version }}",
+            "tag": "v${{ needs.version-check.outputs.new_version }}",
+            "commit": "${{ github.sha }}",
+            "date": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "prerelease": ${{ github.event.inputs.pre_release || 'false' }},
+            "draft": ${{ github.event.inputs.draft_release || 'false' }}
+          }
+          EOF
+          
+          echo "::endgroup::"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.version-check.outputs.new_version }}
+          name: Claude Code Dev Stack v${{ needs.version-check.outputs.new_version }}
+          body: ${{ needs.changelog-generation.outputs.changelog_content }}
+          draft: ${{ github.event.inputs.draft_release || 'false' }}
+          prerelease: ${{ github.event.inputs.pre_release || 'false' }}
+          files: |
+            release-assets/*
+          generate_release_notes: true
+          make_latest: true
+
+  update-documentation:
+    name: Update Documentation
+    runs-on: ubuntu-latest
+    needs: [version-check, create-release]
+    if: needs.version-check.outputs.should_release == 'true'
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Version References
+        run: |
+          echo "::group::Update Documentation"
+          
+          new_version="${{ needs.version-check.outputs.new_version }}"
+          
+          # Update README.md with new version
+          if [ -f "README.md" ]; then
+            sed -i "s/Version [0-9]\+\.[0-9]\+\.[0-9]\+/Version $new_version/g" README.md
+            sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+/v$new_version/g" README.md
+          fi
+          
+          # Update version in documentation files
+          find docs -name "*.md" 2>/dev/null | while read -r file; do
+            sed -i "s/Version [0-9]\+\.[0-9]\+\.[0-9]\+/Version $new_version/g" "$file"
+          done || true
+          
+          echo "::endgroup::"
+
+      - name: Generate Release Notes Summary
+        run: |
+          echo "::group::Release Notes"
+          
+          cat > RELEASE_NOTES.md << EOF
+          # Release Notes - v${{ needs.version-check.outputs.new_version }}
+          
+          ## Overview
+          
+          This release includes improvements, bug fixes, and new features for the Claude Code Development Stack.
+          
+          ## Quick Start
+          
+          \`\`\`bash
+          # Clone the repository
+          git clone https://github.com/${{ github.repository }}.git
+          cd $(basename ${{ github.repository }})
+          
+          # Checkout this release
+          git checkout v${{ needs.version-check.outputs.new_version }}
+          
+          # Follow setup instructions in README.md
+          \`\`\`
+          
+          ## What's Changed
+          
+          See [CHANGELOG.md](CHANGELOG.md) for detailed changes.
+          
+          ## Download
+          
+          - [Source Code (tar.gz)](https://github.com/${{ github.repository }}/archive/v${{ needs.version-check.outputs.new_version }}.tar.gz)
+          - [Source Code (zip)](https://github.com/${{ github.repository }}/archive/v${{ needs.version-check.outputs.new_version }}.zip)
+          
+          ## Support
+          
+          - [Documentation](https://github.com/${{ github.repository }}/blob/main/README.md)
+          - [Issues](https://github.com/${{ github.repository }}/issues)
+          EOF
+          
+          echo "::endgroup::"
+
+      - name: Commit Documentation Updates
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add .
+          git commit -m "📚 Update documentation for v${{ needs.version-check.outputs.new_version }}
+
+          🔖 Generated with [Claude Code](https://claude.ai/code)
+
+          Co-Authored-By: Claude <noreply@anthropic.com>" || echo "No documentation changes to commit"
+          
+          git push origin main || echo "No changes to push"
+
+  notification:
+    name: Release Notifications
+    runs-on: ubuntu-latest
+    needs: [version-check, create-release, update-documentation]
+    if: always() && needs.version-check.outputs.should_release == 'true'
+    
+    steps:
+      - name: Generate Release Summary
+        run: |
+          echo "# 🚀 Release Summary" > release-summary.md
+          echo "" >> release-summary.md
+          echo "**Version**: v${{ needs.version-check.outputs.new_version }}" >> release-summary.md
+          echo "**Release Date**: $(date)" >> release-summary.md
+          echo "**Commit**: ${{ github.sha }}" >> release-summary.md
+          echo "" >> release-summary.md
+          
+          if [ "${{ needs.create-release.result }}" = "success" ]; then
+            echo "✅ **Release Created Successfully**" >> release-summary.md
+            echo "" >> release-summary.md
+            echo "🔗 [View Release](https://github.com/${{ github.repository }}/releases/tag/v${{ needs.version-check.outputs.new_version }})" >> release-summary.md
+          else
+            echo "❌ **Release Creation Failed**" >> release-summary.md
+          fi
+          
+          echo "" >> release-summary.md
+          echo "## Next Steps" >> release-summary.md
+          echo "1. Verify release assets are correctly uploaded" >> release-summary.md
+          echo "2. Update any external references to new version" >> release-summary.md
+          echo "3. Monitor for any post-release issues" >> release-summary.md
+          echo "4. Consider announcing the release to users" >> release-summary.md
+
+      - name: Upload Release Summary
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-summary-${{ needs.version-check.outputs.new_version }}
+          path: release-summary.md
+
+      - name: Update Step Summary
+        run: |
+          echo "### 🎉 Release Automation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**New Version**: v${{ needs.version-check.outputs.new_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Previous Version**: v${{ needs.version-check.outputs.current_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.create-release.result }}" = "success" ]; then
+            echo "✅ **Release created successfully**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "[📋 View Release](https://github.com/${{ github.repository }}/releases/tag/v${{ needs.version-check.outputs.new_version }})" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Release creation failed**" >> $GITHUB_STEP_SUMMARY
+          fi

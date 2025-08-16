@@ -53,14 +53,19 @@ def update_agent_routing(mentions):
 if __name__ == "__main__":
     import sys
     try:
-        # Read input from Claude Code via stdin
-        input_data = json.load(sys.stdin)
-        prompt = input_data.get("prompt", "")
+        # Read input from Claude Code via stdin or use test data
+        if not sys.stdin.isatty():
+            input_data = json.load(sys.stdin)
+            prompt = input_data.get("prompt", "")
+        else:
+            # Test mode - use sample data
+            prompt = "Test @agent-testing and @agent-master-orchestrator functionality"
+            print("[INFO] Running in test mode", file=sys.stderr)
         
         mentions = parse_agent_mentions(prompt)
         if mentions:
             update_agent_routing(mentions)
-            print(f"[UserPromptSubmit] Detected agents: {', '.join(m['agent'] for m in mentions)}")
+            print(f"[UserPromptSubmit] Detected agents: {', '.join(m['agent'] for m in mentions)}", file=sys.stderr)
             
             # Add context about detected agents
             context = f"Routing to agents: {', '.join(m['agent'] for m in mentions)}"
@@ -71,6 +76,8 @@ if __name__ == "__main__":
                 }
             }
             print(json.dumps(output))
+        else:
+            print("[INFO] No agent mentions detected", file=sys.stderr)
         
         sys.exit(0)
     except Exception as e:

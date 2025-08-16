@@ -1,9 +1,9 @@
 {
-  "url": "http://localhost:8080",
-  "auth_token": "0q-e5mgy07qAy2AmfzEBeOGBPOqXG2Ito8UHplSGEZo",
-  "qr_file": "",
-  "created": "2025-08-15T11:00:08.806427",
-  "expires": "2025-08-16T11:00:08.806427",
+  "url": "https://212ab038d6f0.ngrok-free.app",
+  "auth_token": "XwD5Y0l25V6a3fF7si8JCeoe-ocBVVRip9pgdbZ82d4",
+  "qr_file": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\.claude-example\\mobile\\mobile_access_qr.png",
+  "created": "2025-08-15T17:30:37.963270",
+  "expires": "2025-08-16T17:30:37.963270",
   "dashboard_port": 8080,
-  "session_id": "b65b22e1-275d-4103-916b-fffc09512f79"
+  "session_id": "2410786e-a7a6-4cda-a733-fd9854b045ff"
 }

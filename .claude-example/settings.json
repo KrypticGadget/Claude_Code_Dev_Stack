@@ -345,6 +345,27 @@
       "priorityQueueing": true
     }
   },
+  "v3ExtendedFeatures": {
+    "qualityTools": {
+      "enabled": true,
+      "autoFormat": true,
+      "lintOnSave": true,
+      "strictness": "warning",
+      "blockOnErrors": false,
+      "blockOnWarnings": false,
+      "showSuggestions": true
+    },
+    "gitHooks": {
+      "enabled": true,
+      "preCommitChecks": ["lint", "format"],
+      "blockOnFailure": false,
+      "autoFix": true,
+      "strictness": "warning",
+      "blockOnLintErrors": false,
+      "blockOnLintWarnings": false,
+      "allowWarningsCommit": true
+    }
+  },
   "features": {
     "audioFeedback": true,
     "bashCategorization": true,

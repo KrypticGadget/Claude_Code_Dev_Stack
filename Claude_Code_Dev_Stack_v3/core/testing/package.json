@@ -1,0 +1,61 @@
+{
+  "name": "playwright-headed-testing",
+  "version": "1.0.0",
+  "description": "Playwright headed browser automation with visual testing and form automation",
+  "main": "playwright.config.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "test:visual": "playwright test tests/visual/",
+    "test:form": "playwright test tests/form-automation/",
+    "test:accessibility": "playwright test tests/accessibility/",
+    "test:chrome": "playwright test --project=chromium-headed",
+    "test:firefox": "playwright test --project=firefox-headed",
+    "test:safari": "playwright test --project=webkit-headed",
+    "test:mobile": "playwright test --project=mobile-chrome-headed",
+    "test:cross-browser": "playwright test --project=chromium-headed --project=firefox-headed --project=webkit-headed",
+    "test:parallel": "playwright test --workers=3",
+    "test:serial": "playwright test --workers=1",
+    "install:browsers": "playwright install",
+    "install:deps": "playwright install-deps",
+    "show:report": "playwright show-report",
+    "show:trace": "playwright show-trace",
+    "codegen": "playwright codegen",
+    "codegen:chrome": "playwright codegen --browser=chromium",
+    "codegen:firefox": "playwright codegen --browser=firefox",
+    "codegen:safari": "playwright codegen --browser=webkit"
+  },
+  "keywords": [
+    "playwright",
+    "testing",
+    "automation",
+    "visual-testing",
+    "form-automation",
+    "accessibility",
+    "cross-browser"
+  ],
+  "author": "Claude Code Dev Stack",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@axe-core/playwright": "^4.8.0",
+    "allure-playwright": "^2.9.0"
+  },
+  "dependencies": {
+    "pixelmatch": "^5.3.0",
+    "pngjs": "^7.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/claude-code/dev-stack"
+  },
+  "bugs": {
+    "url": "https://github.com/claude-code/dev-stack/issues"
+  },
+  "homepage": "https://github.com/claude-code/dev-stack#readme"
+}

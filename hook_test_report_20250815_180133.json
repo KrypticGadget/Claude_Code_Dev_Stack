@@ -1,0 +1,207 @@
+{
+  "total_hooks": 28,
+  "passed": 18,
+  "failed": 10,
+  "errors": 0,
+  "not_found": 0,
+  "with_audio": 0,
+  "test_timestamp": "2025-08-15T18:01:26.056996",
+  "individual_results": {
+    "session_loader": {
+      "status": "passed",
+      "execution_time": 0.10173559188842773,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": null
+    },
+    "session_saver": {
+      "status": "passed",
+      "execution_time": 0.1118769645690918,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": null
+    },
+    "context_manager": {
+      "status": "passed",
+      "execution_time": 0.09268665313720703,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": null
+    },
+    "dependency_checker": {
+      "status": "failed",
+      "execution_time": 0.1313786506652832,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": ""
+    },
+    "venv_enforcer": {
+      "status": "passed",
+      "execution_time": 0.08042383193969727,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": null
+    },
+    "v3_config": {
+      "status": "passed",
+      "execution_time": 0.08575248718261719,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": null
+    },
+    "v3_validator": {
+      "status": "failed",
+      "execution_time": 0.09278249740600586,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\"
+    },
+    "agent_mention_parser": {
+      "status": "failed",
+      "execution_time": 0.08217000961303711,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": "Error in agent parser: Expecting value: line 1 column 1 (char 0)\n"
+    },
+    "agent_enhancer_v3": {
+      "status": "failed",
+      "execution_time": 0.8054864406585693,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": "Traceback (most recent call last):\n  File \"C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Clau"
+    },
+    "master_orchestrator": {
+      "status": "passed",
+      "execution_time": 0.10081052780151367,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": null
+    },
+    "smart_orchestrator": {
+      "status": "failed",
+      "execution_time": 0.15587186813354492,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": ""
+    },
+    "v3_orchestrator": {
+      "status": "passed",
+      "execution_time": 0.41147279739379883,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": null
+    },
+    "model_tracker": {
+      "status": "passed",
+      "execution_time": 0.08332061767578125,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": null
+    },
+    "quality_gate_hook": {
+      "status": "passed",
+      "execution_time": 0.09078645706176758,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": null
+    },
+    "code_linter": {
+      "status": "passed",
+      "execution_time": 0.08542466163635254,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": null
+    },
+    "auto_formatter": {
+      "status": "failed",
+      "execution_time": 0.08378124237060547,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": ""
+    },
+    "security_scanner": {
+      "status": "failed",
+      "execution_time": 0.10882902145385742,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": ""
+    },
+    "git_quality_hooks": {
+      "status": "failed",
+      "execution_time": 0.17793774604797363,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": ""
+    },
+    "audio_player_v3": {
+      "status": "passed",
+      "execution_time": 0.24010324478149414,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": null
+    },
+    "audio_notifier": {
+      "status": "passed",
+      "execution_time": 2.9804444313049316,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": null
+    },
+    "audio_controller": {
+      "status": "passed",
+      "execution_time": 0.09498810768127441,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": null
+    },
+    "audio_integration_v3": {
+      "status": "passed",
+      "execution_time": 0.242417573928833,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": null
+    },
+    "enhanced_bash_hook": {
+      "status": "passed",
+      "execution_time": 0.08210229873657227,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": null
+    },
+    "performance_monitor": {
+      "status": "passed",
+      "execution_time": 0.19604778289794922,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": null
+    },
+    "resource_monitor": {
+      "status": "failed",
+      "execution_time": 0.100433349609375,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": "Traceback (most recent call last):\n  File \"C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Clau"
+    },
+    "planning_trigger": {
+      "status": "failed",
+      "execution_time": 0.07663297653198242,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": "Error in planning trigger: Expecting value: line 1 column 1 (char 0)\n"
+    },
+    "notification_sender": {
+      "status": "passed",
+      "execution_time": 0.6580045223236084,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": null
+    },
+    "browser_integration_hook": {
+      "status": "passed",
+      "execution_time": 0.19101667404174805,
+      "has_audio_file": false,
+      "audio_tested": false,
+      "error_message": null
+    }
+  }
+}

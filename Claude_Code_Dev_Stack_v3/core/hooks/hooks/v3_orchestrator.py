@@ -6,10 +6,19 @@ Coordinates all v3.0 systems: Status Line, Context Management, Chat Management, 
 
 import json
 import time
+import logging
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 from pathlib import Path
 import threading
+import asyncio
+import sys
+
+# Add path for PHASE 7.3 orchestration
+sys.path.append(str(Path(__file__).parent.parent.parent / "orchestration"))
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Import v3.0 components
 try:
@@ -17,6 +26,7 @@ try:
     from .context_manager import get_context_manager  
     from .chat_manager import get_chat_manager, HandoffTrigger, ConversationPhase
     from .master_orchestrator import UltimateClaudeOrchestrator
+    from .browser_integration_hook import get_browser_integration_hook
 except ImportError:
     # Fallback for standalone testing
     def get_status_line():
@@ -25,7 +35,22 @@ except ImportError:
         return None
     def get_chat_manager():
         return None
+    def get_browser_integration_hook():
+        return None
     class UltimateClaudeOrchestrator:
+        pass
+
+# Import PHASE 7.3 MCP orchestration
+try:
+    from mcp_service_orchestrator import get_mcp_orchestrator, ServiceType
+    from orchestrator_integration import get_orchestration_coordinator
+    from orchestration_gateway import app as gateway_app
+except ImportError:
+    # Fallback if PHASE 7.3 not available
+    get_mcp_orchestrator = lambda: None
+    get_orchestration_coordinator = lambda: None
+    gateway_app = None
+    class ServiceType:
         pass
 
 class ClaudeCodeV3Orchestrator:
@@ -39,9 +64,15 @@ class ClaudeCodeV3Orchestrator:
         self.status_line = get_status_line()
         self.context_manager = get_context_manager()
         self.chat_manager = get_chat_manager()
+        self.browser_integration = get_browser_integration_hook()
         
         # Initialize legacy orchestrator for compatibility
         self.legacy_orchestrator = UltimateClaudeOrchestrator()
+        
+        # Initialize PHASE 7.3 MCP orchestration
+        self.mcp_orchestrator = get_mcp_orchestrator()
+        self.orchestration_coordinator = get_orchestration_coordinator()
+        self.phase73_initialized = False
         
         # System state
         self.system_state = {
@@ -51,7 +82,11 @@ class ClaudeCodeV3Orchestrator:
                 "status_line": False,
                 "context_manager": False,
                 "chat_manager": False,
-                "legacy_orchestrator": False
+                "browser_integration": False,
+                "legacy_orchestrator": False,
+                "mcp_orchestrator": False,
+                "orchestration_coordinator": False,
+                "phase73_enabled": False
             },
             "health": "initializing"
         }
@@ -62,7 +97,12 @@ class ClaudeCodeV3Orchestrator:
             "context_preservation": True,
             "intelligent_handoffs": True,
             "legacy_compatibility": True,
-            "real_time_coordination": True
+            "real_time_coordination": True,
+            "phase73_integration": True,
+            "mcp_service_routing": True,
+            "unified_orchestration": True,
+            "load_balancing": True,
+            "failover_management": True
         }
         
         # Performance metrics
@@ -71,7 +111,12 @@ class ClaudeCodeV3Orchestrator:
             "successful_handoffs": 0,
             "context_preservations": 0,
             "system_optimizations": 0,
-            "error_count": 0
+            "error_count": 0,
+            "mcp_requests": 0,
+            "service_routes": 0,
+            "failovers": 0,
+            "load_balance_decisions": 0,
+            "phase73_integrations": 0
         }
         
         # Background coordination
@@ -88,7 +133,14 @@ class ClaudeCodeV3Orchestrator:
             self.system_state["components"]["status_line"] = self.status_line is not None
             self.system_state["components"]["context_manager"] = self.context_manager is not None
             self.system_state["components"]["chat_manager"] = self.chat_manager is not None
+            self.system_state["components"]["browser_integration"] = self.browser_integration is not None
             self.system_state["components"]["legacy_orchestrator"] = self.legacy_orchestrator is not None
+            self.system_state["components"]["mcp_orchestrator"] = self.mcp_orchestrator is not None
+            self.system_state["components"]["orchestration_coordinator"] = self.orchestration_coordinator is not None
+            
+            # Initialize PHASE 7.3 integration
+            if self.integration_config["phase73_integration"]:
+                self._initialize_phase73_integration()
             
             # Start coordination
             self.running = True
@@ -173,25 +225,46 @@ class ClaudeCodeV3Orchestrator:
                     result["enhancements_applied"].append("context_preservation")
                     self.metrics["context_preservations"] += 1
             
+            # 4. Browser integration processing
+            if self.browser_integration:
+                browser_result = self._process_with_browser_integration(event_type, data)
+                result["browser_integration"] = browser_result
+                result["components_used"].append("browser_integration")
+                
+                if browser_result.get("processed"):
+                    result["enhancements_applied"].append("browser_integration")
+                    if browser_result.get("commands_parsed", 0) > 0:
+                        result["enhancements_applied"].append("dev_stack_command_parsing")
+            
             # 4. Enhanced orchestration logic
             orchestration_result = self._enhanced_orchestration(event_type, data, result)
             result["orchestration"] = orchestration_result
             
-            # 5. Legacy compatibility layer
+            # 5. PHASE 7.3 MCP service orchestration
+            if self.integration_config["phase73_integration"] and self.phase73_initialized:
+                mcp_result = self._process_with_phase73_orchestration(event_type, data)
+                result["phase73_orchestration"] = mcp_result
+                result["components_used"].append("phase73_orchestrator")
+                
+                if mcp_result.get("service_routed"):
+                    result["enhancements_applied"].append("mcp_service_routing")
+                    self.metrics["service_routes"] += 1
+            
+            # 6. Legacy compatibility layer
             if self.integration_config["legacy_compatibility"]:
                 legacy_result = self._process_with_legacy_orchestrator(event_type, data)
                 result["legacy_compatibility"] = True
                 result["legacy_result"] = legacy_result
                 result["components_used"].append("legacy_orchestrator")
             
-            # 6. System optimization
+            # 7. System optimization
             optimization_result = self._apply_system_optimizations(result)
             if optimization_result["optimizations_applied"]:
                 result["enhancements_applied"].append("system_optimization")
                 result["optimizations"] = optimization_result
                 self.metrics["system_optimizations"] += 1
             
-            # 7. Update performance metrics
+            # 8. Update performance metrics
             processing_time = time.time() - start_time
             result["performance_metrics"] = {
                 "processing_time_ms": round(processing_time * 1000, 2),
@@ -200,7 +273,7 @@ class ClaudeCodeV3Orchestrator:
                 "efficiency_score": self._calculate_efficiency_score(result, processing_time)
             }
             
-            # 8. Update status line with results
+            # 9. Update status line with results
             if self.status_line:
                 self.status_line.update_status(
                     "request_processed",
@@ -422,6 +495,98 @@ class ClaudeCodeV3Orchestrator:
         
         return orchestration
     
+    def _process_with_phase73_orchestration(self, event_type: str, data: Dict) -> Dict:
+        """Process request with PHASE 7.3 MCP orchestration"""
+        if not self.phase73_initialized or not self.orchestration_coordinator:
+            return {"processed": False, "error": "PHASE 7.3 not initialized"}
+        
+        try:
+            result = {
+                "processed": True,
+                "service_routed": False,
+                "load_balanced": False,
+                "failover_handled": False,
+                "service_info": None
+            }
+            
+            # Determine if this event requires MCP service routing
+            service_type = self._determine_service_type(event_type, data)
+            
+            if service_type:
+                # Extract context for routing
+                context = self._extract_routing_context(event_type, data)
+                
+                # Route through PHASE 7.3 orchestrator
+                service_info = self.route_mcp_service(service_type, context)
+                
+                if service_info:
+                    result["service_routed"] = True
+                    result["load_balanced"] = True
+                    result["service_info"] = service_info
+                    self.metrics["load_balance_decisions"] += 1
+                    
+                    # Check if this was a failover scenario
+                    if context.get("retry_attempt", 0) > 0:
+                        result["failover_handled"] = True
+                        self.metrics["failovers"] += 1
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"PHASE 7.3 orchestration error: {e}")
+            return {
+                "processed": False,
+                "error": str(e)
+            }
+    
+    def _determine_service_type(self, event_type: str, data: Dict) -> Optional[str]:
+        """Determine MCP service type needed for the event"""
+        # Direct service requests
+        if event_type == "mcp_request":
+            return data.get("service_type", "custom")
+        
+        # Infer from event content
+        prompt = data.get("prompt", "") + data.get("message", "")
+        
+        if any(keyword in prompt.lower() for keyword in ["browser", "web", "page", "screenshot", "playwright"]):
+            return "playwright"
+        elif any(keyword in prompt.lower() for keyword in ["github", "repository", "repo", "code", "git"]):
+            return "github"
+        elif any(keyword in prompt.lower() for keyword in ["search", "find", "lookup", "web search"]):
+            return "websearch"
+        elif event_type in ["agent_activation", "workflow_request"]:
+            return "custom"
+        
+        return None
+    
+    def _extract_routing_context(self, event_type: str, data: Dict) -> Dict[str, Any]:
+        """Extract context for service routing"""
+        context = {
+            "event_type": event_type,
+            "timestamp": datetime.utcnow().isoformat(),
+            "retry_attempt": data.get("retry_attempt", 0)
+        }
+        
+        # Add session information if available
+        if "session_id" in data:
+            context["session_id"] = data["session_id"]
+        elif hasattr(self, "context_manager") and self.context_manager:
+            try:
+                context_health = self.context_manager.get_context_health()
+                context["session_id"] = context_health.get("session_id", "default")
+            except:
+                context["session_id"] = "default"
+        
+        # Add priority information
+        if "priority" in data:
+            context["priority"] = data["priority"]
+        elif event_type in ["emergency", "critical"]:
+            context["priority"] = "high"
+        else:
+            context["priority"] = "normal"
+        
+        return context
+    
     def _process_with_legacy_orchestrator(self, event_type: str, data: Dict) -> Dict:
         """Process with legacy orchestrator for compatibility"""
         try:
@@ -617,6 +782,151 @@ class ClaudeCodeV3Orchestrator:
     def _prepare_legacy_data(self, data: Dict) -> Dict:
         # Clean data for legacy compatibility
         return {k: v for k, v in data.items() if isinstance(v, (str, int, float, bool, dict, list))}
+    
+    def _process_with_browser_integration(self, event_type: str, data: Dict) -> Dict:
+        """Process request with browser integration"""
+        if not self.browser_integration:
+            return {"processed": False, "error": "Browser integration not available"}
+        
+        try:
+            # Process event through browser integration hook
+            browser_result = self.browser_integration.process_hook_event(event_type, data)
+            
+            # Extract relevant metrics
+            result = {
+                "processed": browser_result.get("processed", False),
+                "browser_integration": browser_result.get("browser_integration", False),
+                "enhancements": browser_result.get("enhancements", []),
+                "commands_parsed": 0,
+                "browser_data_available": False
+            }
+            
+            # Count parsed commands
+            if "command_parsing" in browser_result.get("enhancements", []):
+                browser_commands = browser_result.get("browser_commands", {})
+                result["commands_parsed"] = browser_commands.get("command_count", 0)
+            
+            # Check for browser data availability
+            if "browser_session_context" in browser_result:
+                result["browser_data_available"] = browser_result["browser_session_context"].get("context_updated", False)
+            
+            # Add integration opportunities
+            if "integration_opportunities" in browser_result:
+                result["integration_opportunities"] = browser_result["integration_opportunities"]
+            
+            return result
+            
+        except Exception as e:
+            return {
+                "processed": False,
+                "error": str(e),
+                "error_timestamp": datetime.utcnow().isoformat()
+            }
+    
+    def _initialize_phase73_integration(self):
+        """Initialize PHASE 7.3 MCP orchestration integration"""
+        try:
+            if self.orchestration_coordinator:
+                # Start the coordination system asynchronously
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                
+                # Initialize the coordinator
+                async def init_coordinator():
+                    await self.orchestration_coordinator.initialize()
+                    if not self.orchestration_coordinator.running:
+                        await self.orchestration_coordinator.start()
+                    return True
+                
+                try:
+                    success = loop.run_until_complete(init_coordinator())
+                    if success:
+                        self.phase73_initialized = True
+                        self.system_state["components"]["phase73_enabled"] = True
+                        self.metrics["phase73_integrations"] += 1
+                        
+                        # Update status line
+                        if self.status_line:
+                            self.status_line.update_status(
+                                "phase73_orchestration",
+                                "active",
+                                {
+                                    "mcp_services": "enabled",
+                                    "load_balancing": "active",
+                                    "failover": "enabled",
+                                    "coordinator": "running"
+                                }
+                            )
+                except Exception as e:
+                    logger.warning(f"Failed to initialize PHASE 7.3 coordinator: {e}")
+                finally:
+                    loop.close()
+            
+            logger.info("PHASE 7.3 MCP orchestration integration initialized")
+            
+        except Exception as e:
+            logger.error(f"PHASE 7.3 integration initialization failed: {e}")
+            self.system_state["components"]["phase73_enabled"] = False
+    
+    def route_mcp_service(self, service_type: str, context: Dict[str, Any] = None) -> Optional[Dict[str, Any]]:
+        """Route request to MCP service through PHASE 7.3 orchestration"""
+        if not self.phase73_initialized or not self.orchestration_coordinator:
+            return None
+        
+        try:
+            # Route through the coordinator
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            
+            try:
+                service_info = loop.run_until_complete(
+                    self.orchestration_coordinator.route_service_request(service_type, context or {})
+                )
+                
+                if service_info:
+                    self.metrics["service_routes"] += 1
+                    self.metrics["mcp_requests"] += 1
+                    
+                    # Update status line
+                    if self.status_line:
+                        self.status_line.update_status(
+                            "mcp_service_routed",
+                            "success",
+                            {
+                                "service_type": service_type,
+                                "service_id": service_info.get("id"),
+                                "service_url": service_info.get("url")
+                            }
+                        )
+                    
+                    return service_info
+                
+            finally:
+                loop.close()
+                
+        except Exception as e:
+            logger.error(f"MCP service routing error: {e}")
+            self.metrics["error_count"] += 1
+            
+            # Update status line with error
+            if self.status_line:
+                self.status_line.update_status(
+                    "mcp_service_error",
+                    "error",
+                    {"service_type": service_type, "error": str(e)}
+                )
+        
+        return None
+    
+    def get_mcp_service_status(self) -> Dict[str, Any]:
+        """Get comprehensive MCP service status"""
+        if not self.phase73_initialized or not self.orchestration_coordinator:
+            return {"available": False, "error": "PHASE 7.3 not initialized"}
+        
+        try:
+            return self.orchestration_coordinator.get_service_health()
+        except Exception as e:
+            return {"available": False, "error": str(e)}
 
 
 # Global instance

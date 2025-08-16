@@ -1,0 +1,307 @@
+{
+  "test_suite_version": "3.0_error_handling",
+  "timestamp": "2025-08-15T17:47:32.635618",
+  "test_duration": 0.312443,
+  "overall_score": 96.0,
+  "robustness_level": "excellent",
+  "test_results": {
+    "invalid_agent_mentions": {
+      "total_tested": 8,
+      "handled_correctly": 8,
+      "errors": [],
+      "details": {
+        "@agent-nonexistent-agent": {
+          "status": "handled",
+          "error_type": "agent_not_found",
+          "handled_gracefully": true
+        },
+        "@agent-": {
+          "status": "handled",
+          "error_type": "invalid_prefix",
+          "handled_gracefully": true
+        },
+        "@agent-invalid_name_with_underscores": {
+          "status": "handled",
+          "error_type": "invalid_format",
+          "handled_gracefully": true
+        },
+        "@agent-123numbers": {
+          "status": "handled",
+          "error_type": "invalid_format",
+          "handled_gracefully": true
+        },
+        "@agent-UPPERCASE": {
+          "status": "handled",
+          "error_type": "invalid_format",
+          "handled_gracefully": true
+        },
+        "@agent-special!characters": {
+          "status": "handled",
+          "error_type": "invalid_format",
+          "handled_gracefully": true
+        },
+        "@@agent-double-prefix": {
+          "status": "handled",
+          "error_type": "invalid_prefix",
+          "handled_gracefully": true
+        },
+        "@agen-typo-agent": {
+          "status": "handled",
+          "error_type": "invalid_prefix",
+          "handled_gracefully": true
+        }
+      },
+      "success_rate": 100.0
+    },
+    "malformed_prompts": {
+      "total_tested": 13,
+      "handled_safely": 13,
+      "security_issues": 4,
+      "crashes": 0,
+      "details": {
+        "malformed_prompt_0": {
+          "prompt_type": "str",
+          "prompt_preview": "",
+          "error_type": "empty_prompt",
+          "safety_result": "handled_safely",
+          "handled": true
+        },
+        "malformed_prompt_1": {
+          "prompt_type": "NoneType",
+          "prompt_preview": "None",
+          "error_type": "null_prompt",
+          "safety_result": "handled_safely",
+          "handled": true
+        },
+        "malformed_prompt_2": {
+          "prompt_type": "str",
+          "prompt_preview": "                                                  ...",
+          "error_type": "empty_prompt",
+          "safety_result": "handled_safely",
+          "handled": true
+        },
+        "malformed_prompt_3": {
+          "prompt_type": "str",
+          "prompt_preview": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...",
+          "error_type": "oversized_prompt",
+          "safety_result": "handled_safely",
+          "handled": true
+        },
+        "malformed_prompt_4": {
+          "prompt_type": "str",
+          "prompt_preview": "\ud83d\ude80\ud83c\udf89\ud83d\udcbb\ud83d\ude80\ud83c\udf89\ud83d\udcbb\ud83d\ude80\ud83c\udf89\ud83d\udcbb\ud83d\ude80\ud83c\udf89\ud83d\udcbb\ud83d\ude80\ud83c\udf89\ud83d\udcbb\ud83d\ude80\ud83c\udf89\ud83d\udcbb\ud83d\ude80\ud83c\udf89\ud83d\udcbb\ud83d\ude80\ud83c\udf89\ud83d\udcbb\ud83d\ude80\ud83c\udf89\ud83d\udcbb\ud83d\ude80\ud83c\udf89\ud83d\udcbb\ud83d\ude80\ud83c\udf89\ud83d\udcbb\ud83d\ude80\ud83c\udf89\ud83d\udcbb\ud83d\ude80\ud83c\udf89\ud83d\udcbb\ud83d\ude80\ud83c\udf89\ud83d\udcbb\ud83d\ude80\ud83c\udf89\ud83d\udcbb\ud83d\ude80\ud83c\udf89\ud83d\udcbb\ud83d\ude80\ud83c\udf89...",
+          "error_type": "unusual_content",
+          "safety_result": "processed_safely",
+          "handled": true
+        },
+        "malformed_prompt_5": {
+          "prompt_type": "str",
+          "prompt_preview": "\n\n\n\n\n",
+          "error_type": "empty_prompt",
+          "safety_result": "handled_safely",
+          "handled": true
+        },
+        "malformed_prompt_6": {
+          "prompt_type": "str",
+          "prompt_preview": "\t\t\t\t",
+          "error_type": "empty_prompt",
+          "safety_result": "handled_safely",
+          "handled": true
+        },
+        "malformed_prompt_7": {
+          "prompt_type": "str",
+          "prompt_preview": "SELECT * FROM users; DROP TABLE users; --",
+          "error_type": "potential_security_risk",
+          "safety_result": "flagged_safely",
+          "handled": true
+        },
+        "malformed_prompt_8": {
+          "prompt_type": "str",
+          "prompt_preview": "<script>alert('xss')</script>",
+          "error_type": "potential_security_risk",
+          "safety_result": "flagged_safely",
+          "handled": true
+        },
+        "malformed_prompt_9": {
+          "prompt_type": "str",
+          "prompt_preview": "../../../etc/passwd",
+          "error_type": "potential_security_risk",
+          "safety_result": "flagged_safely",
+          "handled": true
+        },
+        "malformed_prompt_10": {
+          "prompt_type": "dict",
+          "prompt_preview": "{'malicious': 'object'}",
+          "error_type": "invalid_type",
+          "safety_result": "handled_safely",
+          "handled": true
+        },
+        "malformed_prompt_11": {
+          "prompt_type": "list",
+          "prompt_preview": "['list', 'of', 'strings']",
+          "error_type": "invalid_type",
+          "safety_result": "handled_safely",
+          "handled": true
+        },
+        "malformed_prompt_12": {
+          "prompt_type": "str",
+          "prompt_preview": "\u0000\u0001\u0002\u0003",
+          "error_type": "potential_security_risk",
+          "safety_result": "flagged_safely",
+          "handled": true
+        }
+      },
+      "safety_rate": 100.0
+    },
+    "resource_limits": {
+      "total_tests": 5,
+      "passed": 4,
+      "failed": 1,
+      "test_details": {
+        "memory_pressure": {
+          "description": "High memory usage simulation",
+          "result": {
+            "status": "passed",
+            "memory_usage": 83.4,
+            "action": "normal_operation",
+            "mitigation": "none_needed"
+          },
+          "timestamp": "2025-08-15T17:47:32.349182"
+        },
+        "cpu_intensive": {
+          "description": "CPU intensive operations",
+          "result": {
+            "status": "passed",
+            "execution_time": 0.0039484500885009766,
+            "iterations": 100001,
+            "cpu_limit_respected": true
+          },
+          "timestamp": "2025-08-15T17:47:32.353130"
+        },
+        "disk_space": {
+          "description": "Low disk space simulation",
+          "result": {
+            "status": "passed",
+            "free_space_percent": 63.82410530838691,
+            "action": "normal_operation",
+            "mitigation": "none_needed"
+          },
+          "timestamp": "2025-08-15T17:47:32.353130"
+        },
+        "concurrent_requests": {
+          "description": "High concurrent request load",
+          "result": {
+            "status": "error",
+            "error": "'coroutine' object has no attribute 'get'",
+            "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\test_error_handling.py\", line 244, in test_resource_limits\n    if result.get(\"status\") == \"passed\":\n       ^^^^^^^^^^\nAttributeError: 'coroutine' object has no attribute 'get'\n"
+          },
+          "timestamp": "2025-08-15T17:47:32.353130"
+        },
+        "timeout_scenarios": {
+          "description": "Operation timeout handling",
+          "result": {
+            "status": "passed",
+            "test_results": {
+              "timeout_tests": [
+                {
+                  "name": "quick_timeout",
+                  "status": "timeout",
+                  "execution_time": 0.007427692413330078,
+                  "timeout_limit": 0.001,
+                  "expected": "timeout",
+                  "handled_correctly": true
+                },
+                {
+                  "name": "normal_timeout",
+                  "status": "completed",
+                  "execution_time": 0.10031604766845703,
+                  "timeout_limit": 1.0,
+                  "expected": "success",
+                  "handled_correctly": true
+                },
+                {
+                  "name": "long_timeout",
+                  "status": "completed",
+                  "execution_time": 0.10022592544555664,
+                  "timeout_limit": 5.0,
+                  "expected": "success",
+                  "handled_correctly": true
+                }
+              ],
+              "timeouts_handled": 1,
+              "unexpected_failures": 0
+            },
+            "overall_timeout_handling": false
+          },
+          "timestamp": "2025-08-15T17:47:32.623088"
+        }
+      },
+      "success_rate": 80.0
+    },
+    "network_failures": {
+      "total_scenarios": 4,
+      "handled_gracefully": 4,
+      "scenario_results": {
+        "connection_timeout": {
+          "description": "Network connection timeout",
+          "failure_type": "timeout",
+          "response": {
+            "status": "timeout",
+            "action": "retry_with_backoff",
+            "fallback": "cached_response"
+          },
+          "handled": true
+        },
+        "connection_refused": {
+          "description": "Connection refused error",
+          "failure_type": "refused",
+          "response": {
+            "status": "connection_refused",
+            "action": "try_alternative_endpoint",
+            "fallback": "offline_mode"
+          },
+          "handled": true
+        },
+        "dns_failure": {
+          "description": "DNS resolution failure",
+          "failure_type": "dns",
+          "response": {
+            "status": "dns_failure",
+            "action": "use_ip_address",
+            "fallback": "local_cache"
+          },
+          "handled": true
+        },
+        "partial_response": {
+          "description": "Incomplete response data",
+          "failure_type": "partial",
+          "response": {
+            "status": "partial_response",
+            "action": "request_retransmission",
+            "fallback": "use_partial_data"
+          },
+          "handled": true
+        }
+      },
+      "success_rate": 100.0
+    },
+    "high_concurrency": {
+      "status": "passed",
+      "total_tasks": 50,
+      "successful_tasks": 50,
+      "failed_tasks": 0,
+      "execution_time": 0.012530088424682617,
+      "throughput": 3990.3948244696035
+    }
+  },
+  "summary": {
+    "total_error_scenarios": 31,
+    "scenarios_handled": 30,
+    "security_issues_detected": 4,
+    "crashes_prevented": 13
+  },
+  "recommendations": [
+    "Implement additional security checks for malicious input",
+    "Improve resource management and graceful degradation"
+  ]
+}

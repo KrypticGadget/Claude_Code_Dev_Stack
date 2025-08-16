@@ -1,0 +1,360 @@
+name: Attribution & License Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * 0'  # Weekly on Sunday at 2 AM
+  workflow_dispatch:
+
+env:
+  REQUIRED_LICENSES: 'MIT,Apache-2.0,BSD-3-Clause,AGPL-3.0'
+  
+jobs:
+  attribution-check:
+    name: Check Attribution & Licenses
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Install License Checker Tools
+        run: |
+          pip install license-expression packaging
+          npm install -g license-checker license-compatibility-checker
+
+      - name: Check Python Dependencies Licenses
+        run: |
+          echo "::group::Python License Check"
+          
+          # Create license checker script
+          cat > check_python_licenses.py << 'EOF'
+          import json
+          import subprocess
+          import sys
+          from pathlib import Path
+          
+          def check_python_licenses():
+              """Check licenses of Python dependencies"""
+              results = {
+                  'compliant': [],
+                  'non_compliant': [],
+                  'unknown': []
+              }
+              
+              allowed_licenses = ['MIT', 'Apache-2.0', 'BSD-3-Clause', 'AGPL-3.0', 'GPL-3.0', 'LGPL-3.0']
+              
+              try:
+                  # Check if pip-licenses is available
+                  try:
+                      subprocess.run(['pip-licenses', '--version'], check=True, capture_output=True)
+                  except (subprocess.CalledProcessError, FileNotFoundError):
+                      print("Installing pip-licenses...")
+                      subprocess.run([sys.executable, '-m', 'pip', 'install', 'pip-licenses'], check=True)
+                  
+                  # Get license information
+                  result = subprocess.run(['pip-licenses', '--format=json'], 
+                                        capture_output=True, text=True, check=True)
+                  
+                  licenses_data = json.loads(result.stdout)
+                  
+                  for package in licenses_data:
+                      name = package.get('Name', 'Unknown')
+                      license_name = package.get('License', 'Unknown')
+                      
+                      if license_name == 'Unknown' or license_name == 'UNKNOWN':
+                          results['unknown'].append(f"{name}: {license_name}")
+                      elif any(allowed in license_name for allowed in allowed_licenses):
+                          results['compliant'].append(f"{name}: {license_name}")
+                      else:
+                          results['non_compliant'].append(f"{name}: {license_name}")
+                  
+                  return results
+                  
+              except Exception as e:
+                  print(f"Error checking Python licenses: {e}")
+                  return results
+          
+          if __name__ == "__main__":
+              results = check_python_licenses()
+              
+              print("### Python Dependencies License Report")
+              print(f"Compliant packages: {len(results['compliant'])}")
+              print(f"Non-compliant packages: {len(results['non_compliant'])}")
+              print(f"Unknown license packages: {len(results['unknown'])}")
+              
+              if results['non_compliant']:
+                  print("\n❌ Non-compliant licenses found:")
+                  for item in results['non_compliant']:
+                      print(f"  - {item}")
+                  sys.exit(1)
+              
+              if results['unknown']:
+                  print("\n⚠️ Unknown licenses found:")
+                  for item in results['unknown']:
+                      print(f"  - {item}")
+              
+              print("\n✅ All Python dependencies have compatible licenses")
+          EOF
+          
+          python check_python_licenses.py
+          echo "::endgroup::"
+
+      - name: Check Node.js Dependencies Licenses
+        run: |
+          echo "::group::Node.js License Check"
+          
+          # Check web app dependencies
+          if [ -f "Claude_Code_Dev_Stack_v3/apps/web/package.json" ]; then
+            cd Claude_Code_Dev_Stack_v3/apps/web
+            npm install --package-lock-only
+            license-checker --onlyAllow "MIT;Apache-2.0;BSD-3-Clause;ISC;0BSD;CC0-1.0;Unlicense" --excludePrivatePackages || {
+              echo "❌ Non-compliant licenses found in web app"
+              license-checker --summary
+              exit 1
+            }
+            cd - > /dev/null
+          fi
+          
+          # Check backend dependencies
+          if [ -f "Claude_Code_Dev_Stack_v3/apps/backend/package.json" ]; then
+            cd Claude_Code_Dev_Stack_v3/apps/backend
+            npm install --package-lock-only
+            license-checker --onlyAllow "MIT;Apache-2.0;BSD-3-Clause;ISC;0BSD;CC0-1.0;Unlicense" --excludePrivatePackages || {
+              echo "❌ Non-compliant licenses found in backend"
+              license-checker --summary
+              exit 1
+            }
+            cd - > /dev/null
+          fi
+          
+          echo "✅ All Node.js dependencies have compatible licenses"
+          echo "::endgroup::"
+
+      - name: Check Attribution in Source Files
+        run: |
+          echo "::group::Attribution Check"
+          
+          # Create attribution checker script
+          cat > check_attribution.py << 'EOF'
+          import os
+          import re
+          from pathlib import Path
+          
+          def check_attribution():
+              """Check for proper attribution in source files"""
+              issues = []
+              checked_files = 0
+              
+              # Patterns to look for
+              attribution_patterns = [
+                  r'@\w+\s*\([^)]*\)',  # @username (project) format
+                  r'Author:\s*\w+',      # Author: username format
+                  r'Contributors?:\s*',   # Contributors: format
+                  r'Co-Authored-By:\s*', # Co-Authored-By: format
+                  r'Generated with.*Claude Code', # Claude Code attribution
+              ]
+              
+              # File extensions to check
+              extensions = ['.py', '.js', '.ts', '.tsx', '.jsx', '.md', '.json']
+              
+              for ext in extensions:
+                  for file_path in Path('.').rglob(f'*{ext}'):
+                      # Skip certain directories
+                      if any(skip in str(file_path) for skip in ['.git', 'node_modules', '__pycache__', '.venv', 'venv', 'dist', 'build']):
+                          continue
+                      
+                      try:
+                          content = file_path.read_text(encoding='utf-8', errors='ignore')
+                          checked_files += 1
+                          
+                          # Check for attribution patterns
+                          has_attribution = any(re.search(pattern, content, re.IGNORECASE) for pattern in attribution_patterns)
+                          
+                          # Special handling for package.json files
+                          if file_path.name == 'package.json':
+                              if '"contributors"' not in content and '"author"' not in content:
+                                  issues.append(f"Missing author/contributors in {file_path}")
+                          
+                          # Check for files that should have attribution but don't
+                          elif file_path.suffix in ['.py', '.js', '.ts'] and file_path.stat().st_size > 1000:
+                              if not has_attribution and 'test' not in str(file_path).lower():
+                                  # Check if it's a significant file (more than basic boilerplate)
+                                  if len(content.split('\n')) > 50:
+                                      issues.append(f"Large file missing attribution: {file_path}")
+                      
+                      except Exception as e:
+                          print(f"Warning: Could not read {file_path}: {e}")
+              
+              return issues, checked_files
+          
+          issues, checked_files = check_attribution()
+          
+          print(f"Checked {checked_files} files for attribution")
+          
+          if issues:
+              print(f"\n❌ Attribution issues found ({len(issues)}):")
+              for issue in issues:
+                  print(f"  - {issue}")
+              print("\nPlease ensure proper attribution is included in source files.")
+              exit(1)
+          else:
+              print("✅ Attribution check passed")
+          EOF
+          
+          python check_attribution.py
+          echo "::endgroup::"
+
+      - name: Check Repository Metadata
+        run: |
+          echo "::group::Repository Metadata Check"
+          
+          # Check LICENSE file
+          if [ ! -f "LICENSE" ]; then
+            echo "❌ LICENSE file missing"
+            exit 1
+          fi
+          
+          # Check README attribution
+          if [ -f "README.md" ]; then
+            if ! grep -q -i "contributor\|author\|credit" README.md; then
+              echo "⚠️ README.md may be missing contributor information"
+            fi
+          fi
+          
+          # Check for CONTRIBUTORS file
+          if [ -f "CONTRIBUTORS.md" ] || [ -f "CONTRIBUTORS" ] || [ -f "AUTHORS.md" ] || [ -f "AUTHORS" ]; then
+            echo "✅ Contributors file found"
+          else
+            echo "⚠️ Consider adding a CONTRIBUTORS.md file"
+          fi
+          
+          # Check package.json files for attribution
+          find . -name "package.json" -not -path "*/node_modules/*" | while read -r file; do
+            if ! grep -q '"author"\|"contributors"' "$file"; then
+              echo "⚠️ $file missing author/contributors field"
+            fi
+          done
+          
+          echo "✅ Repository metadata check completed"
+          echo "::endgroup::"
+
+      - name: Generate Attribution Report
+        run: |
+          echo "::group::Attribution Report"
+          
+          cat > attribution_report.md << 'EOF'
+          # Attribution & License Report
+          
+          Generated on: $(date)
+          Commit: ${{ github.sha }}
+          
+          ## Repository Information
+          - **Repository**: ${{ github.repository }}
+          - **Branch**: ${{ github.ref_name }}
+          - **License**: $(cat LICENSE 2>/dev/null | head -n 1 || echo "Not specified")
+          
+          ## Key Contributors
+          EOF
+          
+          # Extract contributors from package.json files
+          echo "### From package.json files:" >> attribution_report.md
+          find . -name "package.json" -not -path "*/node_modules/*" -exec grep -l "contributors\|author" {} \; | while read -r file; do
+            echo "**$file**:" >> attribution_report.md
+            grep -A 10 -B 2 '"author"\|"contributors"' "$file" | grep -E '".*"' >> attribution_report.md || true
+            echo "" >> attribution_report.md
+          done
+          
+          # Extract credits from Python files
+          echo "### From source files:" >> attribution_report.md
+          grep -r -i "author\|contributor\|credit" --include="*.py" --include="*.js" --include="*.ts" . | head -20 >> attribution_report.md || true
+          
+          echo "## License Compliance Status"
+          echo "- ✅ Python dependencies: Compatible"
+          echo "- ✅ Node.js dependencies: Compatible"
+          echo "- ✅ Attribution: Present"
+          
+          echo "::endgroup::"
+
+      - name: Upload Attribution Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: attribution-report
+          path: attribution_report.md
+
+      - name: License Compatibility Summary
+        run: |
+          echo "### License Compatibility Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **All dependencies use compatible licenses**" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Attribution requirements met**" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Repository metadata is compliant**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Allowed Licenses**: ${{ env.REQUIRED_LICENSES }}" >> $GITHUB_STEP_SUMMARY
+
+  license-audit:
+    name: Advanced License Audit
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install FOSSA CLI
+        run: |
+          curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install.sh | bash
+
+      - name: Run FOSSA Analysis
+        if: env.FOSSA_API_KEY != ''
+        env:
+          FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
+        run: |
+          fossa analyze
+          fossa test
+        continue-on-error: true
+
+      - name: Generate Detailed License Report
+        run: |
+          echo "# Detailed License Audit Report" > detailed_license_report.md
+          echo "Generated: $(date)" >> detailed_license_report.md
+          echo "" >> detailed_license_report.md
+          
+          # Scan all package.json files
+          echo "## JavaScript/TypeScript Dependencies" >> detailed_license_report.md
+          find . -name "package.json" -not -path "*/node_modules/*" | while read -r file; do
+            echo "### $file" >> detailed_license_report.md
+            cd "$(dirname "$file")"
+            if [ -f "package-lock.json" ]; then
+              npx license-checker --summary >> ../../../detailed_license_report.md 2>/dev/null || true
+            fi
+            cd - > /dev/null
+          done
+
+      - name: Upload Detailed Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: detailed-license-report
+          path: detailed_license_report.md

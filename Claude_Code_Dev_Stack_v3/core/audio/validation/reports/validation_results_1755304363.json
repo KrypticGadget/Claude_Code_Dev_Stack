@@ -1,0 +1,1473 @@
+{
+  "timestamp": 1755304353.7183273,
+  "validation_level": "full",
+  "environment": {
+    "platform": "Windows",
+    "audio_system_available": true,
+    "supported_formats": [
+      ".wav",
+      ".mp3"
+    ],
+    "available_players": [
+      "winsound"
+    ],
+    "volume_control": true,
+    "errors": []
+  },
+  "files": {
+    "scanned": 95,
+    "valid": 95,
+    "invalid": 0,
+    "missing": 6,
+    "details": [
+      {
+        "name": "agent_activated.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 393440
+      },
+      {
+        "name": "agent_delegating.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 520340
+      },
+      {
+        "name": "analyzing.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 334684
+      },
+      {
+        "name": "analyzing_code.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 414588
+      },
+      {
+        "name": "auto_accepting.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 486500
+      },
+      {
+        "name": "auto_mode_active.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 448428
+      },
+      {
+        "name": "awaiting_confirmation.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 436204
+      },
+      {
+        "name": "awaiting_input.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 389212
+      },
+      {
+        "name": "backend_agent.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 469580
+      },
+      {
+        "name": "build_successful.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 380748
+      },
+      {
+        "name": "cargo_build.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 435740
+      },
+      {
+        "name": "changing_directory.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 470044
+      },
+      {
+        "name": "checking_files.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 511880
+      },
+      {
+        "name": "command_execution_pending.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 494960
+      },
+      {
+        "name": "command_failed.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 482268
+      },
+      {
+        "name": "command_successful.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 402364
+      },
+      {
+        "name": "confirm_required.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 448428
+      },
+      {
+        "name": "connection_error.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 368524
+      },
+      {
+        "name": "context_loaded.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 516108
+      },
+      {
+        "name": "context_saved.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 528800
+      },
+      {
+        "name": "copy_operation.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 402364
+      },
+      {
+        "name": "dashboard_started.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 516108
+      },
+      {
+        "name": "database_agent.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 486500
+      },
+      {
+        "name": "decision_required.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 402364
+      },
+      {
+        "name": "delete_operation.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 401900
+      },
+      {
+        "name": "dependency_installing.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 478040
+      },
+      {
+        "name": "dependency_missing.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 511880
+      },
+      {
+        "name": "docker_building.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 431512
+      },
+      {
+        "name": "docker_running.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 456892
+      },
+      {
+        "name": "documentation_generating.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 482268
+      },
+      {
+        "name": "downloading_file.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 397672
+      },
+      {
+        "name": "file_exists.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 465352
+      },
+      {
+        "name": "file_operation_complete.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 470044
+      },
+      {
+        "name": "file_operation_pending.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 461120
+      },
+      {
+        "name": "formatting_code.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 431512
+      },
+      {
+        "name": "frontend_agent.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 436204
+      },
+      {
+        "name": "generating_code.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 380748
+      },
+      {
+        "name": "git_commit.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 414588
+      },
+      {
+        "name": "git_pull.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 456892
+      },
+      {
+        "name": "git_push.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 503884
+      },
+      {
+        "name": "git_status.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 418820
+      },
+      {
+        "name": "handoff_generated.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 566872
+      },
+      {
+        "name": "http_request.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 554180
+      },
+      {
+        "name": "installing_packages.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 448428
+      },
+      {
+        "name": "linting_complete.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 482268
+      },
+      {
+        "name": "linting_issues.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 461120
+      },
+      {
+        "name": "linting_started.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 499192
+      },
+      {
+        "name": "make_build.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 368524
+      },
+      {
+        "name": "master_orchestrator.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 486500
+      },
+      {
+        "name": "mkdir_operation.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 402364
+      },
+      {
+        "name": "move_operation.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 389212
+      },
+      {
+        "name": "notification_sent.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 490732
+      },
+      {
+        "name": "no_venv_warning.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 533032
+      },
+      {
+        "name": "npm_build.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 456892
+      },
+      {
+        "name": "npm_install.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 478040
+      },
+      {
+        "name": "obsidian_notes.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 478040
+      },
+      {
+        "name": "operation_complete.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 418820
+      },
+      {
+        "name": "optimizing_performance.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 465352
+      },
+      {
+        "name": "orchestration_complete.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 444200
+      },
+      {
+        "name": "orchestration_started.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 461120
+      },
+      {
+        "name": "parallel_execution.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 511880
+      },
+      {
+        "name": "performance_warning.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 511880
+      },
+      {
+        "name": "permission_required.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 402364
+      },
+      {
+        "name": "phase_complete.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 511880
+      },
+      {
+        "name": "phase_deployment.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 427280
+      },
+      {
+        "name": "phase_implementation.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 452660
+      },
+      {
+        "name": "phase_planning.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 448428
+      },
+      {
+        "name": "pipeline_complete.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 402364
+      },
+      {
+        "name": "pipeline_initiated.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 418820
+      },
+      {
+        "name": "pip_install.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 524572
+      },
+      {
+        "name": "planning_complete.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 368524
+      },
+      {
+        "name": "playwright_automation.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 503420
+      },
+      {
+        "name": "processing.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 329992
+      },
+      {
+        "name": "project_created.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 558412
+      },
+      {
+        "name": "ready_for_input.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 418820
+      },
+      {
+        "name": "resource_warning.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 503884
+      },
+      {
+        "name": "reviewing_changes.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 418820
+      },
+      {
+        "name": "risky_command.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 520340
+      },
+      {
+        "name": "running_tests.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 402364
+      },
+      {
+        "name": "searching_files.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 431512
+      },
+      {
+        "name": "security_scanning.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 503884
+      },
+      {
+        "name": "smart_routing.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 470044
+      },
+      {
+        "name": "ssh_connection.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 558412
+      },
+      {
+        "name": "startup.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 554180
+      },
+      {
+        "name": "status_update.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 456892
+      },
+      {
+        "name": "tests_failed.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 363832
+      },
+      {
+        "name": "tests_passed.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 423052
+      },
+      {
+        "name": "token_critical.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 668392
+      },
+      {
+        "name": "token_warning.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 503884
+      },
+      {
+        "name": "tunnel_connected.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 465352
+      },
+      {
+        "name": "tunnel_disconnected.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 469580
+      },
+      {
+        "name": "venv_activated.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 528800
+      },
+      {
+        "name": "venv_required.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 516108
+      },
+      {
+        "name": "web_search.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 376520
+      },
+      {
+        "name": "working.wav",
+        "valid": true,
+        "errors": [],
+        "size_bytes": 300844
+      }
+    ]
+  },
+  "playback_tests": {
+    "attempted": 95,
+    "successful": 95,
+    "failed": 0,
+    "details": [
+      {
+        "file": "agent_activated.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 104,
+          "error": null
+        }
+      },
+      {
+        "file": "agent_delegating.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "analyzing.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 101,
+          "error": null
+        }
+      },
+      {
+        "file": "analyzing_code.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "auto_accepting.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "auto_mode_active.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "awaiting_confirmation.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "awaiting_input.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "backend_agent.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "build_successful.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "cargo_build.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "changing_directory.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "checking_files.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 101,
+          "error": null
+        }
+      },
+      {
+        "file": "command_execution_pending.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "command_failed.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "command_successful.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "confirm_required.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "connection_error.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "context_loaded.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "context_saved.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "copy_operation.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "dashboard_started.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "database_agent.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "decision_required.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "delete_operation.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "dependency_installing.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "dependency_missing.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "docker_building.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "docker_running.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "documentation_generating.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "downloading_file.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 101,
+          "error": null
+        }
+      },
+      {
+        "file": "file_exists.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 101,
+          "error": null
+        }
+      },
+      {
+        "file": "file_operation_complete.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "file_operation_pending.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "formatting_code.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "frontend_agent.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "generating_code.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "git_commit.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "git_pull.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "git_push.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 101,
+          "error": null
+        }
+      },
+      {
+        "file": "git_status.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "handoff_generated.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "http_request.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "installing_packages.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "linting_complete.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "linting_issues.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "linting_started.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "make_build.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 101,
+          "error": null
+        }
+      },
+      {
+        "file": "master_orchestrator.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 101,
+          "error": null
+        }
+      },
+      {
+        "file": "mkdir_operation.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 101,
+          "error": null
+        }
+      },
+      {
+        "file": "move_operation.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "notification_sent.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 101,
+          "error": null
+        }
+      },
+      {
+        "file": "no_venv_warning.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "npm_build.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "npm_install.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "obsidian_notes.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "operation_complete.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "optimizing_performance.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "orchestration_complete.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 101,
+          "error": null
+        }
+      },
+      {
+        "file": "orchestration_started.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "parallel_execution.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "performance_warning.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "permission_required.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "phase_complete.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 101,
+          "error": null
+        }
+      },
+      {
+        "file": "phase_deployment.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "phase_implementation.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 101,
+          "error": null
+        }
+      },
+      {
+        "file": "phase_planning.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 101,
+          "error": null
+        }
+      },
+      {
+        "file": "pipeline_complete.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "pipeline_initiated.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 102,
+          "error": null
+        }
+      },
+      {
+        "file": "pip_install.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "planning_complete.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "playwright_automation.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "processing.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "project_created.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "ready_for_input.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "resource_warning.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "reviewing_changes.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 101,
+          "error": null
+        }
+      },
+      {
+        "file": "risky_command.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "running_tests.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "searching_files.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "security_scanning.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "smart_routing.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "ssh_connection.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 101,
+          "error": null
+        }
+      },
+      {
+        "file": "startup.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 101,
+          "error": null
+        }
+      },
+      {
+        "file": "status_update.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "tests_failed.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "tests_passed.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "token_critical.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "token_warning.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "tunnel_connected.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "tunnel_disconnected.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "venv_activated.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 101,
+          "error": null
+        }
+      },
+      {
+        "file": "venv_required.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "web_search.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 100,
+          "error": null
+        }
+      },
+      {
+        "file": "working.wav",
+        "result": {
+          "success": true,
+          "player_used": "winsound",
+          "duration_ms": 101,
+          "error": null
+        }
+      }
+    ]
+  },
+  "coverage": {
+    "expected_files": 7,
+    "found_files": 95,
+    "missing_files": [
+      "quality_gate_passed.wav",
+      "file_not_found.wav",
+      "permission_denied.wav",
+      "phase_testing.wav",
+      "milestone_complete.wav",
+      "v3_feature_activated.wav"
+    ]
+  },
+  "performance": {
+    "total_duration_seconds": 9.698966979980469,
+    "average_file_validation_ms": 102.0943892629523
+  }
+}

@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code Dev Stack v3.0 - Browser Compatibility Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .test-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .test-result {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        .pass {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .fail {
+            background: #f44336;
+            color: white;
+        }
+        
+        .warn {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .info {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .service-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .service-link {
+            display: block;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            text-decoration: none;
+            color: white;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .service-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .mobile-qr {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+        }
+        
+        .score-display {
+            font-size: 2em;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Claude Code Dev Stack v3.0</h1>
+        <h2 style="text-align: center; margin-bottom: 30px;">Cross-Platform Compatibility Test</h2>
+        
+        <div id="browser-info" class="test-card">
+            <h3>🌐 Browser Information</h3>
+            <div id="browser-details"></div>
+        </div>
+        
+        <div class="test-grid">
+            <div class="test-card">
+                <h3>📱 Mobile Compatibility</h3>
+                <div id="mobile-tests"></div>
+            </div>
+            
+            <div class="test-card">
+                <h3>🔧 Web Features</h3>
+                <div id="web-feature-tests"></div>
+            </div>
+            
+            <div class="test-card">
+                <h3>🔒 Security Features</h3>
+                <div id="security-tests"></div>
+            </div>
+            
+            <div class="test-card">
+                <h3>⚡ Performance</h3>
+                <div id="performance-tests"></div>
+            </div>
+        </div>
+        
+        <div class="service-links">
+            <a href="http://localhost:8080" class="service-link" target="_blank">
+                📱 Mobile Dashboard<br>
+                <small>Port 8080</small>
+            </a>
+            <a href="http://localhost:5173" class="service-link" target="_blank">
+                🌐 Web App (Dev)<br>
+                <small>Port 5173</small>
+            </a>
+            <a href="http://localhost:3000" class="service-link" target="_blank">
+                🤖 Open WebUI<br>
+                <small>Port 3000</small>
+            </a>
+            <a href="http://localhost:7681" class="service-link" target="_blank">
+                💻 Terminal Access<br>
+                <small>Port 7681</small>
+            </a>
+        </div>
+        
+        <div class="mobile-qr">
+            <h3>📱 Mobile Access Instructions</h3>
+            <p>To access from mobile devices:</p>
+            <ol style="text-align: left; max-width: 600px; margin: 0 auto;">
+                <li>Ensure your mobile device is on the same network</li>
+                <li>Find your computer's IP address</li>
+                <li>Replace 'localhost' with your IP address in the links above</li>
+                <li>For external access, use the ngrok tunnel if configured</li>
+            </ol>
+        </div>
+        
+        <div class="score-display">
+            Compatibility Score: <span id="total-score">0</span>/100
+        </div>
+        
+        <div id="recommendations" class="test-card">
+            <h3>💡 Recommendations</h3>
+            <div id="recommendation-list"></div>
+        </div>
+    </div>
+
+    <script>
+        class BrowserCompatibilityTester {
+            constructor() {
+                this.tests = [];
+                this.totalScore = 0;
+                this.maxScore = 0;
+                this.recommendations = [];
+            }
+            
+            addTest(name, testFunction, weight = 1) {
+                this.tests.push({ name, testFunction, weight });
+                this.maxScore += weight;
+            }
+            
+            addRecommendation(text) {
+                this.recommendations.push(text);
+            }
+            
+            createTestResult(name, status, details = '') {
+                return `
+                    <div class="test-result">
+                        <span>${name}</span>
+                        <span class="status ${status.toLowerCase()}">${status}</span>
+                    </div>
+                    ${details ? `<div style="margin-left: 20px; font-size: 0.9em; opacity: 0.8;">${details}</div>` : ''}
+                `;
+            }
+            
+            testLocalStorage() {
+                try {
+                    const test = 'test';
+                    localStorage.setItem(test, test);
+                    localStorage.removeItem(test);
+                    return { status: 'PASS', score: 1 };
+                } catch (e) {
+                    this.addRecommendation('Enable localStorage for full functionality');
+                    return { status: 'FAIL', score: 0 };
+                }
+            }
+            
+            testWebSocket() {
+                try {
+                    const ws = new WebSocket('ws://localhost:8080');
+                    ws.close();
+                    return { status: 'PASS', score: 1 };
+                } catch (e) {
+                    return { status: 'WARN', score: 0.5, details: 'WebSocket may not be available' };
+                }
+            }
+            
+            testServiceWorker() {
+                if ('serviceWorker' in navigator) {
+                    return { status: 'PASS', score: 1 };
+                } else {
+                    this.addRecommendation('Use a modern browser that supports Service Workers');
+                    return { status: 'FAIL', score: 0 };
+                }
+            }
+            
+            testNotifications() {
+                if ('Notification' in window) {
+                    return { status: 'PASS', score: 1 };
+                } else {
+                    return { status: 'FAIL', score: 0, details: 'Notifications not supported' };
+                }
+            }
+            
+            testWebRTC() {
+                if (window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection) {
+                    return { status: 'PASS', score: 1 };
+                } else {
+                    return { status: 'FAIL', score: 0, details: 'WebRTC not supported' };
+                }
+            }
+            
+            testGeolocation() {
+                if ('geolocation' in navigator) {
+                    return { status: 'PASS', score: 1 };
+                } else {
+                    return { status: 'FAIL', score: 0, details: 'Geolocation not supported' };
+                }
+            }
+            
+            testCamera() {
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    return { status: 'PASS', score: 1 };
+                } else {
+                    return { status: 'FAIL', score: 0, details: 'Camera access not supported' };
+                }
+            }
+            
+            testTouch() {
+                if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                    return { status: 'PASS', score: 1, details: 'Touch interface detected' };
+                } else {
+                    return { status: 'INFO', score: 0.5, details: 'Desktop interface' };
+                }
+            }
+            
+            testResponsiveDesign() {
+                const width = window.innerWidth;
+                if (width >= 1200) {
+                    return { status: 'PASS', score: 1, details: 'Desktop layout' };
+                } else if (width >= 768) {
+                    return { status: 'PASS', score: 1, details: 'Tablet layout' };
+                } else {
+                    return { status: 'PASS', score: 1, details: 'Mobile layout' };
+                }
+            }
+            
+            testWebGL() {
+                try {
+                    const canvas = document.createElement('canvas');
+                    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                    if (gl) {
+                        return { status: 'PASS', score: 1 };
+                    } else {
+                        return { status: 'FAIL', score: 0, details: 'WebGL not supported' };
+                    }
+                } catch (e) {
+                    return { status: 'FAIL', score: 0, details: 'WebGL error' };
+                }
+            }
+            
+            testSecureContext() {
+                if (window.isSecureContext) {
+                    return { status: 'PASS', score: 1, details: 'HTTPS or localhost' };
+                } else {
+                    this.addRecommendation('Use HTTPS for full security features');
+                    return { status: 'WARN', score: 0.5, details: 'Not a secure context' };
+                }
+            }
+            
+            testCrypto() {
+                if (window.crypto && window.crypto.subtle) {
+                    return { status: 'PASS', score: 1 };
+                } else {
+                    this.addRecommendation('Update to a browser with Web Crypto API support');
+                    return { status: 'FAIL', score: 0, details: 'Web Crypto API not available' };
+                }
+            }
+            
+            getBrowserInfo() {
+                const ua = navigator.userAgent;
+                let browser = 'Unknown';
+                let version = 'Unknown';
+                
+                if (ua.includes('Chrome')) {
+                    browser = 'Chrome';
+                    version = ua.match(/Chrome\/([0-9.]+)/)?.[1] || 'Unknown';
+                } else if (ua.includes('Firefox')) {
+                    browser = 'Firefox';
+                    version = ua.match(/Firefox\/([0-9.]+)/)?.[1] || 'Unknown';
+                } else if (ua.includes('Safari') && !ua.includes('Chrome')) {
+                    browser = 'Safari';
+                    version = ua.match(/Safari\/([0-9.]+)/)?.[1] || 'Unknown';
+                } else if (ua.includes('Edge')) {
+                    browser = 'Edge';
+                    version = ua.match(/Edge\/([0-9.]+)/)?.[1] || 'Unknown';
+                }
+                
+                return {
+                    browser,
+                    version,
+                    platform: navigator.platform,
+                    userAgent: ua,
+                    language: navigator.language,
+                    cookieEnabled: navigator.cookieEnabled,
+                    onLine: navigator.onLine
+                };
+            }
+            
+            async testServices() {
+                const services = [
+                    { name: 'Mobile Dashboard', port: 8080 },
+                    { name: 'Web App', port: 5173 },
+                    { name: 'Open WebUI', port: 3000 },
+                    { name: 'Terminal', port: 7681 }
+                ];
+                
+                const results = [];
+                
+                for (const service of services) {
+                    try {
+                        const response = await fetch(`http://localhost:${service.port}`, {
+                            method: 'HEAD',
+                            mode: 'no-cors'
+                        });
+                        results.push({ name: service.name, status: 'AVAILABLE', score: 1 });
+                    } catch (error) {
+                        results.push({ name: service.name, status: 'UNAVAILABLE', score: 0 });
+                    }
+                }
+                
+                return results;
+            }
+            
+            async runAllTests() {
+                // Setup tests
+                this.addTest('LocalStorage', () => this.testLocalStorage(), 2);
+                this.addTest('Service Worker', () => this.testServiceWorker(), 2);
+                this.addTest('WebSocket', () => this.testWebSocket(), 1);
+                this.addTest('Notifications', () => this.testNotifications(), 1);
+                this.addTest('Touch Support', () => this.testTouch(), 1);
+                this.addTest('Responsive Design', () => this.testResponsiveDesign(), 2);
+                this.addTest('WebGL', () => this.testWebGL(), 1);
+                this.addTest('Secure Context', () => this.testSecureContext(), 2);
+                this.addTest('Web Crypto', () => this.testCrypto(), 2);
+                this.addTest('WebRTC', () => this.testWebRTC(), 1);
+                this.addTest('Geolocation', () => this.testGeolocation(), 1);
+                this.addTest('Camera Access', () => this.testCamera(), 1);
+                
+                // Display browser info
+                const browserInfo = this.getBrowserInfo();
+                document.getElementById('browser-details').innerHTML = `
+                    <div class="test-result">
+                        <span>Browser</span>
+                        <span class="status info">${browserInfo.browser} ${browserInfo.version}</span>
+                    </div>
+                    <div class="test-result">
+                        <span>Platform</span>
+                        <span class="status info">${browserInfo.platform}</span>
+                    </div>
+                    <div class="test-result">
+                        <span>Language</span>
+                        <span class="status info">${browserInfo.language}</span>
+                    </div>
+                    <div class="test-result">
+                        <span>Online</span>
+                        <span class="status ${browserInfo.onLine ? 'pass' : 'fail'}">${browserInfo.onLine ? 'YES' : 'NO'}</span>
+                    </div>
+                `;
+                
+                // Run mobile tests
+                let mobileHtml = '';
+                const mobileTests = this.tests.filter(t => ['Touch Support', 'Responsive Design', 'Notifications', 'Geolocation', 'Camera Access'].includes(t.name));
+                for (const test of mobileTests) {
+                    const result = test.testFunction();
+                    this.totalScore += result.score * test.weight;
+                    mobileHtml += this.createTestResult(test.name, result.status, result.details);
+                }
+                document.getElementById('mobile-tests').innerHTML = mobileHtml;
+                
+                // Run web feature tests
+                let webHtml = '';
+                const webTests = this.tests.filter(t => ['LocalStorage', 'Service Worker', 'WebSocket', 'WebGL', 'WebRTC'].includes(t.name));
+                for (const test of webTests) {
+                    const result = test.testFunction();
+                    this.totalScore += result.score * test.weight;
+                    webHtml += this.createTestResult(test.name, result.status, result.details);
+                }
+                document.getElementById('web-feature-tests').innerHTML = webHtml;
+                
+                // Run security tests
+                let securityHtml = '';
+                const securityTests = this.tests.filter(t => ['Secure Context', 'Web Crypto'].includes(t.name));
+                for (const test of securityTests) {
+                    const result = test.testFunction();
+                    this.totalScore += result.score * test.weight;
+                    securityHtml += this.createTestResult(test.name, result.status, result.details);
+                }
+                document.getElementById('security-tests').innerHTML = securityHtml;
+                
+                // Test services
+                const serviceResults = await this.testServices();
+                let performanceHtml = '';
+                for (const result of serviceResults) {
+                    this.totalScore += result.score;
+                    this.maxScore += 1;
+                    performanceHtml += this.createTestResult(result.name, result.status);
+                }
+                document.getElementById('performance-tests').innerHTML = performanceHtml;
+                
+                // Calculate and display final score
+                const finalScore = Math.round((this.totalScore / this.maxScore) * 100);
+                document.getElementById('total-score').textContent = finalScore;
+                
+                // Display recommendations
+                let recommendationHtml = '';
+                if (this.recommendations.length > 0) {
+                    for (const rec of this.recommendations) {
+                        recommendationHtml += `<div style="margin: 10px 0; padding: 10px; background: rgba(255,193,7,0.2); border-radius: 5px;">💡 ${rec}</div>`;
+                    }
+                } else {
+                    recommendationHtml = '<div style="color: #4CAF50; text-align: center; padding: 20px;">✅ All features working optimally!</div>';
+                }
+                document.getElementById('recommendation-list').innerHTML = recommendationHtml;
+            }
+        }
+        
+        // Run tests when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            const tester = new BrowserCompatibilityTester();
+            tester.runAllTests();
+        });
+    </script>
+</body>
+</html>

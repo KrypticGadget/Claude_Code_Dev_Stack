@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Statusline } from './components/Statusline'
+import { Navigation } from './components/Navigation'
 import { AgentDashboard } from './components/AgentDashboard'
 import { TaskMonitor } from './components/TaskMonitor'
 import { AudioController } from './components/AudioController'
 import { MCPManager } from './components/MCPManager'
 import { BrowserMonitor } from './components/BrowserMonitor'
+import { APIGenerator } from './components/APIGenerator'
 import { useWebSocket } from './hooks/useWebSocket'
 import './App.css'
 
@@ -61,6 +63,8 @@ function App() {
             isConnected={isConnected}
           />
           
+          <Navigation />
+          
           <main className="main-content">
             <Routes>
               <Route path="/" element={<AgentDashboard agents={agents} />} />
@@ -68,6 +72,7 @@ function App() {
               <Route path="/audio" element={<AudioController lastAudio={lastAudio} />} />
               <Route path="/mcp" element={<MCPManager />} />
               <Route path="/browser" element={<BrowserMonitor />} />
+              <Route path="/api-generator" element={<APIGenerator />} />
             </Routes>
           </main>
         </div>

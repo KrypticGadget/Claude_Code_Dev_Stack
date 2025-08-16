@@ -1,0 +1,382 @@
+name: Main CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip testing phase'
+        required: false
+        default: false
+        type: boolean
+      skip_security:
+        description: 'Skip security scanning'
+        required: false
+        default: false
+        type: boolean
+      force_deploy:
+        description: 'Force deployment'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  PIPELINE_VERSION: '3.0.0'
+  WORKFLOW_TIMEOUT: 60  # minutes
+
+jobs:
+  pipeline-setup:
+    name: Pipeline Setup & Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run-attribution: ${{ steps.checks.outputs.run-attribution }}
+      run-size-validation: ${{ steps.checks.outputs.run-size-validation }}
+      run-testing: ${{ steps.checks.outputs.run-testing }}
+      run-security: ${{ steps.checks.outputs.run-security }}
+      run-build: ${{ steps.checks.outputs.run-build }}
+      run-deploy: ${{ steps.checks.outputs.run-deploy }}
+      environment: ${{ steps.env.outputs.environment }}
+      
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Pipeline Validation
+        run: |
+          echo "🚀 Starting Claude Code Dev Stack v3.0 CI/CD Pipeline"
+          echo "Pipeline Version: ${{ env.PIPELINE_VERSION }}"
+          echo "Triggered by: ${{ github.event_name }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+
+      - name: Determine Pipeline Stages
+        id: checks
+        run: |
+          # Always run attribution and size validation
+          echo "run-attribution=true" >> $GITHUB_OUTPUT
+          echo "run-size-validation=true" >> $GITHUB_OUTPUT
+          
+          # Skip tests if requested
+          if [ "${{ github.event.inputs.skip_tests }}" = "true" ]; then
+            echo "run-testing=false" >> $GITHUB_OUTPUT
+          else
+            echo "run-testing=true" >> $GITHUB_OUTPUT
+          fi
+          
+          # Skip security if requested
+          if [ "${{ github.event.inputs.skip_security }}" = "true" ]; then
+            echo "run-security=false" >> $GITHUB_OUTPUT
+          else
+            echo "run-security=true" >> $GITHUB_OUTPUT
+          fi
+          
+          # Always run build for main branches
+          if [ "${{ github.ref }}" = "refs/heads/main" ] || [ "${{ github.ref }}" = "refs/heads/develop" ]; then
+            echo "run-build=true" >> $GITHUB_OUTPUT
+          else
+            echo "run-build=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Deploy only on main or if forced
+          if [ "${{ github.ref }}" = "refs/heads/main" ] || [ "${{ github.event.inputs.force_deploy }}" = "true" ]; then
+            echo "run-deploy=true" >> $GITHUB_OUTPUT
+          else
+            echo "run-deploy=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Determine Environment
+        id: env
+        run: |
+          if [ "${{ startsWith(github.ref, 'refs/tags/v') }}" = "true" ]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "environment=staging" >> $GITHUB_OUTPUT
+          else
+            echo "environment=development" >> $GITHUB_OUTPUT
+          fi
+
+  # Call individual workflow jobs
+  attribution-check:
+    name: Attribution Check
+    needs: pipeline-setup
+    if: needs.pipeline-setup.outputs.run-attribution == 'true'
+    uses: ./.github/workflows/attribution-check.yml
+    
+  size-validation:
+    name: Size Validation
+    needs: pipeline-setup
+    if: needs.pipeline-setup.outputs.run-size-validation == 'true'
+    uses: ./.github/workflows/size-validation.yml
+
+  testing:
+    name: Comprehensive Testing
+    needs: [pipeline-setup, attribution-check]
+    if: needs.pipeline-setup.outputs.run-testing == 'true' && (needs.attribution-check.result == 'success' || needs.attribution-check.result == 'skipped')
+    uses: ./.github/workflows/testing.yml
+
+  security-scan:
+    name: Security Scanning
+    needs: [pipeline-setup, attribution-check]
+    if: needs.pipeline-setup.outputs.run-security == 'true' && (needs.attribution-check.result == 'success' || needs.attribution-check.result == 'skipped')
+    uses: ./.github/workflows/security-scan.yml
+
+  build-deploy:
+    name: Build & Deploy
+    needs: [pipeline-setup, testing, security-scan, size-validation]
+    if: |
+      always() && 
+      needs.pipeline-setup.outputs.run-build == 'true' && 
+      (needs.testing.result == 'success' || needs.testing.result == 'skipped') &&
+      (needs.security-scan.result == 'success' || needs.security-scan.result == 'skipped') &&
+      (needs.size-validation.result == 'success' || needs.size-validation.result == 'skipped')
+    uses: ./.github/workflows/build-deploy.yml
+
+  release-automation:
+    name: Release Automation
+    needs: [pipeline-setup, build-deploy]
+    if: |
+      always() && 
+      needs.pipeline-setup.outputs.run-deploy == 'true' && 
+      needs.build-deploy.result == 'success' &&
+      (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    uses: ./.github/workflows/release-automation.yml
+
+  # Pipeline summary and notifications
+  pipeline-summary:
+    name: Pipeline Summary
+    runs-on: ubuntu-latest
+    needs: [pipeline-setup, attribution-check, size-validation, testing, security-scan, build-deploy, release-automation]
+    if: always()
+    timeout-minutes: 5
+    
+    steps:
+      - name: Collect Pipeline Results
+        id: results
+        run: |
+          echo "Collecting pipeline results..."
+          
+          # Count successes and failures
+          success_count=0
+          failure_count=0
+          skipped_count=0
+          
+          jobs=("attribution-check" "size-validation" "testing" "security-scan" "build-deploy" "release-automation")
+          results=("${{ needs.attribution-check.result }}" "${{ needs.size-validation.result }}" "${{ needs.testing.result }}" "${{ needs.security-scan.result }}" "${{ needs.build-deploy.result }}" "${{ needs.release-automation.result }}")
+          
+          for i in "${!results[@]}"; do
+            case "${results[i]}" in
+              "success") ((success_count++)) ;;
+              "failure") ((failure_count++)) ;;
+              "skipped") ((skipped_count++)) ;;
+            esac
+          done
+          
+          echo "success_count=$success_count" >> $GITHUB_OUTPUT
+          echo "failure_count=$failure_count" >> $GITHUB_OUTPUT
+          echo "skipped_count=$skipped_count" >> $GITHUB_OUTPUT
+          
+          # Determine overall status
+          if [ "$failure_count" -gt 0 ]; then
+            echo "overall_status=failure" >> $GITHUB_OUTPUT
+          elif [ "$success_count" -gt 0 ]; then
+            echo "overall_status=success" >> $GITHUB_OUTPUT
+          else
+            echo "overall_status=skipped" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Generate Pipeline Report
+        run: |
+          echo "# 🔄 CI/CD Pipeline Summary Report" > pipeline-report.md
+          echo "" >> pipeline-report.md
+          echo "**Pipeline Version**: ${{ env.PIPELINE_VERSION }}" >> pipeline-report.md
+          echo "**Execution Time**: $(date)" >> pipeline-report.md
+          echo "**Trigger**: ${{ github.event_name }}" >> pipeline-report.md
+          echo "**Branch**: ${{ github.ref_name }}" >> pipeline-report.md
+          echo "**Commit**: ${{ github.sha }}" >> pipeline-report.md
+          echo "**Environment**: ${{ needs.pipeline-setup.outputs.environment }}" >> pipeline-report.md
+          echo "" >> pipeline-report.md
+          
+          echo "## 📊 Execution Summary" >> pipeline-report.md
+          echo "- ✅ **Successful**: ${{ steps.results.outputs.success_count }} jobs" >> pipeline-report.md
+          echo "- ❌ **Failed**: ${{ steps.results.outputs.failure_count }} jobs" >> pipeline-report.md
+          echo "- ⏭️ **Skipped**: ${{ steps.results.outputs.skipped_count }} jobs" >> pipeline-report.md
+          echo "" >> pipeline-report.md
+          
+          echo "## 🏗️ Stage Results" >> pipeline-report.md
+          echo "| Stage | Status | Duration |" >> pipeline-report.md
+          echo "|-------|--------|----------|" >> pipeline-report.md
+          
+          # Add individual stage results
+          stages=("Attribution Check" "Size Validation" "Testing" "Security Scan" "Build & Deploy" "Release")
+          results=("${{ needs.attribution-check.result }}" "${{ needs.size-validation.result }}" "${{ needs.testing.result }}" "${{ needs.security-scan.result }}" "${{ needs.build-deploy.result }}" "${{ needs.release-automation.result }}")
+          
+          for i in "${!stages[@]}"; do
+            stage="${stages[i]}"
+            result="${results[i]}"
+            
+            case "$result" in
+              "success") status="✅ Success" ;;
+              "failure") status="❌ Failed" ;;
+              "skipped") status="⏭️ Skipped" ;;
+              "cancelled") status="🚫 Cancelled" ;;
+              *) status="❓ Unknown" ;;
+            esac
+            
+            echo "| $stage | $status | - |" >> pipeline-report.md
+          done
+          
+          echo "" >> pipeline-report.md
+          
+          # Overall status
+          if [ "${{ steps.results.outputs.overall_status }}" = "success" ]; then
+            echo "## 🎉 Pipeline Status: SUCCESS" >> pipeline-report.md
+            echo "" >> pipeline-report.md
+            echo "All critical stages completed successfully!" >> pipeline-report.md
+          elif [ "${{ steps.results.outputs.overall_status }}" = "failure" ]; then
+            echo "## ❌ Pipeline Status: FAILED" >> pipeline-report.md
+            echo "" >> pipeline-report.md
+            echo "One or more critical stages failed. Please review the logs and address issues." >> pipeline-report.md
+          else
+            echo "## ⏭️ Pipeline Status: PARTIAL" >> pipeline-report.md
+            echo "" >> pipeline-report.md
+            echo "Pipeline completed with some stages skipped." >> pipeline-report.md
+          fi
+          
+          echo "" >> pipeline-report.md
+          echo "## 🔗 Useful Links" >> pipeline-report.md
+          echo "- [Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> pipeline-report.md
+          echo "- [Commit Details](https://github.com/${{ github.repository }}/commit/${{ github.sha }})" >> pipeline-report.md
+          
+          if [ "${{ needs.release-automation.result }}" = "success" ]; then
+            echo "- [Latest Release](https://github.com/${{ github.repository }}/releases/latest)" >> pipeline-report.md
+          fi
+
+      - name: Upload Pipeline Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: pipeline-report-${{ github.run_number }}
+          path: pipeline-report.md
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            
+            let comment = '## 🔄 CI/CD Pipeline Results\n\n';
+            
+            // Add status badges
+            const stages = [
+              { name: 'Attribution', result: '${{ needs.attribution-check.result }}' },
+              { name: 'Size', result: '${{ needs.size-validation.result }}' },
+              { name: 'Testing', result: '${{ needs.testing.result }}' },
+              { name: 'Security', result: '${{ needs.security-scan.result }}' },
+              { name: 'Build', result: '${{ needs.build-deploy.result }}' }
+            ];
+            
+            comment += '**Stage Status**: ';
+            
+            stages.forEach(stage => {
+              let badge = '';
+              switch(stage.result) {
+                case 'success': badge = '✅'; break;
+                case 'failure': badge = '❌'; break;
+                case 'skipped': badge = '⏭️'; break;
+                default: badge = '❓'; break;
+              }
+              comment += `${badge} ${stage.name} `;
+            });
+            
+            comment += '\n\n';
+            
+            if ('${{ steps.results.outputs.overall_status }}' === 'success') {
+              comment += '🎉 **All checks passed!** Your changes are ready for review.\n';
+            } else if ('${{ steps.results.outputs.overall_status }}' === 'failure') {
+              comment += '❌ **Some checks failed.** Please review the failed stages and make necessary corrections.\n';
+            }
+            
+            comment += '\n📊 **Summary**: ';
+            comment += `✅ ${{ steps.results.outputs.success_count }} success, `;
+            comment += `❌ ${{ steps.results.outputs.failure_count }} failed, `;
+            comment += `⏭️ ${{ steps.results.outputs.skipped_count }} skipped\n\n`;
+            
+            comment += '[View detailed workflow run →](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})';
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Update Step Summary
+        run: |
+          echo "# 🔄 Claude Code Dev Stack v3.0 - Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Overall Status**: " >> $GITHUB_STEP_SUMMARY
+          
+          case "${{ steps.results.outputs.overall_status }}" in
+            "success")
+              echo "🎉 **SUCCESS** - All stages completed successfully" >> $GITHUB_STEP_SUMMARY
+              ;;
+            "failure")
+              echo "❌ **FAILED** - One or more stages failed" >> $GITHUB_STEP_SUMMARY
+              ;;
+            *)
+              echo "⏭️ **PARTIAL** - Pipeline completed with mixed results" >> $GITHUB_STEP_SUMMARY
+              ;;
+          esac
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Stage Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Stage | Result |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Attribution Check | ${{ needs.attribution-check.result == 'success' && '✅ Success' || needs.attribution-check.result == 'failure' && '❌ Failed' || '⏭️ Skipped' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Size Validation | ${{ needs.size-validation.result == 'success' && '✅ Success' || needs.size-validation.result == 'failure' && '❌ Failed' || '⏭️ Skipped' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Testing | ${{ needs.testing.result == 'success' && '✅ Success' || needs.testing.result == 'failure' && '❌ Failed' || '⏭️ Skipped' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Scan | ${{ needs.security-scan.result == 'success' && '✅ Success' || needs.security-scan.result == 'failure' && '❌ Failed' || '⏭️ Skipped' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build & Deploy | ${{ needs.build-deploy.result == 'success' && '✅ Success' || needs.build-deploy.result == 'failure' && '❌ Failed' || '⏭️ Skipped' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Release | ${{ needs.release-automation.result == 'success' && '✅ Success' || needs.release-automation.result == 'failure' && '❌ Failed' || '⏭️ Skipped' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment**: ${{ needs.pipeline-setup.outputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Pipeline Failure Handling
+        if: steps.results.outputs.overall_status == 'failure'
+        run: |
+          echo "::error::Pipeline failed with ${{ steps.results.outputs.failure_count }} failed stage(s)"
+          echo "Please review the failed stages and address the issues before proceeding."
+          exit 1
+
+  # Cleanup job
+  cleanup:
+    name: Pipeline Cleanup
+    runs-on: ubuntu-latest
+    needs: [pipeline-summary]
+    if: always()
+    timeout-minutes: 5
+    
+    steps:
+      - name: Cleanup Resources
+        run: |
+          echo "🧹 Performing pipeline cleanup..."
+          
+          # Log cleanup activities
+          echo "- Cleaning up temporary files"
+          echo "- Clearing workflow caches (if needed)"
+          echo "- Finalizing artifact retention"
+          
+          echo "✅ Cleanup completed"
+
+      - name: Final Status Report
+        run: |
+          echo "🏁 Pipeline execution completed"
+          echo "Total execution time: ${{ github.event.repository.updated_at }}"
+          echo "Workflow run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"

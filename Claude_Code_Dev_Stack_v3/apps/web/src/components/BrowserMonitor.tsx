@@ -8,7 +8,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Monitor, Activity, Database, Users, Clock, Eye, ExternalLink } from 'lucide-react';
+import { Monitor, Activity, Database, Users, Clock, Eye, ExternalLink, Command, Zap, Code, Terminal } from 'lucide-react';
+import { useWebSocket } from '../hooks/useWebSocket';
 
 interface BrowserSession {
   uuid: string;
@@ -16,6 +17,10 @@ interface BrowserSession {
   modTime: string;
   size: number;
   latestTodos: any;
+  project_name?: string;
+  content_preview?: string;
+  session_type?: string;
+  tags?: string[];
 }
 
 interface BrowserProject {
@@ -39,11 +44,67 @@ export const BrowserMonitor: React.FC<BrowserMonitorProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [attribution, setAttribution] = useState<any>(null);
+  const [devStackCommands, setDevStackCommands] = useState<any[]>([]);
+  const [realTimeData, setRealTimeData] = useState<any>(null);
+  const [commandInput, setCommandInput] = useState('');
+  const [commandHistory, setCommandHistory] = useState<any[]>([]);
+  
+  // WebSocket connection for real-time updates
+  const { data: wsData, isConnected: wsConnected, send: wsSend } = useWebSocket(
+    `ws://localhost:8081/ws`, 
+    {
+      reconnectInterval: 2000,
+      heartbeatInterval: 30000,
+      maxReconnectAttempts: 5
+    }
+  );
 
   useEffect(() => {
     loadProjects();
     loadAttribution();
   }, []);
+
+  // Handle WebSocket data updates
+  useEffect(() => {
+    if (wsData) {
+      console.log('📡 WebSocket data received:', wsData);
+      
+      switch (wsData.type) {
+        case 'projects_update':
+          setProjects(wsData.projects || []);
+          setRealTimeData(wsData);
+          break;
+        
+        case 'project_sessions':
+          setSessions(wsData.sessions || []);
+          break;
+        
+        case 'session_content':
+          if (wsData.dev_stack_commands) {
+            setDevStackCommands(wsData.dev_stack_commands);
+          }
+          break;
+        
+        case 'command_executed':
+          setCommandHistory(prev => [wsData, ...prev.slice(0, 49)]); // Keep last 50
+          break;
+        
+        case 'data_update':
+          setProjects(wsData.projects || []);
+          setRealTimeData(wsData);
+          break;
+        
+        case 'system_status':
+          setRealTimeData(wsData);
+          break;
+      }
+    }
+  }, [wsData]);
+
+  // Update connection status based on WebSocket
+  useEffect(() => {
+    setIsConnected(wsConnected);
+  }, [wsConnected]);
 
   const loadProjects = async () => {
     setIsLoading(true);
@@ -86,6 +147,15 @@ export const BrowserMonitor: React.FC<BrowserMonitorProps> = ({
     setError(null);
     
     try {
+      // Try WebSocket first for real-time data
+      if (wsSend) {
+        wsSend({
+          type: 'get_project_sessions',
+          project_name: projectName
+        });
+      }
+      
+      // Fallback to HTTP API
       const response = await fetch(`${apiUrl}/api/browser/project/${projectName}`);
       
       if (!response.ok) {
@@ -101,6 +171,84 @@ export const BrowserMonitor: React.FC<BrowserMonitorProps> = ({
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const executeDevStackCommand = async (command: string, sessionUuid?: string) => {
+    if (!command.trim()) return;
+    
+    try {
+      // Send via WebSocket for real-time execution
+      if (wsSend) {
+        wsSend({
+          type: 'execute_dev_stack_command',
+          command: {
+            command: command,
+            agent_target: extractAgentTarget(command),
+            parameters: parseCommandParameters(command),
+            execution_context: {
+              session_uuid: sessionUuid,
+              source: 'browser_monitor_ui'
+            }
+          },
+          session_uuid: sessionUuid
+        });
+      }
+      
+      // Also send via HTTP API for reliability
+      const response = await fetch(`${apiUrl}/api/commands/execute`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          command: command,
+          agent_target: extractAgentTarget(command),
+          parameters: parseCommandParameters(command),
+          session_uuid: sessionUuid,
+          execution_context: {
+            source: 'browser_monitor_ui',
+            timestamp: new Date().toISOString()
+          }
+        })
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        setCommandHistory(prev => [result, ...prev.slice(0, 49)]);
+      }
+      
+    } catch (err) {
+      console.error('Failed to execute command:', err);
+      setError(`Command execution failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    }
+  };
+
+  const extractAgentTarget = (command: string): string | null => {
+    const agentMatch = command.match(/@agent-([a-z-]+)/i);
+    return agentMatch ? agentMatch[1] : null;
+  };
+
+  const parseCommandParameters = (command: string): Record<string, any> => {
+    const params: Record<string, any> = { raw_command: command };
+    
+    // Parse common patterns
+    const orchestrateMatch = command.match(/!orchestrate\s+(.+)/i);
+    if (orchestrateMatch) {
+      params.orchestration_request = orchestrateMatch[1];
+    }
+    
+    const statusMatch = command.match(/\?status\s+(.+)/i);
+    if (statusMatch) {
+      params.status_query = statusMatch[1];
+    }
+    
+    const contextMatch = command.match(/@context\s+(\w+)\s*(.*)?/i);
+    if (contextMatch) {
+      params.context_operation = contextMatch[1];
+      params.context_parameters = contextMatch[2] || '';
+    }
+    
+    return params;
   };
 
   const formatFileSize = (bytes: number): string => {
@@ -139,7 +287,7 @@ export const BrowserMonitor: React.FC<BrowserMonitorProps> = ({
 
   return (
     <div className="browser-monitor p-6 bg-white rounded-lg shadow-lg">
-      {/* Header with Attribution */}
+      {/* Header with Attribution and Real-time Status */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
           <Monitor className="w-6 h-6 text-blue-600" />
@@ -147,15 +295,35 @@ export const BrowserMonitor: React.FC<BrowserMonitorProps> = ({
             Claude Code Browser Monitor
           </h2>
           <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+          {wsConnected && (
+            <div className="flex items-center space-x-2 bg-green-50 px-3 py-1 rounded-full">
+              <Zap className="w-4 h-4 text-green-600" />
+              <span className="text-sm text-green-700">Live</span>
+            </div>
+          )}
+          {realTimeData && (
+            <div className="text-sm text-gray-600">
+              Last update: {new Date(realTimeData.timestamp).toLocaleTimeString()}
+            </div>
+          )}
         </div>
         
-        <button
-          onClick={openOriginalBrowser}
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <ExternalLink className="w-4 h-4" />
-          <span>Open Full Browser</span>
-        </button>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => executeDevStackCommand('?status system')}
+            className="flex items-center space-x-2 px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+          >
+            <Terminal className="w-4 h-4" />
+            <span>System Status</span>
+          </button>
+          <button
+            onClick={openOriginalBrowser}
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <ExternalLink className="w-4 h-4" />
+            <span>Open Full Browser</span>
+          </button>
+        </div>
       </div>
 
       {/* Attribution Notice */}
@@ -253,6 +421,115 @@ export const BrowserMonitor: React.FC<BrowserMonitorProps> = ({
         </div>
       )}
 
+      {/* Dev Stack Command Interface */}
+      <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+        <div className="flex items-center space-x-2 mb-3">
+          <Command className="w-5 h-5 text-gray-700" />
+          <h3 className="font-semibold text-gray-900">Dev Stack Command Interface</h3>
+        </div>
+        
+        <div className="flex space-x-2">
+          <input
+            type="text"
+            value={commandInput}
+            onChange={(e) => setCommandInput(e.target.value)}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                executeDevStackCommand(commandInput);
+                setCommandInput('');
+              }
+            }}
+            placeholder="Enter Dev Stack command (e.g., @agent-api-integration, !orchestrate, ?status)"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            onClick={() => {
+              executeDevStackCommand(commandInput);
+              setCommandInput('');
+            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Execute
+          </button>
+        </div>
+        
+        {/* Quick Command Buttons */}
+        <div className="flex flex-wrap gap-2 mt-3">
+          {[
+            { label: 'API Integration', cmd: '@agent-api-integration analyze current project' },
+            { label: 'System Status', cmd: '?status all' },
+            { label: 'Orchestrate', cmd: '!orchestrate frontend and backend agents' },
+            { label: 'Context Snapshot', cmd: '@context snapshot current' }
+          ].map((quickCmd) => (
+            <button
+              key={quickCmd.label}
+              onClick={() => executeDevStackCommand(quickCmd.cmd)}
+              className="px-3 py-1 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+            >
+              {quickCmd.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Dev Stack Commands Found in Sessions */}
+      {devStackCommands.length > 0 && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="flex items-center space-x-2 mb-3">
+            <Code className="w-5 h-5 text-yellow-700" />
+            <h3 className="font-semibold text-yellow-900">Dev Stack Commands Found</h3>
+          </div>
+          
+          <div className="space-y-2">
+            {devStackCommands.slice(0, 5).map((cmd, index) => (
+              <div key={index} className="flex items-center justify-between bg-white p-2 rounded border">
+                <span className="font-mono text-sm text-gray-700">{cmd.command}</span>
+                <button
+                  onClick={() => executeDevStackCommand(cmd.command, cmd.session_uuid)}
+                  className="px-2 py-1 text-xs bg-yellow-600 text-white rounded hover:bg-yellow-700"
+                >
+                  Execute
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Command History */}
+      {commandHistory.length > 0 && (
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-center space-x-2 mb-3">
+            <Activity className="w-5 h-5 text-green-700" />
+            <h3 className="font-semibold text-green-900">Recent Command Executions</h3>
+          </div>
+          
+          <div className="space-y-2 max-h-64 overflow-y-auto">
+            {commandHistory.slice(0, 10).map((execution, index) => (
+              <div key={index} className="bg-white p-3 rounded border">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-mono text-sm text-gray-700">
+                    {execution.command?.command || execution.result?.command || 'Unknown command'}
+                  </span>
+                  <span className={`text-xs px-2 py-1 rounded ${
+                    execution.result?.success || execution.success 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {execution.result?.success || execution.success ? 'Success' : 'Failed'}
+                  </span>
+                </div>
+                {execution.timestamp && (
+                  <div className="text-xs text-gray-500">
+                    {new Date(execution.timestamp).toLocaleTimeString()}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Sessions List */}
       {!isLoading && selectedProject && (
         <div className="space-y-4">
@@ -288,14 +565,33 @@ export const BrowserMonitor: React.FC<BrowserMonitorProps> = ({
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <div className={`w-2 h-2 rounded-full ${
+                        session.tags?.includes('dev_stack_commands') ? 'bg-purple-500' : 'bg-green-500'
+                      }`}></div>
                       <div>
-                        <h4 className="font-mono text-sm text-gray-900">
-                          {session.uuid.substring(0, 8)}...
-                        </h4>
+                        <div className="flex items-center space-x-2">
+                          <h4 className="font-mono text-sm text-gray-900">
+                            {session.uuid.substring(0, 8)}...
+                          </h4>
+                          {session.tags?.includes('dev_stack_commands') && (
+                            <span className="px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded-full">
+                              Dev Stack
+                            </span>
+                          )}
+                          {session.tags?.includes('orchestration_capable') && (
+                            <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                              Orchestration
+                            </span>
+                          )}
+                        </div>
                         <p className="text-xs text-gray-500">
                           {formatFileSize(session.size)}
                         </p>
+                        {session.content_preview && (
+                          <p className="text-xs text-gray-600 mt-1 truncate max-w-md">
+                            {session.content_preview.substring(0, 100)}...
+                          </p>
+                        )}
                       </div>
                     </div>
                     
@@ -304,7 +600,26 @@ export const BrowserMonitor: React.FC<BrowserMonitorProps> = ({
                         <Clock className="w-4 h-4" />
                         <span>{formatTimeAgo(session.modTime)}</span>
                       </div>
-                      <ExternalLink className="w-4 h-4 text-gray-400 mt-1" />
+                      <div className="flex items-center space-x-1 mt-1">
+                        <ExternalLink className="w-4 h-4 text-gray-400" />
+                        {session.tags?.includes('dev_stack_commands') && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Load session content to get Dev Stack commands
+                              if (wsSend) {
+                                wsSend({
+                                  type: 'get_session_content',
+                                  session_uuid: session.uuid
+                                });
+                              }
+                            }}
+                            className="ml-2 px-2 py-1 text-xs bg-purple-600 text-white rounded hover:bg-purple-700"
+                          >
+                            <Command className="w-3 h-3" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                   

@@ -1,0 +1,630 @@
+name: Security Scanning & Analysis
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 3 * * 1'  # Weekly on Monday at 3 AM
+  workflow_dispatch:
+    inputs:
+      scan_level:
+        description: 'Security scan level (basic, comprehensive, advanced)'
+        required: false
+        default: 'comprehensive'
+        type: choice
+        options:
+        - basic
+        - comprehensive
+        - advanced
+
+env:
+  SECURITY_SCAN_LEVEL: ${{ github.event.inputs.scan_level || 'comprehensive' }}
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+
+jobs:
+  dependency-scan:
+    name: Dependency Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Security Tools
+        run: |
+          # Python security tools
+          pip install safety bandit semgrep pip-audit
+          
+          # Node.js security tools
+          npm install -g npm-audit-resolver audit-ci @cyclonedx/cyclonedx-npm
+          npm install -g retire snyk
+
+      - name: Python Dependency Security Scan
+        run: |
+          echo "::group::Python Security Scan"
+          
+          # Safety check for known vulnerabilities
+          if [ -f "requirements.txt" ]; then
+            echo "Running Safety scan on requirements.txt..."
+            safety check -r requirements.txt --json --output safety-report.json || {
+              echo "⚠️ Safety scan found vulnerabilities"
+              safety check -r requirements.txt
+            }
+          fi
+          
+          # Comprehensive pip-audit
+          echo "Running pip-audit..."
+          pip-audit --format=json --output=pip-audit-report.json || {
+            echo "⚠️ pip-audit found vulnerabilities"
+            pip-audit --format=table
+          }
+          
+          # Check for any Python files in the project
+          if find . -name "*.py" -not -path "./.git/*" -not -path "./*/venv/*" | head -1 | grep -q .; then
+            echo "Running comprehensive dependency audit..."
+            pip freeze > current-requirements.txt
+            safety check -r current-requirements.txt --json --output current-safety-report.json || true
+          fi
+          
+          echo "::endgroup::"
+
+      - name: Node.js Dependency Security Scan
+        run: |
+          echo "::group::Node.js Security Scan"
+          
+          # Scan all package.json files
+          find . -name "package.json" -not -path "*/node_modules/*" | while read -r pkg; do
+            echo "Scanning $(dirname "$pkg")..."
+            cd "$(dirname "$pkg")"
+            
+            # npm audit
+            if [ -f "package-lock.json" ]; then
+              npm audit --audit-level=moderate --json > npm-audit-report.json || {
+                echo "⚠️ npm audit found vulnerabilities in $(pwd)"
+                npm audit --audit-level=moderate
+              }
+            fi
+            
+            # Retire.js scan
+            retire --js --outputformat json --outputpath retire-report.json || {
+              echo "⚠️ retire.js found vulnerabilities in $(pwd)"
+              retire --js
+            }
+            
+            cd - > /dev/null
+          done
+          
+          echo "::endgroup::"
+
+      - name: Generate SBOM (Software Bill of Materials)
+        run: |
+          echo "::group::SBOM Generation"
+          
+          # Generate Python SBOM
+          if [ -f "requirements.txt" ]; then
+            pip install cyclonedx-bom
+            cyclonedx-py --output python-sbom.json . || true
+          fi
+          
+          # Generate Node.js SBOM for each app
+          find . -name "package.json" -not -path "*/node_modules/*" | while read -r pkg; do
+            echo "Generating SBOM for $(dirname "$pkg")..."
+            cd "$(dirname "$pkg")"
+            
+            if [ -f "package-lock.json" ]; then
+              cyclonedx-npm --output-file ../../../nodejs-sbom-$(basename "$(pwd)").json . || true
+            fi
+            
+            cd - > /dev/null
+          done
+          
+          echo "::endgroup::"
+
+      - name: Upload Dependency Scan Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: dependency-security-scan
+          path: |
+            safety-report.json
+            pip-audit-report.json
+            current-safety-report.json
+            npm-audit-report.json
+            retire-report.json
+            *-sbom.json
+
+  code-security-scan:
+    name: Code Security Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Code Security Tools
+        run: |
+          pip install bandit semgrep pysafety
+          npm install -g eslint-plugin-security @typescript-eslint/eslint-plugin
+
+      - name: Bandit Security Scan (Python)
+        run: |
+          echo "::group::Bandit Security Scan"
+          
+          if find . -name "*.py" -not -path "./.git/*" -not -path "./*/venv/*" | head -1 | grep -q .; then
+            # Run bandit with comprehensive checks
+            bandit -r . -f json -o bandit-security-report.json || {
+              echo "⚠️ Bandit found potential security issues"
+              bandit -r . -ll
+            }
+            
+            # Generate human-readable report
+            bandit -r . -f txt -o bandit-security-report.txt || true
+          else
+            echo "No Python files found for Bandit scan"
+          fi
+          
+          echo "::endgroup::"
+
+      - name: Semgrep Security Scan
+        run: |
+          echo "::group::Semgrep Security Scan"
+          
+          # Install and run semgrep
+          python -m pip install semgrep
+          
+          # Run semgrep with security rulesets
+          semgrep --config=auto --json --output=semgrep-security-report.json . || {
+            echo "⚠️ Semgrep found potential security issues"
+            semgrep --config=auto .
+          }
+          
+          # Additional security-focused rulesets
+          if [ "${{ env.SECURITY_SCAN_LEVEL }}" = "comprehensive" ] || [ "${{ env.SECURITY_SCAN_LEVEL }}" = "advanced" ]; then
+            semgrep --config=p/security-audit --json --output=semgrep-audit-report.json . || true
+            semgrep --config=p/owasp-top-ten --json --output=semgrep-owasp-report.json . || true
+          fi
+          
+          echo "::endgroup::"
+
+      - name: JavaScript/TypeScript Security Scan
+        run: |
+          echo "::group::JavaScript/TypeScript Security Scan"
+          
+          # Check if we have JS/TS files
+          if find . \( -name "*.js" -o -name "*.ts" -o -name "*.tsx" -o -name "*.jsx" \) \
+            -not -path "./node_modules/*" -not -path "./.git/*" | head -1 | grep -q .; then
+            
+            # Create ESLint config for security
+            cat > .eslintrc.security.js << 'EOF'
+          module.exports = {
+            plugins: ['security'],
+            extends: ['plugin:security/recommended'],
+            rules: {
+              'security/detect-object-injection': 'error',
+              'security/detect-non-literal-regexp': 'error',
+              'security/detect-unsafe-regex': 'error',
+              'security/detect-buffer-noassert': 'error',
+              'security/detect-child-process': 'error',
+              'security/detect-disable-mustache-escape': 'error',
+              'security/detect-eval-with-expression': 'error',
+              'security/detect-no-csrf-before-method-override': 'error',
+              'security/detect-non-literal-fs-filename': 'error',
+              'security/detect-non-literal-require': 'error',
+              'security/detect-possible-timing-attacks': 'error',
+              'security/detect-pseudoRandomBytes': 'error'
+            }
+          };
+          EOF
+            
+            # Run security-focused ESLint
+            npx eslint . --config .eslintrc.security.js --ext .js,.ts,.tsx,.jsx \
+              --format json --output-file eslint-security-report.json || {
+              echo "⚠️ ESLint security scan found issues"
+              npx eslint . --config .eslintrc.security.js --ext .js,.ts,.tsx,.jsx
+            }
+          else
+            echo "No JavaScript/TypeScript files found for security scan"
+          fi
+          
+          echo "::endgroup::"
+
+      - name: Upload Code Security Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-security-scan
+          path: |
+            bandit-security-report.json
+            bandit-security-report.txt
+            semgrep-security-report.json
+            semgrep-audit-report.json
+            semgrep-owasp-report.json
+            eslint-security-report.json
+
+  secret-scan:
+    name: Secret & Credential Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Secret Scanning Tools
+        run: |
+          # Install gitleaks
+          wget -O gitleaks.tar.gz https://github.com/gitleaks/gitleaks/releases/download/v8.18.0/gitleaks_8.18.0_linux_x64.tar.gz
+          tar -xzf gitleaks.tar.gz
+          chmod +x gitleaks
+          sudo mv gitleaks /usr/local/bin/
+          
+          # Install truffleHog
+          pip install truffleHog3
+
+      - name: GitLeaks Secret Scan
+        run: |
+          echo "::group::GitLeaks Secret Scan"
+          
+          # Run gitleaks on entire repository history
+          gitleaks detect --source . --report-path gitleaks-report.json --report-format json || {
+            echo "⚠️ GitLeaks found potential secrets"
+            gitleaks detect --source . --verbose
+          }
+          
+          # Also scan just the current commit
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            gitleaks detect --source . --log-opts="--since=1.day" \
+              --report-path gitleaks-recent-report.json --report-format json || true
+          fi
+          
+          echo "::endgroup::"
+
+      - name: TruffleHog Secret Scan
+        run: |
+          echo "::group::TruffleHog Secret Scan"
+          
+          # Run truffleHog
+          truffleHog3 --format json --output truffleHog-report.json . || {
+            echo "⚠️ TruffleHog found potential secrets"
+            truffleHog3 .
+          }
+          
+          echo "::endgroup::"
+
+      - name: Custom Pattern Secret Scan
+        run: |
+          echo "::group::Custom Pattern Secret Scan"
+          
+          # Define patterns for common secrets
+          cat > secret_patterns.txt << 'EOF'
+          # API Keys
+          [Aa][Pp][Ii][_]?[Kk][Ee][Yy].*['"\s=:][0-9a-zA-Z]{20,}
+          
+          # AWS Keys
+          AKIA[0-9A-Z]{16}
+          
+          # Generic passwords in code
+          [Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd].*['"\s=:][^\s'"]{8,}
+          
+          # Database URLs
+          [a-zA-Z]+://[^\s'"]*:[^\s'"]*@[^\s'"]*
+          
+          # Private keys
+          -----BEGIN [A-Z ]+PRIVATE KEY-----
+          EOF
+          
+          # Search for secret patterns
+          echo "Scanning for potential secrets with custom patterns..."
+          grep -r -E -f secret_patterns.txt . \
+            --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=venv \
+            --exclude="*.log" --exclude="secret_patterns.txt" \
+            > custom-secret-scan.txt || echo "No patterns found"
+          
+          if [ -s custom-secret-scan.txt ]; then
+            echo "⚠️ Custom pattern scan found potential secrets:"
+            head -20 custom-secret-scan.txt
+          else
+            echo "✅ No secrets found with custom patterns"
+          fi
+          
+          echo "::endgroup::"
+
+      - name: Upload Secret Scan Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: secret-scan-results
+          path: |
+            gitleaks-report.json
+            gitleaks-recent-report.json
+            truffleHog-report.json
+            custom-secret-scan.txt
+
+  container-security:
+    name: Container Security Scan
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.scan_level == 'advanced' || github.event_name == 'schedule' }}
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Install Container Security Tools
+        run: |
+          # Install Trivy
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install trivy
+
+      - name: Build Container Images
+        run: |
+          echo "::group::Building Container Images"
+          
+          # Check for Dockerfiles
+          if [ -f "Claude_Code_Dev_Stack_v3/apps/web/Dockerfile" ]; then
+            echo "Building web app container..."
+            docker build -t claude-code-web:latest Claude_Code_Dev_Stack_v3/apps/web/ || true
+          fi
+          
+          if [ -f "Claude_Code_Dev_Stack_v3/apps/backend/Dockerfile" ]; then
+            echo "Building backend container..."
+            docker build -t claude-code-backend:latest Claude_Code_Dev_Stack_v3/apps/backend/ || true
+          fi
+          
+          # Create sample Dockerfiles if none exist
+          if [ ! -f "Claude_Code_Dev_Stack_v3/apps/web/Dockerfile" ]; then
+            cat > Claude_Code_Dev_Stack_v3/apps/web/Dockerfile << 'EOF'
+          FROM node:18-alpine
+          WORKDIR /app
+          COPY package*.json ./
+          RUN npm ci --only=production
+          COPY . .
+          RUN npm run build
+          EXPOSE 3000
+          CMD ["npm", "run", "preview"]
+          EOF
+            docker build -t claude-code-web:latest Claude_Code_Dev_Stack_v3/apps/web/
+          fi
+          
+          echo "::endgroup::"
+
+      - name: Trivy Container Scan
+        run: |
+          echo "::group::Container Security Scan"
+          
+          # Scan built images
+          for image in $(docker images --format "{{.Repository}}:{{.Tag}}" | grep claude-code); do
+            echo "Scanning $image..."
+            trivy image --format json --output "trivy-$(basename $image .latest).json" "$image" || true
+            trivy image --severity HIGH,CRITICAL "$image" || true
+          done
+          
+          echo "::endgroup::"
+
+      - name: Upload Container Security Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: container-security-scan
+          path: |
+            trivy-*.json
+
+  infrastructure-security:
+    name: Infrastructure Security Scan
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.scan_level == 'comprehensive' || github.event.inputs.scan_level == 'advanced' }}
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Infrastructure Security Tools
+        run: |
+          # Install checkov
+          pip install checkov
+          
+          # Install tfsec (if Terraform files exist)
+          if find . -name "*.tf" | head -1 | grep -q .; then
+            curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+          fi
+
+      - name: Checkov IaC Security Scan
+        run: |
+          echo "::group::Infrastructure as Code Security Scan"
+          
+          # Scan for IaC security issues
+          checkov --framework all --output json --output-file checkov-report.json . || {
+            echo "⚠️ Checkov found IaC security issues"
+            checkov --framework all .
+          }
+          
+          echo "::endgroup::"
+
+      - name: Docker Compose Security Scan
+        run: |
+          echo "::group::Docker Compose Security Scan"
+          
+          if find . -name "docker-compose*.yml" -o -name "docker-compose*.yaml" | head -1 | grep -q .; then
+            # Scan Docker Compose files
+            checkov --framework docker_compose --output json --output-file checkov-compose-report.json . || true
+            echo "Docker Compose security scan completed"
+          else
+            echo "No Docker Compose files found"
+          fi
+          
+          echo "::endgroup::"
+
+      - name: Upload Infrastructure Security Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: infrastructure-security-scan
+          path: |
+            checkov-report.json
+            checkov-compose-report.json
+
+  security-report:
+    name: Security Report Generation
+    runs-on: ubuntu-latest
+    needs: [dependency-scan, code-security-scan, secret-scan, container-security, infrastructure-security]
+    if: always()
+    
+    steps:
+      - name: Download All Security Results
+        uses: actions/download-artifact@v3
+
+      - name: Generate Comprehensive Security Report
+        run: |
+          echo "# Comprehensive Security Analysis Report" > security-report.md
+          echo "" >> security-report.md
+          echo "**Generated**: $(date)" >> security-report.md
+          echo "**Commit**: ${{ github.sha }}" >> security-report.md
+          echo "**Scan Level**: ${{ env.SECURITY_SCAN_LEVEL }}" >> security-report.md
+          echo "" >> security-report.md
+          
+          echo "## Executive Summary" >> security-report.md
+          echo "" >> security-report.md
+          
+          # Count issues from each scan type
+          total_issues=0
+          
+          echo "| Scan Type | Status | Issues Found |" >> security-report.md
+          echo "|-----------|--------|--------------|" >> security-report.md
+          
+          # Check dependency scan
+          if [ -d "dependency-security-scan" ]; then
+            dep_issues=$(find dependency-security-scan -name "*.json" -exec grep -l "vulnerability\|advisory" {} \; | wc -l)
+            if [ "$dep_issues" -gt 0 ]; then
+              echo "| Dependency Scan | ⚠️ Issues Found | $dep_issues |" >> security-report.md
+              total_issues=$((total_issues + dep_issues))
+            else
+              echo "| Dependency Scan | ✅ Clean | 0 |" >> security-report.md
+            fi
+          fi
+          
+          # Check code security scan
+          if [ -d "code-security-scan" ]; then
+            code_issues=$(find code-security-scan -name "*.json" -exec grep -l "error\|warning" {} \; | wc -l)
+            if [ "$code_issues" -gt 0 ]; then
+              echo "| Code Security Scan | ⚠️ Issues Found | $code_issues |" >> security-report.md
+              total_issues=$((total_issues + code_issues))
+            else
+              echo "| Code Security Scan | ✅ Clean | 0 |" >> security-report.md
+            fi
+          fi
+          
+          # Check secret scan
+          if [ -d "secret-scan-results" ]; then
+            secret_issues=$(find secret-scan-results -name "*.json" -exec grep -l "secret\|credential" {} \; | wc -l)
+            if [ "$secret_issues" -gt 0 ]; then
+              echo "| Secret Scan | ❌ Secrets Found | $secret_issues |" >> security-report.md
+              total_issues=$((total_issues + secret_issues))
+            else
+              echo "| Secret Scan | ✅ Clean | 0 |" >> security-report.md
+            fi
+          fi
+          
+          echo "" >> security-report.md
+          echo "**Total Security Issues**: $total_issues" >> security-report.md
+          
+          if [ "$total_issues" -eq 0 ]; then
+            echo "" >> security-report.md
+            echo "🎉 **No critical security issues found!**" >> security-report.md
+          else
+            echo "" >> security-report.md
+            echo "⚠️ **Security issues require attention**" >> security-report.md
+          fi
+          
+          echo "" >> security-report.md
+          echo "## Recommendations" >> security-report.md
+          echo "1. Regularly update dependencies to latest secure versions" >> security-report.md
+          echo "2. Implement automated security scanning in CI/CD pipeline" >> security-report.md
+          echo "3. Use secrets management solutions for credentials" >> security-report.md
+          echo "4. Regular security training for development team" >> security-report.md
+          echo "5. Implement security code review practices" >> security-report.md
+          
+          # Set job outputs
+          echo "total_issues=$total_issues" >> $GITHUB_ENV
+
+      - name: Upload Comprehensive Security Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: comprehensive-security-report
+          path: security-report.md
+
+      - name: Security Status Check
+        run: |
+          if [ "$total_issues" -gt 10 ]; then
+            echo "::error::Critical security issues found ($total_issues issues)"
+            echo "Please review the security report and address critical vulnerabilities"
+            exit 1
+          elif [ "$total_issues" -gt 0 ]; then
+            echo "::warning::Security issues found ($total_issues issues)"
+            echo "Review recommended but not blocking"
+          else
+            echo "::notice::Security scan completed with no critical issues"
+          fi
+
+      - name: Comment PR with Security Summary
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            
+            let securityInfo = '## 🔒 Security Scan Results\n\n';
+            
+            try {
+              const reportContent = fs.readFileSync('security-report.md', 'utf8');
+              const summaryMatch = reportContent.match(/## Executive Summary([\s\S]*?)## Recommendations/);
+              
+              if (summaryMatch) {
+                securityInfo += summaryMatch[1];
+              } else {
+                securityInfo += 'Security scan completed. Please check the detailed report.\n';
+              }
+              
+            } catch (error) {
+              securityInfo += 'Security scan results not available.\n';
+            }
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: securityInfo
+            });
+
+      - name: Update Summary
+        run: |
+          echo "### 🔒 Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Scan Level**: ${{ env.SECURITY_SCAN_LEVEL }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Total Issues Found**: $total_issues" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$total_issues" -eq 0 ]; then
+            echo "✅ **No critical security issues detected**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Security issues require review**" >> $GITHUB_STEP_SUMMARY
+          fi

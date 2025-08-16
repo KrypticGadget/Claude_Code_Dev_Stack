@@ -1,0 +1,462 @@
+{
+  "test_suite_version": "3.0_routing",
+  "timestamp": "2025-08-15T17:49:29.884466",
+  "test_duration": 0.322855,
+  "overall_score": 100.0,
+  "routing_health": "excellent",
+  "test_results": {
+    "mention_parsing": {
+      "total_prompts": 9,
+      "successful_parses": 9,
+      "failed_parses": 0,
+      "parsing_details": {
+        "prompt_0": {
+          "prompt": "@agent-master-orchestrator start a new project",
+          "mentions_found": 1,
+          "agents": [
+            "master-orchestrator"
+          ],
+          "status": "success"
+        },
+        "prompt_1": {
+          "prompt": "I need @agent-business-analyst to analyze the mark...",
+          "mentions_found": 1,
+          "agents": [
+            "business-analyst"
+          ],
+          "status": "success"
+        },
+        "prompt_2": {
+          "prompt": "Can @agent-frontend-architecture and @agent-backen...",
+          "mentions_found": 2,
+          "agents": [
+            "frontend-architecture",
+            "backend-services"
+          ],
+          "status": "success"
+        },
+        "prompt_3": {
+          "prompt": "Use @agent-testing-automation for comprehensive te...",
+          "mentions_found": 1,
+          "agents": [
+            "testing-automation"
+          ],
+          "status": "success"
+        },
+        "prompt_4": {
+          "prompt": "@agent-security-architecture please audit the syst...",
+          "mentions_found": 1,
+          "agents": [
+            "security-architecture"
+          ],
+          "status": "success"
+        },
+        "prompt_5": {
+          "prompt": "Multiple agents: @agent-business-analyst @agent-fi...",
+          "mentions_found": 3,
+          "agents": [
+            "business-analyst",
+            "financial-analyst",
+            "ceo-strategy"
+          ],
+          "status": "success"
+        },
+        "prompt_6": {
+          "prompt": "@agent-nonexistent-agent should be handled gracefu...",
+          "mentions_found": 1,
+          "agents": [
+            "nonexistent-agent"
+          ],
+          "status": "success"
+        },
+        "prompt_7": {
+          "prompt": "No agent mentions in this prompt",
+          "mentions_found": 0,
+          "agents": [],
+          "status": "success"
+        },
+        "prompt_8": {
+          "prompt": "@agent-prompt-engineer optimize this: @agent-maste...",
+          "mentions_found": 2,
+          "agents": [
+            "prompt-engineer",
+            "master-orchestrator"
+          ],
+          "status": "success"
+        }
+      },
+      "parsing_success_rate": 100.0
+    },
+    "routing_logic": {
+      "total_scenarios": 5,
+      "successful_routes": 5,
+      "failed_routes": 0,
+      "routing_details": {
+        "master_orchestrator_delegation": {
+          "source": "master-orchestrator",
+          "expected_targets": [
+            "business-analyst",
+            "technical-cto",
+            "project-manager"
+          ],
+          "actual_targets": [
+            "business-analyst",
+            "technical-cto",
+            "project-manager"
+          ],
+          "matching_targets": [
+            "business-analyst",
+            "technical-cto",
+            "project-manager"
+          ],
+          "routing_score": 1.0,
+          "status": "success"
+        },
+        "business_to_technical": {
+          "source": "business-analyst",
+          "expected_targets": [
+            "project-manager",
+            "financial-analyst"
+          ],
+          "actual_targets": [
+            "project-manager",
+            "financial-analyst"
+          ],
+          "matching_targets": [
+            "financial-analyst",
+            "project-manager"
+          ],
+          "routing_score": 1.0,
+          "status": "success"
+        },
+        "architecture_to_development": {
+          "source": "frontend-architecture",
+          "expected_targets": [
+            "frontend-mockup",
+            "production-frontend"
+          ],
+          "actual_targets": [
+            "frontend-mockup",
+            "production-frontend"
+          ],
+          "matching_targets": [
+            "frontend-mockup",
+            "production-frontend"
+          ],
+          "routing_score": 1.0,
+          "status": "success"
+        },
+        "development_to_quality": {
+          "source": "backend-services",
+          "expected_targets": [
+            "database-architecture",
+            "testing-automation"
+          ],
+          "actual_targets": [
+            "database-architecture",
+            "testing-automation"
+          ],
+          "matching_targets": [
+            "testing-automation",
+            "database-architecture"
+          ],
+          "routing_score": 1.0,
+          "status": "success"
+        },
+        "parallel_execution": {
+          "source": "technical-specifications",
+          "expected_targets": [
+            "frontend-architecture",
+            "backend-services"
+          ],
+          "actual_targets": [
+            "frontend-architecture",
+            "backend-services"
+          ],
+          "matching_targets": [
+            "backend-services",
+            "frontend-architecture"
+          ],
+          "routing_score": 1.0,
+          "status": "success"
+        }
+      },
+      "routing_success_rate": 100.0
+    },
+    "orchestrator_integration": {
+      "orchestrator_available": true,
+      "total_requests": 3,
+      "successful_requests": 3,
+      "failed_requests": 0,
+      "request_details": {
+        "request_0": {
+          "event_type": "agent_activation",
+          "result": {
+            "processed": true,
+            "version": "3.0",
+            "timestamp": "2025-08-16T00:49:29.883459",
+            "request_id": "v3_1755305369883",
+            "components_used": [
+              "legacy_orchestrator"
+            ],
+            "enhancements_applied": [],
+            "legacy_compatibility": true,
+            "performance_metrics": {
+              "processing_time_ms": 0.0,
+              "components_used": 1,
+              "enhancements_applied": 0,
+              "efficiency_score": 100.0
+            },
+            "orchestration": {
+              "enhanced_routing": false,
+              "parallel_optimization": false,
+              "intelligent_prioritization": false,
+              "resource_optimization": false
+            },
+            "legacy_result": {
+              "processed": false,
+              "error": "'UltimateClaudeOrchestrator' object has no attribute 'process_hook_event'"
+            }
+          },
+          "status": "success"
+        },
+        "request_1": {
+          "event_type": "agent_delegation",
+          "result": {
+            "processed": true,
+            "version": "3.0",
+            "timestamp": "2025-08-16T00:49:29.883459",
+            "request_id": "v3_1755305369883",
+            "components_used": [
+              "legacy_orchestrator"
+            ],
+            "enhancements_applied": [],
+            "legacy_compatibility": true,
+            "performance_metrics": {
+              "processing_time_ms": 0.0,
+              "components_used": 1,
+              "enhancements_applied": 0,
+              "efficiency_score": 100.0
+            },
+            "orchestration": {
+              "enhanced_routing": false,
+              "parallel_optimization": false,
+              "intelligent_prioritization": false,
+              "resource_optimization": false
+            },
+            "legacy_result": {
+              "processed": false,
+              "error": "'UltimateClaudeOrchestrator' object has no attribute 'process_hook_event'"
+            }
+          },
+          "status": "success"
+        },
+        "request_2": {
+          "event_type": "parallel_execution",
+          "result": {
+            "processed": true,
+            "version": "3.0",
+            "timestamp": "2025-08-16T00:49:29.883459",
+            "request_id": "v3_1755305369883",
+            "components_used": [
+              "legacy_orchestrator"
+            ],
+            "enhancements_applied": [],
+            "legacy_compatibility": true,
+            "performance_metrics": {
+              "processing_time_ms": 0.0,
+              "components_used": 1,
+              "enhancements_applied": 0,
+              "efficiency_score": 100.0
+            },
+            "orchestration": {
+              "enhanced_routing": false,
+              "parallel_optimization": false,
+              "intelligent_prioritization": false,
+              "resource_optimization": false
+            },
+            "legacy_result": {
+              "processed": false,
+              "error": "'UltimateClaudeOrchestrator' object has no attribute 'process_hook_event'"
+            }
+          },
+          "status": "success"
+        }
+      },
+      "integration_success_rate": 100.0
+    },
+    "agent_hierarchy": {
+      "total_agents": 28,
+      "total_tiers": 7,
+      "hierarchy_violations": 0,
+      "hierarchy_health": 100.0,
+      "tier_analysis": {
+        "tiers": {
+          "1": {
+            "agents": [
+              "master-orchestrator",
+              "prompt-engineer"
+            ],
+            "delegates_to_lower": 3,
+            "delegates_to_higher": 0,
+            "receives_from_higher": 0,
+            "receives_from_lower": 0
+          },
+          "2": {
+            "agents": [
+              "business-analyst",
+              "technical-cto",
+              "ceo-strategy",
+              "financial-analyst"
+            ],
+            "delegates_to_lower": 4,
+            "delegates_to_higher": 0,
+            "receives_from_higher": 3,
+            "receives_from_lower": 0
+          },
+          "3": {
+            "agents": [
+              "project-manager",
+              "technical-specifications",
+              "business-tech-alignment"
+            ],
+            "delegates_to_lower": 3,
+            "delegates_to_higher": 0,
+            "receives_from_higher": 4,
+            "receives_from_lower": 0
+          },
+          "4": {
+            "agents": [
+              "technical-documentation",
+              "api-integration-specialist",
+              "frontend-architecture",
+              "frontend-mockup",
+              "ui-ux-design"
+            ],
+            "delegates_to_lower": 7,
+            "delegates_to_higher": 0,
+            "receives_from_higher": 4,
+            "receives_from_lower": 0
+          },
+          "5": {
+            "agents": [
+              "production-frontend",
+              "backend-services",
+              "database-architecture",
+              "middleware-specialist",
+              "mobile-development"
+            ],
+            "delegates_to_lower": 7,
+            "delegates_to_higher": 0,
+            "receives_from_higher": 7,
+            "receives_from_lower": 0
+          },
+          "6": {
+            "agents": [
+              "devops-engineering",
+              "integration-setup",
+              "script-automation",
+              "development-prompt"
+            ],
+            "delegates_to_lower": 2,
+            "delegates_to_higher": 0,
+            "receives_from_higher": 1,
+            "receives_from_lower": 0
+          },
+          "7": {
+            "agents": [
+              "security-architecture",
+              "performance-optimization",
+              "quality-assurance",
+              "testing-automation",
+              "usage-guide"
+            ],
+            "delegates_to_lower": 0,
+            "delegates_to_higher": 0,
+            "receives_from_higher": 10,
+            "receives_from_lower": 0
+          }
+        },
+        "hierarchy_violations": [],
+        "flow_analysis": {}
+      },
+      "flow_recommendations": [
+        "Agent hierarchy and flow patterns are well-structured"
+      ]
+    },
+    "parallel_execution": {
+      "total_scenarios": 4,
+      "coordination_patterns": {
+        "business_parallel": {
+          "agents": [
+            "business-analyst",
+            "financial-analyst",
+            "ceo-strategy"
+          ],
+          "agent_tiers": [
+            2,
+            2,
+            2
+          ],
+          "same_tier": true,
+          "can_parallelize": true,
+          "coordination_needed": true
+        },
+        "architecture_parallel": {
+          "agents": [
+            "frontend-architecture",
+            "database-architecture"
+          ],
+          "agent_tiers": [
+            4,
+            5
+          ],
+          "same_tier": false,
+          "can_parallelize": true,
+          "coordination_needed": true
+        },
+        "development_parallel": {
+          "agents": [
+            "production-frontend",
+            "backend-services",
+            "mobile-development"
+          ],
+          "agent_tiers": [
+            5,
+            5,
+            5
+          ],
+          "same_tier": true,
+          "can_parallelize": true,
+          "coordination_needed": true
+        },
+        "quality_parallel": {
+          "agents": [
+            "testing-automation",
+            "security-architecture",
+            "performance-optimization"
+          ],
+          "agent_tiers": [
+            7,
+            7,
+            7
+          ],
+          "same_tier": true,
+          "can_parallelize": true,
+          "coordination_needed": false
+        }
+      },
+      "parallel_efficiency": {}
+    }
+  },
+  "summary": {
+    "total_agents": 28,
+    "total_tiers": 7,
+    "orchestrator_available": false,
+    "hierarchy_violations": 0,
+    "routing_patterns_tested": 5
+  },
+  "recommendations": [
+    "Verify orchestrator integration and availability"
+  ]
+}

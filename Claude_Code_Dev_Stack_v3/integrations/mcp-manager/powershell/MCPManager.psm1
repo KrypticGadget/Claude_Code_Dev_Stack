@@ -840,6 +840,363 @@ function Export-MCPConfiguration {
     }
 }
 
+# Enhanced Windows-specific functions
+
+function Get-MCPProcessInfo {
+    <#
+    .SYNOPSIS
+        Get detailed process information for MCP services
+    
+    .DESCRIPTION
+        Retrieves detailed Windows process information for running MCP services
+    
+    .EXAMPLE
+        Get-MCPProcessInfo
+    #>
+    
+    [CmdletBinding()]
+    param()
+    
+    try {
+        $MCPProcesses = @()
+        $PythonProcesses = Get-Process | Where-Object { $_.ProcessName -like "*python*" -or $_.Name -like "*mcp*" }
+        
+        foreach ($Process in $PythonProcesses) {
+            try {
+                $ProcessInfo = @{
+                    ProcessId = $Process.Id
+                    ProcessName = $Process.ProcessName
+                    StartTime = $Process.StartTime
+                    CPU = [math]::Round($Process.CPU, 2)
+                    WorkingSet = [math]::Round($Process.WorkingSet64 / 1MB, 2)
+                    VirtualMemory = [math]::Round($Process.VirtualMemorySize64 / 1MB, 2)
+                    HandleCount = $Process.HandleCount
+                    ThreadCount = $Process.Threads.Count
+                    CommandLine = $null
+                }
+                
+                # Try to get command line
+                try {
+                    $WmiProcess = Get-WmiObject -Class Win32_Process -Filter "ProcessId = $($Process.Id)" -ErrorAction SilentlyContinue
+                    if ($WmiProcess) {
+                        $ProcessInfo.CommandLine = $WmiProcess.CommandLine
+                    }
+                }
+                catch {
+                    # Command line not available
+                }
+                
+                # Check if this is likely an MCP process
+                if ($ProcessInfo.CommandLine -and ($ProcessInfo.CommandLine -like "*mcp*" -or $ProcessInfo.CommandLine -like "*8080*" -or $ProcessInfo.CommandLine -like "*8081*" -or $ProcessInfo.CommandLine -like "*8082*")) {
+                    $MCPProcesses += $ProcessInfo
+                }
+                elseif (-not $ProcessInfo.CommandLine -and $Process.ProcessName -like "*python*") {
+                    $MCPProcesses += $ProcessInfo
+                }
+            }
+            catch {
+                Write-Verbose "Error getting info for process $($Process.Id): $($_.Exception.Message)"
+            }
+        }
+        
+        return $MCPProcesses
+    }
+    catch {
+        Write-Error "Failed to get MCP process information: $($_.Exception.Message)"
+        return @()
+    }
+}
+
+function Test-MCPPortAvailability {
+    <#
+    .SYNOPSIS
+        Test if MCP service ports are available
+    
+    .DESCRIPTION
+        Checks if the standard MCP service ports are available or in use
+    
+    .PARAMETER Ports
+        Array of ports to check (defaults to standard MCP ports)
+    
+    .EXAMPLE
+        Test-MCPPortAvailability
+        
+    .EXAMPLE
+        Test-MCPPortAvailability -Ports @(8080, 8081, 8082)
+    #>
+    
+    [CmdletBinding()]
+    param(
+        [int[]]$Ports = @(8080, 8081, 8082, 8090, 8091, 8092)
+    )
+    
+    $PortStatus = @()
+    
+    foreach ($Port in $Ports) {
+        try {
+            $TcpClient = New-Object System.Net.Sockets.TcpClient
+            $AsyncResult = $TcpClient.BeginConnect("localhost", $Port, $null, $null)
+            $Success = $AsyncResult.AsyncWaitHandle.WaitOne(1000)  # 1 second timeout
+            
+            if ($Success) {
+                $TcpClient.EndConnect($AsyncResult)
+                $TcpClient.Close()
+                
+                # Port is in use, try to identify the process
+                $ProcessInfo = $null
+                try {
+                    $NetStatResult = netstat -ano | Select-String ":$Port "
+                    if ($NetStatResult) {
+                        $ProcessId = ($NetStatResult.ToString() -split '\s+')[-1]
+                        if ($ProcessId -match '^\d+$') {
+                            $Process = Get-Process -Id $ProcessId -ErrorAction SilentlyContinue
+                            if ($Process) {
+                                $ProcessInfo = @{
+                                    ProcessId = $Process.Id
+                                    ProcessName = $Process.ProcessName
+                                    StartTime = $Process.StartTime
+                                }
+                            }
+                        }
+                    }
+                }
+                catch {
+                    # Process identification failed
+                }
+                
+                $PortStatus += @{
+                    Port = $Port
+                    Available = $false
+                    InUse = $true
+                    Process = $ProcessInfo
+                }
+            }
+            else {
+                $TcpClient.Close()
+                $PortStatus += @{
+                    Port = $Port
+                    Available = $true
+                    InUse = $false
+                    Process = $null
+                }
+            }
+        }
+        catch {
+            $PortStatus += @{
+                Port = $Port
+                Available = $true
+                InUse = $false
+                Process = $null
+            }
+        }
+    }
+    
+    return $PortStatus
+}
+
+function Get-MCPSystemRequirements {
+    <#
+    .SYNOPSIS
+        Check system requirements for MCP Manager
+    
+    .DESCRIPTION
+        Validates that the system meets requirements for running MCP Manager
+    
+    .EXAMPLE
+        Get-MCPSystemRequirements
+    #>
+    
+    [CmdletBinding()]
+    param()
+    
+    $Requirements = @{
+        PowerShellVersion = @{
+            Required = "5.1"
+            Current = $PSVersionTable.PSVersion.ToString()
+            Status = "Unknown"
+        }
+        PythonVersion = @{
+            Required = "3.8+"
+            Current = $null
+            Status = "Unknown"
+        }
+        AvailableMemory = @{
+            Required = "2 GB"
+            Current = $null
+            Status = "Unknown"
+        }
+        DiskSpace = @{
+            Required = "1 GB"
+            Current = $null
+            Status = "Unknown"
+        }
+        NetworkPorts = @{
+            Required = "8080-8092"
+            Current = $null
+            Status = "Unknown"
+        }
+    }
+    
+    # Check PowerShell version
+    if ($PSVersionTable.PSVersion.Major -ge 5) {
+        $Requirements.PowerShellVersion.Status = "Pass"
+    }
+    else {
+        $Requirements.PowerShellVersion.Status = "Fail"
+    }
+    
+    # Check Python version
+    try {
+        $PythonVersion = & python --version 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            $Requirements.PythonVersion.Current = $PythonVersion.ToString()
+            if ($PythonVersion -match "Python 3\.([8-9]|\d{2})") {
+                $Requirements.PythonVersion.Status = "Pass"
+            }
+            else {
+                $Requirements.PythonVersion.Status = "Fail"
+            }
+        }
+        else {
+            $Requirements.PythonVersion.Current = "Not found"
+            $Requirements.PythonVersion.Status = "Fail"
+        }
+    }
+    catch {
+        $Requirements.PythonVersion.Current = "Not found"
+        $Requirements.PythonVersion.Status = "Fail"
+    }
+    
+    # Check available memory
+    try {
+        $Memory = Get-WmiObject -Class Win32_ComputerSystem
+        $AvailableMemoryGB = [math]::Round($Memory.TotalPhysicalMemory / 1GB, 2)
+        $Requirements.AvailableMemory.Current = "$AvailableMemoryGB GB"
+        
+        if ($AvailableMemoryGB -ge 2) {
+            $Requirements.AvailableMemory.Status = "Pass"
+        }
+        else {
+            $Requirements.AvailableMemory.Status = "Fail"
+        }
+    }
+    catch {
+        $Requirements.AvailableMemory.Current = "Unknown"
+        $Requirements.AvailableMemory.Status = "Unknown"
+    }
+    
+    # Check disk space
+    try {
+        $Disk = Get-WmiObject -Class Win32_LogicalDisk -Filter "DeviceID='C:'"
+        $FreeSpaceGB = [math]::Round($Disk.FreeSpace / 1GB, 2)
+        $Requirements.DiskSpace.Current = "$FreeSpaceGB GB free"
+        
+        if ($FreeSpaceGB -ge 1) {
+            $Requirements.DiskSpace.Status = "Pass"
+        }
+        else {
+            $Requirements.DiskSpace.Status = "Fail"
+        }
+    }
+    catch {
+        $Requirements.DiskSpace.Current = "Unknown"
+        $Requirements.DiskSpace.Status = "Unknown"
+    }
+    
+    # Check network ports
+    $PortStatus = Test-MCPPortAvailability
+    $AvailablePorts = ($PortStatus | Where-Object { $_.Available }).Count
+    $TotalPorts = $PortStatus.Count
+    
+    $Requirements.NetworkPorts.Current = "$AvailablePorts/$TotalPorts available"
+    if ($AvailablePorts -ge ($TotalPorts * 0.5)) {
+        $Requirements.NetworkPorts.Status = "Pass"
+    }
+    else {
+        $Requirements.NetworkPorts.Status = "Warn"
+    }
+    
+    return $Requirements
+}
+
+function Show-MCPSystemInfo {
+    <#
+    .SYNOPSIS
+        Display comprehensive MCP system information
+    
+    .DESCRIPTION
+        Shows detailed system information relevant to MCP Manager
+    
+    .EXAMPLE
+        Show-MCPSystemInfo
+    #>
+    
+    [CmdletBinding()]
+    param()
+    
+    Write-Host ""
+    Write-Host "MCP Manager System Information" -ForegroundColor Cyan
+    Write-Host "=" * 50 -ForegroundColor Cyan
+    Write-Host ""
+    
+    # System requirements
+    Write-Host "System Requirements:" -ForegroundColor Yellow
+    $Requirements = Get-MCPSystemRequirements
+    
+    foreach ($Requirement in $Requirements.Keys) {
+        $Req = $Requirements[$Requirement]
+        $StatusColor = switch ($Req.Status) {
+            "Pass" { "Green" }
+            "Fail" { "Red" }
+            "Warn" { "Yellow" }
+            default { "Gray" }
+        }
+        
+        Write-Host "  $Requirement`: $($Req.Status)" -ForegroundColor $StatusColor
+        Write-Host "    Required: $($Req.Required)" -ForegroundColor Gray
+        Write-Host "    Current: $($Req.Current)" -ForegroundColor Gray
+    }
+    Write-Host ""
+    
+    # Process information
+    Write-Host "MCP Processes:" -ForegroundColor Yellow
+    $Processes = Get-MCPProcessInfo
+    
+    if ($Processes.Count -gt 0) {
+        foreach ($Process in $Processes) {
+            Write-Host "  PID $($Process.ProcessId) - $($Process.ProcessName)" -ForegroundColor White
+            Write-Host "    Memory: $($Process.WorkingSet) MB" -ForegroundColor Gray
+            Write-Host "    CPU: $($Process.CPU) seconds" -ForegroundColor Gray
+            Write-Host "    Handles: $($Process.HandleCount)" -ForegroundColor Gray
+            if ($Process.CommandLine) {
+                $CmdLine = if ($Process.CommandLine.Length -gt 60) { $Process.CommandLine.Substring(0, 57) + "..." } else { $Process.CommandLine }
+                Write-Host "    Command: $CmdLine" -ForegroundColor Gray
+            }
+            Write-Host ""
+        }
+    }
+    else {
+        Write-Host "  No MCP processes found" -ForegroundColor Gray
+        Write-Host ""
+    }
+    
+    # Port status
+    Write-Host "Port Status:" -ForegroundColor Yellow
+    $PortStatus = Test-MCPPortAvailability
+    
+    foreach ($Port in $PortStatus) {
+        $StatusText = if ($Port.Available) { "Available" } else { "In Use" }
+        $StatusColor = if ($Port.Available) { "Green" } else { "Red" }
+        
+        Write-Host "  Port $($Port.Port): $StatusText" -ForegroundColor $StatusColor
+        
+        if ($Port.Process) {
+            Write-Host "    Used by: $($Port.Process.ProcessName) (PID $($Port.Process.ProcessId))" -ForegroundColor Gray
+        }
+    }
+    Write-Host ""
+}
+
 # Export module members
 Export-ModuleMember -Function @(
     'Initialize-MCPManager',
@@ -853,7 +1210,11 @@ Export-ModuleMember -Function @(
     'Test-MCPServiceHealth',
     'Show-MCPDashboard',
     'New-MCPConfiguration',
-    'Export-MCPConfiguration'
+    'Export-MCPConfiguration',
+    'Get-MCPProcessInfo',
+    'Test-MCPPortAvailability',
+    'Get-MCPSystemRequirements',
+    'Show-MCPSystemInfo'
 )
 
 # Module initialization

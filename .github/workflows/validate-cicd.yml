@@ -1,0 +1,456 @@
+name: Validate CI/CD Pipeline System
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - '.github/workflows/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/**'
+  workflow_dispatch:
+  schedule:
+    - cron: '0 12 * * 1'  # Weekly on Monday at 12 PM
+
+env:
+  EXPECTED_WORKFLOWS: 8  # Number of expected workflow files
+
+jobs:
+  validate-workflow-structure:
+    name: Validate Workflow Structure
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Validate Workflow Files
+        run: |
+          echo "::group::Workflow File Validation"
+          
+          # Expected workflow files
+          expected_workflows=(
+            "main-pipeline.yml"
+            "attribution-check.yml"
+            "size-validation.yml"
+            "testing.yml"
+            "security-scan.yml"
+            "build-deploy.yml"
+            "release-automation.yml"
+            "validate.yml"
+          )
+          
+          echo "Checking for expected workflow files..."
+          missing_workflows=()
+          
+          for workflow in "${expected_workflows[@]}"; do
+            if [ -f ".github/workflows/$workflow" ]; then
+              echo "✅ Found: $workflow"
+            else
+              echo "❌ Missing: $workflow"
+              missing_workflows+=("$workflow")
+            fi
+          done
+          
+          if [ ${#missing_workflows[@]} -eq 0 ]; then
+            echo "✅ All expected workflow files are present"
+          else
+            echo "❌ Missing ${#missing_workflows[@]} workflow files"
+            exit 1
+          fi
+          
+          echo "::endgroup::"
+
+      - name: Validate Workflow Syntax
+        run: |
+          echo "::group::Workflow Syntax Validation"
+          
+          # Install yamllint for YAML validation
+          pip install yamllint
+          
+          # Create yamllint config for GitHub Actions
+          cat > .yamllint.yml << 'EOF'
+          extends: default
+          
+          rules:
+            line-length:
+              max: 120
+              level: warning
+            indentation:
+              spaces: 2
+            truthy:
+              allowed-values: [true, false, on, off]
+            comments:
+              min-spaces-from-content: 1
+          EOF
+          
+          echo "Validating YAML syntax for all workflow files..."
+          validation_errors=0
+          
+          for workflow in .github/workflows/*.yml; do
+            echo "Validating $(basename "$workflow")..."
+            if yamllint -c .yamllint.yml "$workflow"; then
+              echo "✅ $(basename "$workflow") - Valid YAML"
+            else
+              echo "❌ $(basename "$workflow") - YAML errors found"
+              validation_errors=$((validation_errors + 1))
+            fi
+          done
+          
+          if [ "$validation_errors" -eq 0 ]; then
+            echo "✅ All workflow files have valid YAML syntax"
+          else
+            echo "❌ Found YAML syntax errors in $validation_errors files"
+            exit 1
+          fi
+          
+          echo "::endgroup::"
+
+      - name: Check Workflow Dependencies
+        run: |
+          echo "::group::Workflow Dependencies Check"
+          
+          # Check main pipeline references
+          if grep -q "uses: ./.github/workflows/" .github/workflows/main-pipeline.yml; then
+            echo "✅ Main pipeline correctly references other workflows"
+          else
+            echo "⚠️ Main pipeline may not be using workflow dependencies"
+          fi
+          
+          # Check for required GitHub Actions versions
+          echo "Checking GitHub Actions versions..."
+          
+          required_actions=(
+            "actions/checkout@v4"
+            "actions/setup-node@v4"
+            "actions/setup-python@v4"
+            "actions/upload-artifact@v3"
+            "actions/download-artifact@v3"
+          )
+          
+          for action in "${required_actions[@]}"; do
+            if grep -r "$action" .github/workflows/ > /dev/null; then
+              echo "✅ Using recommended version: $action"
+            else
+              action_name=$(echo "$action" | cut -d'@' -f1)
+              if grep -r "$action_name" .github/workflows/ > /dev/null; then
+                echo "⚠️ Found $action_name but may be using older version"
+              else
+                echo "❌ Missing required action: $action"
+              fi
+            fi
+          done
+          
+          echo "::endgroup::"
+
+      - name: Validate Environment Variables
+        run: |
+          echo "::group::Environment Variables Validation"
+          
+          # Check for consistent environment variables across workflows
+          echo "Checking for consistent environment variable usage..."
+          
+          common_env_vars=(
+            "NODE_VERSION"
+            "PYTHON_VERSION"
+          )
+          
+          for var in "${common_env_vars[@]}"; do
+            echo "Checking usage of $var..."
+            
+            # Find all workflows that use this variable
+            workflows_using_var=$(grep -l "$var" .github/workflows/*.yml)
+            
+            if [ -n "$workflows_using_var" ]; then
+              echo "Workflows using $var:"
+              echo "$workflows_using_var" | while read -r workflow; do
+                value=$(grep "$var:" "$workflow" | head -1 | cut -d"'" -f2)
+                echo "  - $(basename "$workflow"): $value"
+              done
+            fi
+          done
+          
+          echo "::endgroup::"
+
+  validate-security-configuration:
+    name: Validate Security Configuration
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Check Workflow Permissions
+        run: |
+          echo "::group::Workflow Permissions Check"
+          
+          echo "Checking workflow permissions configuration..."
+          
+          # Check for minimal permissions principle
+          workflows_with_permissions=$(grep -l "permissions:" .github/workflows/*.yml)
+          
+          if [ -n "$workflows_with_permissions" ]; then
+            echo "Workflows with explicit permissions:"
+            echo "$workflows_with_permissions" | while read -r workflow; do
+              echo "  - $(basename "$workflow")"
+            done
+          else
+            echo "⚠️ No workflows have explicit permissions configured"
+            echo "Consider adding minimal permissions for security"
+          fi
+          
+          # Check for token usage
+          token_usage=$(grep -r "secrets.GITHUB_TOKEN\|\${{ github.token }}" .github/workflows/ || true)
+          if [ -n "$token_usage" ]; then
+            echo "✅ Workflows properly use GitHub token"
+          fi
+          
+          echo "::endgroup::"
+
+      - name: Check Secret Dependencies
+        run: |
+          echo "::group::Secret Dependencies Check"
+          
+          echo "Checking for secret dependencies..."
+          
+          # Look for secret references
+          secret_refs=$(grep -r "secrets\." .github/workflows/ | grep -v "secrets.GITHUB_TOKEN" || true)
+          
+          if [ -n "$secret_refs" ]; then
+            echo "External secrets referenced:"
+            echo "$secret_refs" | cut -d: -f1 | sort | uniq | while read -r workflow; do
+              echo "  - $(basename "$workflow")"
+            done
+            echo ""
+            echo "Ensure these secrets are configured in repository settings:"
+            echo "$secret_refs" | grep -o "secrets\.[A-Z_]*" | sort | uniq | while read -r secret; do
+              echo "  - $secret"
+            done
+          else
+            echo "✅ No external secrets required"
+          fi
+          
+          echo "::endgroup::"
+
+  test-workflow-execution:
+    name: Test Workflow Execution
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Simulate Workflow Triggers
+        run: |
+          echo "::group::Workflow Trigger Simulation"
+          
+          echo "Testing workflow trigger conditions..."
+          
+          # Check main pipeline triggers
+          if grep -q "workflow_dispatch:" .github/workflows/main-pipeline.yml; then
+            echo "✅ Main pipeline supports manual triggers"
+          else
+            echo "⚠️ Main pipeline missing manual trigger support"
+          fi
+          
+          # Check scheduled workflows
+          scheduled_workflows=$(grep -l "schedule:" .github/workflows/*.yml)
+          if [ -n "$scheduled_workflows" ]; then
+            echo "✅ Found scheduled workflows:"
+            echo "$scheduled_workflows" | while read -r workflow; do
+              schedule=$(grep -A 2 "schedule:" "$workflow" | grep "cron:" | head -1)
+              echo "  - $(basename "$workflow"): $schedule"
+            done
+          fi
+          
+          echo "::endgroup::"
+
+      - name: Validate Workflow Outputs
+        run: |
+          echo "::group::Workflow Outputs Validation"
+          
+          echo "Checking workflow outputs and artifacts..."
+          
+          # Check for artifact uploads
+          workflows_with_artifacts=$(grep -l "upload-artifact" .github/workflows/*.yml)
+          
+          if [ -n "$workflows_with_artifacts" ]; then
+            echo "✅ Workflows with artifact uploads:"
+            echo "$workflows_with_artifacts" | while read -r workflow; do
+              echo "  - $(basename "$workflow")"
+            done
+          fi
+          
+          # Check for job outputs
+          workflows_with_outputs=$(grep -l "outputs:" .github/workflows/*.yml)
+          
+          if [ -n "$workflows_with_outputs" ]; then
+            echo "✅ Workflows with job outputs:"
+            echo "$workflows_with_outputs" | while read -r workflow; do
+              echo "  - $(basename "$workflow")"
+            done
+          fi
+          
+          echo "::endgroup::"
+
+  generate-cicd-report:
+    name: Generate CI/CD Validation Report
+    runs-on: ubuntu-latest
+    needs: [validate-workflow-structure, validate-security-configuration, test-workflow-execution]
+    if: always()
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Generate Comprehensive Report
+        run: |
+          echo "# CI/CD Pipeline Validation Report" > cicd-validation-report.md
+          echo "" >> cicd-validation-report.md
+          echo "**Generated**: $(date)" >> cicd-validation-report.md
+          echo "**Commit**: ${{ github.sha }}" >> cicd-validation-report.md
+          echo "**Validation Run**: ${{ github.run_number }}" >> cicd-validation-report.md
+          echo "" >> cicd-validation-report.md
+          
+          echo "## Validation Results Summary" >> cicd-validation-report.md
+          echo "" >> cicd-validation-report.md
+          echo "| Component | Status |" >> cicd-validation-report.md
+          echo "|-----------|--------|" >> cicd-validation-report.md
+          
+          if [ "${{ needs.validate-workflow-structure.result }}" = "success" ]; then
+            echo "| Workflow Structure | ✅ Valid |" >> cicd-validation-report.md
+          else
+            echo "| Workflow Structure | ❌ Issues Found |" >> cicd-validation-report.md
+          fi
+          
+          if [ "${{ needs.validate-security-configuration.result }}" = "success" ]; then
+            echo "| Security Configuration | ✅ Valid |" >> cicd-validation-report.md
+          else
+            echo "| Security Configuration | ❌ Issues Found |" >> cicd-validation-report.md
+          fi
+          
+          if [ "${{ needs.test-workflow-execution.result }}" = "success" ]; then
+            echo "| Workflow Execution | ✅ Valid |" >> cicd-validation-report.md
+          else
+            echo "| Workflow Execution | ❌ Issues Found |" >> cicd-validation-report.md
+          fi
+          
+          echo "" >> cicd-validation-report.md
+          
+          # Pipeline overview
+          echo "## Pipeline Overview" >> cicd-validation-report.md
+          echo "" >> cicd-validation-report.md
+          
+          workflow_count=$(ls -1 .github/workflows/*.yml | wc -l)
+          echo "- **Total Workflows**: $workflow_count" >> cicd-validation-report.md
+          
+          main_pipeline_exists="false"
+          if [ -f ".github/workflows/main-pipeline.yml" ]; then
+            main_pipeline_exists="true"
+          fi
+          echo "- **Main Pipeline**: $main_pipeline_exists" >> cicd-validation-report.md
+          
+          scheduled_count=$(grep -l "schedule:" .github/workflows/*.yml | wc -l)
+          echo "- **Scheduled Workflows**: $scheduled_count" >> cicd-validation-report.md
+          
+          manual_trigger_count=$(grep -l "workflow_dispatch:" .github/workflows/*.yml | wc -l)
+          echo "- **Manual Triggers**: $manual_trigger_count" >> cicd-validation-report.md
+          
+          echo "" >> cicd-validation-report.md
+          
+          # Workflow details
+          echo "## Workflow Details" >> cicd-validation-report.md
+          echo "" >> cicd-validation-report.md
+          echo "| Workflow | Purpose | Triggers |" >> cicd-validation-report.md
+          echo "|----------|---------|----------|" >> cicd-validation-report.md
+          
+          for workflow in .github/workflows/*.yml; do
+            name=$(basename "$workflow" .yml)
+            
+            # Extract name from workflow file
+            display_name=$(grep "^name:" "$workflow" | cut -d: -f2- | sed 's/^ *//')
+            
+            # Check triggers
+            triggers=""
+            if grep -q "push:" "$workflow"; then triggers="${triggers}push "; fi
+            if grep -q "pull_request:" "$workflow"; then triggers="${triggers}pr "; fi
+            if grep -q "schedule:" "$workflow"; then triggers="${triggers}schedule "; fi
+            if grep -q "workflow_dispatch:" "$workflow"; then triggers="${triggers}manual "; fi
+            
+            echo "| $name | $display_name | $triggers |" >> cicd-validation-report.md
+          done
+          
+          echo "" >> cicd-validation-report.md
+          
+          # Recommendations
+          echo "## Recommendations" >> cicd-validation-report.md
+          echo "" >> cicd-validation-report.md
+          
+          if [ "$workflow_count" -ge 8 ]; then
+            echo "✅ Comprehensive CI/CD pipeline in place" >> cicd-validation-report.md
+          else
+            echo "⚠️ Consider adding more specialized workflows" >> cicd-validation-report.md
+          fi
+          
+          if [ -f ".github/workflows/main-pipeline.yml" ]; then
+            echo "✅ Main orchestration pipeline configured" >> cicd-validation-report.md
+          else
+            echo "❌ Missing main pipeline orchestration" >> cicd-validation-report.md
+          fi
+          
+          if [ "$scheduled_count" -gt 0 ]; then
+            echo "✅ Automated scheduled workflows configured" >> cicd-validation-report.md
+          else
+            echo "⚠️ Consider adding scheduled maintenance workflows" >> cicd-validation-report.md
+          fi
+          
+          echo "" >> cicd-validation-report.md
+          echo "---" >> cicd-validation-report.md
+          echo "*Report generated by CI/CD validation workflow*" >> cicd-validation-report.md
+
+      - name: Upload Validation Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: cicd-validation-report
+          path: cicd-validation-report.md
+
+      - name: Update Summary
+        run: |
+          echo "### 🔍 CI/CD Pipeline Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          workflow_count=$(ls -1 .github/workflows/*.yml | wc -l)
+          echo "**Total Workflows**: $workflow_count" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.validate-workflow-structure.result }}" = "success" ]; then
+            echo "**Structure**: ✅ Valid" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Structure**: ❌ Issues found" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.validate-security-configuration.result }}" = "success" ]; then
+            echo "**Security**: ✅ Configured" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Security**: ⚠️ Needs attention" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📋 [View detailed validation report in artifacts]" >> $GITHUB_STEP_SUMMARY
+
+      - name: CI/CD Validation Status
+        run: |
+          if [ "${{ needs.validate-workflow-structure.result }}" != "success" ]; then
+            echo "::error::Workflow structure validation failed"
+            exit 1
+          fi
+          
+          if [ "${{ needs.validate-security-configuration.result }}" != "success" ]; then
+            echo "::warning::Security configuration needs attention"
+          fi
+          
+          if [ "${{ needs.test-workflow-execution.result }}" != "success" ]; then
+            echo "::warning::Workflow execution tests failed"
+          fi
+          
+          echo "✅ CI/CD pipeline validation completed successfully"

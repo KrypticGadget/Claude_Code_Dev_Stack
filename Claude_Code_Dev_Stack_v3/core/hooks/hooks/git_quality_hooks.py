@@ -24,8 +24,14 @@ class GitQualityHooks:
         self.pre_commit_checks = git_settings.get('preCommitChecks', [
             'lint', 'format', 'test', 'security'
         ])
-        self.block_on_failure = git_settings.get('blockOnFailure', True)
+        self.block_on_failure = git_settings.get('blockOnFailure', False)  # Changed default to False
         self.auto_fix = git_settings.get('autoFix', True)
+        
+        # New strictness settings for git hooks
+        self.strictness_level = git_settings.get('strictness', 'warning')  # 'strict', 'warning', 'suggestion'
+        self.block_on_lint_errors = git_settings.get('blockOnLintErrors', False)
+        self.block_on_lint_warnings = git_settings.get('blockOnLintWarnings', False)
+        self.allow_warnings_commit = git_settings.get('allowWarningsCommit', True)
         
         # Check types configuration
         self.checks = {
@@ -121,9 +127,10 @@ class GitQualityHooks:
         return []
     
     def run_lint_check(self, files: List[str]) -> Tuple[bool, List[str]]:
-        """Run linting on files"""
+        """Run linting on files with configurable strictness"""
         messages = []
-        success = True
+        has_errors = False
+        has_warnings = False
         
         linter_path = self.claude_dir / 'hooks' / 'code_linter.py'
         if not linter_path.exists():
@@ -136,22 +143,45 @@ class GitQualityHooks:
             
             try:
                 result = subprocess.run(
-                    [sys.executable, str(linter_path), 'file', file_path],
+                    [sys.executable, str(linter_path), 'post-write', file_path],
                     capture_output=True,
                     text=True,
                     timeout=30
                 )
                 
+                # The updated linter returns 0 for warnings but 1 for blocking errors
                 if result.returncode != 0:
-                    success = False
-                    messages.append(f"Linting issues in {file_path}")
-                    if result.stdout:
-                        messages.extend(f"  {line}" for line in result.stdout.strip().split('\n'))
+                    has_errors = True
+                
+                # Check if output contains warnings/suggestions (even with return code 0)
+                if result.stderr:
+                    stderr_content = result.stderr.strip()
+                    if stderr_content:
+                        messages.append(f"Code quality analysis for {file_path}:")
+                        for line in stderr_content.split('\n'):
+                            if line.strip():
+                                messages.append(f"  {line}")
+                                # Check if it's a warning
+                                if 'WARNING' in line.upper() or '⚠️' in line:
+                                    has_warnings = True
+                                # Check if it's an error
+                                if 'ERROR' in line.upper() or '❌' in line or '🚨' in line:
+                                    has_errors = True
                     
             except subprocess.TimeoutExpired:
                 messages.append(f"Linting timeout for {file_path}")
+                has_errors = True
             except Exception as e:
                 messages.append(f"Linting error for {file_path}: {str(e)}")
+                has_errors = True
+        
+        # Determine success based on strictness settings
+        if self.strictness_level == 'strict':
+            success = not (has_errors or has_warnings)
+        elif self.strictness_level == 'warning':
+            success = not has_errors or (self.allow_warnings_commit and not self.block_on_lint_errors)
+        else:  # suggestion level
+            success = not has_errors or not self.block_on_lint_errors
         
         return success, messages
     

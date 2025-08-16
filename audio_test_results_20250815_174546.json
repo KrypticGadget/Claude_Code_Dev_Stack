@@ -1,0 +1,1348 @@
+{
+  "test_suite_version": "3.0_audio",
+  "timestamp": "2025-08-15T17:45:46.348378",
+  "test_duration": 0.031955,
+  "audio_directory": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio",
+  "overall_score": 71.48809523809524,
+  "system_status": "needs_improvement",
+  "test_results": {
+    "file_availability": {
+      "total_expected": 12,
+      "files_found": 5,
+      "files_missing": 7,
+      "file_details": {
+        "agent_activated.wav": {
+          "status": "found",
+          "description": "General agent activation",
+          "size_bytes": 393440,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\agent_activated.wav"
+        },
+        "agent_delegating.wav": {
+          "status": "found",
+          "description": "Agent delegation events",
+          "size_bytes": 520340,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\agent_delegating.wav"
+        },
+        "backend_agent.wav": {
+          "status": "found",
+          "description": "Backend services agent",
+          "size_bytes": 469580,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\backend_agent.wav"
+        },
+        "database_agent.wav": {
+          "status": "found",
+          "description": "Database architecture agent",
+          "size_bytes": 486500,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\database_agent.wav"
+        },
+        "frontend_agent.wav": {
+          "status": "found",
+          "description": "Frontend development agent",
+          "size_bytes": 436204,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\frontend_agent.wav"
+        },
+        "business_analysis.wav": {
+          "status": "missing",
+          "description": "Business analysis completion",
+          "expected_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\business_analysis.wav"
+        },
+        "security_verified.wav": {
+          "status": "missing",
+          "description": "Security audit completion",
+          "expected_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\security_verified.wav"
+        },
+        "testing_complete.wav": {
+          "status": "missing",
+          "description": "Testing automation completion",
+          "expected_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\testing_complete.wav"
+        },
+        "deployment_ready.wav": {
+          "status": "missing",
+          "description": "DevOps deployment ready",
+          "expected_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\deployment_ready.wav"
+        },
+        "quality_verified.wav": {
+          "status": "missing",
+          "description": "Quality assurance completion",
+          "expected_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\quality_verified.wav"
+        },
+        "performance_optimized.wav": {
+          "status": "missing",
+          "description": "Performance optimization completion",
+          "expected_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\performance_optimized.wav"
+        },
+        "documentation_complete.wav": {
+          "status": "missing",
+          "description": "Documentation generation completion",
+          "expected_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\documentation_complete.wav"
+        }
+      },
+      "extra_files": [
+        {
+          "filename": "analyzing.wav",
+          "size_bytes": 334684,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\analyzing.wav"
+        },
+        {
+          "filename": "analyzing_code.wav",
+          "size_bytes": 414588,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\analyzing_code.wav"
+        },
+        {
+          "filename": "auto_accepting.wav",
+          "size_bytes": 486500,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\auto_accepting.wav"
+        },
+        {
+          "filename": "auto_mode_active.wav",
+          "size_bytes": 448428,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\auto_mode_active.wav"
+        },
+        {
+          "filename": "awaiting_confirmation.wav",
+          "size_bytes": 436204,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\awaiting_confirmation.wav"
+        },
+        {
+          "filename": "awaiting_input.wav",
+          "size_bytes": 389212,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\awaiting_input.wav"
+        },
+        {
+          "filename": "build_successful.wav",
+          "size_bytes": 380748,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\build_successful.wav"
+        },
+        {
+          "filename": "cargo_build.wav",
+          "size_bytes": 435740,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\cargo_build.wav"
+        },
+        {
+          "filename": "changing_directory.wav",
+          "size_bytes": 470044,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\changing_directory.wav"
+        },
+        {
+          "filename": "checking_files.wav",
+          "size_bytes": 511880,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\checking_files.wav"
+        },
+        {
+          "filename": "command_execution_pending.wav",
+          "size_bytes": 494960,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\command_execution_pending.wav"
+        },
+        {
+          "filename": "command_failed.wav",
+          "size_bytes": 482268,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\command_failed.wav"
+        },
+        {
+          "filename": "command_successful.wav",
+          "size_bytes": 402364,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\command_successful.wav"
+        },
+        {
+          "filename": "confirm_required.wav",
+          "size_bytes": 448428,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\confirm_required.wav"
+        },
+        {
+          "filename": "connection_error.wav",
+          "size_bytes": 368524,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\connection_error.wav"
+        },
+        {
+          "filename": "context_loaded.wav",
+          "size_bytes": 516108,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\context_loaded.wav"
+        },
+        {
+          "filename": "context_saved.wav",
+          "size_bytes": 528800,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\context_saved.wav"
+        },
+        {
+          "filename": "copy_operation.wav",
+          "size_bytes": 402364,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\copy_operation.wav"
+        },
+        {
+          "filename": "dashboard_started.wav",
+          "size_bytes": 516108,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\dashboard_started.wav"
+        },
+        {
+          "filename": "decision_required.wav",
+          "size_bytes": 402364,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\decision_required.wav"
+        },
+        {
+          "filename": "delete_operation.wav",
+          "size_bytes": 401900,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\delete_operation.wav"
+        },
+        {
+          "filename": "dependency_installing.wav",
+          "size_bytes": 478040,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\dependency_installing.wav"
+        },
+        {
+          "filename": "dependency_missing.wav",
+          "size_bytes": 511880,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\dependency_missing.wav"
+        },
+        {
+          "filename": "docker_building.wav",
+          "size_bytes": 431512,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\docker_building.wav"
+        },
+        {
+          "filename": "docker_running.wav",
+          "size_bytes": 456892,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\docker_running.wav"
+        },
+        {
+          "filename": "documentation_generating.wav",
+          "size_bytes": 482268,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\documentation_generating.wav"
+        },
+        {
+          "filename": "downloading_file.wav",
+          "size_bytes": 397672,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\downloading_file.wav"
+        },
+        {
+          "filename": "file_exists.wav",
+          "size_bytes": 465352,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\file_exists.wav"
+        },
+        {
+          "filename": "file_operation_complete.wav",
+          "size_bytes": 470044,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\file_operation_complete.wav"
+        },
+        {
+          "filename": "file_operation_pending.wav",
+          "size_bytes": 461120,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\file_operation_pending.wav"
+        },
+        {
+          "filename": "formatting_code.wav",
+          "size_bytes": 431512,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\formatting_code.wav"
+        },
+        {
+          "filename": "generating_code.wav",
+          "size_bytes": 380748,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\generating_code.wav"
+        },
+        {
+          "filename": "git_commit.wav",
+          "size_bytes": 414588,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\git_commit.wav"
+        },
+        {
+          "filename": "git_pull.wav",
+          "size_bytes": 456892,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\git_pull.wav"
+        },
+        {
+          "filename": "git_push.wav",
+          "size_bytes": 503884,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\git_push.wav"
+        },
+        {
+          "filename": "git_status.wav",
+          "size_bytes": 418820,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\git_status.wav"
+        },
+        {
+          "filename": "handoff_generated.wav",
+          "size_bytes": 566872,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\handoff_generated.wav"
+        },
+        {
+          "filename": "http_request.wav",
+          "size_bytes": 554180,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\http_request.wav"
+        },
+        {
+          "filename": "installing_packages.wav",
+          "size_bytes": 448428,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\installing_packages.wav"
+        },
+        {
+          "filename": "linting_complete.wav",
+          "size_bytes": 482268,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\linting_complete.wav"
+        },
+        {
+          "filename": "linting_issues.wav",
+          "size_bytes": 461120,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\linting_issues.wav"
+        },
+        {
+          "filename": "linting_started.wav",
+          "size_bytes": 499192,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\linting_started.wav"
+        },
+        {
+          "filename": "make_build.wav",
+          "size_bytes": 368524,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\make_build.wav"
+        },
+        {
+          "filename": "master_orchestrator.wav",
+          "size_bytes": 486500,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\master_orchestrator.wav"
+        },
+        {
+          "filename": "mkdir_operation.wav",
+          "size_bytes": 402364,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\mkdir_operation.wav"
+        },
+        {
+          "filename": "move_operation.wav",
+          "size_bytes": 389212,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\move_operation.wav"
+        },
+        {
+          "filename": "notification_sent.wav",
+          "size_bytes": 490732,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\notification_sent.wav"
+        },
+        {
+          "filename": "no_venv_warning.wav",
+          "size_bytes": 533032,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\no_venv_warning.wav"
+        },
+        {
+          "filename": "npm_build.wav",
+          "size_bytes": 456892,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\npm_build.wav"
+        },
+        {
+          "filename": "npm_install.wav",
+          "size_bytes": 478040,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\npm_install.wav"
+        },
+        {
+          "filename": "obsidian_notes.wav",
+          "size_bytes": 478040,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\obsidian_notes.wav"
+        },
+        {
+          "filename": "operation_complete.wav",
+          "size_bytes": 418820,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\operation_complete.wav"
+        },
+        {
+          "filename": "optimizing_performance.wav",
+          "size_bytes": 465352,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\optimizing_performance.wav"
+        },
+        {
+          "filename": "orchestration_complete.wav",
+          "size_bytes": 444200,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\orchestration_complete.wav"
+        },
+        {
+          "filename": "orchestration_started.wav",
+          "size_bytes": 461120,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\orchestration_started.wav"
+        },
+        {
+          "filename": "parallel_execution.wav",
+          "size_bytes": 511880,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\parallel_execution.wav"
+        },
+        {
+          "filename": "performance_warning.wav",
+          "size_bytes": 511880,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\performance_warning.wav"
+        },
+        {
+          "filename": "permission_required.wav",
+          "size_bytes": 402364,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\permission_required.wav"
+        },
+        {
+          "filename": "phase_complete.wav",
+          "size_bytes": 511880,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\phase_complete.wav"
+        },
+        {
+          "filename": "phase_deployment.wav",
+          "size_bytes": 427280,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\phase_deployment.wav"
+        },
+        {
+          "filename": "phase_implementation.wav",
+          "size_bytes": 452660,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\phase_implementation.wav"
+        },
+        {
+          "filename": "phase_planning.wav",
+          "size_bytes": 448428,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\phase_planning.wav"
+        },
+        {
+          "filename": "pipeline_complete.wav",
+          "size_bytes": 402364,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\pipeline_complete.wav"
+        },
+        {
+          "filename": "pipeline_initiated.wav",
+          "size_bytes": 418820,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\pipeline_initiated.wav"
+        },
+        {
+          "filename": "pip_install.wav",
+          "size_bytes": 524572,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\pip_install.wav"
+        },
+        {
+          "filename": "planning_complete.wav",
+          "size_bytes": 368524,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\planning_complete.wav"
+        },
+        {
+          "filename": "playwright_automation.wav",
+          "size_bytes": 503420,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\playwright_automation.wav"
+        },
+        {
+          "filename": "processing.wav",
+          "size_bytes": 329992,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\processing.wav"
+        },
+        {
+          "filename": "project_created.wav",
+          "size_bytes": 558412,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\project_created.wav"
+        },
+        {
+          "filename": "ready_for_input.wav",
+          "size_bytes": 418820,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\ready_for_input.wav"
+        },
+        {
+          "filename": "resource_warning.wav",
+          "size_bytes": 503884,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\resource_warning.wav"
+        },
+        {
+          "filename": "reviewing_changes.wav",
+          "size_bytes": 418820,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\reviewing_changes.wav"
+        },
+        {
+          "filename": "risky_command.wav",
+          "size_bytes": 520340,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\risky_command.wav"
+        },
+        {
+          "filename": "running_tests.wav",
+          "size_bytes": 402364,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\running_tests.wav"
+        },
+        {
+          "filename": "searching_files.wav",
+          "size_bytes": 431512,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\searching_files.wav"
+        },
+        {
+          "filename": "security_scanning.wav",
+          "size_bytes": 503884,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\security_scanning.wav"
+        },
+        {
+          "filename": "smart_routing.wav",
+          "size_bytes": 470044,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\smart_routing.wav"
+        },
+        {
+          "filename": "ssh_connection.wav",
+          "size_bytes": 558412,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\ssh_connection.wav"
+        },
+        {
+          "filename": "startup.wav",
+          "size_bytes": 554180,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\startup.wav"
+        },
+        {
+          "filename": "status_update.wav",
+          "size_bytes": 456892,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\status_update.wav"
+        },
+        {
+          "filename": "tests_failed.wav",
+          "size_bytes": 363832,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\tests_failed.wav"
+        },
+        {
+          "filename": "tests_passed.wav",
+          "size_bytes": 423052,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\tests_passed.wav"
+        },
+        {
+          "filename": "token_critical.wav",
+          "size_bytes": 668392,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\token_critical.wav"
+        },
+        {
+          "filename": "token_warning.wav",
+          "size_bytes": 503884,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\token_warning.wav"
+        },
+        {
+          "filename": "tunnel_connected.wav",
+          "size_bytes": 465352,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\tunnel_connected.wav"
+        },
+        {
+          "filename": "tunnel_disconnected.wav",
+          "size_bytes": 469580,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\tunnel_disconnected.wav"
+        },
+        {
+          "filename": "venv_activated.wav",
+          "size_bytes": 528800,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\venv_activated.wav"
+        },
+        {
+          "filename": "venv_required.wav",
+          "size_bytes": 516108,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\venv_required.wav"
+        },
+        {
+          "filename": "web_search.wav",
+          "size_bytes": 376520,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\web_search.wav"
+        },
+        {
+          "filename": "working.wav",
+          "size_bytes": 300844,
+          "path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\working.wav"
+        }
+      ],
+      "availability_score": 41.66666666666667
+    },
+    "file_integrity": {
+      "total_tested": 95,
+      "valid_files": 95,
+      "invalid_files": 0,
+      "integrity_details": {
+        "agent_activated.wav": {
+          "status": "valid",
+          "size": 393440,
+          "extension": ".wav",
+          "duration_estimate": 8.92154195011338
+        },
+        "agent_delegating.wav": {
+          "status": "valid",
+          "size": 520340,
+          "extension": ".wav",
+          "duration_estimate": 11.799092970521542
+        },
+        "analyzing.wav": {
+          "status": "valid",
+          "size": 334684,
+          "extension": ".wav",
+          "duration_estimate": 7.589206349206349
+        },
+        "analyzing_code.wav": {
+          "status": "valid",
+          "size": 414588,
+          "extension": ".wav",
+          "duration_estimate": 9.401088435374149
+        },
+        "auto_accepting.wav": {
+          "status": "valid",
+          "size": 486500,
+          "extension": ".wav",
+          "duration_estimate": 11.031746031746032
+        },
+        "auto_mode_active.wav": {
+          "status": "valid",
+          "size": 448428,
+          "extension": ".wav",
+          "duration_estimate": 10.16843537414966
+        },
+        "awaiting_confirmation.wav": {
+          "status": "valid",
+          "size": 436204,
+          "extension": ".wav",
+          "duration_estimate": 9.89124716553288
+        },
+        "awaiting_input.wav": {
+          "status": "valid",
+          "size": 389212,
+          "extension": ".wav",
+          "duration_estimate": 8.825668934240364
+        },
+        "backend_agent.wav": {
+          "status": "valid",
+          "size": 469580,
+          "extension": ".wav",
+          "duration_estimate": 10.648072562358276
+        },
+        "build_successful.wav": {
+          "status": "valid",
+          "size": 380748,
+          "extension": ".wav",
+          "duration_estimate": 8.63374149659864
+        },
+        "cargo_build.wav": {
+          "status": "valid",
+          "size": 435740,
+          "extension": ".wav",
+          "duration_estimate": 9.880725623582766
+        },
+        "changing_directory.wav": {
+          "status": "valid",
+          "size": 470044,
+          "extension": ".wav",
+          "duration_estimate": 10.65859410430839
+        },
+        "checking_files.wav": {
+          "status": "valid",
+          "size": 511880,
+          "extension": ".wav",
+          "duration_estimate": 11.607256235827665
+        },
+        "command_execution_pending.wav": {
+          "status": "valid",
+          "size": 494960,
+          "extension": ".wav",
+          "duration_estimate": 11.22358276643991
+        },
+        "command_failed.wav": {
+          "status": "valid",
+          "size": 482268,
+          "extension": ".wav",
+          "duration_estimate": 10.93578231292517
+        },
+        "command_successful.wav": {
+          "status": "valid",
+          "size": 402364,
+          "extension": ".wav",
+          "duration_estimate": 9.12390022675737
+        },
+        "confirm_required.wav": {
+          "status": "valid",
+          "size": 448428,
+          "extension": ".wav",
+          "duration_estimate": 10.16843537414966
+        },
+        "connection_error.wav": {
+          "status": "valid",
+          "size": 368524,
+          "extension": ".wav",
+          "duration_estimate": 8.356553287981859
+        },
+        "context_loaded.wav": {
+          "status": "valid",
+          "size": 516108,
+          "extension": ".wav",
+          "duration_estimate": 11.70312925170068
+        },
+        "context_saved.wav": {
+          "status": "valid",
+          "size": 528800,
+          "extension": ".wav",
+          "duration_estimate": 11.99092970521542
+        },
+        "copy_operation.wav": {
+          "status": "valid",
+          "size": 402364,
+          "extension": ".wav",
+          "duration_estimate": 9.12390022675737
+        },
+        "dashboard_started.wav": {
+          "status": "valid",
+          "size": 516108,
+          "extension": ".wav",
+          "duration_estimate": 11.70312925170068
+        },
+        "database_agent.wav": {
+          "status": "valid",
+          "size": 486500,
+          "extension": ".wav",
+          "duration_estimate": 11.031746031746032
+        },
+        "decision_required.wav": {
+          "status": "valid",
+          "size": 402364,
+          "extension": ".wav",
+          "duration_estimate": 9.12390022675737
+        },
+        "delete_operation.wav": {
+          "status": "valid",
+          "size": 401900,
+          "extension": ".wav",
+          "duration_estimate": 9.113378684807257
+        },
+        "dependency_installing.wav": {
+          "status": "valid",
+          "size": 478040,
+          "extension": ".wav",
+          "duration_estimate": 10.839909297052154
+        },
+        "dependency_missing.wav": {
+          "status": "valid",
+          "size": 511880,
+          "extension": ".wav",
+          "duration_estimate": 11.607256235827665
+        },
+        "docker_building.wav": {
+          "status": "valid",
+          "size": 431512,
+          "extension": ".wav",
+          "duration_estimate": 9.78485260770975
+        },
+        "docker_running.wav": {
+          "status": "valid",
+          "size": 456892,
+          "extension": ".wav",
+          "duration_estimate": 10.360362811791383
+        },
+        "documentation_generating.wav": {
+          "status": "valid",
+          "size": 482268,
+          "extension": ".wav",
+          "duration_estimate": 10.93578231292517
+        },
+        "downloading_file.wav": {
+          "status": "valid",
+          "size": 397672,
+          "extension": ".wav",
+          "duration_estimate": 9.017505668934241
+        },
+        "file_exists.wav": {
+          "status": "valid",
+          "size": 465352,
+          "extension": ".wav",
+          "duration_estimate": 10.55219954648526
+        },
+        "file_operation_complete.wav": {
+          "status": "valid",
+          "size": 470044,
+          "extension": ".wav",
+          "duration_estimate": 10.65859410430839
+        },
+        "file_operation_pending.wav": {
+          "status": "valid",
+          "size": 461120,
+          "extension": ".wav",
+          "duration_estimate": 10.456235827664399
+        },
+        "formatting_code.wav": {
+          "status": "valid",
+          "size": 431512,
+          "extension": ".wav",
+          "duration_estimate": 9.78485260770975
+        },
+        "frontend_agent.wav": {
+          "status": "valid",
+          "size": 436204,
+          "extension": ".wav",
+          "duration_estimate": 9.89124716553288
+        },
+        "generating_code.wav": {
+          "status": "valid",
+          "size": 380748,
+          "extension": ".wav",
+          "duration_estimate": 8.63374149659864
+        },
+        "git_commit.wav": {
+          "status": "valid",
+          "size": 414588,
+          "extension": ".wav",
+          "duration_estimate": 9.401088435374149
+        },
+        "git_pull.wav": {
+          "status": "valid",
+          "size": 456892,
+          "extension": ".wav",
+          "duration_estimate": 10.360362811791383
+        },
+        "git_push.wav": {
+          "status": "valid",
+          "size": 503884,
+          "extension": ".wav",
+          "duration_estimate": 11.4259410430839
+        },
+        "git_status.wav": {
+          "status": "valid",
+          "size": 418820,
+          "extension": ".wav",
+          "duration_estimate": 9.49705215419501
+        },
+        "handoff_generated.wav": {
+          "status": "valid",
+          "size": 566872,
+          "extension": ".wav",
+          "duration_estimate": 12.854240362811792
+        },
+        "http_request.wav": {
+          "status": "valid",
+          "size": 554180,
+          "extension": ".wav",
+          "duration_estimate": 12.566439909297053
+        },
+        "installing_packages.wav": {
+          "status": "valid",
+          "size": 448428,
+          "extension": ".wav",
+          "duration_estimate": 10.16843537414966
+        },
+        "linting_complete.wav": {
+          "status": "valid",
+          "size": 482268,
+          "extension": ".wav",
+          "duration_estimate": 10.93578231292517
+        },
+        "linting_issues.wav": {
+          "status": "valid",
+          "size": 461120,
+          "extension": ".wav",
+          "duration_estimate": 10.456235827664399
+        },
+        "linting_started.wav": {
+          "status": "valid",
+          "size": 499192,
+          "extension": ".wav",
+          "duration_estimate": 11.319546485260771
+        },
+        "make_build.wav": {
+          "status": "valid",
+          "size": 368524,
+          "extension": ".wav",
+          "duration_estimate": 8.356553287981859
+        },
+        "master_orchestrator.wav": {
+          "status": "valid",
+          "size": 486500,
+          "extension": ".wav",
+          "duration_estimate": 11.031746031746032
+        },
+        "mkdir_operation.wav": {
+          "status": "valid",
+          "size": 402364,
+          "extension": ".wav",
+          "duration_estimate": 9.12390022675737
+        },
+        "move_operation.wav": {
+          "status": "valid",
+          "size": 389212,
+          "extension": ".wav",
+          "duration_estimate": 8.825668934240364
+        },
+        "notification_sent.wav": {
+          "status": "valid",
+          "size": 490732,
+          "extension": ".wav",
+          "duration_estimate": 11.127709750566893
+        },
+        "no_venv_warning.wav": {
+          "status": "valid",
+          "size": 533032,
+          "extension": ".wav",
+          "duration_estimate": 12.086893424036282
+        },
+        "npm_build.wav": {
+          "status": "valid",
+          "size": 456892,
+          "extension": ".wav",
+          "duration_estimate": 10.360362811791383
+        },
+        "npm_install.wav": {
+          "status": "valid",
+          "size": 478040,
+          "extension": ".wav",
+          "duration_estimate": 10.839909297052154
+        },
+        "obsidian_notes.wav": {
+          "status": "valid",
+          "size": 478040,
+          "extension": ".wav",
+          "duration_estimate": 10.839909297052154
+        },
+        "operation_complete.wav": {
+          "status": "valid",
+          "size": 418820,
+          "extension": ".wav",
+          "duration_estimate": 9.49705215419501
+        },
+        "optimizing_performance.wav": {
+          "status": "valid",
+          "size": 465352,
+          "extension": ".wav",
+          "duration_estimate": 10.55219954648526
+        },
+        "orchestration_complete.wav": {
+          "status": "valid",
+          "size": 444200,
+          "extension": ".wav",
+          "duration_estimate": 10.072562358276643
+        },
+        "orchestration_started.wav": {
+          "status": "valid",
+          "size": 461120,
+          "extension": ".wav",
+          "duration_estimate": 10.456235827664399
+        },
+        "parallel_execution.wav": {
+          "status": "valid",
+          "size": 511880,
+          "extension": ".wav",
+          "duration_estimate": 11.607256235827665
+        },
+        "performance_warning.wav": {
+          "status": "valid",
+          "size": 511880,
+          "extension": ".wav",
+          "duration_estimate": 11.607256235827665
+        },
+        "permission_required.wav": {
+          "status": "valid",
+          "size": 402364,
+          "extension": ".wav",
+          "duration_estimate": 9.12390022675737
+        },
+        "phase_complete.wav": {
+          "status": "valid",
+          "size": 511880,
+          "extension": ".wav",
+          "duration_estimate": 11.607256235827665
+        },
+        "phase_deployment.wav": {
+          "status": "valid",
+          "size": 427280,
+          "extension": ".wav",
+          "duration_estimate": 9.688888888888888
+        },
+        "phase_implementation.wav": {
+          "status": "valid",
+          "size": 452660,
+          "extension": ".wav",
+          "duration_estimate": 10.264399092970521
+        },
+        "phase_planning.wav": {
+          "status": "valid",
+          "size": 448428,
+          "extension": ".wav",
+          "duration_estimate": 10.16843537414966
+        },
+        "pipeline_complete.wav": {
+          "status": "valid",
+          "size": 402364,
+          "extension": ".wav",
+          "duration_estimate": 9.12390022675737
+        },
+        "pipeline_initiated.wav": {
+          "status": "valid",
+          "size": 418820,
+          "extension": ".wav",
+          "duration_estimate": 9.49705215419501
+        },
+        "pip_install.wav": {
+          "status": "valid",
+          "size": 524572,
+          "extension": ".wav",
+          "duration_estimate": 11.895056689342404
+        },
+        "planning_complete.wav": {
+          "status": "valid",
+          "size": 368524,
+          "extension": ".wav",
+          "duration_estimate": 8.356553287981859
+        },
+        "playwright_automation.wav": {
+          "status": "valid",
+          "size": 503420,
+          "extension": ".wav",
+          "duration_estimate": 11.415419501133787
+        },
+        "processing.wav": {
+          "status": "valid",
+          "size": 329992,
+          "extension": ".wav",
+          "duration_estimate": 7.48281179138322
+        },
+        "project_created.wav": {
+          "status": "valid",
+          "size": 558412,
+          "extension": ".wav",
+          "duration_estimate": 12.662403628117914
+        },
+        "ready_for_input.wav": {
+          "status": "valid",
+          "size": 418820,
+          "extension": ".wav",
+          "duration_estimate": 9.49705215419501
+        },
+        "resource_warning.wav": {
+          "status": "valid",
+          "size": 503884,
+          "extension": ".wav",
+          "duration_estimate": 11.4259410430839
+        },
+        "reviewing_changes.wav": {
+          "status": "valid",
+          "size": 418820,
+          "extension": ".wav",
+          "duration_estimate": 9.49705215419501
+        },
+        "risky_command.wav": {
+          "status": "valid",
+          "size": 520340,
+          "extension": ".wav",
+          "duration_estimate": 11.799092970521542
+        },
+        "running_tests.wav": {
+          "status": "valid",
+          "size": 402364,
+          "extension": ".wav",
+          "duration_estimate": 9.12390022675737
+        },
+        "searching_files.wav": {
+          "status": "valid",
+          "size": 431512,
+          "extension": ".wav",
+          "duration_estimate": 9.78485260770975
+        },
+        "security_scanning.wav": {
+          "status": "valid",
+          "size": 503884,
+          "extension": ".wav",
+          "duration_estimate": 11.4259410430839
+        },
+        "smart_routing.wav": {
+          "status": "valid",
+          "size": 470044,
+          "extension": ".wav",
+          "duration_estimate": 10.65859410430839
+        },
+        "ssh_connection.wav": {
+          "status": "valid",
+          "size": 558412,
+          "extension": ".wav",
+          "duration_estimate": 12.662403628117914
+        },
+        "startup.wav": {
+          "status": "valid",
+          "size": 554180,
+          "extension": ".wav",
+          "duration_estimate": 12.566439909297053
+        },
+        "status_update.wav": {
+          "status": "valid",
+          "size": 456892,
+          "extension": ".wav",
+          "duration_estimate": 10.360362811791383
+        },
+        "tests_failed.wav": {
+          "status": "valid",
+          "size": 363832,
+          "extension": ".wav",
+          "duration_estimate": 8.25015873015873
+        },
+        "tests_passed.wav": {
+          "status": "valid",
+          "size": 423052,
+          "extension": ".wav",
+          "duration_estimate": 9.593015873015872
+        },
+        "token_critical.wav": {
+          "status": "valid",
+          "size": 668392,
+          "extension": ".wav",
+          "duration_estimate": 15.156281179138322
+        },
+        "token_warning.wav": {
+          "status": "valid",
+          "size": 503884,
+          "extension": ".wav",
+          "duration_estimate": 11.4259410430839
+        },
+        "tunnel_connected.wav": {
+          "status": "valid",
+          "size": 465352,
+          "extension": ".wav",
+          "duration_estimate": 10.55219954648526
+        },
+        "tunnel_disconnected.wav": {
+          "status": "valid",
+          "size": 469580,
+          "extension": ".wav",
+          "duration_estimate": 10.648072562358276
+        },
+        "venv_activated.wav": {
+          "status": "valid",
+          "size": 528800,
+          "extension": ".wav",
+          "duration_estimate": 11.99092970521542
+        },
+        "venv_required.wav": {
+          "status": "valid",
+          "size": 516108,
+          "extension": ".wav",
+          "duration_estimate": 11.70312925170068
+        },
+        "web_search.wav": {
+          "status": "valid",
+          "size": 376520,
+          "extension": ".wav",
+          "duration_estimate": 8.537868480725624
+        },
+        "working.wav": {
+          "status": "valid",
+          "size": 300844,
+          "extension": ".wav",
+          "duration_estimate": 6.821859410430839
+        }
+      },
+      "integrity_score": 100.0
+    },
+    "agent_mapping": {
+      "total_agents": 28,
+      "mappings_valid": 18,
+      "mappings_invalid": 10,
+      "mapping_details": {
+        "master-orchestrator": {
+          "status": "valid",
+          "audio_file": "agent_activated.wav",
+          "audio_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\agent_activated.wav",
+          "file_size": 393440
+        },
+        "prompt-engineer": {
+          "status": "valid",
+          "audio_file": "agent_activated.wav",
+          "audio_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\agent_activated.wav",
+          "file_size": 393440
+        },
+        "business-analyst": {
+          "status": "invalid",
+          "audio_file": "business_analysis.wav",
+          "error": "Audio file not found",
+          "expected_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\business_analysis.wav"
+        },
+        "technical-cto": {
+          "status": "valid",
+          "audio_file": "agent_activated.wav",
+          "audio_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\agent_activated.wav",
+          "file_size": 393440
+        },
+        "ceo-strategy": {
+          "status": "invalid",
+          "audio_file": "business_analysis.wav",
+          "error": "Audio file not found",
+          "expected_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\business_analysis.wav"
+        },
+        "financial-analyst": {
+          "status": "invalid",
+          "audio_file": "business_analysis.wav",
+          "error": "Audio file not found",
+          "expected_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\business_analysis.wav"
+        },
+        "project-manager": {
+          "status": "valid",
+          "audio_file": "agent_activated.wav",
+          "audio_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\agent_activated.wav",
+          "file_size": 393440
+        },
+        "technical-specifications": {
+          "status": "valid",
+          "audio_file": "agent_activated.wav",
+          "audio_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\agent_activated.wav",
+          "file_size": 393440
+        },
+        "business-tech-alignment": {
+          "status": "valid",
+          "audio_file": "agent_activated.wav",
+          "audio_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\agent_activated.wav",
+          "file_size": 393440
+        },
+        "technical-documentation": {
+          "status": "invalid",
+          "audio_file": "documentation_complete.wav",
+          "error": "Audio file not found",
+          "expected_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\documentation_complete.wav"
+        },
+        "api-integration-specialist": {
+          "status": "valid",
+          "audio_file": "agent_activated.wav",
+          "audio_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\agent_activated.wav",
+          "file_size": 393440
+        },
+        "frontend-architecture": {
+          "status": "valid",
+          "audio_file": "frontend_agent.wav",
+          "audio_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\frontend_agent.wav",
+          "file_size": 436204
+        },
+        "frontend-mockup": {
+          "status": "valid",
+          "audio_file": "frontend_agent.wav",
+          "audio_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\frontend_agent.wav",
+          "file_size": 436204
+        },
+        "ui-ux-design": {
+          "status": "valid",
+          "audio_file": "frontend_agent.wav",
+          "audio_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\frontend_agent.wav",
+          "file_size": 436204
+        },
+        "production-frontend": {
+          "status": "valid",
+          "audio_file": "frontend_agent.wav",
+          "audio_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\frontend_agent.wav",
+          "file_size": 436204
+        },
+        "backend-services": {
+          "status": "valid",
+          "audio_file": "backend_agent.wav",
+          "audio_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\backend_agent.wav",
+          "file_size": 469580
+        },
+        "database-architecture": {
+          "status": "valid",
+          "audio_file": "database_agent.wav",
+          "audio_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\database_agent.wav",
+          "file_size": 486500
+        },
+        "middleware-specialist": {
+          "status": "valid",
+          "audio_file": "backend_agent.wav",
+          "audio_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\backend_agent.wav",
+          "file_size": 469580
+        },
+        "mobile-development": {
+          "status": "valid",
+          "audio_file": "agent_activated.wav",
+          "audio_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\agent_activated.wav",
+          "file_size": 393440
+        },
+        "devops-engineering": {
+          "status": "invalid",
+          "audio_file": "deployment_ready.wav",
+          "error": "Audio file not found",
+          "expected_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\deployment_ready.wav"
+        },
+        "integration-setup": {
+          "status": "valid",
+          "audio_file": "agent_activated.wav",
+          "audio_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\agent_activated.wav",
+          "file_size": 393440
+        },
+        "script-automation": {
+          "status": "valid",
+          "audio_file": "agent_activated.wav",
+          "audio_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\agent_activated.wav",
+          "file_size": 393440
+        },
+        "development-prompt": {
+          "status": "valid",
+          "audio_file": "agent_activated.wav",
+          "audio_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\agent_activated.wav",
+          "file_size": 393440
+        },
+        "security-architecture": {
+          "status": "invalid",
+          "audio_file": "security_verified.wav",
+          "error": "Audio file not found",
+          "expected_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\security_verified.wav"
+        },
+        "performance-optimization": {
+          "status": "invalid",
+          "audio_file": "performance_optimized.wav",
+          "error": "Audio file not found",
+          "expected_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\performance_optimized.wav"
+        },
+        "quality-assurance": {
+          "status": "invalid",
+          "audio_file": "quality_verified.wav",
+          "error": "Audio file not found",
+          "expected_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\quality_verified.wav"
+        },
+        "testing-automation": {
+          "status": "invalid",
+          "audio_file": "testing_complete.wav",
+          "error": "Audio file not found",
+          "expected_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\testing_complete.wav"
+        },
+        "usage-guide": {
+          "status": "invalid",
+          "audio_file": "documentation_complete.wav",
+          "error": "Audio file not found",
+          "expected_path": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_v3\\core\\audio\\audio\\documentation_complete.wav"
+        }
+      },
+      "mapping_score": 64.28571428571429
+    },
+    "notification_triggers": {
+      "total_scenarios": 5,
+      "scenarios_ready": 4,
+      "scenarios_not_ready": 1,
+      "scenario_details": {
+        "agent_activation": {
+          "status": "ready",
+          "description": "Agent activated via @agent- mention",
+          "audio_file": "agent_activated.wav",
+          "trigger_event": "user_prompt_with_agent_mention",
+          "file_available": true
+        },
+        "agent_delegation": {
+          "status": "ready",
+          "description": "Agent delegates to another agent",
+          "audio_file": "agent_delegating.wav",
+          "trigger_event": "orchestrator_delegation",
+          "file_available": true
+        },
+        "backend_completion": {
+          "status": "ready",
+          "description": "Backend services agent completes task",
+          "audio_file": "backend_agent.wav",
+          "trigger_event": "backend_task_completion",
+          "file_available": true
+        },
+        "frontend_completion": {
+          "status": "ready",
+          "description": "Frontend agent completes task",
+          "audio_file": "frontend_agent.wav",
+          "trigger_event": "frontend_task_completion",
+          "file_available": true
+        },
+        "testing_completion": {
+          "status": "not_ready",
+          "description": "Testing automation completes",
+          "audio_file": "testing_complete.wav",
+          "trigger_event": "testing_task_completion",
+          "file_available": false,
+          "error": "Audio file missing"
+        }
+      },
+      "readiness_score": 80.0
+    }
+  },
+  "summary": {
+    "total_audio_files": 95,
+    "expected_files": 12,
+    "files_available": 5,
+    "files_missing": 7,
+    "valid_files": 95,
+    "agent_mappings_valid": 18,
+    "notification_scenarios_ready": 4
+  },
+  "recommendations": [
+    "Create 7 missing audio files",
+    "Resolve 10 invalid agent-audio mappings",
+    "Prepare 1 notification scenarios",
+    "Implement missing audio files for better user experience"
+  ]
+}

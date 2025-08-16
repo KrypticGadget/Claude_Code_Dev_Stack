@@ -1,0 +1,63 @@
+# Playwright Visual Testing Requirements
+
+# Core testing framework
+playwright>=1.40.0
+pytest>=7.4.0
+pytest-playwright>=0.4.0
+pytest-asyncio>=0.21.0
+
+# Visual comparison and image processing
+opencv-python>=4.8.0
+scikit-image>=0.21.0
+Pillow>=10.0.0
+numpy>=1.24.0
+
+# Web framework for MCP service
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+
+# HTTP client
+httpx>=0.25.0
+
+# Process management
+psutil>=5.9.0
+
+# Data handling
+dataclasses-json>=0.6.0
+
+# Additional testing utilities
+allure-pytest>=2.13.0
+pytest-html>=4.1.0
+pytest-xdist>=3.3.0
+
+# Browser automation utilities
+selenium>=4.15.0  # Backup automation option
+webdriver-manager>=4.0.0
+
+# Performance monitoring
+memory-profiler>=0.61.0
+py-spy>=0.3.0
+
+# Accessibility testing
+axe-selenium-python>=2.1.6
+
+# Screenshot comparison
+pixelmatch>=0.3.0
+imagehash>=4.3.0
+
+# Report generation
+jinja2>=3.1.0
+markdown>=3.5.0
+
+# Configuration management
+pydantic>=2.4.0
+python-dotenv>=1.0.0
+
+# Logging and monitoring
+structlog>=23.2.0
+colorlog>=6.7.0
+
+# Development tools
+black>=23.9.0
+flake8>=6.0.0
+mypy>=1.6.0

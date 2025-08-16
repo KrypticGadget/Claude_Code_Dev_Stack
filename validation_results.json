@@ -1,0 +1,60 @@
+{
+  "platform": {
+    "system": "Windows",
+    "node": "DESKTOP-UG35N1M",
+    "release": "11",
+    "version": "10.0.26100",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel"
+  },
+  "timestamp": "2025-08-15T17:45:29.033328",
+  "tests": {
+    "windows": {
+      "score": 100,
+      "issues": [],
+      "features": [
+        "Windows platform detected",
+        "PowerShell available",
+        "Python venv available",
+        "File system writable"
+      ]
+    },
+    "linux": {
+      "score": 50,
+      "issues": [],
+      "features": [
+        "WSL available"
+      ]
+    },
+    "mobile": {
+      "score": 100,
+      "issues": [],
+      "features": [
+        "Mobile launcher found",
+        "QR code generation available",
+        "NGROK token configured",
+        "Web app available"
+      ]
+    },
+    "web_browser": {
+      "score": 73.33333333333333,
+      "issues": [],
+      "features": [
+        "Service on port 3000",
+        "PWA manifest available",
+        "Modern web stack"
+      ]
+    },
+    "security": {
+      "score": 100,
+      "issues": [],
+      "features": [
+        "Authentication system active",
+        "Secure token generation",
+        "SSL/TLS support",
+        "Virtual environment isolation"
+      ]
+    }
+  },
+  "overall_score": 84.66666666666666
+}
