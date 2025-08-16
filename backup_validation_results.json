@@ -1,0 +1,59 @@
+{
+  "timestamp": "2025-08-15T18:45:15.988371",
+  "backup_branch": "safety/pre-reorganization-backup",
+  "tests": [
+    {
+      "name": "Git Repository Check",
+      "status": "PASS",
+      "details": "Valid git repository detected",
+      "timestamp": "2025-08-15T18:45:15.988371"
+    },
+    {
+      "name": "Backup Branch Existence",
+      "status": "PASS",
+      "details": "Branch 'safety/pre-reorganization-backup' found",
+      "timestamp": "2025-08-15T18:45:16.010385"
+    },
+    {
+      "name": "Backup Commit Integrity",
+      "status": "PASS",
+      "details": "Latest commit: 1634eb4b69fecaee3bbb00cab3c17fd144f76f89 Clean up...",
+      "timestamp": "2025-08-15T18:45:16.020192"
+    },
+    {
+      "name": "Critical Files Check",
+      "status": "FAIL",
+      "details": "Missing files: Claude_Code_Dev_Stack_v3/core/hooks/hooks/__init__.py",
+      "timestamp": "2025-08-15T18:45:16.294164"
+    },
+    {
+      "name": "Directory Structure Check",
+      "status": "WARN",
+      "details": "Missing directories: .github/workflows/, scripts/",
+      "timestamp": "2025-08-15T18:45:16.640626"
+    },
+    {
+      "name": "File Count Check",
+      "status": "PASS",
+      "details": "22735 files in backup",
+      "timestamp": "2025-08-15T18:45:16.871715"
+    },
+    {
+      "name": "Backup Size Check",
+      "status": "INFO",
+      "details": "120 commits in backup branch",
+      "timestamp": "2025-08-15T18:45:16.889862"
+    },
+    {
+      "name": "Diff from Main",
+      "status": "INFO",
+      "details": "21854 files differ from main branch",
+      "timestamp": "2025-08-15T18:45:17.089098"
+    }
+  ],
+  "overall_status": "WARN",
+  "errors": [],
+  "warnings": [
+    "Missing directories: ['.github/workflows/', 'scripts/']"
+  ]
+}
