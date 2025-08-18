@@ -1,0 +1,18 @@
+{
+  "name": "claude-code-dev-stack-v3",
+  "version": "3.0.0",
+  "description": "AI-powered development environment with 28 specialized agents",
+  "scripts": {
+    "start": "cd apps/web && npm run dev",
+    "install:all": "cd apps/web && npm install && cd ../backend && npm install",
+    "dev": "cd apps/web && npm run dev"
+  },
+  "keywords": [
+    "ai",
+    "development",
+    "agents",
+    "automation"
+  ],
+  "author": "Claude Code Team",
+  "license": "MIT"
+}

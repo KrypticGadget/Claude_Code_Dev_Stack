@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#1a1b26" />
+  <meta name="background-color" content="#1a1b26" />
+  <meta name="description" content="Claude Code Dev Stack v3.0 - Ultimate AI Development Environment PWA" />
+  
+  <!-- Apple PWA Support -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="DevStack" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="apple-touch-icon" sizes="167x167" href="/apple-touch-icon.png" />
+  
+  <!-- Microsoft PWA Support -->
+  <meta name="msapplication-TileColor" content="#1a1b26" />
+  <meta name="msapplication-config" content="/browserconfig.xml" />
+  
+  <!-- Standard Favicon -->
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  
+  <!-- Mask Icon for Safari -->
+  <link rel="mask-icon" href="/mask-icon.svg" color="#1a1b26" />
+  
+  <!-- Web App Manifest -->
+  <link rel="manifest" href="/manifest.json" />
+  
+  <!-- Preconnect to External Resources -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  
+  <!-- SEO Meta Tags -->
+  <meta name="keywords" content="AI, Development, Claude, PWA, Developer Tools, Code Stack" />
+  <meta name="author" content="Zach" />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://claude-code-dev-stack.vercel.app/" />
+  
+  <!-- Open Graph Meta Tags -->
+  <meta property="og:title" content="Claude Code Dev Stack v3.0" />
+  <meta property="og:description" content="Ultimate AI Development Environment - Progressive Web App" />
+  <meta property="og:image" content="/og-image.png" />
+  <meta property="og:url" content="https://claude-code-dev-stack.vercel.app/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Claude Code Dev Stack" />
+  
+  <!-- Twitter Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Claude Code Dev Stack v3.0" />
+  <meta name="twitter:description" content="Ultimate AI Development Environment - Progressive Web App" />
+  <meta name="twitter:image" content="/twitter-image.png" />
+  
+  <!-- Attribution Comment -->
+  <!-- 
+    Claude Code Dev Stack v3.0 - PWA
+    Integrates components from multiple open-source projects:
+    - @zainhoda (Claude Code Browser)
+    - @9cat (Mobile App)
+    - @qdhenry (MCP Manager)
+    - @cnoe-io (OpenAPI Codegen)
+    - @harsha-iiiv (MCP Generator)
+    - @Owloops (Claude Powerline)
+    - @chongdashu (CC-Statusline)
+    See CREDITS.md for full attribution
+  -->
+  
+  <title>Claude Code Dev Stack v3.0</title>
+  <script type="module" crossorigin src="/assets/index-qObnXoUI.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/react-vendor-Bn0YOEgN.js">
+  <link rel="modulepreload" crossorigin href="/assets/state-vendor-Cmy80tuL.js">
+  <link rel="modulepreload" crossorigin href="/assets/ui-vendor-Bckq4wYg.js">
+  <link rel="stylesheet" crossorigin href="/assets/index-ekpzFIff.css">
+<link rel="manifest" href="/manifest.webmanifest"></head>
+<body>
+  <div id="root"></div>
+  
+  <!-- PWA Install Prompt -->
+  <div id="pwa-install-prompt" style="display: none; position: fixed; bottom: 20px; right: 20px; background: #1a1b26; color: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000;">
+    <div style="margin-bottom: 10px;">Install Claude Code Dev Stack for offline access!</div>
+    <button id="pwa-install-button" style="background: #007acc; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-right: 8px;">Install</button>
+    <button id="pwa-dismiss-button" style="background: transparent; color: #ccc; border: 1px solid #555; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Not Now</button>
+  </div>
+  
+  <!-- Service Worker Registration -->
+  <script>
+    // PWA Install Prompt Handler
+    let deferredPrompt;
+    const installPrompt = document.getElementById('pwa-install-prompt');
+    const installButton = document.getElementById('pwa-install-button');
+    const dismissButton = document.getElementById('pwa-dismiss-button');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      console.log('👍', 'beforeinstallprompt', e);
+      e.preventDefault();
+      deferredPrompt = e;
+      
+      // Show install prompt if not already installed
+      if (!window.matchMedia('(display-mode: standalone)').matches) {
+        installPrompt.style.display = 'block';
+      }
+    });
+
+    installButton.addEventListener('click', async () => {
+      console.log('👍', 'butInstall-clicked');
+      if (deferredPrompt !== null) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          console.log('👍', 'User accepted A2HS prompt', outcome);
+        } else {
+          console.log('👎', 'User dismissed A2HS prompt', outcome);
+        }
+        deferredPrompt = null;
+      }
+      installPrompt.style.display = 'none';
+    });
+
+    dismissButton.addEventListener('click', () => {
+      installPrompt.style.display = 'none';
+    });
+
+    window.addEventListener('appinstalled', () => {
+      console.log('👍', 'PWA was installed');
+      installPrompt.style.display = 'none';
+      deferredPrompt = null;
+    });
+
+    // Check if running as PWA
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      console.log('👍', 'Running as PWA');
+      // Hide install prompt if already installed
+      installPrompt.style.display = 'none';
+    }
+
+    // Service Worker Registration with Update Handling
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', async () => {
+        try {
+          // Register service worker
+          const registration = await navigator.serviceWorker.register('/sw.js', {
+            scope: '/'
+          });
+          
+          console.log('✅ Service Worker registered successfully:', registration.scope);
+          
+          // Handle service worker updates
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            console.log('🔄 New service worker found, installing...');
+            
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed') {
+                if (navigator.serviceWorker.controller) {
+                  console.log('🔄 New content is available; please refresh.');
+                  // Show update notification
+                  showUpdateNotification();
+                } else {
+                  console.log('✅ Content is cached for offline use.');
+                }
+              }
+            });
+          });
+          
+        } catch (error) {
+          console.error('❌ Service Worker registration failed:', error);
+        }
+      });
+    }
+
+    // Show update notification
+    function showUpdateNotification() {
+      const notification = document.createElement('div');
+      notification.innerHTML = `
+        <div style="position: fixed; top: 20px; right: 20px; background: #007acc; color: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1001;">
+          <div style="margin-bottom: 10px;">New version available!</div>
+          <button onclick="window.location.reload()" style="background: white; color: #007acc; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-right: 8px;">Update</button>
+          <button onclick="this.parentElement.parentElement.remove()" style="background: transparent; color: white; border: 1px solid white; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Later</button>
+        </div>
+      `;
+      document.body.appendChild(notification);
+    }
+
+    // Push Notification Support
+    async function subscribeToPushNotifications() {
+      if ('serviceWorker' in navigator && 'PushManager' in window) {
+        try {
+          const registration = await navigator.serviceWorker.ready;
+          const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: 'YOUR_VAPID_PUBLIC_KEY' // Replace with actual VAPID key
+          });
+          
+          console.log('✅ Push notification subscription successful:', subscription);
+          
+          // Send subscription to your server
+          await fetch('/api/subscribe', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(subscription),
+          });
+          
+        } catch (error) {
+          console.error('❌ Failed to subscribe to push notifications:', error);
+        }
+      }
+    }
+
+    // Request notification permission on first visit
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          subscribeToPushNotifications();
+        }
+      });
+    }
+  </script>
+  
+</body>
+</html>
