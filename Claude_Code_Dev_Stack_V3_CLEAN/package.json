@@ -76,9 +76,13 @@
     "jest": "^29.7.0",
     "nodemon": "^3.0.2"
   },
-  "peerDependencies": {
-    "python3": ">=3.8.0",
-    "git": ">=2.20.0"
+  "peerDependenciesMeta": {
+    "python3": {
+      "optional": true
+    },
+    "git": {
+      "optional": true
+    }
   },
   "files": [
     "index.js",
