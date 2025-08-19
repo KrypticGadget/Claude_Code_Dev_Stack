@@ -413,32 +413,34 @@ if ($hasDocker -and -not $Minimal) {
         Write-Host "   ⚠ Could not install QuantGeekDev docker-mcp" -ForegroundColor Yellow
     }
     
-    # Option 2: Install Docker Code Sandbox MCP
+    # Option 2: Install Automata Labs Code Sandbox MCP (binary version)
     if (-not $dockerMcpInstalled) {
-        Write-Host "   Installing Docker Code Sandbox MCP..." -ForegroundColor Gray
+        Write-Host "   Installing Code Sandbox MCP (Automata Labs)..." -ForegroundColor Gray
         
         try {
-            # Install the npm package first
-            Write-Host "   Installing code-sandbox npm package..." -ForegroundColor Gray
-            npm install -g @modelcontextprotocol/code-sandbox-mcp --silent 2>$null
+            # Download and run the official installer from Automata Labs
+            Write-Host "   Downloading code-sandbox-mcp installer..." -ForegroundColor Gray
             
-            # Remove existing code-sandbox MCP if present
-            try {
-                claude mcp remove code-sandbox 2>$null | Out-Null
-            } catch {}
+            # Use their official Windows installer
+            $installerUrl = "https://raw.githubusercontent.com/Automata-Labs-team/code-sandbox-mcp/main/install.ps1"
+            $tempInstaller = "$env:TEMP\code-sandbox-installer.ps1"
             
-            # Add code sandbox MCP using npx (works best on Windows)
-            $sandboxInstallCmd = @"
-claude mcp add code-sandbox -- npx @modelcontextprotocol/code-sandbox-mcp
-"@
+            # Download the installer
+            Invoke-WebRequest -Uri $installerUrl -OutFile $tempInstaller -UseBasicParsing
             
-            Invoke-Expression $sandboxInstallCmd 2>&1 | Out-Null
-            Write-Host "   ✓ Docker Code Sandbox MCP installed" -ForegroundColor Green
+            # Run the installer (it handles everything including Claude config)
+            Write-Host "   Running Automata Labs installer..." -ForegroundColor Gray
+            powershell -ExecutionPolicy Bypass -File $tempInstaller
+            
+            # Clean up
+            Remove-Item $tempInstaller -Force -ErrorAction SilentlyContinue
+            
+            Write-Host "   ✓ Code Sandbox MCP installed (Automata Labs binary)" -ForegroundColor Green
             $dockerMcpInstalled = $true
         } catch {
-            Write-Host "   ⚠ Failed to install Docker Code Sandbox MCP" -ForegroundColor Yellow
+            Write-Host "   ⚠ Failed to install Code Sandbox MCP" -ForegroundColor Yellow
             Write-Host "   Try running manually:" -ForegroundColor Yellow
-            Write-Host "   docker pull ghcr.io/modelcontextprotocol/code-sandbox:latest" -ForegroundColor Gray
+            Write-Host "   irm https://raw.githubusercontent.com/Automata-Labs-team/code-sandbox-mcp/main/install.ps1 | iex" -ForegroundColor Gray
         }
     }
     
