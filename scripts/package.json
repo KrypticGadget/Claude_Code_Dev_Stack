@@ -1,0 +1,32 @@
+{
+  "name": "claude-code-dev-stack-cleanup",
+  "version": "1.0.0",
+  "description": "Automation scripts for organizing and archiving Claude Code Dev Stack v3.0",
+  "main": "master-cleanup.js",
+  "scripts": {
+    "cleanup": "node master-cleanup.js",
+    "cleanup:live": "node master-cleanup.js --live",
+    "cleanup:verbose": "node master-cleanup.js --live --verbose",
+    "archive": "node archive-organizer.js",
+    "archive:live": "node archive-organizer.js --live",
+    "reorganize": "node repo-reorganizer.js",
+    "reorganize:live": "node repo-reorganizer.js --live",
+    "rollback:archive": "node ../.archive/rollback.js",
+    "postcleanup": "node ../.archive/post-cleanup-actions.js",
+    "help": "node master-cleanup.js --help"
+  },
+  "keywords": [
+    "cleanup",
+    "archive",
+    "reorganize",
+    "automation",
+    "claude-code"
+  ],
+  "author": "Claude Code Dev Stack",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

@@ -1,0 +1,141 @@
+{
+  "system_architecture": {
+    "name": "System Architecture Template",
+    "description": "CodeBoarding-compatible system architecture diagram",
+    "template": "graph LR\n    %% {title}\n    {components}\n    \n    {relationships}\n    \n    %% Styling\n    classDef default fill:#f9f,stroke:#333,stroke-width:2px\n    classDef core fill:#bbf,stroke:#333,stroke-width:2px\n    classDef service fill:#bfb,stroke:#333,stroke-width:2px",
+    "max_components": 8,
+    "direction": "LR",
+    "relationship_patterns": [
+      "uses",
+      "built on", 
+      "feeds into",
+      "orchestrates",
+      "manages"
+    ]
+  },
+  "component_detail": {
+    "name": "Component Detail Template", 
+    "description": "Internal component structure diagram",
+    "template": "graph LR\n    %% {title}\n    {main_component}\n    {sub_components}\n    \n    {relationships}\n    \n    %% Component information\n    {info_nodes}",
+    "max_components": 6,
+    "direction": "LR",
+    "relationship_patterns": [
+      "contains",
+      "inherits from",
+      "provides",
+      "processes for"
+    ]
+  },
+  "learning_path": {
+    "name": "Learning Path Template",
+    "description": "Educational progression diagram",
+    "template": "graph LR\n    %% {title}\n    {learning_steps}\n    \n    {progression_flow}\n    \n    %% Progress indicators\n    {progress_info}",
+    "max_components": 7,
+    "direction": "LR", 
+    "relationship_patterns": [
+      "leads to",
+      "enables",
+      "supports",
+      "foundation for",
+      "prerequisite for"
+    ]
+  },
+  "data_flow": {
+    "name": "Data Flow Template",
+    "description": "Data processing and flow diagram",
+    "template": "graph LR\n    %% {title}\n    {data_sources}\n    {processing_steps}\n    {data_outputs}\n    \n    {flow_relationships}",
+    "max_components": 6,
+    "direction": "LR",
+    "relationship_patterns": [
+      "provides data to",
+      "retrieves from", 
+      "processes for",
+      "transforms to",
+      "stores in"
+    ]
+  },
+  "workflow": {
+    "name": "Workflow Template",
+    "description": "Process workflow and decision flow",
+    "template": "graph TD\n    %% {title}\n    {start_node}\n    {process_nodes}\n    {decision_nodes}\n    {end_node}\n    \n    {workflow_connections}",
+    "max_components": 8,
+    "direction": "TD",
+    "relationship_patterns": [
+      "next",
+      "if yes",
+      "if no", 
+      "triggers",
+      "completes"
+    ]
+  },
+  "service_architecture": {
+    "name": "Service Architecture Template",
+    "description": "Microservices and service relationships",
+    "template": "graph LR\n    %% {title}\n    {services}\n    {databases}\n    {external_apis}\n    \n    {service_connections}\n    \n    %% Service layers\n    subgraph \"Frontend\"\n        {frontend_services}\n    end\n    \n    subgraph \"Backend\"\n        {backend_services}\n    end\n    \n    subgraph \"Data Layer\"\n        {data_services}\n    end",
+    "max_components": 10,
+    "direction": "LR",
+    "relationship_patterns": [
+      "calls",
+      "serves",
+      "persists to",
+      "authenticates with",
+      "publishes to"
+    ]
+  },
+  "class_hierarchy": {
+    "name": "Class Hierarchy Template",
+    "description": "Object-oriented class relationships",
+    "template": "graph TD\n    %% {title}\n    {base_classes}\n    {derived_classes}\n    {interfaces}\n    \n    {inheritance_relationships}\n    {composition_relationships}",
+    "max_components": 8,
+    "direction": "TD",
+    "relationship_patterns": [
+      "inherits from",
+      "implements",
+      "composed of",
+      "depends on",
+      "instantiates"
+    ]
+  },
+  "deployment_diagram": {
+    "name": "Deployment Diagram Template",
+    "description": "System deployment and infrastructure",
+    "template": "graph LR\n    %% {title}\n    {environments}\n    {servers}\n    {databases}\n    {load_balancers}\n    \n    {deployment_connections}\n    \n    %% Environment grouping\n    subgraph \"Production\"\n        {prod_components}\n    end\n    \n    subgraph \"Staging\" \n        {staging_components}\n    end\n    \n    subgraph \"Development\"\n        {dev_components}\n    end",
+    "max_components": 12,
+    "direction": "LR",
+    "relationship_patterns": [
+      "deployed to",
+      "connects to",
+      "backed up to",
+      "monitored by",
+      "scaled by"
+    ]
+  },
+  "integration_flow": {
+    "name": "Integration Flow Template", 
+    "description": "Third-party integrations and API flows",
+    "template": "graph LR\n    %% {title}\n    {internal_systems}\n    {external_apis}\n    {integration_points}\n    \n    {integration_flows}\n    \n    %% External boundaries\n    subgraph \"Internal Systems\"\n        {internal_components}\n    end\n    \n    subgraph \"External Services\"\n        {external_components}\n    end",
+    "max_components": 10,
+    "direction": "LR",
+    "relationship_patterns": [
+      "integrates with",
+      "authenticates via",
+      "syncs data with",
+      "webhooks to",
+      "polls from"
+    ]
+  },
+  "user_journey": {
+    "name": "User Journey Template",
+    "description": "User interaction and journey flow",
+    "template": "graph LR\n    %% {title}\n    {entry_points}\n    {user_actions}\n    {system_responses}\n    {exit_points}\n    \n    {journey_flow}\n    \n    %% User experience layers\n    {touchpoint_info}",
+    "max_components": 9,
+    "direction": "LR", 
+    "relationship_patterns": [
+      "navigates to",
+      "interacts with",
+      "receives",
+      "decides to",
+      "completes"
+    ]
+  }
+}

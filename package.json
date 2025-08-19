@@ -1,0 +1,123 @@
+{
+  "name": "@claude-code/dev-stack",
+  "version": "3.0.0",
+  "description": "AI-powered development environment with 28 specialized agents, intelligent hooks, and unified tooling",
+  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "claude-code-setup": "./bin/claude-code-setup.js",
+    "claude-code-agents": "./bin/claude-code-agents.js",
+    "claude-code-hooks": "./bin/claude-code-hooks.js"
+  },
+  "scripts": {
+    "postinstall": "node scripts/complete-install.js",
+    "setup": "node bin/claude-code-setup.js",
+    "complete-install": "node scripts/complete-install.js",
+    "test": "node scripts/test.js",
+    "validate": "node scripts/validate.js",
+    "dev": "cd ui/react-pwa && npm run dev",
+    "build": "cd ui/react-pwa && npm run build",
+    "start:ui": "cd ui/react-pwa && npm start",
+    "install:all": "npm run complete-install"
+  },
+  "keywords": [
+    "ai",
+    "development",
+    "agents",
+    "automation",
+    "claude",
+    "hooks",
+    "orchestration",
+    "devops",
+    "backend",
+    "frontend",
+    "fullstack",
+    "productivity",
+    "workflow",
+    "tooling",
+    "enterprise"
+  ],
+  "author": "Claude Code Team <support@claude-code.dev>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KrypticGadget/Claude_Code_Dev_Stack.git"
+  },
+  "homepage": "https://github.com/KrypticGadget/Claude_Code_Dev_Stack",
+  "bugs": {
+    "url": "https://github.com/KrypticGadget/Claude_Code_Dev_Stack/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^11.1.0",
+    "inquirer": "^9.2.12",
+    "fs-extra": "^11.2.0",
+    "path": "^0.12.7",
+    "yaml": "^2.3.4",
+    "dotenv": "^16.3.1",
+    "axios": "^1.6.2",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "socket.io": "^4.7.4",
+    "winston": "^3.11.0",
+    "chokidar": "^3.5.3",
+    "node-cron": "^3.0.3",
+    "shelljs": "^0.8.5",
+    "semver": "^7.5.4",
+    "validate-npm-package-name": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.4",
+    "eslint": "^8.56.0",
+    "prettier": "^3.1.1",
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.2"
+  },
+  "peerDependenciesMeta": {
+    "python3": {
+      "optional": true
+    },
+    "git": {
+      "optional": true
+    }
+  },
+  "files": [
+    "index.js",
+    "bin/",
+    "scripts/",
+    "lib/",
+    "core/agents/",
+    "core/hooks/",
+    "core/audio/",
+    "ui/react-pwa/",
+    "templates/",
+    "config/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "claude-code": {
+    "version": "3.0.0",
+    "agents": 28,
+    "hooks": 37,
+    "audioFiles": 90,
+    "features": [
+      "agent-orchestration",
+      "smart-routing",
+      "audio-feedback",
+      "unified-pwa",
+      "performance-monitoring",
+      "security-scanning",
+      "auto-documentation",
+      "quality-gates"
+    ]
+  }
+}

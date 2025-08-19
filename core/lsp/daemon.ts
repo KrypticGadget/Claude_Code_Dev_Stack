@@ -1,0 +1,564 @@
+import net from 'net';
+import os from 'os';
+import path from 'path';
+import { z } from 'zod';
+import { lspManager } from './lsp/manager.js';
+import { executeStart } from './lsp/start.js';
+import { initializeServers } from './lsp/servers.js';
+import { log } from './logger.js';
+import { hashPath } from './utils.js';
+import { lspHookAdapter } from './hooks/adapter.js';
+import { lspEventTriggers } from './hooks/triggers.js';
+import { lspHookHandlers } from './hooks/handlers.js';
+import { lspHooksConfig } from './hooks/config.js';
+
+function getDaemonPaths() {
+  const cwd = process.cwd();
+  const hashedCwd = hashPath(cwd);
+
+  return {
+    socketPath: path.join(os.tmpdir(), `cli-lsp-client-${hashedCwd}.sock`),
+    pidFile: path.join(os.tmpdir(), `cli-lsp-client-${hashedCwd}.pid`),
+    configFile: path.join(os.tmpdir(), `cli-lsp-client-${hashedCwd}.config`),
+  };
+}
+
+export const { socketPath: SOCKET_PATH, pidFile: PID_FILE, configFile: CONFIG_METADATA_FILE } = getDaemonPaths();
+
+const RequestSchema = z.object({
+  command: z.string(),
+  args: z.array(z.string()).optional(),
+});
+
+export type Request = z.infer<typeof RequestSchema>;
+
+export type StatusResult = {
+  pid: number;
+  uptime: number;
+  memory: NodeJS.MemoryUsage;
+};
+
+// Functions to manage daemon config metadata
+export async function saveCurrentConfig(configPath?: string): Promise<void> {
+  try {
+    const metadata = {
+      configPath: configPath || null,
+      startedAt: new Date().toISOString(),
+    };
+    await Bun.write(CONFIG_METADATA_FILE, JSON.stringify(metadata));
+  } catch (error) {
+    log(`Error saving config metadata: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
+// Initialize hooks system
+async function initializeHooksSystem(): Promise<void> {
+  try {
+    log('Initializing LSP hooks system...');
+    
+    // Setup hooks event handlers
+    setupHooksEventHandlers();
+    
+    // Trigger daemon startup event
+    await lspEventTriggers.triggerServerEvent('daemon_started', 'lsp-daemon', process.cwd(), {
+      pid: process.pid,
+      startup_time: new Date().toISOString()
+    });
+    
+    log('LSP hooks system initialized successfully');
+  } catch (error) {
+    log(`Failed to initialize hooks system: ${error}`);
+    // Don't fail daemon startup if hooks fail
+  }
+}
+
+// Setup event handlers for hooks integration
+function setupHooksEventHandlers(): void {
+  // Listen for hook responses
+  lspHookAdapter.on('hook_response', (response) => {
+    lspHookHandlers.processHookResponse({
+      hook_name: response.hook,
+      event: response.event,
+      response_type: 'data',
+      data: response.response,
+      timestamp: new Date().toISOString(),
+      success: true
+    });
+  });
+
+  // Listen for LSP events triggered by hooks
+  lspHookHandlers.on('refresh_diagnostics_requested', async (data) => {
+    if (data.file) {
+      try {
+        const diagnostics = await lspManager.getDiagnostics(data.file);
+        await lspEventTriggers.triggerDiagnosticsAnalysis(data.file, diagnostics);
+      } catch (error) {
+        log(`Failed to refresh diagnostics for ${data.file}: ${error}`);
+      }
+    }
+  });
+
+  // Listen for configuration changes
+  lspHookHandlers.on('config_updated', (data) => {
+    log(`Configuration updated by hooks: ${JSON.stringify(data.updates)}`);
+  });
+
+  // Listen for user notifications
+  lspHookHandlers.on('user_notification', (notification) => {
+    log(`User notification: ${notification.message}`);
+    // Could be extended to show system notifications
+  });
+}
+
+export async function getCurrentConfig(): Promise<string | null> {
+  try {
+    const metadataExists = await Bun.file(CONFIG_METADATA_FILE).exists();
+    if (!metadataExists) {
+      return null;
+    }
+    const metadataText = await Bun.file(CONFIG_METADATA_FILE).text();
+    const metadata: unknown = JSON.parse(metadataText);
+    
+    if (typeof metadata === 'object' && metadata !== null && 'configPath' in metadata) {
+      const configPath = (metadata as { configPath: unknown }).configPath;
+      return typeof configPath === 'string' ? configPath : null;
+    }
+    return null;
+  } catch (_error) {
+    return null;
+  }
+}
+
+export function configPathsEqual(path1?: string, path2?: string): boolean {
+  // Both null/undefined = equal
+  if (!path1 && !path2) return true;
+  // One null, one not = not equal
+  if (!path1 || !path2) return false;
+  // Compare resolved absolute paths
+  return path.resolve(path1) === path.resolve(path2);
+}
+
+export async function hasConfigConflict(requestedConfigPath?: string): Promise<boolean> {
+  if (!(await isDaemonRunning())) {
+    return false; // No daemon running, no conflict
+  }
+  
+  const currentConfigPath = await getCurrentConfig();
+  return !configPathsEqual(currentConfigPath || undefined, requestedConfigPath);
+}
+
+export async function stopDaemon(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const client = net.createConnection(SOCKET_PATH);
+    let resolved = false;
+
+    const handleResponse = () => {
+      if (resolved) return;
+      resolved = true;
+      client.end();
+      resolve();
+    };
+
+    client.on('connect', () => {
+      const request = JSON.stringify({ command: 'stop', args: [] });
+      client.write(request);
+    });
+
+    client.on('data', () => {
+      handleResponse();
+    });
+
+    client.on('end', () => {
+      handleResponse();
+    });
+
+    client.on('error', (error) => {
+      if (resolved) return;
+      resolved = true;
+      reject(error);
+    });
+
+    // Timeout after 2 seconds
+    setTimeout(() => {
+      if (resolved) return;
+      resolved = true;
+      client.end();
+      reject(new Error('Timeout waiting for daemon to stop'));
+    }, 2000);
+  });
+}
+
+function formatUptime(uptimeMs: number): string {
+  const seconds = Math.floor(uptimeMs / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+
+  if (hours > 0) {
+    return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
+  } else if (minutes > 0) {
+    return `${minutes}m ${seconds % 60}s`;
+  } else {
+    return `${seconds}s`;
+  }
+}
+
+export async function handleRequest(
+  request: Request
+): Promise<string | number | StatusResult | unknown> {
+  const { command, args = [] } = request;
+
+  switch (command) {
+    case 'status': {
+      const runningServers = lspManager.getRunningServers();
+      const daemonUptimeMs = process.uptime() * 1000;
+
+      let output = 'LSP Daemon Status\n';
+      output += '================\n';
+      output += `PID: ${process.pid}\n`;
+      output += `Uptime: ${formatUptime(daemonUptimeMs)}\n\n`;
+
+      if (runningServers.length === 0) {
+        output += 'No language servers running\n';
+      } else {
+        output += 'Language Servers:\n';
+        for (const server of runningServers) {
+          const relativePath = path.relative(process.cwd(), server.root) || '.';
+          output += `- ${server.serverID} (${relativePath}) - running ${formatUptime(server.uptime)}\n`;
+        }
+        output += `\nTotal: ${runningServers.length} language server${runningServers.length === 1 ? '' : 's'} running\n`;
+      }
+
+      return output;
+    }
+
+    case 'diagnostics': {
+      if (!args[0]) {
+        throw new Error('diagnostics command requires a file path');
+      }
+      
+      const filePath = args[0];
+      const startTime = Date.now();
+      
+      try {
+        const diagnostics = await lspManager.getDiagnostics(filePath);
+        const duration = Date.now() - startTime;
+        
+        // Trigger hooks for diagnostics received
+        await lspEventTriggers.triggerDiagnosticsAnalysis(filePath, diagnostics);
+        
+        // Trigger performance monitoring
+        await lspEventTriggers.triggerPerformanceEvent('diagnostics', duration, {
+          file: filePath,
+          diagnostic_count: diagnostics.length
+        });
+        
+        return diagnostics;
+      } catch (error) {
+        const duration = Date.now() - startTime;
+        
+        // Trigger error event
+        await lspEventTriggers.triggerError(`Diagnostics failed for ${filePath}`, {
+          file: filePath,
+          duration,
+          error: error instanceof Error ? error.message : String(error)
+        });
+        
+        throw error;
+      }
+    }
+
+    case 'start': {
+      const directory = args[0]; // Optional directory argument
+      log(`=== DAEMON START - PID: ${process.pid} ===`);
+      log(`Starting LSP servers for directory: ${directory || 'current'}`);
+      
+      try {
+        const startedServers = await executeStart(directory);
+        log('=== DAEMON START SUCCESS ===');
+        
+        // Trigger server started events for each server
+        for (const serverName of startedServers) {
+          await lspEventTriggers.triggerServerEvent('server_started', serverName, directory || process.cwd(), {
+            startup_method: 'daemon_start_command'
+          });
+        }
+        
+        if (startedServers.length === 0) {
+          return 'Started LSP daemon';
+        }
+        return `Started LSP servers for ${startedServers.join(',')}`;
+      } catch (error) {
+        log(`=== DAEMON START ERROR: ${error} ===`);
+        
+        // Trigger error event
+        await lspEventTriggers.triggerError(`Server start failed for directory ${directory}`, {
+          directory: directory || process.cwd(),
+          command: 'start',
+          error: error instanceof Error ? error.message : String(error)
+        });
+        
+        throw error;
+      }
+    }
+
+    case 'logs': {
+      const { LOG_PATH } = await import('./logger.js');
+      return LOG_PATH;
+    }
+
+    case 'pwd': {
+      return process.cwd();
+    }
+
+    case 'hover': {
+      // Parse arguments - require both file and symbol
+      if (args.length !== 2) {
+        throw new Error('hover command requires: hover <file> <symbol>');
+      }
+
+      const targetFile = args[0];
+      const targetSymbol = args[1];
+      const startTime = Date.now();
+
+      try {
+        const hoverResults = await lspManager.getHover(targetSymbol, targetFile);
+        const duration = Date.now() - startTime;
+        
+        // Trigger hooks for hover analysis
+        await lspEventTriggers.triggerHoverAnalysis(targetSymbol, hoverResults);
+        
+        // Trigger performance monitoring
+        await lspEventTriggers.triggerPerformanceEvent('hover', duration, {
+          file: targetFile,
+          symbol: targetSymbol,
+          result_count: hoverResults.length
+        });
+        
+        return hoverResults;
+      } catch (error) {
+        const duration = Date.now() - startTime;
+        
+        // Trigger error event
+        await lspEventTriggers.triggerError(`Hover failed for ${targetSymbol} in ${targetFile}`, {
+          file: targetFile,
+          symbol: targetSymbol,
+          duration,
+          error: error instanceof Error ? error.message : String(error)
+        });
+        
+        throw error;
+      }
+    }
+
+    case 'stop': {
+      setTimeout(async () => await shutdown(), 100);
+      return 'Daemon stopping...';
+    }
+
+    default:
+      throw new Error(`Unknown command: ${command}`);
+  }
+}
+
+let server: net.Server | null = null;
+
+export async function startDaemon(): Promise<void> {
+  process.stdout.write('Starting daemon…\n');
+  const { LOG_PATH } = await import('./logger.js');
+  process.stdout.write(`Daemon log: ${LOG_PATH}\n`);
+  log(`Daemon starting... PID: ${process.pid}`);
+
+  // Clean up any stale files first
+  await cleanup();
+
+  // Get config file from environment variable
+  const configPath = process.env.LSPCLI_CONFIG_FILE;
+  
+  // Save current config metadata
+  await saveCurrentConfig(configPath);
+
+  // Initialize servers with config file
+  await initializeServers();
+
+  // Initialize hooks system
+  await initializeHooksSystem();
+
+  server = net.createServer((socket) => {
+    log('Client connected');
+
+    socket.on('data', async (data) => {
+      try {
+        const rawRequest = JSON.parse(data.toString()) as unknown;
+        const parseResult = RequestSchema.safeParse(rawRequest);
+
+        if (!parseResult.success) {
+          socket.write(
+            JSON.stringify({
+              success: false,
+              error: `Invalid request format: ${parseResult.error.message}`,
+            })
+          );
+          socket.end();
+          return;
+        }
+
+        const request = parseResult.data;
+        log(`Received request: ${JSON.stringify(request)}`);
+
+        const result = await handleRequest(request);
+
+        socket.write(
+          JSON.stringify({
+            success: true,
+            result: result,
+            timestamp: new Date().toISOString(),
+          })
+        );
+        socket.end();
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : 'Unknown error';
+        socket.write(
+          JSON.stringify({
+            success: false,
+            error: errorMessage,
+          })
+        );
+        socket.end();
+      }
+    });
+
+    socket.on('end', () => {
+      log('Client disconnected');
+    });
+  });
+
+  server.listen(SOCKET_PATH, async () => {
+    process.stdout.write(`Daemon listening on ${SOCKET_PATH}\n`);
+
+    await Bun.write(PID_FILE, process.pid.toString());
+
+    process.on('SIGINT', async () => {
+      log('Received SIGINT signal');
+      await shutdown();
+    });
+    process.on('SIGTERM', async () => {
+      log('Received SIGTERM signal');
+      await shutdown();
+    });
+
+    // Log unexpected exits
+    process.on('exit', async (code) => {
+      log(`Process exiting with code: ${code}`);
+    });
+
+    process.on('uncaughtException', async (error) => {
+      log(`Uncaught exception: ${error.message}`);
+      await shutdown();
+    });
+
+    process.on('unhandledRejection', async (reason, promise) => {
+      log(`Unhandled rejection at: ${promise}, reason: ${reason}`);
+    });
+  });
+
+  server.on('error', (error) => {
+    process.stderr.write(`Server error: ${error}\n`);
+    process.exit(1);
+  });
+}
+
+export async function isDaemonRunning(): Promise<boolean> {
+  try {
+    const pidFileExists = await Bun.file(PID_FILE).exists();
+    if (!pidFileExists) {
+      return false;
+    }
+
+    const pidContent = await Bun.file(PID_FILE).text();
+    const pid = parseInt(pidContent);
+
+    try {
+      process.kill(pid, 0);
+
+      return new Promise((resolve) => {
+        const testSocket = net.createConnection(SOCKET_PATH);
+        testSocket.on('connect', () => {
+          testSocket.end();
+          resolve(true);
+        });
+        testSocket.on('error', () => {
+          resolve(false);
+        });
+      });
+    } catch (_e) {
+      await cleanup();
+      return false;
+    }
+  } catch (_e) {
+    return false;
+  }
+}
+
+export async function cleanup(): Promise<void> {
+  try {
+    const socketExists = await Bun.file(SOCKET_PATH).exists();
+    if (socketExists) {
+      await Bun.file(SOCKET_PATH).unlink();
+    }
+    const pidExists = await Bun.file(PID_FILE).exists();
+    if (pidExists) {
+      await Bun.file(PID_FILE).unlink();
+    }
+    const configExists = await Bun.file(CONFIG_METADATA_FILE).exists();
+    if (configExists) {
+      await Bun.file(CONFIG_METADATA_FILE).unlink();
+    }
+  } catch (_e) {
+    // Ignore cleanup errors
+  }
+}
+
+export async function shutdown(): Promise<void> {
+  process.stdout.write('Shutting down daemon…\n');
+  log(`=== DAEMON SHUTDOWN START - PID: ${process.pid} ===`);
+
+  // Trigger daemon shutdown event
+  try {
+    await lspEventTriggers.triggerServerEvent('daemon_stopping', 'lsp-daemon', process.cwd(), {
+      pid: process.pid,
+      shutdown_time: new Date().toISOString()
+    });
+  } catch (error) {
+    log(`Error triggering shutdown event: ${error}`);
+  }
+
+  // Shutdown hooks system
+  try {
+    await lspHookAdapter.shutdown();
+    lspEventTriggers.shutdown();
+    lspHookHandlers.shutdown();
+    log('Hooks system shutdown completed');
+  } catch (error) {
+    process.stderr.write(`Error shutting down hooks system: ${error}\n`);
+    log(`Hooks system shutdown error: ${error}`);
+  }
+
+  // Shutdown LSP manager
+  try {
+    await lspManager.shutdown();
+    log('LSP manager shutdown completed');
+  } catch (error) {
+    process.stderr.write(`Error shutting down LSP manager: ${error}\n`);
+    log(`LSP manager shutdown error: ${error}`);
+  }
+
+  if (server) {
+    server.close();
+    log('Server closed');
+  }
+
+  await cleanup();
+  log('=== DAEMON SHUTDOWN COMPLETE ===');
+  process.exit(0);
+}
