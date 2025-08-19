@@ -1,16 +1,18 @@
-# Claude Code MCP Server Installer - Enhanced Edition
+# Claude Code MCP Server Installer - Enhanced Edition with Docker Support
 # Auto-fixes browser locks, sets environment variables, works from any directory
-# Version: 2.0
+# Version: 3.1 - Now includes Docker MCP for container management
+# Last Updated: 2025-01-19
 
 param(
     [switch]$SkipBrowserFix = $false,
-    [switch]$Minimal = $false
+    [switch]$Minimal = $false,
+    [switch]$IncludeDocker = $true
 )
 
 Write-Host ""
-Write-Host "Claude Code MCP Server Installer v3.0+" -ForegroundColor Cyan
+Write-Host "Claude Code MCP Server Installer v3.1" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "Installing: Playwright, Web Search, GitHub, Obsidian" -ForegroundColor Cyan
+Write-Host "Installing: Playwright, Web Search, GitHub, Obsidian, Docker" -ForegroundColor Cyan
 Write-Host ""
 
 # Function to clean browser processes and cache
@@ -355,6 +357,89 @@ if (-not $Minimal) {
     }
 }
 
+# 5. Install Docker MCP Server (NEW)
+if ($hasDocker -and -not $Minimal) {
+    Write-Host ""
+    Write-Host "5. Installing Docker MCP Server..." -ForegroundColor Yellow
+    Write-Host "   This enables Docker container management from Claude" -ForegroundColor Gray
+    
+    # Check if QuantGeekDev/docker-mcp is available
+    $dockerMcpInstalled = $false
+    
+    Write-Host "   Setting up Docker MCP..." -ForegroundColor Gray
+    
+    # Option 1: Try the QuantGeekDev docker-mcp
+    try {
+        # Clone or download the docker-mcp repository
+        $dockerMcpDir = "$env:USERPROFILE\mcp-servers\docker-mcp"
+        
+        if (Test-Path $dockerMcpDir) {
+            Remove-Item -Path $dockerMcpDir -Recurse -Force 2>$null
+        }
+        
+        # Clone the repository
+        if ($hasGit) {
+            git clone https://github.com/QuantGeekDev/docker-mcp.git $dockerMcpDir 2>$null
+        } else {
+            # Download as zip
+            $zipUrl = "https://github.com/QuantGeekDev/docker-mcp/archive/refs/heads/main.zip"
+            $zipPath = "$env:TEMP\docker-mcp.zip"
+            
+            Invoke-WebRequest -Uri $zipUrl -OutFile $zipPath -UseBasicParsing
+            Expand-Archive -Path $zipPath -DestinationPath "$env:USERPROFILE\mcp-servers" -Force
+            Move-Item "$env:USERPROFILE\mcp-servers\docker-mcp-main" $dockerMcpDir -Force
+            Remove-Item $zipPath
+        }
+        
+        # Build the Docker MCP server
+        Push-Location $dockerMcpDir
+        npm install --silent 2>$null
+        npm run build --silent 2>$null
+        Pop-Location
+        
+        # Remove existing Docker MCP if present
+        try {
+            claude mcp remove docker 2>$null | Out-Null
+        } catch {}
+        
+        # Add Docker MCP
+        $dockerMcpPath = "$dockerMcpDir\build\index.js"
+        if (Test-Path $dockerMcpPath) {
+            claude mcp add docker -- cmd /c node "$dockerMcpPath"
+            Write-Host "   ✓ Docker MCP installed (container management enabled)" -ForegroundColor Green
+            $dockerMcpInstalled = $true
+        }
+    } catch {
+        Write-Host "   ⚠ Could not install QuantGeekDev docker-mcp" -ForegroundColor Yellow
+    }
+    
+    # Option 2: Install Docker Code Sandbox MCP
+    if (-not $dockerMcpInstalled) {
+        Write-Host "   Installing Docker Code Sandbox MCP..." -ForegroundColor Gray
+        
+        try {
+            # Install code-sandbox-mcp for secure code execution
+            npm install -g @modelcontextprotocol/code-sandbox-mcp --silent 2>$null
+            
+            # Add code sandbox MCP
+            claude mcp add code-sandbox -- npx @modelcontextprotocol/code-sandbox-mcp
+            Write-Host "   ✓ Docker Code Sandbox MCP installed" -ForegroundColor Green
+            $dockerMcpInstalled = $true
+        } catch {
+            Write-Host "   ✗ Failed to install Docker Code Sandbox MCP" -ForegroundColor Red
+        }
+    }
+    
+    if ($dockerMcpInstalled) {
+        Write-Host ""
+        Write-Host "   Docker MCP capabilities:" -ForegroundColor Cyan
+        Write-Host "   • Manage containers, images, volumes, networks" -ForegroundColor Gray
+        Write-Host "   • Execute code in isolated Docker containers" -ForegroundColor Gray
+        Write-Host "   • Run tests in containerized environments" -ForegroundColor Gray
+        Write-Host "   • Deploy applications with Docker Compose" -ForegroundColor Gray
+    }
+}
+
 # Create helper scripts
 Write-Host ""
 Write-Host "Creating helper scripts..." -ForegroundColor Yellow
@@ -395,6 +480,10 @@ Write-Host '  claude "Use playwright to go to example.com"' -ForegroundColor Gra
 if (-not $Minimal) {
     Write-Host '  claude "Use web-search to find news about AI"' -ForegroundColor Gray
     Write-Host '  claude "Use github to list my repositories"' -ForegroundColor Gray
+    if ($hasDocker) {
+        Write-Host '  claude "Use docker to list running containers"' -ForegroundColor Gray
+        Write-Host '  claude "Use docker to create a test container"' -ForegroundColor Gray
+    }
 }
 
 Write-Host ""
