@@ -1,16 +1,18 @@
-# Claude Code MCP Server Installer - Enhanced Edition
+# Claude Code MCP Server Installer - Enhanced Edition with Docker Support
 # Auto-fixes browser locks, sets environment variables, works from any directory
-# Version: 2.0
+# Version: 3.1 - Now includes Docker MCP for container management
+# Last Updated: 2025-01-19
 
 param(
     [switch]$SkipBrowserFix = $false,
-    [switch]$Minimal = $false
+    [switch]$Minimal = $false,
+    [switch]$IncludeDocker = $true
 )
 
 Write-Host ""
-Write-Host "Claude Code MCP Server Installer v3.0+" -ForegroundColor Cyan
+Write-Host "Claude Code MCP Server Installer v3.1" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "Installing: Playwright, Web Search, GitHub, Obsidian" -ForegroundColor Cyan
+Write-Host "Installing: Playwright, Web Search, GitHub, Obsidian, Docker" -ForegroundColor Cyan
 Write-Host ""
 
 # Function to clean browser processes and cache
@@ -355,6 +357,161 @@ if (-not $Minimal) {
     }
 }
 
+# 5. Install Docker MCP Server (NEW)
+if ($hasDocker -and -not $Minimal) {
+    Write-Host ""
+    Write-Host "5. Installing Docker MCP Server..." -ForegroundColor Yellow
+    Write-Host "   This enables Docker container management from Claude" -ForegroundColor Gray
+    
+    # Check if QuantGeekDev/docker-mcp is available
+    $dockerMcpInstalled = $false
+    
+    Write-Host "   Setting up Docker MCP..." -ForegroundColor Gray
+    
+    # Option 1: Try the QuantGeekDev docker-mcp
+    try {
+        # Clone or download the docker-mcp repository
+        $dockerMcpDir = "$env:USERPROFILE\mcp-servers\docker-mcp"
+        
+        if (Test-Path $dockerMcpDir) {
+            Remove-Item -Path $dockerMcpDir -Recurse -Force 2>$null
+        }
+        
+        # Clone the repository
+        if ($hasGit) {
+            git clone https://github.com/QuantGeekDev/docker-mcp.git $dockerMcpDir 2>$null
+        } else {
+            # Download as zip
+            $zipUrl = "https://github.com/QuantGeekDev/docker-mcp/archive/refs/heads/main.zip"
+            $zipPath = "$env:TEMP\docker-mcp.zip"
+            
+            Invoke-WebRequest -Uri $zipUrl -OutFile $zipPath -UseBasicParsing
+            Expand-Archive -Path $zipPath -DestinationPath "$env:USERPROFILE\mcp-servers" -Force
+            Move-Item "$env:USERPROFILE\mcp-servers\docker-mcp-main" $dockerMcpDir -Force
+            Remove-Item $zipPath
+        }
+        
+        # Build the Docker MCP server
+        Push-Location $dockerMcpDir
+        npm install --silent 2>$null
+        npm run build --silent 2>$null
+        Pop-Location
+        
+        # Remove existing Docker MCP if present
+        try {
+            claude mcp remove docker 2>$null | Out-Null
+        } catch {}
+        
+        # Add Docker MCP
+        $dockerMcpPath = "$dockerMcpDir\build\index.js"
+        if (Test-Path $dockerMcpPath) {
+            claude mcp add docker -- cmd /c node "$dockerMcpPath"
+            Write-Host "   ✓ Docker MCP installed (container management enabled)" -ForegroundColor Green
+            $dockerMcpInstalled = $true
+        }
+    } catch {
+        Write-Host "   ⚠ Could not install QuantGeekDev docker-mcp" -ForegroundColor Yellow
+    }
+    
+    # Option 2: Install Automata Labs Code Sandbox MCP (binary version)
+    if (-not $dockerMcpInstalled) {
+        Write-Host "   Installing Code Sandbox MCP (Automata Labs)..." -ForegroundColor Gray
+        Write-Host "   DEBUG: Docker status = $hasDocker" -ForegroundColor DarkGray
+        
+        try {
+            # First check if code-sandbox-mcp already exists
+            Write-Host "   DEBUG: Checking for existing code-sandbox-mcp..." -ForegroundColor DarkGray
+            $existingMcp = claude mcp list 2>$null | Select-String "code-sandbox"
+            if ($existingMcp) {
+                Write-Host "   DEBUG: Found existing: $existingMcp" -ForegroundColor DarkGray
+                Write-Host "   Removing existing code-sandbox-mcp..." -ForegroundColor Yellow
+                claude mcp remove code-sandbox 2>$null | Out-Null
+            }
+            
+            # Download and run the official installer from Automata Labs
+            Write-Host "   Downloading code-sandbox-mcp installer..." -ForegroundColor Gray
+            
+            # Use their official Windows installer
+            $installerUrl = "https://raw.githubusercontent.com/Automata-Labs-team/code-sandbox-mcp/main/install.ps1"
+            $tempInstaller = "$env:TEMP\code-sandbox-installer.ps1"
+            
+            Write-Host "   DEBUG: Downloading from $installerUrl" -ForegroundColor DarkGray
+            Write-Host "   DEBUG: Saving to $tempInstaller" -ForegroundColor DarkGray
+            
+            # Download the installer
+            $response = Invoke-WebRequest -Uri $installerUrl -OutFile $tempInstaller -UseBasicParsing -PassThru
+            Write-Host "   DEBUG: Download status code: $($response.StatusCode)" -ForegroundColor DarkGray
+            
+            if (Test-Path $tempInstaller) {
+                $fileSize = (Get-Item $tempInstaller).Length
+                Write-Host "   DEBUG: Installer downloaded, size: $fileSize bytes" -ForegroundColor DarkGray
+            } else {
+                Write-Host "   ERROR: Installer file not found after download!" -ForegroundColor Red
+            }
+            
+            # Run the installer (it handles everything including Claude config)
+            Write-Host "   Running Automata Labs installer..." -ForegroundColor Gray
+            Write-Host "   DEBUG: Executing: powershell -ExecutionPolicy Bypass -File `"$tempInstaller`"" -ForegroundColor DarkGray
+            
+            $installerOutput = powershell -ExecutionPolicy Bypass -File $tempInstaller 2>&1
+            Write-Host "   DEBUG: Installer output:" -ForegroundColor DarkGray
+            $installerOutput | ForEach-Object { Write-Host "     $_" -ForegroundColor DarkGray }
+            
+            # Verify installation
+            Start-Sleep -Seconds 2
+            Write-Host "   DEBUG: Verifying installation..." -ForegroundColor DarkGray
+            
+            # The Automata installer adds to claude_desktop_config.json, but we need it in Claude Code
+            # So we'll add it manually to Claude Code
+            Write-Host "   Adding code-sandbox to Claude Code configuration..." -ForegroundColor Gray
+            
+            # Find the installed binary
+            $sandboxBinary = "$env:USERPROFILE\AppData\Local\code-sandbox-mcp\code-sandbox-mcp.exe"
+            if (Test-Path $sandboxBinary) {
+                Write-Host "   DEBUG: Found binary at $sandboxBinary" -ForegroundColor DarkGray
+                
+                # Add to Claude Code using the binary directly
+                try {
+                    claude mcp remove code-sandbox 2>$null | Out-Null
+                } catch {}
+                
+                claude mcp add code-sandbox -- cmd /c "`"$sandboxBinary`""
+                Write-Host "   ✓ Code Sandbox MCP added to Claude Code" -ForegroundColor Green
+                $dockerMcpInstalled = $true
+            } else {
+                Write-Host "   ERROR: Binary not found at expected location: $sandboxBinary" -ForegroundColor Red
+                Write-Host "   ⚠ Code Sandbox MCP installation may have failed" -ForegroundColor Yellow
+            }
+            
+            # Verify in Claude Code
+            $verifyMcp = claude mcp list 2>$null | Select-String "code-sandbox"
+            if ($verifyMcp) {
+                Write-Host "   ✓ Code Sandbox MCP verified in Claude Code!" -ForegroundColor Green
+                Write-Host "   DEBUG: Found in MCP list: $verifyMcp" -ForegroundColor DarkGray
+            }
+            
+            # Clean up
+            Remove-Item $tempInstaller -Force -ErrorAction SilentlyContinue
+        } catch {
+            Write-Host "   ERROR: Installation failed with error:" -ForegroundColor Red
+            Write-Host "   $($_.Exception.Message)" -ForegroundColor Red
+            Write-Host "   Stack trace: $($_.Exception.StackTrace)" -ForegroundColor DarkGray
+            Write-Host ""
+            Write-Host "   Try running manually:" -ForegroundColor Yellow
+            Write-Host "   irm https://raw.githubusercontent.com/Automata-Labs-team/code-sandbox-mcp/main/install.ps1 | iex" -ForegroundColor Gray
+        }
+    }
+    
+    if ($dockerMcpInstalled) {
+        Write-Host ""
+        Write-Host "   Docker MCP capabilities:" -ForegroundColor Cyan
+        Write-Host "   • Manage containers, images, volumes, networks" -ForegroundColor Gray
+        Write-Host "   • Execute code in isolated Docker containers" -ForegroundColor Gray
+        Write-Host "   • Run tests in containerized environments" -ForegroundColor Gray
+        Write-Host "   • Deploy applications with Docker Compose" -ForegroundColor Gray
+    }
+}
+
 # Create helper scripts
 Write-Host ""
 Write-Host "Creating helper scripts..." -ForegroundColor Yellow
@@ -395,6 +552,10 @@ Write-Host '  claude "Use playwright to go to example.com"' -ForegroundColor Gra
 if (-not $Minimal) {
     Write-Host '  claude "Use web-search to find news about AI"' -ForegroundColor Gray
     Write-Host '  claude "Use github to list my repositories"' -ForegroundColor Gray
+    if ($hasDocker) {
+        Write-Host '  claude "Use docker to list running containers"' -ForegroundColor Gray
+        Write-Host '  claude "Use docker to create a test container"' -ForegroundColor Gray
+    }
 }
 
 Write-Host ""
@@ -407,6 +568,11 @@ Write-Host ""
 Write-Host "For detailed documentation:" -ForegroundColor Cyan
 Write-Host "  https://github.com/KrypticGadget/Claude_Code_Dev_Stack" -ForegroundColor White
 Write-Host ""
+
+# Keep window open for debugging
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "Press Enter to exit..." -ForegroundColor Yellow
+Read-Host
 
 # Return success
 exit 0
