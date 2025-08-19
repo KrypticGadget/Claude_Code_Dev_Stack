@@ -416,8 +416,18 @@ if ($hasDocker -and -not $Minimal) {
     # Option 2: Install Automata Labs Code Sandbox MCP (binary version)
     if (-not $dockerMcpInstalled) {
         Write-Host "   Installing Code Sandbox MCP (Automata Labs)..." -ForegroundColor Gray
+        Write-Host "   DEBUG: Docker status = $hasDocker" -ForegroundColor DarkGray
         
         try {
+            # First check if code-sandbox-mcp already exists
+            Write-Host "   DEBUG: Checking for existing code-sandbox-mcp..." -ForegroundColor DarkGray
+            $existingMcp = claude mcp list 2>$null | Select-String "code-sandbox"
+            if ($existingMcp) {
+                Write-Host "   DEBUG: Found existing: $existingMcp" -ForegroundColor DarkGray
+                Write-Host "   Removing existing code-sandbox-mcp..." -ForegroundColor Yellow
+                claude mcp remove code-sandbox 2>$null | Out-Null
+            }
+            
             # Download and run the official installer from Automata Labs
             Write-Host "   Downloading code-sandbox-mcp installer..." -ForegroundColor Gray
             
@@ -425,20 +435,47 @@ if ($hasDocker -and -not $Minimal) {
             $installerUrl = "https://raw.githubusercontent.com/Automata-Labs-team/code-sandbox-mcp/main/install.ps1"
             $tempInstaller = "$env:TEMP\code-sandbox-installer.ps1"
             
+            Write-Host "   DEBUG: Downloading from $installerUrl" -ForegroundColor DarkGray
+            Write-Host "   DEBUG: Saving to $tempInstaller" -ForegroundColor DarkGray
+            
             # Download the installer
-            Invoke-WebRequest -Uri $installerUrl -OutFile $tempInstaller -UseBasicParsing
+            $response = Invoke-WebRequest -Uri $installerUrl -OutFile $tempInstaller -UseBasicParsing -PassThru
+            Write-Host "   DEBUG: Download status code: $($response.StatusCode)" -ForegroundColor DarkGray
+            
+            if (Test-Path $tempInstaller) {
+                $fileSize = (Get-Item $tempInstaller).Length
+                Write-Host "   DEBUG: Installer downloaded, size: $fileSize bytes" -ForegroundColor DarkGray
+            } else {
+                Write-Host "   ERROR: Installer file not found after download!" -ForegroundColor Red
+            }
             
             # Run the installer (it handles everything including Claude config)
             Write-Host "   Running Automata Labs installer..." -ForegroundColor Gray
-            powershell -ExecutionPolicy Bypass -File $tempInstaller
+            Write-Host "   DEBUG: Executing: powershell -ExecutionPolicy Bypass -File `"$tempInstaller`"" -ForegroundColor DarkGray
+            
+            $installerOutput = powershell -ExecutionPolicy Bypass -File $tempInstaller 2>&1
+            Write-Host "   DEBUG: Installer output:" -ForegroundColor DarkGray
+            $installerOutput | ForEach-Object { Write-Host "     $_" -ForegroundColor DarkGray }
+            
+            # Verify installation
+            Start-Sleep -Seconds 2
+            Write-Host "   DEBUG: Verifying installation..." -ForegroundColor DarkGray
+            $verifyMcp = claude mcp list 2>$null | Select-String "code-sandbox"
+            if ($verifyMcp) {
+                Write-Host "   ✓ Code Sandbox MCP installed successfully!" -ForegroundColor Green
+                Write-Host "   DEBUG: Found in MCP list: $verifyMcp" -ForegroundColor DarkGray
+                $dockerMcpInstalled = $true
+            } else {
+                Write-Host "   ⚠ Code Sandbox MCP not found in MCP list after installation" -ForegroundColor Yellow
+            }
             
             # Clean up
             Remove-Item $tempInstaller -Force -ErrorAction SilentlyContinue
-            
-            Write-Host "   ✓ Code Sandbox MCP installed (Automata Labs binary)" -ForegroundColor Green
-            $dockerMcpInstalled = $true
         } catch {
-            Write-Host "   ⚠ Failed to install Code Sandbox MCP" -ForegroundColor Yellow
+            Write-Host "   ERROR: Installation failed with error:" -ForegroundColor Red
+            Write-Host "   $($_.Exception.Message)" -ForegroundColor Red
+            Write-Host "   Stack trace: $($_.Exception.StackTrace)" -ForegroundColor DarkGray
+            Write-Host ""
             Write-Host "   Try running manually:" -ForegroundColor Yellow
             Write-Host "   irm https://raw.githubusercontent.com/Automata-Labs-team/code-sandbox-mcp/main/install.ps1 | iex" -ForegroundColor Gray
         }
@@ -510,6 +547,11 @@ Write-Host ""
 Write-Host "For detailed documentation:" -ForegroundColor Cyan
 Write-Host "  https://github.com/KrypticGadget/Claude_Code_Dev_Stack" -ForegroundColor White
 Write-Host ""
+
+# Keep window open for debugging
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "Press Enter to exit..." -ForegroundColor Yellow
+Read-Host
 
 # Return success
 exit 0
