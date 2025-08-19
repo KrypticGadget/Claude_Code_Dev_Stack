@@ -418,15 +418,27 @@ if ($hasDocker -and -not $Minimal) {
         Write-Host "   Installing Docker Code Sandbox MCP..." -ForegroundColor Gray
         
         try {
-            # Install code-sandbox-mcp for secure code execution
+            # Install the npm package first
+            Write-Host "   Installing code-sandbox npm package..." -ForegroundColor Gray
             npm install -g @modelcontextprotocol/code-sandbox-mcp --silent 2>$null
             
-            # Add code sandbox MCP
-            claude mcp add code-sandbox -- npx @modelcontextprotocol/code-sandbox-mcp
+            # Remove existing code-sandbox MCP if present
+            try {
+                claude mcp remove code-sandbox 2>$null | Out-Null
+            } catch {}
+            
+            # Add code sandbox MCP using npx (works best on Windows)
+            $sandboxInstallCmd = @"
+claude mcp add code-sandbox -- npx @modelcontextprotocol/code-sandbox-mcp
+"@
+            
+            Invoke-Expression $sandboxInstallCmd 2>&1 | Out-Null
             Write-Host "   ✓ Docker Code Sandbox MCP installed" -ForegroundColor Green
             $dockerMcpInstalled = $true
         } catch {
-            Write-Host "   ✗ Failed to install Docker Code Sandbox MCP" -ForegroundColor Red
+            Write-Host "   ⚠ Failed to install Docker Code Sandbox MCP" -ForegroundColor Yellow
+            Write-Host "   Try running manually:" -ForegroundColor Yellow
+            Write-Host "   docker pull ghcr.io/modelcontextprotocol/code-sandbox:latest" -ForegroundColor Gray
         }
     }
     
