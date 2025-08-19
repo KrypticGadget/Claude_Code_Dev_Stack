@@ -1,0 +1,94 @@
+{
+  "terminal": {
+    "DIRECT_REFUSAL": [
+      "I cannot generate code for you",
+      "would be completing your work", 
+      "learn programming instead",
+      "I won't write.*code",
+      "that would be doing your homework",
+      "cannot.*write.*code.*for.*you",
+      "won't.*complete.*your.*work",
+      "ensures you understand the system"
+    ],
+    "EDUCATIONAL_POSITIONING": [
+      "this will help you learn",
+      "good learning exercise",
+      "I encourage you to",
+      "figure out yourself",
+      "research how to",
+      "try.*implementing.*yourself",
+      "learn.*by.*doing",
+      "educational.*purposes",
+      "so you can maintain it properly"
+    ],
+    "COMPLEXITY_AVOIDANCE": [
+      "this is quite complex",
+      "would require significant",
+      "beyond the scope",
+      "too complicated to",
+      "challenging to implement",
+      "quite.*complex.*to",
+      "very.*difficult.*to",
+      "extremely.*complex"
+    ],
+    "ARCHITECTURAL_DEFLECTION": [
+      "let's start with the basics",
+      "we should think about architecture",
+      "need to plan this carefully",
+      "should we discuss requirements first",
+      "what's the overall structure",
+      "let me understand the use case",
+      "what are you trying to achieve",
+      "can you clarify the requirements"
+    ]
+  },
+  "code": {
+    "SECURITY_ISSUES": [
+      "eval\\s*\\(",
+      "innerHTML\\s*=",
+      "document\\.write\\s*\\(",
+      "exec\\s*\\(",
+      "system\\s*\\(",
+      "shell_exec\\s*\\(",
+      "passthru\\s*\\(",
+      "popen\\s*\\(",
+      "proc_open\\s*\\("
+    ],
+    "TYPESCRIPT_BAILOUTS": [
+      ":\\s*any",
+      "as\\s+any",
+      "\\@ts-ignore",
+      "\\@ts-nocheck",
+      "Object\\.keys\\(",
+      "Object\\.values\\(",
+      "Object\\.entries\\("
+    ],
+    "PRODUCTION_ISSUES": [
+      "console\\.log\\s*\\(",
+      "console\\.debug\\s*\\(",
+      "debugger;?",
+      "TODO:",
+      "FIXME:",
+      "HACK:",
+      "XXX:"
+    ],
+    "CODE_QUALITY_ISSUES": [
+      "throw\\s+new\\s+Error\\s*\\(\\s*['\"]TODO",
+      "throw\\s+new\\s+Error\\s*\\(\\s*['\"]Not implemented",
+      "return\\s+null;?\\s*//.*TODO",
+      "return\\s+undefined;?\\s*//.*TODO",
+      "//\\s*TODO.*implement",
+      "//\\s*FIXME.*implement"
+    ]
+  },
+  "weights": {
+    "DIRECT_REFUSAL": 20,
+    "EDUCATIONAL_POSITIONING": 15,
+    "COMPLEXITY_AVOIDANCE": 12,
+    "ARCHITECTURAL_DEFLECTION": 8,
+    "SECURITY_ISSUES": 25,
+    "TYPESCRIPT_BAILOUTS": 15,
+    "PRODUCTION_ISSUES": 10,
+    "CODE_QUALITY_ISSUES": 12
+  }
+}

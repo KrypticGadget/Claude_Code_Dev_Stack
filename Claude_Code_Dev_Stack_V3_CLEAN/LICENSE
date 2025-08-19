@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2024 Claude Code Agent System Contributors
+Copyright (c) 2024-2025 Claude Code Dev Stack Contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +19,23 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+================================================================================
+
+THIRD-PARTY COMPONENTS
+
+This software includes components from third-party open-source projects.
+These components are subject to their own licenses as documented in the
+ATTRIBUTION.md file and component-specific attribution files.
+
+For complete licensing information, see:
+- ATTRIBUTION.md - Comprehensive attribution and license information
+- docs/LICENSE_COMPATIBILITY_REPORT.md - License compatibility analysis
+- docs/USAGE_GUIDELINES.md - Usage guidelines for integrated components
+- Component-specific ATTRIBUTION.md files in relevant directories
+
+The licenses of integrated components include:
+- Apache License 2.0 (components: openapi-mcp-codegen, codanna)
+- MIT License (components: openapi-mcp-generator, cli-lsp-client, BMAD-METHOD)
+
+All integrated components are used in compliance with their respective licenses.
