@@ -460,13 +460,34 @@ if ($hasDocker -and -not $Minimal) {
             # Verify installation
             Start-Sleep -Seconds 2
             Write-Host "   DEBUG: Verifying installation..." -ForegroundColor DarkGray
-            $verifyMcp = claude mcp list 2>$null | Select-String "code-sandbox"
-            if ($verifyMcp) {
-                Write-Host "   ✓ Code Sandbox MCP installed successfully!" -ForegroundColor Green
-                Write-Host "   DEBUG: Found in MCP list: $verifyMcp" -ForegroundColor DarkGray
+            
+            # The Automata installer adds to claude_desktop_config.json, but we need it in Claude Code
+            # So we'll add it manually to Claude Code
+            Write-Host "   Adding code-sandbox to Claude Code configuration..." -ForegroundColor Gray
+            
+            # Find the installed binary
+            $sandboxBinary = "$env:USERPROFILE\AppData\Local\code-sandbox-mcp\code-sandbox-mcp.exe"
+            if (Test-Path $sandboxBinary) {
+                Write-Host "   DEBUG: Found binary at $sandboxBinary" -ForegroundColor DarkGray
+                
+                # Add to Claude Code using the binary directly
+                try {
+                    claude mcp remove code-sandbox 2>$null | Out-Null
+                } catch {}
+                
+                claude mcp add code-sandbox -- cmd /c "`"$sandboxBinary`""
+                Write-Host "   ✓ Code Sandbox MCP added to Claude Code" -ForegroundColor Green
                 $dockerMcpInstalled = $true
             } else {
-                Write-Host "   ⚠ Code Sandbox MCP not found in MCP list after installation" -ForegroundColor Yellow
+                Write-Host "   ERROR: Binary not found at expected location: $sandboxBinary" -ForegroundColor Red
+                Write-Host "   ⚠ Code Sandbox MCP installation may have failed" -ForegroundColor Yellow
+            }
+            
+            # Verify in Claude Code
+            $verifyMcp = claude mcp list 2>$null | Select-String "code-sandbox"
+            if ($verifyMcp) {
+                Write-Host "   ✓ Code Sandbox MCP verified in Claude Code!" -ForegroundColor Green
+                Write-Host "   DEBUG: Found in MCP list: $verifyMcp" -ForegroundColor DarkGray
             }
             
             # Clean up
