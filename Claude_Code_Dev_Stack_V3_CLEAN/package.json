@@ -10,14 +10,15 @@
     "claude-code-hooks": "./bin/claude-code-hooks.js"
   },
   "scripts": {
-    "postinstall": "node scripts/postinstall.js",
+    "postinstall": "node scripts/complete-install.js",
     "setup": "node bin/claude-code-setup.js",
+    "complete-install": "node scripts/complete-install.js",
     "test": "node scripts/test.js",
     "validate": "node scripts/validate.js",
     "dev": "cd ui/react-pwa && npm run dev",
     "build": "cd ui/react-pwa && npm run build",
     "start:ui": "cd ui/react-pwa && npm start",
-    "install:all": "npm run setup && cd ui/react-pwa && npm install"
+    "install:all": "npm run complete-install"
   },
   "keywords": [
     "ai",
