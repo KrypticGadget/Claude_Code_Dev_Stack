@@ -4,7 +4,8 @@
       "WebSearch",
       "Bash(cp:*)",
       "Bash(mkdir:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "mcp__code-sandbox__sandbox_exec"
     ],
     "deny": [],
     "ask": []

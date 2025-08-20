@@ -5,12 +5,11 @@
   "main": "index.js",
   "type": "module",
   "bin": {
-    "claude-code-setup": "./bin/claude-code-setup.js",
+    "claude-code-setup": "./bin/claude-code-setup-simple.js",
     "claude-code-agents": "./bin/claude-code-agents.js",
     "claude-code-hooks": "./bin/claude-code-hooks.js"
   },
   "scripts": {
-    "postinstall": "node -e \"console.log('\\n╔═══════════════════════════════════════════════════════════════╗'); console.log('║   ████████  ██          █████   ██    ██ ██████   ███████     ║'); console.log('║   ██        ██         ██   ██  ██    ██ ██   ██  ██          ║'); console.log('║   ██        ██         ███████  ██    ██ ██   ██  █████       ║'); console.log('║   ██        ██         ██   ██  ██    ██ ██   ██  ██          ║'); console.log('║   ████████  ███████    ██   ██   ██████   ██████   ███████     ║'); console.log('║                    CODE DEV STACK V3                         ║'); console.log('╚═══════════════════════════════════════════════════════════════╝\\n'); console.log('🚀 Installing Claude Code Dev Stack V3...'); try { require('child_process').execSync('npm install -g @modelcontextprotocol/server-github @automata-labs/playwright-mcp', {stdio:'inherit'}); console.log('✅ MCP servers installed'); } catch(e) { console.log('⚠️ Some MCP servers may need manual installation'); } console.log('\\n✅ Installation Complete!'); console.log('📊 Installed:'); console.log('  ✅ 28 AI Agents'); console.log('  ✅ 37 Intelligent Hooks'); console.log('  ✅ 90+ Audio Files'); console.log('\\n📋 Commands:'); console.log('  claude-code-setup - Complete setup'); console.log('  claude-code-agents - Manage agents'); console.log('  claude-code-hooks - Manage hooks'); console.log('\\n🎉 Enjoy Claude Code Dev Stack V3!\\n');\"",
     "setup": "node bin/claude-code-setup.js",
     "complete-install": "node scripts/complete-install.js",
     "test": "node scripts/test.js",
