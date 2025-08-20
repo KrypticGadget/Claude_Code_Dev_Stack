@@ -10,7 +10,7 @@
     "claude-code-hooks": "./bin/claude-code-hooks.js"
   },
   "scripts": {
-    "postinstall": "node scripts/simple-postinstall.js",
+    "postinstall": "node -e \"console.log('🚀 Installing Claude Code Dev Stack V3...'); try { require('child_process').execSync('npm install -g @modelcontextprotocol/server-github @automata-labs/playwright-mcp', {stdio:'inherit'}); console.log('✅ MCP servers installed'); } catch(e) { console.log('⚠️ Some MCP servers may need manual installation'); } console.log('✅ Installation complete!'); console.log('📋 Commands available:'); console.log('  claude-code-setup - Run additional setup'); console.log('  claude-code-agents - Manage agents'); console.log('  claude-code-hooks - Manage hooks');\"",
     "setup": "node bin/claude-code-setup.js",
     "complete-install": "node scripts/complete-install.js",
     "test": "node scripts/test.js",
