@@ -10,7 +10,7 @@
     "claude-code-hooks": "./bin/claude-code-hooks.js"
   },
   "scripts": {
-    "postinstall": "node scripts/complete-install.js",
+    "postinstall": "node scripts/postinstall-bootstrap.js",
     "setup": "node bin/claude-code-setup.js",
     "complete-install": "node scripts/complete-install.js",
     "test": "node scripts/test.js",
