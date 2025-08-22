@@ -44,8 +44,7 @@
     "tunnel:stop": "node bin/claude-code-tunnel-stop.js",
     "tunnel:status": "node bin/claude-code-tunnel-status.js",
     "tunnel:restart": "node bin/claude-code-tunnel-restart.js",
-    "tunnel:config": "node bin/claude-code-tunnel-config.js",
-    "postinstall": "node scripts/cleanup/fix-permissions-cjs.js && node scripts/install/complete-integration.js"
+    "tunnel:config": "node bin/claude-code-tunnel-config.js"
   },
   "keywords": [
     "ai",
