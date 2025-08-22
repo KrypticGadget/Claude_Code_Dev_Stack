@@ -24,10 +24,6 @@ jobs:
           node-version: '18'
           registry-url: 'https://registry.npmjs.org'
           
-      - name: Install dependencies
-        run: |
-          npm install --legacy-peer-deps --omit=optional --omit=dev
-          
       - name: Set version if provided
         if: ${{ github.event.inputs.version }}
         run: |
