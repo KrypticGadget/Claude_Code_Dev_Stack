@@ -1,0 +1,339 @@
+{
+  "version": "3.6.9",
+  "total_hooks": 38,
+  "hooks": {
+    "smart_orchestrator": {
+      "path": "agent/smart_orchestrator.py",
+      "category": "agent",
+      "group": "orchestration",
+      "priority": 1,
+      "triggers": ["@mention", "slash_command"],
+      "phase": "agent_organization"
+    },
+    "master_orchestrator": {
+      "path": "agent/master_orchestrator.py",
+      "category": "agent",
+      "group": "orchestration", 
+      "priority": 1,
+      "triggers": ["@mention"],
+      "phase": "agent_organization"
+    },
+    "v3_orchestrator": {
+      "path": "config/v3_orchestrator.py",
+      "category": "config",
+      "group": "orchestration",
+      "priority": 1,
+      "triggers": ["@mention", "auto"],
+      "phase": "hook_system"
+    },
+    "orchestration_enhancer": {
+      "path": "orchestration/orchestration_enhancer.py",
+      "category": "orchestration",
+      "group": "orchestration",
+      "priority": 2,
+      "triggers": ["enhance"],
+      "phase": "hook_system"
+    },
+    "orchestration_demo": {
+      "path": "orchestration/orchestration_demo.py",
+      "category": "orchestration",
+      "group": "orchestration",
+      "priority": 3,
+      "triggers": ["demo"],
+      "phase": "testing_qa"
+    },
+    "slash_command_router": {
+      "path": "system/slash_command_router.py",
+      "category": "system",
+      "group": "routing",
+      "priority": 1,
+      "triggers": ["slash_command"],
+      "phase": "hook_system"
+    },
+    "agent_mention_parser": {
+      "path": "agent/agent_mention_parser.py",
+      "category": "agent",
+      "group": "routing",
+      "priority": 1,
+      "triggers": ["@mention"],
+      "phase": "hook_system"
+    },
+    "agent_enhancer_v3": {
+      "path": "agent/agent_enhancer_v3.py",
+      "category": "agent",
+      "group": "routing",
+      "priority": 2,
+      "triggers": ["enhance"],
+      "phase": "hook_system"
+    },
+    "audio_player_v3": {
+      "path": "audio/audio_player_v3.py",
+      "category": "audio",
+      "group": "feedback",
+      "priority": 1,
+      "triggers": ["audio"],
+      "phase": "statusline"
+    },
+    "audio_controller": {
+      "path": "audio/audio_controller.py",
+      "category": "audio",
+      "group": "feedback",
+      "priority": 2,
+      "triggers": ["control"],
+      "phase": "statusline"
+    },
+    "audio_notifier": {
+      "path": "audio/audio_notifier.py",
+      "category": "audio",
+      "group": "feedback",
+      "priority": 2,
+      "triggers": ["notify"],
+      "phase": "statusline"
+    },
+    "audio_player": {
+      "path": "audio/audio_player.py",
+      "category": "audio",
+      "group": "feedback",
+      "priority": 3,
+      "triggers": ["play"],
+      "phase": "statusline"
+    },
+    "audio_player_fixed": {
+      "path": "audio/audio_player_fixed.py",
+      "category": "audio",
+      "group": "feedback",
+      "priority": 3,
+      "triggers": ["play"],
+      "phase": "statusline"
+    },
+    "status_line_manager": {
+      "path": "monitoring/status_line_manager.py",
+      "category": "monitoring",
+      "group": "ui",
+      "priority": 1,
+      "triggers": ["status_update"],
+      "phase": "statusline"
+    },
+    "chat_manager_v3": {
+      "path": "session/chat_manager_v3.py",
+      "category": "session",
+      "group": "ui",
+      "priority": 1,
+      "triggers": ["chat"],
+      "phase": "session_features"
+    },
+    "chat_manager": {
+      "path": "session/chat_manager.py",
+      "category": "session",
+      "group": "ui",
+      "priority": 2,
+      "triggers": ["chat"],
+      "phase": "session_features"
+    },
+    "notification_sender": {
+      "path": "system/notification_sender.py",
+      "category": "system",
+      "group": "ui",
+      "priority": 2,
+      "triggers": ["notify"],
+      "phase": "statusline"
+    },
+    "auto_documentation": {
+      "path": "quality/auto_documentation.py",
+      "category": "quality",
+      "group": "automation",
+      "priority": 1,
+      "triggers": ["file_change", "commit"],
+      "phase": "installation"
+    },
+    "auto_formatter": {
+      "path": "quality/auto_formatter.py",
+      "category": "quality",
+      "group": "automation",
+      "priority": 2,
+      "triggers": ["save"],
+      "phase": "testing_qa"
+    },
+    "code_linter": {
+      "path": "quality/code_linter.py",
+      "category": "quality",
+      "group": "quality",
+      "priority": 1,
+      "triggers": ["save", "commit"],
+      "phase": "testing_qa"
+    },
+    "quality_gate_hook": {
+      "path": "quality/quality_gate_hook.py",
+      "category": "quality",
+      "group": "quality",
+      "priority": 1,
+      "triggers": ["commit"],
+      "phase": "testing_qa"
+    },
+    "git_quality_hooks": {
+      "path": "git/git_quality_hooks.py",
+      "category": "git",
+      "group": "quality",
+      "priority": 2,
+      "triggers": ["commit", "push"],
+      "phase": "testing_qa"
+    },
+    "security_scanner": {
+      "path": "system/security_scanner.py",
+      "category": "system",
+      "group": "quality",
+      "priority": 2,
+      "triggers": ["commit"],
+      "phase": "testing_qa"
+    },
+    "dependency_checker": {
+      "path": "quality/dependency_checker.py",
+      "category": "quality",
+      "group": "quality",
+      "priority": 3,
+      "triggers": ["install"],
+      "phase": "testing_qa"
+    },
+    "performance_monitor": {
+      "path": "monitoring/performance_monitor.py",
+      "category": "monitoring",
+      "group": "monitoring",
+      "priority": 1,
+      "triggers": ["execution"],
+      "phase": "final_integration"
+    },
+    "resource_monitor": {
+      "path": "monitoring/resource_monitor.py",
+      "category": "monitoring",
+      "group": "monitoring",
+      "priority": 1,
+      "triggers": ["execution"],
+      "phase": "final_integration"
+    },
+    "model_tracker": {
+      "path": "monitoring/model_tracker.py",
+      "category": "monitoring",
+      "group": "monitoring",
+      "priority": 2,
+      "triggers": ["api_call"],
+      "phase": "final_integration"
+    },
+    "context_manager": {
+      "path": "session/context_manager.py",
+      "category": "session",
+      "group": "state",
+      "priority": 1,
+      "triggers": ["session"],
+      "phase": "session_features"
+    },
+    "session_loader": {
+      "path": "session/session_loader.py",
+      "category": "session",
+      "group": "state",
+      "priority": 1,
+      "triggers": ["start"],
+      "phase": "session_features"
+    },
+    "session_saver": {
+      "path": "session/session_saver.py",
+      "category": "session",
+      "group": "state",
+      "priority": 1,
+      "triggers": ["save"],
+      "phase": "session_features"
+    },
+    "v3_config": {
+      "path": "config/v3_config.py",
+      "category": "config",
+      "group": "config",
+      "priority": 1,
+      "triggers": ["load"],
+      "phase": "infrastructure"
+    },
+    "v3_validator": {
+      "path": "validation/v3_validator.py",
+      "category": "validation",
+      "group": "config",
+      "priority": 2,
+      "triggers": ["validate"],
+      "phase": "infrastructure"
+    },
+    "planning_trigger": {
+      "path": "orchestration/planning_trigger.py",
+      "category": "orchestration",
+      "group": "workflow",
+      "priority": 1,
+      "triggers": ["plan"],
+      "phase": "agent_organization"
+    },
+    "parallel_execution_engine": {
+      "path": "orchestration/parallel_execution_engine.py",
+      "category": "orchestration",
+      "group": "workflow",
+      "priority": 1,
+      "triggers": ["parallel"],
+      "phase": "final_integration"
+    },
+    "enhanced_bash_hook": {
+      "path": "system/enhanced_bash_hook.py",
+      "category": "system",
+      "group": "execution",
+      "priority": 1,
+      "triggers": ["bash"],
+      "phase": "remote_access"
+    },
+    "venv_enforcer": {
+      "path": "system/venv_enforcer.py",
+      "category": "system",
+      "group": "execution",
+      "priority": 2,
+      "triggers": ["python"],
+      "phase": "infrastructure"
+    },
+    "ultimate_claude_hook": {
+      "path": "system/ultimate_claude_hook.py",
+      "category": "system",
+      "group": "special",
+      "priority": 1,
+      "triggers": ["ultimate"],
+      "phase": "final_integration"
+    },
+    "migrate_to_v3_audio": {
+      "path": "audio/migrate_to_v3_audio.py",
+      "category": "audio",
+      "group": "migration",
+      "priority": 1,
+      "triggers": ["migrate"],
+      "phase": "infrastructure"
+    }
+  },
+  "groups": {
+    "orchestration": ["smart_orchestrator", "master_orchestrator", "v3_orchestrator", "orchestration_enhancer", "orchestration_demo"],
+    "routing": ["slash_command_router", "agent_mention_parser", "agent_enhancer_v3"],
+    "feedback": ["audio_player_v3", "audio_controller", "audio_notifier", "audio_player", "audio_player_fixed"],
+    "ui": ["status_line_manager", "chat_manager_v3", "chat_manager", "notification_sender"],
+    "automation": ["auto_documentation", "auto_formatter"],
+    "quality": ["code_linter", "quality_gate_hook", "git_quality_hooks", "security_scanner", "dependency_checker"],
+    "monitoring": ["performance_monitor", "resource_monitor", "model_tracker"],
+    "state": ["context_manager", "session_loader", "session_saver"],
+    "config": ["v3_config", "v3_validator"],
+    "workflow": ["planning_trigger", "parallel_execution_engine"],
+    "execution": ["enhanced_bash_hook", "venv_enforcer"],
+    "special": ["ultimate_claude_hook"],
+    "migration": ["migrate_to_v3_audio"]
+  },
+  "phase_priorities": {
+    "infrastructure": 1,
+    "agent_organization": 2,
+    "hook_system": 3,
+    "pwa_development": 4,
+    "remote_access": 5,
+    "session_features": 6,
+    "mcp_servers": 7,
+    "statusline": 8,
+    "browser_features": 9,
+    "testing_qa": 10,
+    "installation": 11,
+    "final_integration": 12
+  }
+}

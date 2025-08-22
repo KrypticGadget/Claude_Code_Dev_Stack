@@ -1,0 +1,191 @@
+# Dependencies
+node_modules/
+**/node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build outputs
+dist/
+build/
+out/
+*.tsbuildinfo
+.next/
+.nuxt/
+.vuepress/dist/
+.cache/
+.parcel-cache/
+
+# Environment files (CRITICAL - NEVER COMMIT)
+.env
+.env.*
+!.env.example
+!.env.tunnel.example
+*.local
+.env.tunnel
+.env.production
+.env.staging
+.env.development
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# Archive directories
+_archive/
+**/backup_*/
+old_scripts/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+nul
+
+# Windows paths (cleanup corrupted paths)
+C:Users*
+CodeClaude*
+"C:UsersZachDesktopMaster Code"
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
+# Testing
+coverage/
+*.lcov
+.nyc_output/
+.grunt/
+test-results/
+*.test.js
+*.spec.js
+
+# Docker
+*.pid
+*.seed
+*.pid.lock
+
+# Tunnel files (SECURITY - NEVER COMMIT)
+.tunnel-url
+ngrok.yml
+ngrok.log
+*.ngrok.io
+tunnel-config.json
+!tunnel-config.example.json
+
+# Session files
+.claude/
+!core/.claude/
+*.session
+*.cache
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Certificates & Secrets (CRITICAL SECURITY)
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.truststore
+private/
+secrets/
+credentials/
+*.secret
+*.token
+auth.json
+!auth.example.json
+
+# Uploads
+uploads/
+public/uploads/
+
+# Generated files
+generated/
+auto-generated/
+
+# Lock files (except package-lock.json which is explicitly excluded above)
+Gemfile.lock
+composer.lock
+
+# V3.6.9 Reorganization Specific
+Claude_Code_Dev_Stack_V3_CLEAN/
+V3.6.9/
+test_statusline*.py
+verify-v3.6.9.js
+
+# MCP Server Files
+mcp-servers/github_mcp_config.yml
+!mcp-servers/github_mcp_config.example.yml
+
+# Miscellaneous
+.sass-cache/
+.connect.lock
+.lock-wscript
+.node_repl_history
+.yarn-integrity
+.npm/
+web_modules/
+jspm_packages/
+.eslintcache
+.stylelintcache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
