@@ -1,0 +1,89 @@
+# Prometheus Configuration for V3.6.9 Monitoring
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'claude-code-v3'
+    environment: 'development'
+
+rule_files:
+  - "alert_rules.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # Claude Code Agent Metrics
+  - job_name: 'claude-agents'
+    static_configs:
+      - targets: ['localhost:8001']
+    scrape_interval: 5s
+    metrics_path: /metrics
+
+  # System Metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['localhost:9100']
+    scrape_interval: 10s
+
+  # Hook Execution Metrics
+  - job_name: 'hook-metrics'
+    static_configs:
+      - targets: ['localhost:8002']
+    scrape_interval: 5s
+    metrics_path: /hook-metrics
+
+  # Session Management Metrics
+  - job_name: 'session-metrics'
+    static_configs:
+      - targets: ['localhost:8003']
+    scrape_interval: 10s
+    metrics_path: /session-metrics
+
+  # Resource Monitor Metrics
+  - job_name: 'resource-monitor'
+    static_configs:
+      - targets: ['localhost:8004']
+    scrape_interval: 10s
+    metrics_path: /resource-metrics
+
+  # Performance Monitor Metrics
+  - job_name: 'performance-monitor'
+    static_configs:
+      - targets: ['localhost:8005']
+    scrape_interval: 5s
+    metrics_path: /performance-metrics
+
+  # Integration Services
+  - job_name: 'browser-integration'
+    static_configs:
+      - targets: ['localhost:8010']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  - job_name: 'mcp-manager'
+    static_configs:
+      - targets: ['localhost:8011']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # Application Services
+  - job_name: 'backend-services'
+    static_configs:
+      - targets: ['localhost:3001']
+    scrape_interval: 15s
+    metrics_path: /api/metrics
+
+  - job_name: 'web-frontend'
+    static_configs:
+      - targets: ['localhost:3000']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Log aggregation via Promtail
+  - job_name: 'promtail'
+    static_configs:
+      - targets: ['localhost:9080']

@@ -1,0 +1,243 @@
+version: '3.8'
+
+# Production configuration for Claude Code Dev Stack
+services:
+  # Production configuration for main application
+  claude-dev-stack:
+    build:
+      target: production
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - SEMANTIC_API_PORT=3001
+      - ENABLE_HOOKS=true
+      - ENABLE_AGENTS=true
+      - ENABLE_AUDIO=false  # Disable audio in production
+      - ENABLE_PWA=true
+      - MCP_GITHUB_TOKEN=${MCP_GITHUB_TOKEN}
+      - MCP_SERVER_PORT=3333
+    volumes:
+      - claude_data:/app/data
+      - claude_logs:/app/logs
+      - claude_cache:/app/cache
+    restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+
+  # Production configuration for semantic API
+  semantic-api:
+    build:
+      target: production
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - HOST=0.0.0.0
+      - ENABLE_WEBSOCKET=true
+      - ENABLE_CACHING=true
+      - ENABLE_RATE_LIMIT=true
+      - MAX_CACHE_SIZE=1000
+      - RATE_LIMIT_WINDOW=900000
+      - RATE_LIMIT_MAX=1000
+      - REDIS_URL=redis://redis:6379
+      - POSTGRES_URL=postgresql://claude:${POSTGRES_PASSWORD}@postgres:5432/claude_semantic
+    volumes:
+      - semantic_logs:/app/logs
+      - semantic_cache:/app/cache
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # Production configuration for React UI
+  claude-ui:
+    build:
+      target: production
+    environment:
+      - NODE_ENV=production
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # Production GitHub MCP Server
+  github-mcp-server:
+    environment:
+      - NODE_ENV=production
+      - GITHUB_TOKEN=${MCP_GITHUB_TOKEN}
+      - MCP_SERVER_PORT=3333
+      - LOG_LEVEL=warn
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  # Production Code Sandbox MCP Server
+  code-sandbox-mcp:
+    environment:
+      - NODE_ENV=production
+      - MCP_SERVER_PORT=3334
+      - SANDBOX_TIMEOUT=30000
+      - MAX_CONCURRENT_EXECUTIONS=3  # Reduced for production
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+
+  # Production Playwright MCP Server
+  playwright-mcp:
+    environment:
+      - NODE_ENV=production
+      - MCP_SERVER_PORT=3335
+      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+      - BROWSER_TIMEOUT=30000
+      - MAX_PAGES=5  # Reduced for production
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+
+  # Production Redis configuration
+  redis:
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # Production PostgreSQL configuration
+  postgres:
+    environment:
+      - POSTGRES_DB=claude_dev_stack
+      - POSTGRES_USER=claude
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+
+  # Production Prometheus configuration
+  prometheus:
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 512M
+
+  # Production Grafana configuration
+  grafana:
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+      - GF_ANALYTICS_CHECK_FOR_UPDATES=false
+      - GF_SECURITY_DISABLE_GRAVATAR=true
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # Production NGINX configuration
+  nginx:
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    profiles:
+      - production
+
+  # Log aggregation service
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    ports:
+      - "5044:5044"
+      - "9600:9600"
+    environment:
+      - "LS_JAVA_OPTS=-Xmx512m -Xms512m"
+    volumes:
+      - ./config/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - logstash_data:/usr/share/logstash/data
+    networks:
+      - claude-network
+    restart: always
+    profiles:
+      - production
+
+  # Elasticsearch for log storage
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - xpack.security.enabled=false
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - claude-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+    profiles:
+      - production
+
+volumes:
+  logstash_data:
+    driver: local
+  elasticsearch_data:
+    driver: local

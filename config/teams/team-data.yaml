@@ -1,0 +1,377 @@
+# Data Team Configuration
+# Data engineering, analytics, and machine learning
+
+team:
+  id: "data"
+  name: "Data Team"
+  icon: "📊"
+  description: "Data engineering, analytics, machine learning, and data-driven insights"
+  tier_focus: [3]
+  priority: 5
+  status: "active"
+
+# Team Members and Roles
+members:
+  team_lead:
+    agent: "agent-database-architecture"
+    role: "Data Architecture Lead & Team Coordinator"
+    responsibilities:
+      - "Data architecture strategy and design"
+      - "Database optimization and performance"
+      - "Data governance coordination"
+      - "Team technical leadership"
+    authority_level: "technical_lead"
+    
+  data_engineer:
+    agent: "agent-data-engineer"
+    role: "Data Engineering Specialist"
+    responsibilities:
+      - "Data pipeline development and maintenance"
+      - "ETL/ELT process implementation"
+      - "Data warehouse design and optimization"
+      - "Big data processing solutions"
+    authority_level: "senior_engineer"
+    
+  ml_ai_specialist:
+    agent: "agent-ml-ai-specialist"
+    role: "Machine Learning & AI Specialist"
+    responsibilities:
+      - "ML model development and deployment"
+      - "AI integration solutions"
+      - "Predictive analytics implementation"
+      - "Data science research and development"
+    authority_level: "senior_specialist"
+    
+  business_analyst:
+    agent: "agent-business-analyst"
+    role: "Business Intelligence & Analytics"
+    responsibilities:
+      - "Business requirements analysis"
+      - "Data visualization and reporting"
+      - "KPI development and monitoring"
+      - "Stakeholder analytics coordination"
+    authority_level: "senior_analyst"
+
+# Communication Protocols
+communication:
+  meeting_cadence:
+    data_sync:
+      frequency: "daily"
+      duration: "15 minutes"
+      participants: ["all_data_team"]
+      focus: "pipeline_status_issues"
+      
+    technical_review:
+      frequency: "weekly"
+      duration: "90 minutes"
+      participants: ["technical_leads"]
+      focus: "architecture_decisions"
+      
+    stakeholder_review:
+      frequency: "bi_weekly"
+      duration: "60 minutes"
+      participants: ["data_team", "business_stakeholders"]
+      focus: "analytics_insights"
+      
+    research_session:
+      frequency: "monthly"
+      duration: "120 minutes"
+      participants: ["ml_specialists", "researchers"]
+      focus: "innovation_exploration"
+
+  data_governance:
+    data_quality_standards: "dq_framework_implementation"
+    privacy_compliance: "gdpr_ccpa_compliance"
+    data_lineage: "comprehensive_tracking"
+    access_control: "role_based_data_access"
+    
+  documentation_requirements:
+    data_dictionaries: "comprehensive_metadata"
+    pipeline_documentation: "detailed_flow_diagrams"
+    model_documentation: "ml_model_cards"
+    analytics_documentation: "business_context_included"
+
+# Escalation Paths
+escalation:
+  level_1:
+    trigger: "data_quality_issues"
+    handler: "agent-data-engineer"
+    response_time: "2 hours"
+    
+  level_2:
+    trigger: "pipeline_failures"
+    handler: "agent-database-architecture"
+    response_time: "1 hour"
+    
+  level_3:
+    trigger: "data_compliance_violations"
+    handler: "compliance_officer"
+    response_time: "30 minutes"
+    
+  emergency:
+    trigger: "critical_data_loss"
+    handler: "incident_response_team"
+    response_time: "immediate"
+    notify: ["all_stakeholders"]
+
+# BMAD Integration
+bmad_integration:
+  coordination_role: "data_insights_provider"
+  workflow_participation:
+    business_model_phase:
+      role: "market_data_analyst"
+      contributions: ["market_research_data", "competitive_analysis", "customer_insights"]
+      lead_agent: "agent-bmad-market-research"
+      
+    architecture_phase:
+      role: "data_architecture_consultant"
+      contributions: ["data_requirements", "analytics_architecture", "ml_integration_planning"]
+      
+    design_phase:
+      role: "data_visualization_specialist"
+      contributions: ["dashboard_design", "analytics_requirements", "reporting_specifications"]
+      
+  bmad_data_support:
+    market_research:
+      - "competitive_landscape_analysis"
+      - "customer_behavior_analytics"
+      - "market_trend_identification"
+      - "opportunity_sizing_models"
+      
+    architecture_validation:
+      - "data_scalability_assessment"
+      - "analytics_performance_requirements"
+      - "ml_infrastructure_planning"
+      - "data_integration_feasibility"
+
+# Data Architecture
+data_architecture:
+  data_strategy:
+    approach: "data_mesh_architecture"
+    governance: "federated_data_governance"
+    quality: "automated_data_quality_monitoring"
+    
+  storage_strategy:
+    data_lake: "raw_data_storage"
+    data_warehouse: "structured_analytics_data"
+    operational_stores: "real_time_application_data"
+    
+  processing_frameworks:
+    batch_processing: "apache_spark_databricks"
+    stream_processing: "kafka_streams_flink"
+    orchestration: "airflow_prefect"
+    
+  analytics_platforms:
+    business_intelligence: "tableau_power_bi"
+    advanced_analytics: "jupyter_databricks"
+    self_service: "looker_thoughtspot"
+
+# Machine Learning Operations
+ml_ops:
+  model_development:
+    frameworks: ["tensorflow", "pytorch", "scikit_learn"]
+    experimentation: "mlflow_wandb"
+    feature_stores: "feast_tecton"
+    
+  model_deployment:
+    serving: "kubernetes_seldon"
+    monitoring: "evidently_whylabs"
+    versioning: "dvc_git_lfs"
+    
+  ml_pipeline:
+    training: "automated_retraining"
+    validation: "automated_testing"
+    deployment: "ci_cd_integration"
+    monitoring: "drift_detection"
+    
+  governance:
+    model_registry: "centralized_model_catalog"
+    explainability: "model_interpretability_tools"
+    bias_detection: "fairness_monitoring"
+    compliance: "audit_trail_maintenance"
+
+# Data Engineering Practices
+data_engineering:
+  pipeline_development:
+    methodology: "dataops_practices"
+    testing: "data_pipeline_testing"
+    monitoring: "data_observability"
+    
+  data_quality:
+    validation: "great_expectations"
+    profiling: "automated_data_profiling"
+    monitoring: "anomaly_detection"
+    
+  integration_patterns:
+    real_time: "event_driven_architecture"
+    batch: "scheduled_etl_processes"
+    change_data_capture: "cdc_implementation"
+    
+  data_catalog:
+    discovery: "automated_metadata_extraction"
+    lineage: "end_to_end_traceability"
+    documentation: "collaborative_data_documentation"
+
+# Performance Metrics
+metrics:
+  data_quality_metrics:
+    completeness: ">95_percent"
+    accuracy: ">98_percent"
+    consistency: ">97_percent"
+    timeliness: "within_sla_requirements"
+    
+  pipeline_performance:
+    success_rate: ">99_percent"
+    latency: "within_defined_sla"
+    throughput: "meets_volume_requirements"
+    cost_efficiency: "optimized_compute_usage"
+    
+  ml_model_performance:
+    accuracy: "business_defined_thresholds"
+    latency: "<100ms_prediction_time"
+    drift_detection: "automated_monitoring"
+    bias_metrics: "fairness_thresholds_met"
+    
+  business_impact:
+    insights_delivered: "weekly_analytics_reports"
+    decision_support: "data_driven_decisions_enabled"
+    automation_value: "manual_process_reduction"
+    
+  bmad_integration_metrics:
+    market_research_delivery: "within_bmad_timeline"
+    data_insights_accuracy: ">95_percent"
+    analytics_readiness: "before_design_phase"
+
+# Analytics and Reporting
+analytics:
+  business_intelligence:
+    dashboards: "real_time_operational_dashboards"
+    reports: "automated_executive_reports"
+    self_service: "business_user_analytics_tools"
+    
+  advanced_analytics:
+    predictive_modeling: "forecasting_models"
+    customer_analytics: "behavior_analysis"
+    operational_analytics: "performance_optimization"
+    
+  data_visualization:
+    standards: "consistent_design_language"
+    tools: ["tableau", "power_bi", "d3_js"]
+    accessibility: "wcag_compliant_visualizations"
+    
+  reporting_automation:
+    scheduled_reports: "automated_distribution"
+    alert_based: "threshold_triggered_notifications"
+    ad_hoc: "self_service_report_generation"
+
+# Collaboration Patterns
+collaboration:
+  cross_functional_work:
+    with_product: "feature_analytics_collaboration"
+    with_engineering: "data_integration_support"
+    with_business: "requirements_gathering_sessions"
+    
+  data_democratization:
+    training: "data_literacy_programs"
+    self_service: "business_user_analytics_tools"
+    documentation: "user_friendly_data_guides"
+    
+  research_collaboration:
+    academic_partnerships: "university_research_collaboration"
+    industry_forums: "data_science_community_participation"
+    innovation_labs: "experimental_technology_exploration"
+    
+  knowledge_sharing:
+    data_guild: "internal_data_community"
+    best_practices: "documented_standards"
+    tool_evaluation: "technology_assessment_process"
+
+# Technology Stack
+technology_stack:
+  data_storage:
+    relational: ["postgresql", "mysql", "sql_server"]
+    nosql: ["mongodb", "cassandra", "dynamodb"]
+    analytics: ["snowflake", "bigquery", "redshift"]
+    cache: ["redis", "memcached"]
+    
+  processing_engines:
+    batch: ["apache_spark", "databricks"]
+    streaming: ["kafka", "apache_flink", "kinesis"]
+    orchestration: ["airflow", "prefect", "dagster"]
+    
+  ml_ai_tools:
+    frameworks: ["tensorflow", "pytorch", "scikit_learn"]
+    platforms: ["sagemaker", "azure_ml", "vertex_ai"]
+    experimentation: ["mlflow", "weights_biases"]
+    
+  visualization_tools:
+    enterprise: ["tableau", "power_bi", "qlik"]
+    open_source: ["grafana", "apache_superset"]
+    custom: ["d3_js", "plotly", "observable"]
+    
+  data_governance:
+    catalog: ["apache_atlas", "collibra", "alation"]
+    quality: ["great_expectations", "deequ"]
+    lineage: ["datahub", "apache_atlas"]
+
+# Data Governance Framework
+governance:
+  data_ownership:
+    business_ownership: "domain_driven_data_ownership"
+    technical_stewardship: "data_engineering_responsibility"
+    quality_accountability: "shared_responsibility_model"
+    
+  privacy_security:
+    data_classification: "sensitivity_based_classification"
+    access_controls: "attribute_based_access_control"
+    encryption: "data_at_rest_and_in_transit"
+    
+  compliance_framework:
+    regulations: ["gdpr", "ccpa", "hipaa", "sox"]
+    audit_trails: "comprehensive_activity_logging"
+    retention_policies: "automated_data_lifecycle_management"
+    
+  data_ethics:
+    bias_prevention: "algorithmic_fairness_monitoring"
+    transparency: "explainable_ai_practices"
+    consent_management: "user_consent_tracking"
+
+# Integration Points
+integration_points:
+  upstream_dependencies:
+    - "business_requirements"
+    - "application_data_sources"
+    - "external_data_feeds"
+    - "system_logs_and_events"
+    
+  downstream_deliverables:
+    - "analytics_insights"
+    - "ml_model_predictions"
+    - "data_visualizations"
+    - "automated_reports"
+    
+  cross_team_interfaces:
+    product_team: "feature_analytics_collaboration"
+    engineering_team: "data_integration_support"
+    business_stakeholders: "insights_delivery"
+    compliance_team: "data_governance_coordination"
+    bmad_team: "market_research_and_validation"
+
+# Innovation and Research
+innovation:
+  emerging_technologies:
+    exploration: "proof_of_concept_development"
+    evaluation: "technology_assessment_process"
+    adoption: "gradual_rollout_strategy"
+    
+  research_areas:
+    - "automated_machine_learning"
+    - "federated_learning"
+    - "edge_analytics"
+    - "quantum_computing_applications"
+    - "synthetic_data_generation"
+    
+  experimentation:
+    sandbox_environments: "safe_innovation_spaces"
+    hackathons: "quarterly_innovation_events"
+    partnerships: "academic_industry_collaboration"

@@ -1,0 +1,266 @@
+# Context Preservation System Docker Services
+# Extends the main docker-compose.yml for context management
+
+version: '3.8'
+
+services:
+  # Context Management API Service
+  context-api:
+    build:
+      context: ../core/context
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - "3100:3100"  # Context API port
+    environment:
+      - NODE_ENV=production
+      - CONTEXT_API_PORT=3100
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=claude_dev_stack
+      - POSTGRES_USER=claude
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-claude_dev_db}
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-claude_dev_redis}
+      - CONTEXT_ENCRYPTION_ENABLED=${CONTEXT_ENCRYPTION_ENABLED:-false}
+      - CONTEXT_ENCRYPTION_KEY=${CONTEXT_ENCRYPTION_KEY}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - DEBUG=${DEBUG:-false}
+    volumes:
+      - ../core/context:/app
+      - context_api_logs:/app/logs
+      - context_api_data:/app/data
+    networks:
+      - claude-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3100/api/context/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.context-api.rule=Host(`localhost`) && PathPrefix(`/api/context`)"
+      - "traefik.http.services.context-api.loadbalancer.server.port=3100"
+      - "traefik.http.routers.context-ws.rule=Host(`localhost`) && PathPrefix(`/context-ws`)"
+
+  # Context Analytics Service
+  context-analytics:
+    build:
+      context: ../core/context
+      dockerfile: Dockerfile.analytics
+      target: production
+    ports:
+      - "3101:3101"
+    environment:
+      - NODE_ENV=production
+      - ANALYTICS_PORT=3101
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=claude_dev_stack
+      - POSTGRES_USER=claude
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-claude_dev_db}
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-claude_dev_redis}
+    volumes:
+      - context_analytics_data:/app/data
+      - context_analytics_reports:/app/reports
+    networks:
+      - claude-network
+    depends_on:
+      - context-api
+      - postgres
+      - redis
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.context-analytics.rule=Host(`localhost`) && PathPrefix(`/api/context/analytics`)"
+
+  # Context Backup Service
+  context-backup:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=claude_dev_stack
+      - POSTGRES_USER=claude
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-claude_dev_db}
+      - BACKUP_INTERVAL=${CONTEXT_BACKUP_INTERVAL:-6h}
+      - BACKUP_RETENTION=${CONTEXT_BACKUP_RETENTION:-30d}
+    volumes:
+      - context_backups:/backups
+      - ../scripts/context/backup.sh:/backup.sh:ro
+    networks:
+      - claude-network
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    command: >
+      sh -c "
+        apk add --no-cache postgresql-client &&
+        chmod +x /backup.sh &&
+        while true; do
+          /backup.sh
+          sleep $$BACKUP_INTERVAL
+        done
+      "
+    profiles:
+      - backup
+
+  # Context Monitoring Service
+  context-monitor:
+    build:
+      context: ../core/context
+      dockerfile: Dockerfile.monitor
+      target: production
+    ports:
+      - "3102:3102"
+    environment:
+      - MONITOR_PORT=3102
+      - CONTEXT_API_URL=http://context-api:3100
+      - PROMETHEUS_URL=http://prometheus:9090
+      - ALERT_WEBHOOK_URL=${CONTEXT_ALERT_WEBHOOK_URL}
+    volumes:
+      - context_monitor_data:/app/data
+      - context_monitor_logs:/app/logs
+    networks:
+      - claude-network
+    depends_on:
+      - context-api
+      - prometheus
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.context-monitor.rule=Host(`localhost`) && PathPrefix(`/context/monitor`)"
+
+  # Redis Sentinel for High Availability (Optional)
+  redis-sentinel:
+    image: redis:7-alpine
+    ports:
+      - "26379:26379"
+    environment:
+      - REDIS_SENTINEL_PORT=26379
+      - REDIS_MASTER_NAME=claude-context-redis
+      - REDIS_MASTER_HOST=redis
+      - REDIS_MASTER_PORT=6379
+    volumes:
+      - ../config/redis/sentinel.conf:/etc/redis/sentinel.conf:ro
+    command: redis-sentinel /etc/redis/sentinel.conf
+    networks:
+      - claude-network
+    depends_on:
+      - redis
+    restart: unless-stopped
+    profiles:
+      - high-availability
+
+  # Context Search Service (Enhanced)
+  context-search:
+    image: elasticsearch:8.8.0
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - cluster.name=context-search
+      - node.name=context-search-node-1
+    volumes:
+      - context_search_data:/usr/share/elasticsearch/data
+      - ../config/context/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    networks:
+      - claude-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    profiles:
+      - enhanced-search
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.context-search.rule=Host(`localhost`) && PathPrefix(`/context/search`)"
+
+  # Context Replication Service
+  context-replication:
+    build:
+      context: ../core/context
+      dockerfile: Dockerfile.replication
+      target: production
+    environment:
+      - PRIMARY_CONTEXT_API=http://context-api:3100
+      - REPLICA_ENDPOINTS=${CONTEXT_REPLICA_ENDPOINTS}
+      - REPLICATION_STRATEGY=${CONTEXT_REPLICATION_STRATEGY:-async}
+      - CONFLICT_RESOLUTION=${CONTEXT_CONFLICT_RESOLUTION:-timestamp}
+    volumes:
+      - context_replication_logs:/app/logs
+    networks:
+      - claude-network
+    depends_on:
+      - context-api
+    restart: unless-stopped
+    profiles:
+      - replication
+
+  # Context Cache Warmer
+  context-cache-warmer:
+    build:
+      context: ../core/context
+      dockerfile: Dockerfile.cache-warmer
+      target: production
+    environment:
+      - CONTEXT_API_URL=http://context-api:3100
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-claude_dev_redis}
+      - WARM_INTERVAL=${CONTEXT_WARM_INTERVAL:-5m}
+      - WARM_STRATEGY=${CONTEXT_WARM_STRATEGY:-popular}
+    networks:
+      - claude-network
+    depends_on:
+      - context-api
+      - redis
+    restart: unless-stopped
+    profiles:
+      - performance
+
+volumes:
+  # Context API volumes
+  context_api_data:
+    driver: local
+  context_api_logs:
+    driver: local
+    
+  # Analytics volumes
+  context_analytics_data:
+    driver: local
+  context_analytics_reports:
+    driver: local
+    
+  # Backup volumes
+  context_backups:
+    driver: local
+    
+  # Monitoring volumes
+  context_monitor_data:
+    driver: local
+  context_monitor_logs:
+    driver: local
+    
+  # Search volumes
+  context_search_data:
+    driver: local
+    
+  # Replication volumes
+  context_replication_logs:
+    driver: local
+
+networks:
+  claude-network:
+    external: true

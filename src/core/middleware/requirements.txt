@@ -1,0 +1,64 @@
+# LSP-Hook Bridge Middleware Requirements
+# Core dependencies for the Language Server Protocol integration system
+
+# Async programming and networking
+asyncio>=3.4.3
+websockets>=10.4
+aiohttp>=3.8.0
+
+# File system monitoring and configuration
+watchdog>=2.1.9
+pyyaml>=6.0
+
+# System monitoring and performance
+psutil>=5.9.0
+
+# Data processing and validation
+dataclasses-json>=0.5.7
+jsonschema>=4.17.0
+
+# Optional language server dependencies
+# Uncomment and install as needed for specific language support
+
+# Python Language Server
+# python-lsp-server>=1.7.0
+# pylsp-mypy>=0.6.0
+# python-lsp-black>=1.2.0
+
+# TypeScript/JavaScript (install via npm)
+# npm install -g typescript-language-server
+# npm install -g vscode-langservers-extracted
+
+# Rust Language Server
+# rust-analyzer (install via rustup or package manager)
+
+# Go Language Server
+# gopls (install via: go install golang.org/x/tools/gopls@latest)
+
+# Java Language Server
+# Eclipse JDT Language Server (download from eclipse.org)
+
+# Development dependencies (optional)
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+black>=22.0.0
+flake8>=5.0.0
+mypy>=1.0.0
+coverage>=6.0.0
+
+# Documentation dependencies (optional)
+sphinx>=5.0.0
+sphinx-rtd-theme>=1.0.0
+
+# Performance profiling (optional)
+memory-profiler>=0.60.0
+line-profiler>=4.0.0
+
+# Encryption and security (optional, for secure WebSocket connections)
+cryptography>=37.0.0
+pyopenssl>=22.0.0
+
+# Additional utility libraries
+click>=8.0.0  # For CLI interfaces
+rich>=12.0.0  # For enhanced console output
+structlog>=22.1.0  # For structured logging

@@ -1,0 +1,219 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Claude Code Session Monitoring",
+    "tags": ["claude-code", "sessions", "monitoring"],
+    "style": "dark",
+    "timezone": "browser",
+    "refresh": "30s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Active Sessions",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "claude_active_sessions_total",
+            "legendFormat": "Active Sessions"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "steps": [
+                {"color": "blue", "value": 0},
+                {"color": "green", "value": 1},
+                {"color": "yellow", "value": 10}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Session Load Success Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(claude_session_loads_total{status=\"success\"}[5m]) / rate(claude_session_loads_total[5m])",
+            "legendFormat": "Success Rate"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percentunit",
+            "min": 0,
+            "max": 1,
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "yellow", "value": 0.9},
+                {"color": "green", "value": 0.99}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 6, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Average Session Size",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "avg(claude_session_size_bytes)",
+            "legendFormat": "Avg Size"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "bytes",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": 0},
+                {"color": "yellow", "value": 1048576},
+                {"color": "red", "value": 10485760}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 12, "y": 0}
+      },
+      {
+        "id": 4,
+        "title": "Session Operations/sec",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "claude:session_activity_rate",
+            "legendFormat": "Ops/sec"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ops",
+            "thresholds": {
+              "steps": [
+                {"color": "blue", "value": 0},
+                {"color": "green", "value": 0.1},
+                {"color": "yellow", "value": 1}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 18, "y": 0}
+      },
+      {
+        "id": 5,
+        "title": "Session Load Times",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(claude_session_load_duration_seconds_bucket[5m]))",
+            "legendFormat": "95th percentile"
+          },
+          {
+            "expr": "histogram_quantile(0.50, rate(claude_session_load_duration_seconds_bucket[5m]))",
+            "legendFormat": "50th percentile"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear"
+            }
+          }
+        },
+        "gridPos": {"h": 9, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 6,
+        "title": "Session Size Distribution",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "claude_session_size_bytes",
+            "legendFormat": "{{session_id}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "bytes",
+            "custom": {
+              "drawStyle": "points",
+              "pointSize": 5
+            }
+          }
+        },
+        "gridPos": {"h": 9, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 7,
+        "title": "Session Operations by Type",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "sum by (operation_type) (rate(claude_session_operations_total[5m]))",
+            "legendFormat": "{{operation_type}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ops",
+            "custom": {
+              "displayMode": "table",
+              "pieType": "donut"
+            }
+          }
+        },
+        "gridPos": {"h": 9, "w": 8, "x": 0, "y": 17}
+      },
+      {
+        "id": 8,
+        "title": "Session Save/Load Activity",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "rate(claude_session_saves_total[5m])",
+            "legendFormat": "Saves/sec"
+          },
+          {
+            "expr": "rate(claude_session_loads_total[5m])",
+            "legendFormat": "Loads/sec"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ops",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear",
+              "fillOpacity": 10
+            }
+          }
+        },
+        "gridPos": {"h": 9, "w": 8, "x": 8, "y": 17}
+      },
+      {
+        "id": 9,
+        "title": "Session Errors",
+        "type": "logs",
+        "targets": [
+          {
+            "expr": "{job=\"session-metrics\"} |= \"ERROR\"",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {"h": 9, "w": 8, "x": 16, "y": 17}
+      }
+    ]
+  }
+}

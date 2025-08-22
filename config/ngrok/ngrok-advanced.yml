@@ -1,0 +1,228 @@
+# Advanced NGROK Configuration for Claude Code Dev Stack V3.6.9
+# Complete external access and webhook testing setup
+version: "2"
+authtoken: ${NGROK_AUTHTOKEN}
+region: ${NGROK_REGION:-us}
+web_addr: 0.0.0.0:4040
+log_level: ${NGROK_LOG_LEVEL:-info}
+log_format: json
+log: ${NGROK_LOG_PATH:-./logs/ngrok.log}
+
+# Console UI configuration
+console_ui: true
+console_ui_color: "transparent"
+
+# Tunnels for all services with advanced configuration
+tunnels:
+  # Main web application tunnel (PWA) - Port 3000
+  webapp:
+    proto: http
+    addr: ${CLAUDE_WEBAPP_PORT:-3000}
+    domain: ${NGROK_CUSTOM_DOMAIN_WEBAPP}
+    subdomain: ${NGROK_SUBDOMAIN_WEBAPP:-claude-webapp}
+    host_header: rewrite
+    inspect: true
+    bind_tls: true
+    schemes: ["https", "http"]
+    request_header:
+      add:
+        - "X-Forwarded-Proto: https"
+        - "X-Real-IP: {.ClientIP}"
+        - "X-Forwarded-For: {.ClientIP}"
+    response_header:
+      add:
+        - "X-Frame-Options: SAMEORIGIN"
+        - "X-Content-Type-Options: nosniff"
+        - "Strict-Transport-Security: max-age=31536000"
+        - "Content-Security-Policy: default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: wss: https:"
+    oauth:
+      provider: ${NGROK_OAUTH_PROVIDER}
+      allow_emails: ${NGROK_ALLOWED_EMAILS}
+    circuit_breaker: 0.5
+    compression: true
+    websocket_tcp_converter: true
+
+  # API server tunnel - Port 3001  
+  api:
+    proto: http
+    addr: ${CLAUDE_API_PORT:-3001}
+    domain: ${NGROK_CUSTOM_DOMAIN_API}
+    subdomain: ${NGROK_SUBDOMAIN_API:-claude-api}
+    host_header: rewrite
+    inspect: true
+    bind_tls: true
+    schemes: ["https"]
+    request_header:
+      add:
+        - "X-Forwarded-Proto: https"
+        - "X-API-Gateway: ngrok"
+        - "X-Rate-Limit-Bypass: {.ConnectionID}"
+    response_header:
+      add:
+        - "Access-Control-Allow-Origin: *"
+        - "Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS"
+        - "Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With"
+        - "X-RateLimit-Limit: 1000"
+        - "X-RateLimit-Window: 3600"
+    oauth:
+      provider: ${NGROK_OAUTH_PROVIDER}
+      allow_emails: ${NGROK_ALLOWED_EMAILS}
+    ip_restriction:
+      allow_cidrs: ${NGROK_ALLOWED_IPS:-["0.0.0.0/0"]}
+    circuit_breaker: 0.3
+    compression: true
+    verify_webhook:
+      provider: ${NGROK_WEBHOOK_PROVIDER}
+      secret: ${NGROK_WEBHOOK_SECRET}
+
+  # WebSocket server tunnel - Port 3002
+  websocket:
+    proto: http
+    addr: ${CLAUDE_WS_PORT:-3002}
+    domain: ${NGROK_CUSTOM_DOMAIN_WS}
+    subdomain: ${NGROK_SUBDOMAIN_WS:-claude-ws}
+    host_header: rewrite
+    inspect: true
+    bind_tls: true
+    schemes: ["https", "http"]
+    request_header:
+      add:
+        - "X-Forwarded-Proto: https"
+        - "X-WebSocket-Protocol: {.WebSocketProtocol}"
+    response_header:
+      add:
+        - "X-WebSocket-Extensions: permessage-deflate"
+    websocket_tcp_converter: true
+    compression: false
+    circuit_breaker: 0.8
+
+  # Terminal server tunnel - Port 3003
+  terminal:
+    proto: http
+    addr: ${CLAUDE_TERMINAL_PORT:-3003}
+    domain: ${NGROK_CUSTOM_DOMAIN_TERMINAL}
+    subdomain: ${NGROK_SUBDOMAIN_TERMINAL:-claude-terminal}
+    host_header: rewrite
+    inspect: true
+    bind_tls: true
+    schemes: ["https"]
+    basic_auth: ${NGROK_TERMINAL_AUTH:-admin:${NGROK_TERMINAL_PASSWORD}}
+    request_header:
+      add:
+        - "X-Terminal-Session: {.ConnectionID}"
+        - "X-Forwarded-Proto: https"
+    ip_restriction:
+      allow_cidrs: ${NGROK_TERMINAL_ALLOWED_IPS:-["0.0.0.0/0"]}
+    websocket_tcp_converter: true
+    compression: true
+
+  # Unified backend server tunnel - Port 8000
+  backend:
+    proto: http
+    addr: ${CLAUDE_BACKEND_PORT:-8000}
+    domain: ${NGROK_CUSTOM_DOMAIN_BACKEND}
+    subdomain: ${NGROK_SUBDOMAIN_BACKEND:-claude-backend}
+    host_header: rewrite
+    inspect: true
+    bind_tls: true
+    schemes: ["https"]
+    request_header:
+      add:
+        - "X-Forwarded-Proto: https"
+        - "X-Backend-Service: unified"
+    response_header:
+      add:
+        - "Access-Control-Allow-Origin: *"
+        - "X-Service-Version: 3.6.9"
+    oauth:
+      provider: ${NGROK_OAUTH_PROVIDER}
+      allow_emails: ${NGROK_ALLOWED_EMAILS}
+    circuit_breaker: 0.5
+    compression: true
+    websocket_tcp_converter: true
+
+  # Webhook testing tunnel - Port 4000
+  webhooks:
+    proto: http
+    addr: ${CLAUDE_WEBHOOK_PORT:-4000}
+    domain: ${NGROK_CUSTOM_DOMAIN_WEBHOOKS}
+    subdomain: ${NGROK_SUBDOMAIN_WEBHOOKS:-claude-webhooks}
+    host_header: rewrite
+    inspect: true
+    bind_tls: true
+    schemes: ["https"]
+    request_header:
+      add:
+        - "X-Webhook-Source: {.ClientIP}"
+        - "X-Webhook-ID: {.ConnectionID}"
+        - "X-Forwarded-Proto: https"
+    response_header:
+      add:
+        - "X-Webhook-Processed: true"
+        - "X-Processing-Time: {.ProcessingTime}"
+    verify_webhook:
+      provider: ${NGROK_WEBHOOK_PROVIDER}
+      secret: ${NGROK_WEBHOOK_SECRET}
+    ip_restriction:
+      allow_cidrs: ${NGROK_WEBHOOK_ALLOWED_IPS:-["0.0.0.0/0"]}
+    compression: true
+
+  # Monitoring and health check tunnel - Port 4040
+  monitoring:
+    proto: http
+    addr: ${CLAUDE_MONITORING_PORT:-4040}
+    domain: ${NGROK_CUSTOM_DOMAIN_MONITORING}
+    subdomain: ${NGROK_SUBDOMAIN_MONITORING:-claude-monitoring}
+    host_header: rewrite
+    inspect: true
+    bind_tls: true
+    schemes: ["https"]
+    basic_auth: ${NGROK_MONITORING_AUTH:-admin:${NGROK_MONITORING_PASSWORD}}
+    request_header:
+      add:
+        - "X-Monitoring-Access: external"
+        - "X-Forwarded-Proto: https"
+    ip_restriction:
+      allow_cidrs: ${NGROK_MONITORING_ALLOWED_IPS:-["127.0.0.1/32"]}
+    compression: true
+
+  # Development preview tunnel - Port 5173 (Vite dev server)
+  preview:
+    proto: http
+    addr: ${CLAUDE_PREVIEW_PORT:-5173}
+    domain: ${NGROK_CUSTOM_DOMAIN_PREVIEW}
+    subdomain: ${NGROK_SUBDOMAIN_PREVIEW:-claude-preview}
+    host_header: rewrite
+    inspect: true
+    bind_tls: true
+    schemes: ["https", "http"]
+    request_header:
+      add:
+        - "X-Dev-Preview: true"
+        - "X-Forwarded-Proto: https"
+    response_header:
+      add:
+        - "X-Frame-Options: ALLOWALL"
+        - "Access-Control-Allow-Origin: *"
+    websocket_tcp_converter: true
+    compression: true
+
+# Global tunnel configuration
+tunnel_class: premium
+update_channel: stable
+update_check_period: 24h
+heartbeat_interval: 30s
+heartbeat_tolerance: 15s
+session_heartbeat_interval: 30s
+
+# Connection pooling and performance
+max_conns: 0
+proxy_protocol: ""
+metadata: |
+  {
+    "service": "claude-code-dev-stack",
+    "version": "3.6.9",
+    "environment": "${NODE_ENV:-development}",
+    "region": "${NGROK_REGION:-us}",
+    "instance": "${HOSTNAME:-local}"
+  }

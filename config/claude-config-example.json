@@ -1,0 +1,95 @@
+{
+  "devStack": {
+    "version": "3.0.0",
+    "enabled": true,
+    "agents": true,
+    "hooks": true,
+    "audio": true,
+    "pwa": true,
+    "hooksPath": "C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\core\\hooks\\hooks",
+    "pythonCommand": "python",
+    "installed": "2025-01-20T10:30:00.000Z",
+    "validated": "2025-01-20T10:30:00.000Z"
+  },
+  "hooks": [
+    {
+      "pattern": "*",
+      "command": "python \"C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\core\\hooks\\hooks\\status_line_manager.py\"",
+      "description": "Status line updates and context tracking",
+      "critical": true
+    },
+    {
+      "pattern": "@*",
+      "command": "python \"C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\core\\hooks\\hooks\\smart_orchestrator.py\"",
+      "description": "Smart agent routing with @mentions",
+      "critical": true
+    },
+    {
+      "pattern": "*",
+      "command": "python \"C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\core\\hooks\\hooks\\audio_controller.py\"",
+      "description": "Audio feedback system",
+      "critical": false
+    },
+    {
+      "pattern": "*",
+      "command": "python \"C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\core\\hooks\\hooks\\performance_monitor.py\"",
+      "description": "Performance monitoring",
+      "critical": false
+    },
+    {
+      "pattern": "*",
+      "command": "python \"C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\core\\hooks\\hooks\\context_manager.py\"",
+      "description": "Context management",
+      "critical": false
+    }
+  ],
+  "mcpServers": {
+    "github": {
+      "command": "node",
+      "args": ["C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\Claude_Code_Dev_Stack_V3_CLEAN\\clones\\github-mcp-server\\dist\\index.js"],
+      "env": {
+        "GITHUB_TOKEN": "",
+        "NODE_ENV": "production"
+      }
+    },
+    "code-sandbox": {
+      "command": "node",
+      "args": ["C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\scripts\\mcp-servers\\code-sandbox\\server.js"],
+      "env": {
+        "NODE_ENV": "development",
+        "SANDBOX_TIMEOUT": "30000",
+        "MAX_CONCURRENT_EXECUTIONS": "5"
+      }
+    },
+    "playwright": {
+      "command": "node",
+      "args": ["C:\\Users\\Zach\\Desktop\\Master Code\\Claude_Code_Agents\\Claude_Code_Dev_Stack\\scripts\\mcp-servers\\playwright\\server.js"],
+      "env": {
+        "NODE_ENV": "development",
+        "PLAYWRIGHT_BROWSERS_PATH": "/ms-playwright",
+        "BROWSER_TIMEOUT": "30000",
+        "MAX_PAGES": "10"
+      }
+    },
+    "docker": {
+      "command": "docker-mcp-server",
+      "args": ["--socket", "/var/run/docker.sock"],
+      "env": {
+        "DOCKER_HOST": "unix:///var/run/docker.sock"
+      }
+    }
+  },
+  "plugins": {
+    "devStack": {
+      "enabled": true,
+      "autoStart": true,
+      "audioFeedback": true,
+      "statusLine": true
+    }
+  },
+  "experimental": {
+    "parallelExecution": true,
+    "smartCaching": true,
+    "contextAwareness": true
+  }
+}

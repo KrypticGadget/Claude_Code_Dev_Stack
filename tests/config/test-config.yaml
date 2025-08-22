@@ -1,0 +1,355 @@
+# Comprehensive Agent Test Framework Configuration
+# V3.6.9 Testing Configuration for all 37 agents
+
+# Test Execution Settings
+execution:
+  test_timeout: 300  # seconds
+  parallel_execution: true
+  max_workers: 8
+  retry_failed_tests: 3
+  test_isolation: true
+  cleanup_after_tests: true
+
+# Performance Thresholds
+performance_thresholds:
+  # Individual Agent Performance
+  single_agent:
+    max_execution_time: 30.0  # seconds
+    max_memory_usage: 512     # MB
+    min_success_rate: 0.95    # 95%
+    max_error_rate: 0.05      # 5%
+  
+  # Workflow Performance
+  workflow:
+    max_end_to_end_time: 300.0  # seconds
+    max_handoff_time: 5.0       # seconds
+    min_context_preservation: 0.90  # 90%
+    max_workflow_failure_rate: 0.10  # 10%
+  
+  # System Performance
+  system:
+    max_concurrent_agents: 16
+    max_memory_total: 4096    # MB
+    max_cpu_usage: 80         # percent
+    min_throughput: 10        # operations/minute
+
+# Mock Services Configuration
+mock_services:
+  api_endpoints: true
+  file_system: true
+  databases: true
+  external_tools: true
+  cloud_services: true
+  
+  # Mock Service Behavior
+  default_success_rate: 0.95
+  default_latency_ms: 100
+  simulate_failures: true
+  simulate_timeouts: true
+
+# Test Data Configuration
+test_data:
+  generate_synthetic: true
+  use_anonymized_production: false
+  data_volume_small: 1000     # records
+  data_volume_medium: 10000   # records
+  data_volume_large: 100000   # records
+  
+  # Test Data Types
+  business_scenarios:
+    - "e-commerce platform"
+    - "healthcare management"
+    - "financial services"
+    - "educational technology"
+    - "real estate platform"
+  
+  technical_scenarios:
+    - "microservices architecture"
+    - "monolithic migration"
+    - "cloud-native development"
+    - "legacy system integration"
+    - "mobile-first development"
+
+# Agent Discovery Configuration
+agent_discovery:
+  core_agents_path: "core/agents"
+  bmad_agents_paths:
+    - "tier1"
+    - "tier2"
+  
+  # Expected Agent Counts
+  expected_core_agents: 27
+  expected_bmad_agents: 10
+  expected_total_agents: 37
+  
+  # Agent Validation
+  validate_metadata: true
+  validate_relationships: true
+  validate_tool_access: true
+
+# Load Testing Configuration
+load_testing:
+  enabled: true
+  scenarios:
+    light_load:
+      concurrent_users: 5
+      duration_seconds: 60
+      ramp_up_seconds: 10
+    
+    medium_load:
+      concurrent_users: 15
+      duration_seconds: 180
+      ramp_up_seconds: 30
+    
+    heavy_load:
+      concurrent_users: 30
+      duration_seconds: 300
+      ramp_up_seconds: 60
+    
+    stress_test:
+      concurrent_users: 50
+      duration_seconds: 120
+      ramp_up_seconds: 20
+
+# Integration Testing Configuration
+integration_testing:
+  enabled: true
+  
+  # Core Integration Scenarios
+  core_scenarios:
+    - name: "end_to_end_project_delivery"
+      enabled: true
+      timeout: 600
+      critical: true
+    
+    - name: "bmad_business_model_creation"
+      enabled: true
+      timeout: 300
+      critical: true
+    
+    - name: "security_implementation_workflow"
+      enabled: true
+      timeout: 400
+      critical: true
+    
+    - name: "performance_optimization_cycle"
+      enabled: true
+      timeout: 350
+      critical: false
+    
+    - name: "quality_assurance_pipeline"
+      enabled: true
+      timeout: 250
+      critical: true
+
+# Error Scenario Testing
+error_scenarios:
+  enabled: true
+  
+  # Scenario Configuration
+  scenarios:
+    agent_timeout:
+      enabled: true
+      timeout_threshold: 30
+      recovery_time: 10
+    
+    agent_crash:
+      enabled: true
+      crash_probability: 0.05
+      restart_time: 5
+    
+    dependency_failure:
+      enabled: true
+      failure_probability: 0.10
+      recovery_strategies: ["fallback", "retry", "circuit_breaker"]
+    
+    resource_exhaustion:
+      enabled: true
+      memory_pressure: true
+      cpu_pressure: true
+      disk_pressure: false
+    
+    network_partition:
+      enabled: true
+      partition_duration: 30
+      recovery_detection: 10
+    
+    circular_delegation:
+      enabled: true
+      detection_threshold: 5  # hops
+      prevention_enabled: true
+
+# Context Preservation Testing
+context_preservation:
+  enabled: true
+  
+  # Test Workflows
+  workflows:
+    business_to_technical:
+      agents: ["business-analyst", "technical-cto", "database-architecture", "backend-services"]
+      context_size_limit: 1048576  # 1MB
+      preservation_threshold: 0.90
+    
+    design_to_implementation:
+      agents: ["ui-ux-design", "frontend-architecture", "frontend-mockup", "production-frontend"]
+      context_size_limit: 2097152  # 2MB
+      preservation_threshold: 0.85
+    
+    bmad_complete:
+      agents: ["bmad-business-model", "bmad-architecture-design", "bmad-technical-planning", "bmad-integration"]
+      context_size_limit: 1572864  # 1.5MB
+      preservation_threshold: 0.88
+  
+  # Context Validation
+  validate_schema: true
+  validate_data_integrity: true
+  validate_relationships: true
+  track_context_growth: true
+
+# Performance Benchmarking
+benchmarking:
+  enabled: true
+  baseline_path: "tests/baselines"
+  
+  # Benchmark Categories
+  categories:
+    - individual_agents
+    - agent_workflows
+    - memory_efficiency
+    - concurrent_execution
+    - scalability_limits
+  
+  # Benchmark Metrics
+  metrics:
+    - execution_time
+    - memory_usage
+    - cpu_utilization
+    - throughput
+    - latency
+    - success_rate
+    - error_rate
+  
+  # Regression Detection
+  regression_thresholds:
+    execution_time: 1.20      # 20% slower
+    memory_usage: 1.15        # 15% more memory
+    error_rate: 2.00          # 2x error rate
+    throughput: 0.85          # 15% less throughput
+
+# Reporting Configuration
+reporting:
+  enabled: true
+  formats: ["html", "json", "junit", "csv"]
+  
+  # Report Paths
+  output_path: "tests/reports"
+  archive_reports: true
+  max_archived_reports: 10
+  
+  # Report Content
+  include_detailed_logs: true
+  include_performance_charts: true
+  include_trend_analysis: true
+  include_recommendations: true
+  
+  # Report Distribution
+  email_reports: false
+  slack_notifications: false
+  webhook_notifications: false
+
+# CI/CD Integration
+ci_cd:
+  enabled: true
+  
+  # Pipeline Integration
+  fail_pipeline_on_critical_failure: true
+  fail_pipeline_on_regression: true
+  fail_pipeline_on_security_issues: true
+  
+  # Quality Gates
+  quality_gates:
+    minimum_test_coverage: 0.80      # 80%
+    maximum_failure_rate: 0.05       # 5%
+    maximum_regression_count: 3
+    minimum_performance_score: 0.75  # 75%
+  
+  # Parallel Execution
+  parallel_test_jobs: 4
+  parallel_integration_jobs: 2
+  parallel_load_test_jobs: 1
+
+# Monitoring and Alerting
+monitoring:
+  enabled: true
+  
+  # Real-time Monitoring
+  real_time_metrics: true
+  performance_tracking: true
+  error_tracking: true
+  resource_monitoring: true
+  
+  # Alert Thresholds
+  alert_thresholds:
+    high_failure_rate: 0.10      # 10%
+    high_response_time: 60       # seconds
+    high_memory_usage: 0.90      # 90% of limit
+    high_error_rate: 0.05        # 5%
+  
+  # Alert Channels
+  alert_channels:
+    - console
+    - file
+    # - email
+    # - slack
+
+# Security Testing
+security:
+  enabled: true
+  
+  # Security Test Types
+  test_types:
+    - authentication_bypass
+    - authorization_escalation
+    - injection_attacks
+    - data_exposure
+    - configuration_security
+  
+  # Security Scanning
+  vulnerability_scanning: true
+  dependency_scanning: true
+  secrets_scanning: true
+  compliance_checking: true
+
+# Cleanup Configuration
+cleanup:
+  enabled: true
+  
+  # Cleanup Targets
+  cleanup_test_data: true
+  cleanup_log_files: false  # Keep for debugging
+  cleanup_temp_files: true
+  cleanup_mock_services: true
+  
+  # Retention Policy
+  log_retention_days: 30
+  report_retention_days: 90
+  baseline_retention_days: 365
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # Log Destinations
+  console_logging: true
+  file_logging: true
+  log_file: "tests/logs/agent-test-execution.log"
+  
+  # Log Rotation
+  max_log_size_mb: 100
+  backup_count: 5
+  
+  # Structured Logging
+  structured_format: false
+  include_context: true
+  include_performance_metrics: true

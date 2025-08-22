@@ -1,0 +1,199 @@
+# Context Preservation System Configuration
+# Comprehensive configuration for cross-agent context sharing
+
+# Database Configuration
+database:
+  postgresql:
+    host: ${POSTGRES_HOST:-localhost}
+    port: ${POSTGRES_PORT:-5432}
+    database: ${POSTGRES_DB:-claude_dev_stack}
+    user: ${POSTGRES_USER:-claude}
+    password: ${POSTGRES_PASSWORD:-claude_dev_db}
+    pool:
+      min: 2
+      max: 20
+      idle_timeout_ms: 30000
+      connection_timeout_ms: 2000
+    ssl:
+      enabled: false
+      reject_unauthorized: true
+    
+  redis:
+    url: ${REDIS_URL:-redis://localhost:6379}
+    password: ${REDIS_PASSWORD:-claude_dev_redis}
+    db: 1  # Use database 1 for context data
+    key_prefix: "context:"
+    connection:
+      retry_delay_on_failure_ms: 100
+      max_retry_delay_on_failure_ms: 2000
+      retry_times: 3
+    cache:
+      default_ttl: 3600  # 1 hour
+      max_ttl: 604800   # 7 days
+      compress_threshold: 1024  # bytes
+
+# Server Configuration
+server:
+  api:
+    port: ${CONTEXT_API_PORT:-3100}
+    host: ${CONTEXT_API_HOST:-0.0.0.0}
+    cors:
+      origin: ${CORS_ORIGIN:-*}
+      credentials: true
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+      allowed_headers: ["Content-Type", "Authorization", "X-Session-ID", "X-Agent-ID"]
+    
+  websocket:
+    path: "/context-ws"
+    heartbeat_interval: 30000  # ms
+    max_connections: 1000
+    compression: true
+    per_message_deflate: true
+    
+  security:
+    rate_limit:
+      window_ms: 900000  # 15 minutes
+      max_requests: 1000
+      skip_successful_requests: false
+      skip_failed_requests: false
+    helmet:
+      content_security_policy: false
+      cross_origin_embedder_policy: false
+    body_parser:
+      limit: "10mb"
+      extended: true
+
+# Context Management
+context:
+  storage:
+    default_ttl: 86400  # 24 hours
+    max_ttl: 604800     # 7 days
+    cleanup_interval: 3600  # 1 hour
+    
+  versioning:
+    enabled: true
+    max_versions: 10
+    auto_cleanup: true
+    
+  compression:
+    enabled: true
+    threshold: 1024  # bytes
+    algorithm: "gzip"
+    level: 6
+    
+  encryption:
+    enabled: ${CONTEXT_ENCRYPTION_ENABLED:-false}
+    algorithm: "aes-256-gcm"
+    key_length: 32
+    iv_length: 16
+    tag_length: 16
+    secret_key: ${CONTEXT_ENCRYPTION_KEY}
+    
+  search:
+    enabled: true
+    index_update_batch_size: 100
+    search_result_limit: 50
+    full_text_search: true
+    
+  analytics:
+    enabled: true
+    track_access_patterns: true
+    track_performance: true
+    retention_days: 30
+
+# Agent Integration
+agents:
+  session_tracking:
+    enabled: true
+    session_timeout: 86400  # 24 hours
+    auto_cleanup: true
+    
+  context_sharing:
+    cross_agent_enabled: true
+    inheritance_enabled: true
+    relationship_tracking: true
+    
+  performance:
+    batch_size: 50
+    concurrent_operations: 10
+    timeout_ms: 30000
+    retry_attempts: 3
+    retry_delay_ms: 1000
+
+# Monitoring & Logging
+monitoring:
+  metrics:
+    enabled: true
+    interval_ms: 5000
+    export_prometheus: true
+    
+  logging:
+    level: ${LOG_LEVEL:-info}
+    format: "json"
+    rotate: true
+    max_files: 10
+    max_size: "10m"
+    
+  health_checks:
+    enabled: true
+    interval_ms: 30000
+    timeout_ms: 5000
+    
+  alerts:
+    enabled: true
+    thresholds:
+      error_rate: 0.05  # 5%
+      response_time_p95: 1000  # ms
+      memory_usage: 0.8  # 80%
+      disk_usage: 0.9   # 90%
+
+# Development & Testing
+development:
+  debug_mode: ${DEBUG:-false}
+  mock_data: false
+  test_contexts: true
+  performance_testing: false
+  
+  fixtures:
+    load_on_start: false
+    clear_on_restart: true
+    
+  hot_reload:
+    enabled: false
+    watch_paths: ["./config", "./core/context"]
+
+# Production Optimizations
+production:
+  clustering:
+    enabled: false
+    workers: "auto"  # or number
+    
+  caching:
+    aggressive: true
+    preload_hot_contexts: true
+    memory_cache_size: "512mb"
+    
+  performance:
+    connection_pooling: true
+    query_optimization: true
+    index_optimization: true
+    
+  backup:
+    enabled: true
+    interval_hours: 6
+    retention_days: 30
+    compression: true
+
+# Feature Flags
+features:
+  context_relationships: true
+  batch_operations: true
+  real_time_sync: true
+  context_encryption: ${CONTEXT_ENCRYPTION_ENABLED:-false}
+  context_compression: true
+  full_text_search: true
+  context_analytics: true
+  webhook_notifications: false
+  context_export_import: true
+  context_history: true
+  multi_tenant: false

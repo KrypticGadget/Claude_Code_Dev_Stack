@@ -1,0 +1,206 @@
+{
+  "start_time": "2025-08-20T13:14:41.223443",
+  "actions": [
+    "Created tier-based directory structure",
+    "Moved api-integration-specialist.md to tier3_specialists/implementation",
+    "Moved backend-services.md to tier2_teams/implementation",
+    "Moved business-analyst.md to tier2_teams/analysis",
+    "Moved business-tech-alignment.md to tier1_orchestration",
+    "Moved ceo-strategy.md to tier0_coordination",
+    "Moved database-architecture.md to tier2_teams/design",
+    "Moved devops-engineering.md to tier2_teams/operations",
+    "Moved financial-analyst.md to tier2_teams/analysis",
+    "Moved frontend-architecture.md to tier2_teams/design",
+    "Moved frontend-mockup.md to tier2_teams/implementation",
+    "Moved integration-setup.md to tier2_teams/implementation",
+    "Moved master-orchestrator.md to tier0_coordination",
+    "Moved middleware-specialist.md to tier3_specialists/design",
+    "Moved mobile-development.md to tier2_teams/implementation",
+    "Moved performance-optimization.md to tier2_teams/operations",
+    "Moved production-frontend.md to tier2_teams/implementation",
+    "Moved project-manager.md to tier1_orchestration",
+    "Moved prompt-engineer.md to tier3_specialists/analysis",
+    "Moved quality-assurance.md to tier2_teams/quality",
+    "Moved script-automation.md to tier2_teams/operations",
+    "Moved security-architecture.md to tier2_teams/design",
+    "Moved technical-cto.md to tier1_orchestration",
+    "Moved technical-specifications.md to tier2_teams/quality",
+    "Moved testing-automation.md to tier2_teams/quality",
+    "Moved ui-ux-design.md to tier2_teams/design"
+  ],
+  "duplicates_found": [
+    {
+      "duplicate": "apps\\web\\public\\manifest.json",
+      "original": "apps\\pwa\\service-workers\\manifest.json",
+      "archived_to": "archive\\duplicates\\manifest_20250820_131442.json"
+    },
+    {
+      "duplicate": "apps\\web\\public\\sw.js",
+      "original": "apps\\pwa\\service-workers\\sw.js",
+      "archived_to": "archive\\duplicates\\sw_20250820_131442.js"
+    },
+    {
+      "duplicate": "core\\agents\\tier0_coordination\\ceo-strategy.md",
+      "original": "backup\\20250820_130833\\core\\agents\\ceo-strategy.md",
+      "archived_to": "archive\\duplicates\\ceo-strategy_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier0_coordination\\master-orchestrator.md",
+      "original": "backup\\20250820_130833\\core\\agents\\master-orchestrator.md",
+      "archived_to": "archive\\duplicates\\master-orchestrator_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier1_orchestration\\business-tech-alignment.md",
+      "original": "backup\\20250820_130833\\core\\agents\\business-tech-alignment.md",
+      "archived_to": "archive\\duplicates\\business-tech-alignment_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier1_orchestration\\project-manager.md",
+      "original": "backup\\20250820_130833\\core\\agents\\project-manager.md",
+      "archived_to": "archive\\duplicates\\project-manager_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier1_orchestration\\technical-cto.md",
+      "original": "backup\\20250820_130833\\core\\agents\\technical-cto.md",
+      "archived_to": "archive\\duplicates\\technical-cto_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier2_teams\\analysis\\business-analyst.md",
+      "original": "backup\\20250820_130833\\core\\agents\\business-analyst.md",
+      "archived_to": "archive\\duplicates\\business-analyst_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier2_teams\\analysis\\financial-analyst.md",
+      "original": "backup\\20250820_130833\\core\\agents\\financial-analyst.md",
+      "archived_to": "archive\\duplicates\\financial-analyst_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier2_teams\\design\\database-architecture.md",
+      "original": "backup\\20250820_130833\\core\\agents\\database-architecture.md",
+      "archived_to": "archive\\duplicates\\database-architecture_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier2_teams\\design\\frontend-architecture.md",
+      "original": "backup\\20250820_130833\\core\\agents\\frontend-architecture.md",
+      "archived_to": "archive\\duplicates\\frontend-architecture_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier2_teams\\design\\security-architecture.md",
+      "original": "backup\\20250820_130833\\core\\agents\\security-architecture.md",
+      "archived_to": "archive\\duplicates\\security-architecture_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier2_teams\\design\\ui-ux-design.md",
+      "original": "backup\\20250820_130833\\core\\agents\\ui-ux-design.md",
+      "archived_to": "archive\\duplicates\\ui-ux-design_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier2_teams\\implementation\\backend-services.md",
+      "original": "backup\\20250820_130833\\core\\agents\\backend-services.md",
+      "archived_to": "archive\\duplicates\\backend-services_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier2_teams\\implementation\\frontend-mockup.md",
+      "original": "backup\\20250820_130833\\core\\agents\\frontend-mockup.md",
+      "archived_to": "archive\\duplicates\\frontend-mockup_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier2_teams\\implementation\\integration-setup.md",
+      "original": "backup\\20250820_130833\\core\\agents\\integration-setup.md",
+      "archived_to": "archive\\duplicates\\integration-setup_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier2_teams\\implementation\\mobile-development.md",
+      "original": "backup\\20250820_130833\\core\\agents\\mobile-development.md",
+      "archived_to": "archive\\duplicates\\mobile-development_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier2_teams\\implementation\\production-frontend.md",
+      "original": "backup\\20250820_130833\\core\\agents\\production-frontend.md",
+      "archived_to": "archive\\duplicates\\production-frontend_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier2_teams\\operations\\devops-engineering.md",
+      "original": "backup\\20250820_130833\\core\\agents\\devops-engineering.md",
+      "archived_to": "archive\\duplicates\\devops-engineering_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier2_teams\\operations\\performance-optimization.md",
+      "original": "backup\\20250820_130833\\core\\agents\\performance-optimization.md",
+      "archived_to": "archive\\duplicates\\performance-optimization_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier2_teams\\operations\\script-automation.md",
+      "original": "backup\\20250820_130833\\core\\agents\\script-automation.md",
+      "archived_to": "archive\\duplicates\\script-automation_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier2_teams\\quality\\quality-assurance.md",
+      "original": "backup\\20250820_130833\\core\\agents\\quality-assurance.md",
+      "archived_to": "archive\\duplicates\\quality-assurance_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier2_teams\\quality\\technical-specifications.md",
+      "original": "backup\\20250820_130833\\core\\agents\\technical-specifications.md",
+      "archived_to": "archive\\duplicates\\technical-specifications_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier2_teams\\quality\\testing-automation.md",
+      "original": "backup\\20250820_130833\\core\\agents\\testing-automation.md",
+      "archived_to": "archive\\duplicates\\testing-automation_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier3_specialists\\analysis\\prompt-engineer.md",
+      "original": "backup\\20250820_130833\\core\\agents\\prompt-engineer.md",
+      "archived_to": "archive\\duplicates\\prompt-engineer_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier3_specialists\\design\\middleware-specialist.md",
+      "original": "backup\\20250820_130833\\core\\agents\\middleware-specialist.md",
+      "archived_to": "archive\\duplicates\\middleware-specialist_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\agents\\tier3_specialists\\implementation\\api-integration-specialist.md",
+      "original": "backup\\20250820_130833\\core\\agents\\api-integration-specialist.md",
+      "archived_to": "archive\\duplicates\\api-integration-specialist_20250820_131442.md"
+    },
+    {
+      "duplicate": "core\\generators\\python\\openapi_mcp_codegen\\__init__.py",
+      "original": "scripts\\validate-organization.py",
+      "archived_to": "archive\\duplicates\\__init___20250820_131442.py"
+    }
+  ],
+  "files_archived": [
+    "core\\agents\\development-prompt.md",
+    "core\\agents\\usage-guide.md"
+  ],
+  "directories_created": [
+    "archive",
+    "core\\agents\\tier0_coordination",
+    "core\\agents\\tier1_orchestration",
+    "core\\agents\\tier2_teams\\analysis",
+    "core\\agents\\tier2_teams\\design",
+    "core\\agents\\tier2_teams\\implementation",
+    "core\\agents\\tier2_teams\\operations",
+    "core\\agents\\tier2_teams\\quality",
+    "core\\agents\\tier3_specialists\\analysis",
+    "core\\agents\\tier3_specialists\\design",
+    "core\\agents\\tier3_specialists\\implementation",
+    "core\\agents\\tier3_specialists\\operations",
+    "core\\agents\\tier3_specialists\\quality",
+    "core\\audio\\recordings",
+    "core\\audio\\processors",
+    "core\\audio\\tts",
+    "core\\hooks\\git",
+    "core\\hooks\\pre-commit",
+    "core\\hooks\\post-commit",
+    "apps\\pwa\\components",
+    "apps\\pwa\\assets",
+    "apps\\pwa\\service-workers",
+    "automation\\scripts",
+    "automation\\pipelines",
+    "automation\\monitors"
+  ],
+  "errors": [],
+  "end_time": "2025-08-20T13:14:42.212884"
+}

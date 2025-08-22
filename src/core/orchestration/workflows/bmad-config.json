@@ -1,0 +1,372 @@
+{
+  "system": {
+    "name": "BMAD Workflow System",
+    "version": "3.6.9",
+    "description": "Complete Business Model, Architecture, Design workflow orchestration with agile methodology integration"
+  },
+  "project_defaults": {
+    "workingDirectory": ".",
+    "teamSize": 8,
+    "industryType": "technology",
+    "complianceRequirements": [],
+    "remoteTeam": true,
+    "sprintDuration": 14,
+    "qualityGates": "adaptive"
+  },
+  "bmad_configuration": {
+    "phases": {
+      "business_model": {
+        "name": "Business Model Analysis",
+        "description": "Market research, competitive analysis, revenue models",
+        "estimated_duration": "2-3 sprints",
+        "key_deliverables": [
+          "business-model-canvas",
+          "market-research-report",
+          "competitive-analysis",
+          "revenue-model-specification",
+          "customer-validation-results"
+        ],
+        "quality_gates": [
+          "business-model-validation"
+        ],
+        "stakeholder_approvals": [
+          "ceo",
+          "product_owner",
+          "finance_director"
+        ]
+      },
+      "architecture": {
+        "name": "Architecture Planning",
+        "description": "System design, technical specifications, scalability planning",
+        "estimated_duration": "3-4 sprints",
+        "key_deliverables": [
+          "system-architecture-document",
+          "technology-stack-selection",
+          "scalability-plan",
+          "integration-blueprint",
+          "security-framework",
+          "deployment-strategy"
+        ],
+        "quality_gates": [
+          "architecture-validation"
+        ],
+        "stakeholder_approvals": [
+          "cto",
+          "lead_architect",
+          "security_lead"
+        ]
+      },
+      "design": {
+        "name": "Design Implementation",
+        "description": "UX/UI design, wireframes, prototypes, user flows",
+        "estimated_duration": "2-3 sprints",
+        "key_deliverables": [
+          "user-experience-design",
+          "interface-mockups",
+          "design-system",
+          "interactive-prototypes",
+          "user-journey-maps",
+          "accessibility-guidelines"
+        ],
+        "quality_gates": [
+          "design-validation"
+        ],
+        "stakeholder_approvals": [
+          "product_owner",
+          "ux_lead",
+          "key_customer"
+        ]
+      },
+      "development": {
+        "name": "Development Coordination",
+        "description": "Sprint planning, task distribution, quality gates",
+        "estimated_duration": "ongoing sprints",
+        "key_deliverables": [
+          "working-software",
+          "test-reports",
+          "performance-benchmarks",
+          "deployment-package",
+          "user-documentation"
+        ],
+        "quality_gates": [
+          "development-validation"
+        ],
+        "stakeholder_approvals": [
+          "product_owner",
+          "qa_manager",
+          "cto"
+        ]
+      }
+    }
+  },
+  "agile_integration": {
+    "methodology": "scrum_with_kanban",
+    "ceremonies": {
+      "sprint_planning": {
+        "frequency": "sprint_start",
+        "duration": "4-8 hours",
+        "participants": ["product_owner", "scrum_master", "development_team"],
+        "bmad_integration": true
+      },
+      "daily_standup": {
+        "frequency": "daily",
+        "duration": "15 minutes",
+        "participants": ["development_team", "scrum_master"],
+        "bmad_tracking": true
+      },
+      "sprint_review": {
+        "frequency": "sprint_end",
+        "duration": "2-4 hours",
+        "participants": ["product_owner", "stakeholders", "development_team"],
+        "bmad_deliverable_review": true
+      },
+      "sprint_retrospective": {
+        "frequency": "sprint_end",
+        "duration": "1-3 hours",
+        "participants": ["development_team", "scrum_master"],
+        "bmad_process_improvement": true
+      }
+    },
+    "kanban_board": {
+      "columns": [
+        { "id": "backlog", "name": "Backlog", "wip_limit": null },
+        { "id": "bmad_analysis", "name": "BMAD Analysis", "wip_limit": 3 },
+        { "id": "in_progress", "name": "In Progress", "wip_limit": 5 },
+        { "id": "review", "name": "Review", "wip_limit": 3 },
+        { "id": "quality_gate", "name": "Quality Gate", "wip_limit": 2 },
+        { "id": "done", "name": "Done", "wip_limit": null }
+      ]
+    }
+  },
+  "user_story_management": {
+    "estimation_method": "planning_poker",
+    "story_point_scale": [1, 2, 3, 5, 8, 13, 21],
+    "acceptance_criteria_required": true,
+    "invest_validation": true,
+    "bmad_integration": true,
+    "templates": {
+      "business_model": [
+        "business-model-canvas",
+        "market-research",
+        "revenue-model-validation",
+        "customer-segment-analysis"
+      ],
+      "architecture": [
+        "system-architecture",
+        "database-design",
+        "technology-stack-selection",
+        "security-framework-design"
+      ],
+      "design": [
+        "user-experience-design",
+        "visual-design",
+        "design-system-creation",
+        "accessibility-implementation"
+      ],
+      "development": [
+        "feature-implementation",
+        "api-development",
+        "testing-implementation",
+        "performance-optimization"
+      ]
+    }
+  },
+  "progress_tracking": {
+    "kpis": {
+      "project_health": { "target": 85, "weight": 1.0 },
+      "schedule_adherence": { "target": 95, "weight": 0.3 },
+      "sprint_velocity": { "target": 40, "weight": 0.2 },
+      "quality_score": { "target": 90, "weight": 0.25 },
+      "stakeholder_satisfaction": { "target": 4.5, "weight": 0.2 },
+      "bmad_completion": { "target": 100, "weight": 0.25 },
+      "workflow_efficiency": { "target": 85, "weight": 0.15 }
+    },
+    "reporting_frequency": {
+      "executive_summary": "weekly",
+      "technical_progress": "bi_weekly",
+      "product_status": "weekly",
+      "financial_status": "monthly"
+    },
+    "alerts": {
+      "milestone_delay": { "enabled": true, "severity": "warning" },
+      "quality_gate_failure": { "enabled": true, "severity": "critical" },
+      "budget_variance": { "enabled": true, "severity": "high" },
+      "stakeholder_satisfaction_drop": { "enabled": true, "severity": "high" }
+    }
+  },
+  "stakeholder_communication": {
+    "stakeholder_roles": [
+      "ceo",
+      "cto",
+      "product_owner",
+      "lead_architect",
+      "qa_manager",
+      "marketing_director",
+      "finance_director",
+      "key_customer"
+    ],
+    "communication_channels": [
+      "email",
+      "slack",
+      "dashboard",
+      "video_call",
+      "sms"
+    ],
+    "report_templates": [
+      "executive_summary",
+      "technical_progress",
+      "product_status",
+      "financial_status"
+    ],
+    "approval_workflows": {
+      "business_model": ["ceo", "finance_director"],
+      "architecture_design": ["cto", "lead_architect"],
+      "design_system": ["product_owner", "ux_lead"],
+      "release_readiness": ["product_owner", "qa_manager", "cto"]
+    }
+  },
+  "quality_gates": {
+    "business_model_validation": {
+      "criteria": [
+        "market_size_validated",
+        "customer_segments_identified",
+        "value_proposition_tested",
+        "revenue_model_feasible",
+        "competitive_advantage_clear"
+      ],
+      "automated_checks": [
+        "market_research_completeness",
+        "financial_model_validation"
+      ],
+      "manual_reviews": [
+        "stakeholder_approval",
+        "executive_sign_off"
+      ]
+    },
+    "architecture_validation": {
+      "criteria": [
+        "scalability_requirements_met",
+        "performance_benchmarks_defined",
+        "security_architecture_approved",
+        "technology_stack_justified",
+        "integration_points_specified"
+      ],
+      "automated_checks": [
+        "architecture_linting",
+        "dependency_analysis",
+        "security_scan"
+      ],
+      "manual_reviews": [
+        "technical_review_board",
+        "security_team_approval"
+      ]
+    },
+    "design_validation": {
+      "criteria": [
+        "user_experience_validated",
+        "accessibility_compliance",
+        "design_system_consistency",
+        "responsive_design_verified",
+        "usability_testing_passed"
+      ],
+      "automated_checks": [
+        "accessibility_scan",
+        "design_token_validation",
+        "responsive_breakpoint_test"
+      ],
+      "manual_reviews": [
+        "ux_review",
+        "stakeholder_approval",
+        "user_acceptance_testing"
+      ]
+    },
+    "development_validation": {
+      "criteria": [
+        "code_coverage_threshold",
+        "performance_benchmarks_met",
+        "security_vulnerabilities_resolved",
+        "functional_tests_passing",
+        "integration_tests_passing"
+      ],
+      "automated_checks": [
+        "unit_tests",
+        "integration_tests",
+        "security_scan",
+        "performance_tests",
+        "code_quality_analysis"
+      ],
+      "manual_reviews": [
+        "code_review",
+        "qa_testing",
+        "user_acceptance_testing"
+      ]
+    }
+  },
+  "project_types": {
+    "startup_mvp": {
+      "description": "Fast-paced MVP development for startups",
+      "team_size": 4,
+      "timeline": "3_months",
+      "quality_gates": "minimal",
+      "focus": "speed_to_market",
+      "phases": ["business_model", "design", "development"]
+    },
+    "enterprise_application": {
+      "description": "Comprehensive enterprise application development",
+      "team_size": 12,
+      "timeline": "12_months",
+      "quality_gates": "comprehensive",
+      "focus": "reliability_and_scale",
+      "phases": ["business_model", "architecture", "design", "development"]
+    },
+    "api_service": {
+      "description": "API-first service development",
+      "team_size": 6,
+      "timeline": "6_months",
+      "quality_gates": "api_focused",
+      "focus": "integration_and_performance",
+      "phases": ["business_model", "architecture", "development"]
+    },
+    "mobile_application": {
+      "description": "Mobile application development",
+      "team_size": 8,
+      "timeline": "9_months",
+      "quality_gates": "mobile_optimized",
+      "focus": "user_experience",
+      "phases": ["business_model", "architecture", "design", "development"]
+    }
+  },
+  "integration_patterns": {
+    "agent_hierarchy": {
+      "enabled": true,
+      "coordination_model": "hierarchical_with_expertise",
+      "escalation_paths": "defined",
+      "load_balancing": "capacity_based"
+    },
+    "project_management": {
+      "jira_integration": false,
+      "azure_devops_integration": false,
+      "trello_integration": false,
+      "custom_dashboard": true
+    },
+    "performance_monitoring": {
+      "prometheus_metrics": true,
+      "grafana_dashboards": true,
+      "real_time_tracking": true,
+      "automated_alerts": true
+    },
+    "remote_collaboration": {
+      "real_time_editing": true,
+      "video_conferencing": true,
+      "async_communication": true,
+      "timezone_support": true
+    }
+  },
+  "security_and_compliance": {
+    "data_protection": "encryption_at_rest_and_transit",
+    "access_control": "role_based",
+    "audit_logging": "comprehensive",
+    "compliance_frameworks": [],
+    "security_scanning": "automated"
+  }
+}

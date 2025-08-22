@@ -1,11 +1,25 @@
 {
   "permissions": {
     "allow": [
-      "WebSearch",
-      "Bash(cp:*)",
+      "Bash(dir:*)",
       "Bash(mkdir:*)",
-      "Bash(tree:*)",
-      "mcp__code-sandbox__sandbox_exec"
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(rmdir:*)",
+      "Bash(for f in Tab*.tsx)",
+      "Bash(do [ -f \"$f\" ])",
+      "Bash(done)",
+      "Bash([ -d \"fileExplorer\" ])",
+      "Bash(for f in Agent*.tsx Task*.tsx)",
+      "Bash(for f in Audio*.tsx)",
+      "Bash(for f in Mobile*.tsx)",
+      "Bash(for f in MCP*.tsx)",
+      "Bash(for f in agent_enhancer_v3.py agent_mention_parser.py master_orchestrator.py smart_orchestrator.py)",
+      "Bash(for f in audio_*.py migrate_to_v3_audio.py)",
+      "Bash([ -f \"git_quality_hooks.py\" ])",
+      "Bash(for f in session_loader.py session_saver.py context_manager.py chat_manager*.py)",
+      "Bash(for:*)",
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": []

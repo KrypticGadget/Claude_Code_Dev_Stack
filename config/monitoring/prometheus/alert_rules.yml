@@ -1,0 +1,163 @@
+# Prometheus Alert Rules for V3.6.9
+groups:
+  - name: claude_code_alerts
+    rules:
+      # Agent Performance Alerts
+      - alert: AgentExecutionTimeHigh
+        expr: claude_agent_execution_time_seconds > 30
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Agent {{ $labels.agent_name }} taking too long"
+          description: "Agent {{ $labels.agent_name }} has been running for {{ $value }} seconds"
+
+      - alert: AgentFailureRate
+        expr: rate(claude_agent_failures_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High agent failure rate"
+          description: "Agent failure rate is {{ $value }} per second"
+
+      # Token Usage Alerts
+      - alert: TokenUsageHigh
+        expr: claude_tokens_used_per_minute > 10000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High token usage detected"
+          description: "Token usage is {{ $value }} tokens per minute"
+
+      - alert: TokenLimitApproaching
+        expr: claude_tokens_daily_total > 80000
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Daily token limit approaching"
+          description: "Daily token usage is at {{ $value }} tokens"
+
+      # System Resource Alerts
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is above 85%"
+
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is above 80% for 10 minutes"
+
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 20
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low disk space"
+          description: "Disk space is below 20%"
+
+      # Hook Execution Alerts
+      - alert: HookExecutionFailure
+        expr: rate(claude_hook_execution_failures_total[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Hook execution failures detected"
+          description: "Hook failure rate is {{ $value }} per second"
+
+      - alert: HookExecutionTimeHigh
+        expr: claude_hook_execution_time_seconds > 10
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Hook execution time too high"
+          description: "Hook {{ $labels.hook_name }} took {{ $value }} seconds"
+
+      # Session Management Alerts
+      - alert: SessionLoadFailure
+        expr: rate(claude_session_load_failures_total[5m]) > 0.01
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Session load failures"
+          description: "Session load failure rate is {{ $value }} per second"
+
+      - alert: SessionSizeWarning
+        expr: claude_session_size_bytes > 10485760  # 10MB
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Large session size detected"
+          description: "Session size is {{ $value | humanize1024 }}B"
+
+      # Integration Service Alerts
+      - alert: IntegrationServiceDown
+        expr: up{job=~"browser-integration|mcp-manager"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Integration service down"
+          description: "Service {{ $labels.job }} is down"
+
+      - alert: MCPConnectionFailure
+        expr: rate(mcp_connection_failures_total[5m]) > 0.01
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "MCP connection failures"
+          description: "MCP connection failure rate is {{ $value }} per second"
+
+      # Application Performance Alerts
+      - alert: ResponseTimeHigh
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2.0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response time"
+          description: "95th percentile response time is {{ $value }} seconds"
+
+      - alert: ErrorRateHigh
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate"
+          description: "Error rate is {{ $value | humanizePercentage }}"
+
+  - name: claude_code_performance
+    rules:
+      # Performance Metrics
+      - record: claude:agent_success_rate
+        expr: rate(claude_agent_executions_total{status="success"}[5m]) / rate(claude_agent_executions_total[5m])
+
+      - record: claude:average_execution_time
+        expr: rate(claude_agent_execution_time_seconds_sum[5m]) / rate(claude_agent_execution_time_seconds_count[5m])
+
+      - record: claude:tokens_per_minute
+        expr: rate(claude_tokens_used_total[1m]) * 60
+
+      - record: claude:session_activity_rate
+        expr: rate(claude_session_operations_total[5m])
+
+      - record: claude:hook_success_rate
+        expr: rate(claude_hook_executions_total{status="success"}[5m]) / rate(claude_hook_executions_total[5m])

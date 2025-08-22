@@ -1,0 +1,694 @@
+version: '3.8'
+
+services:
+  # Claude Code Dev Stack Main Application
+  claude-dev-stack:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    ports:
+      - "3000:3000"  # Main application port
+      - "3001:3001"  # Semantic API port
+      - "8080:8080"  # Additional service port
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - SEMANTIC_API_PORT=3001
+      - ENABLE_HOOKS=true
+      - ENABLE_AGENTS=true
+      - ENABLE_AUDIO=true
+      - ENABLE_PWA=true
+      - MCP_GITHUB_TOKEN=${MCP_GITHUB_TOKEN:-}
+      - MCP_SERVER_PORT=3333
+      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+      - REDIS_URL=redis://redis:6379
+      - POSTGRES_URL=postgresql://claude:claude_dev_db@postgres:5432/claude_dev_stack
+      - PROMETHEUS_URL=http://prometheus:9090
+      - GRAFANA_URL=http://grafana:3000
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - claude_data:/app/data
+      - claude_logs:/app/logs
+      - claude_cache:/app/cache
+      - playwright_cache:/ms-playwright
+    working_dir: /app
+    command: npm run dev
+    networks:
+      - claude-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.claude-app.rule=Host(`localhost`)"
+      - "traefik.http.services.claude-app.loadbalancer.server.port=3000"
+
+  # Semantic API Service
+  semantic-api:
+    build:
+      context: ./core/semantic/api
+      dockerfile: Dockerfile
+      target: development
+    ports:
+      - "3002:3001"  # External port mapping to avoid conflicts
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - HOST=0.0.0.0
+      - ENABLE_WEBSOCKET=true
+      - ENABLE_CACHING=true
+      - REDIS_URL=redis://redis:6379
+      - POSTGRES_URL=postgresql://claude:claude_dev@postgres:5432/claude_semantic
+    volumes:
+      - ./core/semantic/api:/app
+      - /app/node_modules
+      - semantic_logs:/app/logs
+      - semantic_cache:/app/cache
+    networks:
+      - claude-network
+    depends_on:
+      - redis
+      - postgres
+    restart: unless-stopped
+
+  # React PWA UI
+  claude-ui:
+    build:
+      context: ./ui/react-pwa
+      dockerfile: Dockerfile
+      target: development
+    ports:
+      - "5173:5173"  # Vite dev server default port
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3000
+      - VITE_SEMANTIC_API_URL=http://localhost:3002
+      - VITE_WEBSOCKET_URL=ws://localhost:3000
+    volumes:
+      - ./ui/react-pwa:/app
+      - /app/node_modules
+    networks:
+      - claude-network
+    restart: unless-stopped
+
+  # GitHub MCP Server
+  github-mcp-server:
+    build:
+      context: ./Claude_Code_Dev_Stack_V3_CLEAN/clones/github-mcp-server
+      dockerfile: Dockerfile
+    ports:
+      - "3333:3333"
+    environment:
+      - GITHUB_TOKEN=${MCP_GITHUB_TOKEN:-}
+      - MCP_SERVER_PORT=3333
+      - LOG_LEVEL=info
+    volumes:
+      - github_mcp_data:/data
+    networks:
+      - claude-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Code Sandbox MCP Server
+  code-sandbox-mcp:
+    image: node:18-alpine
+    ports:
+      - "3334:3334"
+    environment:
+      - NODE_ENV=development
+      - MCP_SERVER_PORT=3334
+      - SANDBOX_TIMEOUT=30000
+      - MAX_CONCURRENT_EXECUTIONS=5
+    volumes:
+      - ./scripts/mcp-servers/code-sandbox:/app
+      - code_sandbox_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock  # For Docker-in-Docker execution
+    working_dir: /app
+    command: ["node", "server.js"]
+    networks:
+      - claude-network
+    restart: unless-stopped
+    privileged: true  # Needed for Docker-in-Docker
+
+  # Playwright MCP Server
+  playwright-mcp:
+    image: mcr.microsoft.com/playwright:v1.40.0-focal
+    ports:
+      - "3335:3335"
+    environment:
+      - NODE_ENV=development
+      - MCP_SERVER_PORT=3335
+      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+      - BROWSER_TIMEOUT=30000
+      - MAX_PAGES=10
+    volumes:
+      - ./scripts/mcp-servers/playwright:/app
+      - playwright_cache:/ms-playwright
+      - playwright_data:/data
+    working_dir: /app
+    command: ["node", "server.js"]
+    networks:
+      - claude-network
+    restart: unless-stopped
+
+  # Redis for caching and session management with persistence
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-claude_dev_redis}
+      - REDIS_REPLICATION_MODE=master
+    volumes:
+      - redis_data:/data
+      - ./config/redis/redis.conf:/usr/local/etc/redis/redis.conf
+      - redis_logs:/var/log/redis
+    command: >
+      redis-server /usr/local/etc/redis/redis.conf
+      --requirepass claude_dev_redis
+      --appendonly yes
+      --appendfsync everysec
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --tcp-keepalive 300
+      --timeout 0
+      --tcp-backlog 511
+      --databases 16
+      --stop-writes-on-bgsave-error no
+      --rdbcompression yes
+      --rdbchecksum yes
+      --dir /data
+      --logfile /var/log/redis/redis.log
+      --loglevel notice
+    networks:
+      - claude-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "claude_dev_redis", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      - "traefik.enable=false"
+
+  # PostgreSQL for persistent data storage with optimized settings
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=claude_dev_stack
+      - POSTGRES_USER=claude
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-claude_dev_db}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      # Performance optimizations
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./config/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./config/postgres/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./config/postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf
+    command: >
+      postgres
+      -c config_file=/etc/postgresql/postgresql.conf
+      -c shared_preload_libraries=pg_stat_statements
+      -c max_connections=200
+      -c shared_buffers=256MB
+      -c effective_cache_size=1GB
+      -c maintenance_work_mem=64MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+      -c default_statistics_target=100
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+      -c work_mem=4MB
+      -c min_wal_size=1GB
+      -c max_wal_size=4GB
+      -c max_worker_processes=8
+      -c max_parallel_workers_per_gather=4
+      -c max_parallel_workers=8
+      -c max_parallel_maintenance_workers=4
+      -c log_statement=all
+      -c log_min_duration_statement=1000
+      -c log_checkpoints=on
+      -c log_connections=on
+      -c log_disconnections=on
+      -c log_lock_waits=on
+    networks:
+      - claude-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U claude -d claude_dev_stack"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    labels:
+      - "traefik.enable=false"
+
+  # Prometheus for monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - claude-network
+    restart: unless-stopped
+
+  # Grafana for monitoring dashboards
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3030:3000"  # Changed from 3000 to avoid conflict
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./config/monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./config/monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - claude-network
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  # NGROK Tunnel Service for external access
+  ngrok:
+    image: ngrok/ngrok:latest
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN:-}
+      - NGROK_CONFIG=/etc/ngrok.yml
+    volumes:
+      - ./config/ngrok/ngrok.yml:/etc/ngrok.yml
+      - ngrok_data:/data
+    command: ["start", "--all", "--config", "/etc/ngrok.yml"]
+    networks:
+      - claude-network
+    depends_on:
+      - traefik
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4040/api/tunnels"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ngrok.rule=Host(`localhost`) && PathPrefix(`/ngrok`)"
+      - "traefik.http.services.ngrok.loadbalancer.server.port=4040"
+
+  # Consul Service Discovery
+  consul:
+    image: consul:1.15
+    ports:
+      - "8500:8500"
+      - "8600:8600/udp"
+    environment:
+      - CONSUL_BIND_INTERFACE=eth0
+      - CONSUL_CLIENT_INTERFACE=eth0
+    volumes:
+      - consul_data:/consul/data
+      - ./config/consul/consul.hcl:/consul/config/consul.hcl
+    command: >
+      consul agent
+      -server
+      -bootstrap-expect=1
+      -ui
+      -client=0.0.0.0
+      -config-file=/consul/config/consul.hcl
+      -data-dir=/consul/data
+    networks:
+      - claude-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "consul", "info"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.consul.rule=Host(`localhost`) && PathPrefix(`/consul`)"
+      - "traefik.http.services.consul.loadbalancer.server.port=8500"
+
+  # Traefik Load Balancer (replacing NGINX)
+  traefik:
+    image: traefik:v3.0
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"  # Traefik dashboard
+    environment:
+      - TRAEFIK_API_DASHBOARD=true
+      - TRAEFIK_API_INSECURE=true
+      - TRAEFIK_PROVIDERS_DOCKER=true
+      - TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false
+      - TRAEFIK_PROVIDERS_CONSUL_CATALOG=true
+      - TRAEFIK_PROVIDERS_CONSUL_CATALOG_ENDPOINTS=consul:8500
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config/traefik/traefik.yml:/etc/traefik/traefik.yml
+      - ./config/traefik/dynamic:/etc/traefik/dynamic
+      - traefik_data:/data
+    command:
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.consul catalog=true
+      - --providers.consul catalog.endpoints=consul:8500
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.letsencrypt.acme.email=admin@localhost
+      - --certificatesresolvers.letsencrypt.acme.storage=/data/acme.json
+      - --metrics.prometheus=true
+      - --metrics.prometheus.addEntryPointsLabels=true
+      - --metrics.prometheus.addrouterslabels=true
+      - --accesslog=true
+      - --log.level=INFO
+    networks:
+      - claude-network
+    depends_on:
+      consul:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Development Tools Container
+  dev-tools:
+    image: node:18-alpine
+    volumes:
+      - .:/workspace
+      - claude_dev_tools:/tools
+    working_dir: /workspace
+    command: ["tail", "-f", "/dev/null"]  # Keep container running
+    networks:
+      - claude-network
+    profiles:
+      - dev-tools
+
+  # Frontend Development Container
+  frontend-dev:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+      target: development
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
+      - frontend_dev_cache:/app/.cache
+    working_dir: /app
+    command: ["npm", "run", "dev"]
+    networks:
+      - claude-network
+    profiles:
+      - frontend-dev
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend-dev.rule=Host(`localhost`) && PathPrefix(`/dev/frontend`)"
+      - "traefik.http.services.frontend-dev.loadbalancer.server.port=5173"
+
+  # Backend Development Container
+  backend-dev:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+      target: development
+    volumes:
+      - ./apps/backend:/app
+      - /app/node_modules
+      - backend_dev_cache:/app/.cache
+    working_dir: /app
+    command: ["npm", "run", "dev"]
+    networks:
+      - claude-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    profiles:
+      - backend-dev
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend-dev.rule=Host(`localhost`) && PathPrefix(`/dev/backend`)"
+      - "traefik.http.services.backend-dev.loadbalancer.server.port=3001"
+
+  # Database Development Container
+  database-dev:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=claude_dev_test
+      - POSTGRES_USER=claude_dev
+      - POSTGRES_PASSWORD=claude_dev_test
+    volumes:
+      - database_dev_data:/var/lib/postgresql/data
+      - ./config/postgres/dev-init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - claude-network
+    profiles:
+      - database-dev
+
+  # Test Environment Container
+  test-env:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    environment:
+      - NODE_ENV=test
+      - CI=true
+      - POSTGRES_URL=postgresql://claude_dev:claude_dev_test@database-dev:5432/claude_dev_test
+      - REDIS_URL=redis://redis-test:6379
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - test_results:/app/test-results
+      - test_coverage:/app/coverage
+    working_dir: /app
+    command: ["npm", "test"]
+    networks:
+      - claude-network
+    depends_on:
+      - database-dev
+      - redis-test
+    profiles:
+      - testing
+
+  # Redis Test Instance
+  redis-test:
+    image: redis:7-alpine
+    command: redis-server --port 6379 --databases 1
+    networks:
+      - claude-network
+    profiles:
+      - testing
+
+  # Health Check Service
+  healthcheck:
+    image: alpine:latest
+    volumes:
+      - ./scripts/healthcheck.sh:/healthcheck.sh
+      - healthcheck_logs:/var/log
+    command: |
+      sh -c '
+        apk add --no-cache curl jq &&
+        chmod +x /healthcheck.sh &&
+        while true; do
+          /healthcheck.sh
+          sleep 30
+        done
+      '
+    networks:
+      - claude-network
+    depends_on:
+      - claude-dev-stack
+      - postgres
+      - redis
+      - prometheus
+      - grafana
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+  # Context Preservation API Service
+  context-api:
+    build:
+      context: ./core/context
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - "3100:3100"  # Context API port
+    environment:
+      - NODE_ENV=production
+      - CONTEXT_API_PORT=3100
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=claude_dev_stack
+      - POSTGRES_USER=claude
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-claude_dev_db}
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-claude_dev_redis}
+      - CONTEXT_ENCRYPTION_ENABLED=${CONTEXT_ENCRYPTION_ENABLED:-false}
+      - CONTEXT_ENCRYPTION_KEY=${CONTEXT_ENCRYPTION_KEY}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - DEBUG=${DEBUG:-false}
+    volumes:
+      - ./core/context:/app
+      - context_api_logs:/app/logs
+      - context_api_data:/app/data
+      - ./config/context:/app/config:ro
+    networks:
+      - claude-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3100/api/context/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.context-api.rule=Host(`localhost`) && PathPrefix(`/api/context`)"
+      - "traefik.http.services.context-api.loadbalancer.server.port=3100"
+      - "traefik.http.routers.context-ws.rule=Host(`localhost`) && PathPrefix(`/context-ws`)"
+
+volumes:
+  # Application Data
+  claude_data:
+    driver: local
+  claude_logs:
+    driver: local
+  claude_cache:
+    driver: local
+  semantic_logs:
+    driver: local
+  semantic_cache:
+    driver: local
+  
+  # MCP Server Data
+  github_mcp_data:
+    driver: local
+  code_sandbox_data:
+    driver: local
+  playwright_data:
+    driver: local
+  playwright_cache:
+    driver: local
+  
+  # Database Volumes
+  redis_data:
+    driver: local
+  redis_logs:
+    driver: local
+  postgres_data:
+    driver: local
+  database_dev_data:
+    driver: local
+  
+  # Monitoring & Metrics
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  
+  # Service Discovery & Load Balancing
+  consul_data:
+    driver: local
+  traefik_data:
+    driver: local
+  nginx_logs:
+    driver: local
+  
+  # External Services
+  ngrok_data:
+    driver: local
+  
+  # Development Tools
+  claude_dev_tools:
+    driver: local
+  frontend_dev_cache:
+    driver: local
+  backend_dev_cache:
+    driver: local
+  
+  # Testing
+  test_results:
+    driver: local
+  test_coverage:
+    driver: local
+  
+  # Health & Logging
+  healthcheck_logs:
+    driver: local
+  
+  # Context Preservation System
+  context_api_data:
+    driver: local
+  context_api_logs:
+    driver: local
+  context_analytics_data:
+    driver: local
+  context_analytics_reports:
+    driver: local
+  context_backups:
+    driver: local
+  context_monitor_data:
+    driver: local
+  context_monitor_logs:
+    driver: local
+  context_search_data:
+    driver: local
+  context_replication_logs:
+    driver: local
+
+networks:
+  claude-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16

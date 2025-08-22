@@ -1,0 +1,149 @@
+# Claude Code Terminal Statusline Configuration
+# This is the main configuration file for the statusline system
+
+# Display settings
+layout: justified          # left, right, center, spread, justified
+position: bottom           # top, bottom, inline  
+separator: " │ "          # Separator between segments
+padding: 1                 # Padding around statusline
+
+# Update and performance settings
+update_interval: 1.0       # Seconds between updates in live mode
+cache_timeout: 1.0         # Seconds to cache segment data
+max_width: null            # Maximum statusline width (null for terminal width)
+truncate_mode: ellipsis    # ellipsis, fade, cut
+
+# Feature flags
+live_updates: true         # Enable live updating
+color_support: true        # Enable color output
+unicode_support: true      # Enable Unicode symbols
+debug: false              # Enable debug output
+
+# Theme selection
+theme: powerline          # default, minimal, powerline, terminal, nerdfont
+
+# Segment configuration
+segments:
+  # Current directory segment
+  - type: directory
+    enabled: true
+    priority: 10
+    cache_timeout: 1.0
+    max_width: 40
+    config:
+      max_depth: 3
+      show_home_tilde: true
+      show_git_root: true
+      abbreviate_parents: false
+      show_folder_icon: true
+
+  # Git repository segment
+  - type: git
+    enabled: true
+    priority: 20
+    cache_timeout: 2.0
+    config:
+      show_branch: true
+      show_status: true
+      show_ahead_behind: true
+      show_stash_count: true
+      branch_max_length: 20
+      compact_status: false
+      show_icons: true
+
+  # Claude session segment
+  - type: claude_session
+    enabled: true
+    priority: 30
+    cache_timeout: 5.0
+    config:
+      show_token_usage: true
+      show_session_time: true
+      show_conversation_count: false
+      show_model_info: true
+      compact_display: true
+      token_warning_threshold: 80
+      token_critical_threshold: 95
+
+  # System information segment
+  - type: system_info
+    enabled: true
+    priority: 40
+    cache_timeout: 3.0
+    config:
+      show_cpu: true
+      show_memory: true
+      show_load: false
+      show_disk: false
+      show_uptime: false
+      compact_display: true
+      show_icons: true
+      cpu_warning_threshold: 70.0
+      cpu_critical_threshold: 90.0
+      memory_warning_threshold: 80.0
+      memory_critical_threshold: 95.0
+
+  # Agent status segment
+  - type: agent_status
+    enabled: true
+    priority: 35
+    cache_timeout: 5.0
+    config:
+      show_active_agents: true
+      show_agent_count: true
+      show_current_agent: false
+      max_agents_shown: 3
+      compact_display: true
+      show_icons: true
+      show_tier_info: false
+
+  # Network connectivity segment
+  - type: network
+    enabled: true
+    priority: 45
+    cache_timeout: 10.0
+    config:
+      show_connectivity: true
+      show_tunnel_status: true
+      show_ping_time: false
+      show_ip_address: false
+      compact_display: true
+      show_icons: true
+      connectivity_hosts: ["8.8.8.8", "cloudflare.com"]
+      connectivity_timeout: 3
+
+  # Time and date segment
+  - type: time
+    enabled: true
+    priority: 50
+    cache_timeout: 1.0
+    config:
+      format: "%H:%M:%S"
+      show_date: false
+      date_format: "%Y-%m-%d"
+      show_timezone: false
+      timezone_format: "%Z"
+      show_seconds: true
+      compact_display: true
+      show_icons: true
+      use_24_hour: true
+      show_day_of_week: false
+      relative_time: false
+      show_uptime: false
+
+  # Example custom segment (disabled by default)
+  - type: custom
+    enabled: false
+    priority: 60
+    cache_timeout: 30.0
+    config:
+      label: "Weather"
+      data_source_type: "api"
+      api_url: "https://wttr.in/?format=3"
+      api_timeout: 5
+      data_format: "text"
+      value_type: "string"
+      format_template: "{data}"
+      show_label: false
+      prefix: "🌤 "
+      error_text: "Weather unavailable"

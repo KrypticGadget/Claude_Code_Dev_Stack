@@ -1,0 +1,242 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Claude Code Hook Execution Metrics",
+    "tags": ["claude-code", "hooks", "execution"],
+    "style": "dark",
+    "timezone": "browser",
+    "refresh": "30s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Hook Success Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "claude:hook_success_rate",
+            "legendFormat": "Success Rate"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percentunit",
+            "min": 0,
+            "max": 1,
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "yellow", "value": 0.9},
+                {"color": "green", "value": 0.99}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Hook Executions/sec",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(claude_hook_executions_total[5m])",
+            "legendFormat": "Executions/sec"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ops",
+            "thresholds": {
+              "steps": [
+                {"color": "blue", "value": 0},
+                {"color": "green", "value": 0.1},
+                {"color": "yellow", "value": 1}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 6, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Average Hook Execution Time",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(claude_hook_execution_time_seconds_sum[5m]) / rate(claude_hook_execution_time_seconds_count[5m])",
+            "legendFormat": "Avg Time"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": 0},
+                {"color": "yellow", "value": 5},
+                {"color": "red", "value": 10}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 12, "y": 0}
+      },
+      {
+        "id": 4,
+        "title": "Active Hooks",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(claude_hook_active == 1)",
+            "legendFormat": "Active"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "steps": [
+                {"color": "blue", "value": 0},
+                {"color": "green", "value": 1},
+                {"color": "yellow", "value": 5}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 18, "y": 0}
+      },
+      {
+        "id": 5,
+        "title": "Hook Execution Times by Type",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "claude_hook_execution_time_seconds",
+            "legendFormat": "{{hook_name}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear",
+              "pointSize": 5
+            }
+          }
+        },
+        "gridPos": {"h": 9, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 6,
+        "title": "Hook Execution Count",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "rate(claude_hook_executions_total[5m])",
+            "legendFormat": "{{hook_name}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ops",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear",
+              "fillOpacity": 10
+            }
+          }
+        },
+        "gridPos": {"h": 9, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 7,
+        "title": "Hook Performance Distribution",
+        "type": "heatmap",
+        "targets": [
+          {
+            "expr": "rate(claude_hook_execution_time_seconds_bucket[5m])",
+            "legendFormat": "{{le}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "vis": false
+              }
+            }
+          }
+        },
+        "gridPos": {"h": 9, "w": 12, "x": 0, "y": 17}
+      },
+      {
+        "id": 8,
+        "title": "Hook Failures by Type",
+        "type": "barchart",
+        "targets": [
+          {
+            "expr": "sum by (hook_name) (rate(claude_hook_executions_total{status=\"failure\"}[5m]))",
+            "legendFormat": "{{hook_name}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ops",
+            "custom": {
+              "orientation": "horizontal"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": 0},
+                {"color": "yellow", "value": 0.01},
+                {"color": "red", "value": 0.05}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 9, "w": 12, "x": 12, "y": 17}
+      },
+      {
+        "id": 9,
+        "title": "Hook Resource Usage",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "claude_hook_memory_usage_bytes",
+            "legendFormat": "{{hook_name}}",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "bytes",
+            "custom": {
+              "displayMode": "gradient-gauge"
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 26}
+      },
+      {
+        "id": 10,
+        "title": "Recent Hook Errors",
+        "type": "logs",
+        "targets": [
+          {
+            "expr": "{job=\"hook-metrics\"} |= \"ERROR\" or \"WARN\"",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 26}
+      }
+    ]
+  }
+}

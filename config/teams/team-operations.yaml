@@ -1,0 +1,324 @@
+# Operations Team Configuration
+# DevOps, infrastructure, and system operations
+
+team:
+  id: "operations"
+  name: "Operations Team"
+  icon: "⚙️"
+  description: "DevOps, infrastructure management, deployment automation, and system operations"
+  tier_focus: [2, 3]
+  priority: 4
+  status: "active"
+
+# Team Members and Roles
+members:
+  team_lead:
+    agent: "agent-devops-deployment"
+    role: "DevOps Lead & Infrastructure Architect"
+    responsibilities:
+      - "CI/CD pipeline architecture"
+      - "Infrastructure as code management"
+      - "Deployment strategy coordination"
+      - "Team leadership and mentoring"
+    authority_level: "technical_lead"
+    
+  system_administrator:
+    agent: "agent-system-admin"
+    role: "System Administration Specialist"
+    responsibilities:
+      - "Server maintenance and monitoring"
+      - "System performance optimization"
+      - "Backup and recovery management"
+      - "Infrastructure troubleshooting"
+    authority_level: "senior_operations"
+    
+  performance_engineer:
+    agent: "agent-performance-optimizer"
+    role: "Performance Engineering Specialist"
+    responsibilities:
+      - "Performance analysis and optimization"
+      - "Load testing coordination"
+      - "Bottleneck identification and resolution"
+      - "Monitoring system implementation"
+    authority_level: "senior_operations"
+
+# Communication Protocols
+communication:
+  meeting_cadence:
+    daily_ops_standup:
+      frequency: "daily"
+      duration: "15 minutes"
+      participants: ["all_ops_team"]
+      focus: "system_status_incidents"
+      
+    weekly_planning:
+      frequency: "weekly"
+      duration: "60 minutes"
+      participants: ["ops_team", "development_leads"]
+      focus: "deployment_planning"
+      
+    monthly_review:
+      frequency: "monthly"
+      duration: "90 minutes"
+      participants: ["ops_team", "leadership"]
+      focus: "infrastructure_roadmap"
+      
+    incident_post_mortem:
+      frequency: "as_needed"
+      duration: "60 minutes"
+      participants: ["involved_teams", "leadership"]
+      focus: "root_cause_analysis"
+
+  alert_management:
+    severity_levels:
+      critical: "immediate_response_required"
+      high: "response_within_30_minutes"
+      medium: "response_within_2_hours"
+      low: "response_within_8_hours"
+      
+    escalation_matrix:
+      level_1: "on_call_engineer"
+      level_2: "operations_lead"
+      level_3: "technical_cto"
+      level_4: "incident_commander"
+
+  documentation_standards:
+    runbooks: "standardized_operational_procedures"
+    infrastructure: "infrastructure_as_code_documentation"
+    monitoring: "comprehensive_alert_documentation"
+    disaster_recovery: "tested_recovery_procedures"
+
+# Escalation Paths
+escalation:
+  level_1:
+    trigger: "routine_operational_issues"
+    handler: "agent-system-admin"
+    response_time: "30 minutes"
+    
+  level_2:
+    trigger: "infrastructure_problems"
+    handler: "agent-devops-deployment"
+    response_time: "15 minutes"
+    
+  level_3:
+    trigger: "system_wide_outages"
+    handler: "agent-technical-cto"
+    response_time: "5 minutes"
+    
+  emergency:
+    trigger: "critical_production_incidents"
+    handler: "incident_response_team"
+    response_time: "immediate"
+    notify: ["all_stakeholders"]
+
+# BMAD Integration
+bmad_integration:
+  coordination_role: "infrastructure_enabler"
+  workflow_participation:
+    business_model_phase:
+      role: "infrastructure_requirements_advisor"
+      contributions: ["scalability_requirements", "operational_constraints"]
+      
+    architecture_phase:
+      role: "deployment_architecture_consultant"
+      contributions: ["infrastructure_design", "deployment_strategy"]
+      lead_support: "agent-bmad-architecture-design"
+      
+    design_phase:
+      role: "operational_readiness_validator"
+      contributions: ["deployment_feasibility", "monitoring_requirements"]
+      
+  bmad_infrastructure_preparation:
+    environment_setup:
+      - "development_environment_provisioning"
+      - "staging_environment_configuration"
+      - "production_infrastructure_preparation"
+      - "monitoring_and_alerting_setup"
+      
+    deployment_pipeline:
+      - "ci_cd_pipeline_creation"
+      - "automated_testing_integration"
+      - "security_scanning_implementation"
+      - "rollback_strategy_definition"
+
+# Infrastructure Management
+infrastructure:
+  cloud_strategy:
+    primary_provider: "multi_cloud_approach"
+    regions: ["us_east_1", "us_west_2", "eu_west_1"]
+    disaster_recovery: "cross_region_replication"
+    
+  containerization:
+    orchestration: "kubernetes"
+    container_registry: "private_registry"
+    image_security: "vulnerability_scanning"
+    
+  monitoring_stack:
+    metrics: "prometheus_grafana"
+    logging: "elk_stack"
+    tracing: "jaeger_zipkin"
+    alerting: "pagerduty_slack"
+    
+  security_infrastructure:
+    network_security: "vpc_segmentation"
+    access_control: "rbac_implementation"
+    secrets_management: "vault_integration"
+    compliance: "sox_gdpr_compliance"
+
+# Deployment Processes
+deployment:
+  deployment_strategy:
+    approach: "blue_green_deployment"
+    rollback_time: "under_5_minutes"
+    zero_downtime: "required"
+    
+  pipeline_stages:
+    - "source_control_trigger"
+    - "build_and_test"
+    - "security_scanning"
+    - "staging_deployment"
+    - "integration_testing"
+    - "production_deployment"
+    - "smoke_testing"
+    - "monitoring_validation"
+    
+  quality_gates:
+    automated_tests: "100_percent_pass_rate"
+    security_scan: "no_critical_vulnerabilities"
+    performance_test: "meets_sla_requirements"
+    
+  release_management:
+    frequency: "multiple_deployments_per_day"
+    approval_process: "automated_with_manual_gates"
+    communication: "automated_stakeholder_notification"
+
+# Performance Metrics
+metrics:
+  operational_excellence:
+    uptime: ">99.9_percent"
+    deployment_success_rate: ">99_percent"
+    mean_time_to_recovery: "<30_minutes"
+    incident_response_time: "<5_minutes"
+    
+  infrastructure_efficiency:
+    resource_utilization: "70_85_percent_target"
+    cost_optimization: "monthly_cost_review"
+    capacity_planning: "predictive_scaling"
+    
+  team_performance:
+    automation_percentage: ">80_percent"
+    manual_intervention_reduction: "monthly_improvement"
+    knowledge_sharing: "documented_procedures"
+    
+  bmad_integration_metrics:
+    environment_provisioning_time: "<4_hours"
+    deployment_pipeline_setup: "<24_hours"
+    infrastructure_readiness: "100_percent_before_development"
+
+# Automation Strategy
+automation:
+  infrastructure_as_code:
+    tools: ["terraform", "ansible", "helm"]
+    version_control: "git_based_workflows"
+    testing: "infrastructure_testing_frameworks"
+    
+  ci_cd_automation:
+    build_automation: "100_percent_automated"
+    testing_automation: "comprehensive_test_suites"
+    deployment_automation: "push_button_deployments"
+    
+  monitoring_automation:
+    alerting: "intelligent_alert_routing"
+    self_healing: "automated_issue_resolution"
+    capacity_management: "auto_scaling_policies"
+    
+  security_automation:
+    vulnerability_scanning: "continuous_security_monitoring"
+    compliance_checking: "automated_compliance_validation"
+    patch_management: "automated_security_updates"
+
+# Collaboration Patterns
+collaboration:
+  development_integration:
+    embedding: "devops_engineers_in_development_teams"
+    feedback_loops: "continuous_deployment_feedback"
+    shared_responsibility: "you_build_it_you_run_it"
+    
+  cross_functional_work:
+    with_security: "devsecops_practices"
+    with_architecture: "infrastructure_architecture_alignment"
+    with_product: "feature_flag_management"
+    
+  knowledge_sharing:
+    documentation: "living_runbook_documentation"
+    training: "cross_training_programs"
+    communities: "internal_devops_community"
+    
+  incident_management:
+    response_teams: "follow_the_sun_coverage"
+    communication: "transparent_incident_communication"
+    learning: "blameless_post_mortems"
+
+# Technology Stack
+technology_stack:
+  cloud_platforms:
+    primary: ["aws", "azure", "gcp"]
+    services: ["compute", "storage", "networking", "databases"]
+    management: ["infrastructure_as_code", "cost_optimization"]
+    
+  containerization:
+    runtime: "docker"
+    orchestration: "kubernetes"
+    service_mesh: "istio"
+    
+  ci_cd_tools:
+    build: ["jenkins", "github_actions", "gitlab_ci"]
+    deployment: ["argo_cd", "flux", "spinnaker"]
+    testing: ["selenium", "postman", "k6"]
+    
+  monitoring_observability:
+    metrics: ["prometheus", "datadog", "new_relic"]
+    logging: ["elasticsearch", "fluentd", "logstash"]
+    tracing: ["jaeger", "zipkin", "datadog_apm"]
+    
+  security_tools:
+    scanning: ["snyk", "twistlock", "aqua_security"]
+    secrets: ["hashicorp_vault", "aws_secrets_manager"]
+    compliance: ["chef_inspec", "open_policy_agent"]
+
+# Integration Points
+integration_points:
+  upstream_dependencies:
+    - "application_code"
+    - "infrastructure_requirements"
+    - "security_policies"
+    - "compliance_requirements"
+    
+  downstream_deliverables:
+    - "deployed_applications"
+    - "monitoring_dashboards"
+    - "operational_metrics"
+    - "incident_reports"
+    
+  cross_team_interfaces:
+    development_team: "deployment_pipeline_collaboration"
+    security_team: "security_operations_integration"
+    architecture_team: "infrastructure_architecture_alignment"
+    leadership_team: "operational_metrics_reporting"
+    bmad_team: "infrastructure_enablement"
+
+# Disaster Recovery & Business Continuity
+disaster_recovery:
+  backup_strategy:
+    frequency: "continuous_incremental_daily_full"
+    retention: "7_days_local_30_days_offsite_1_year_archive"
+    testing: "monthly_restore_verification"
+    
+  recovery_objectives:
+    rto: "recovery_time_objective_4_hours"
+    rpo: "recovery_point_objective_1_hour"
+    
+  business_continuity:
+    failover_procedures: "automated_with_manual_oversight"
+    communication_plan: "stakeholder_notification_automation"
+    testing_schedule: "quarterly_dr_exercises"

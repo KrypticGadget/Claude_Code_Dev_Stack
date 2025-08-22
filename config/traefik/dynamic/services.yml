@@ -1,0 +1,179 @@
+# Dynamic Traefik Configuration for Services
+# Claude Code Dev Stack V3.6.9
+
+# HTTP Services
+http:
+  services:
+    claude-app:
+      loadBalancer:
+        servers:
+          - url: "http://claude-dev-stack:3000"
+        healthCheck:
+          path: /health
+          interval: 30s
+          timeout: 10s
+        sticky:
+          cookie:
+            name: "claude-session"
+            secure: true
+            httpOnly: true
+    
+    claude-api:
+      loadBalancer:
+        servers:
+          - url: "http://claude-dev-stack:3001"
+        healthCheck:
+          path: /api/health
+          interval: 30s
+          timeout: 10s
+    
+    claude-ui:
+      loadBalancer:
+        servers:
+          - url: "http://claude-ui:5173"
+        healthCheck:
+          path: /
+          interval: 30s
+          timeout: 10s
+    
+    semantic-api:
+      loadBalancer:
+        servers:
+          - url: "http://semantic-api:3001"
+        healthCheck:
+          path: /health
+          interval: 30s
+          timeout: 10s
+          
+    prometheus:
+      loadBalancer:
+        servers:
+          - url: "http://prometheus:9090"
+        healthCheck:
+          path: /-/healthy
+          interval: 30s
+          timeout: 10s
+          
+    grafana:
+      loadBalancer:
+        servers:
+          - url: "http://grafana:3000"
+        healthCheck:
+          path: /api/health
+          interval: 30s
+          timeout: 10s
+          
+    consul:
+      loadBalancer:
+        servers:
+          - url: "http://consul:8500"
+        healthCheck:
+          path: /v1/status/leader
+          interval: 30s
+          timeout: 10s
+
+  # Middlewares
+  middlewares:
+    auth-headers:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-Proto: "https"
+          X-Forwarded-For: ""
+          
+    cors-headers:
+      headers:
+        accessControlAllowMethods:
+          - "GET"
+          - "POST"
+          - "PUT"
+          - "DELETE"
+          - "OPTIONS"
+        accessControlAllowHeaders:
+          - "Content-Type"
+          - "Authorization"
+          - "X-Requested-With"
+        accessControlAllowOriginListRegex:
+          - ".*"
+        accessControlMaxAge: 86400
+        
+    rate-limit-api:
+      rateLimit:
+        average: 50
+        burst: 100
+        period: 60s
+        
+    rate-limit-ui:
+      rateLimit:
+        average: 200
+        burst: 500
+        period: 60s
+
+  # Routers
+  routers:
+    api:
+      rule: "Host(`localhost`) && PathPrefix(`/api`)"
+      service: claude-api
+      middlewares:
+        - cors-headers
+        - rate-limit-api
+        - auth-headers
+        
+    ui:
+      rule: "Host(`localhost`) && PathPrefix(`/ui`)"
+      service: claude-ui
+      middlewares:
+        - cors-headers
+        - rate-limit-ui
+        - auth-headers
+        
+    semantic:
+      rule: "Host(`localhost`) && PathPrefix(`/semantic`)"
+      service: semantic-api
+      middlewares:
+        - cors-headers
+        - rate-limit-api
+        - auth-headers
+        
+    monitoring:
+      rule: "Host(`localhost`) && PathPrefix(`/monitoring`)"
+      service: grafana
+      middlewares:
+        - auth-headers
+        
+    metrics:
+      rule: "Host(`localhost`) && PathPrefix(`/metrics`)"
+      service: prometheus
+      middlewares:
+        - auth-headers
+        
+    consul-ui:
+      rule: "Host(`localhost`) && PathPrefix(`/consul`)"
+      service: consul
+      middlewares:
+        - auth-headers
+
+# TCP Services (for direct database connections)
+tcp:
+  services:
+    postgres:
+      loadBalancer:
+        servers:
+          - address: "postgres:5432"
+          
+    redis:
+      loadBalancer:
+        servers:
+          - address: "redis:6379"
+  
+  routers:
+    postgres:
+      rule: "HostSNI(`*`)"
+      service: postgres
+      entryPoints:
+        - postgres
+        
+    redis:
+      rule: "HostSNI(`*`)"
+      service: redis
+      entryPoints:
+        - redis

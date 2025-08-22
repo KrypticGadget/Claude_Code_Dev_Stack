@@ -1,0 +1,131 @@
+{
+  "version": "1.0",
+  "last_updated": "2025-08-20",
+  "cache_cleanup_days": 7,
+  "log_retention_days": 30,
+  "backup_retention_days": 90,
+  "temp_file_patterns": [
+    "*.tmp",
+    "*.temp", 
+    "*~",
+    ".DS_Store",
+    "Thumbs.db",
+    "*.swp",
+    "*.swo",
+    ".vscode/settings.json.bak"
+  ],
+  "cache_directories": [
+    "__pycache__",
+    ".mypy_cache",
+    "node_modules",
+    ".vite",
+    "dist",
+    ".next",
+    ".nuxt",
+    "build",
+    "target",
+    ".gradle",
+    ".yarn/cache"
+  ],
+  "excluded_paths": [
+    "archive",
+    ".git",
+    "node_modules",
+    "venv",
+    "env",
+    "__pycache__",
+    ".mypy_cache"
+  ],
+  "auto_archive_patterns": [
+    "*-old.*",
+    "*-backup.*",
+    "*.bak",
+    "*-copy.*",
+    "*-duplicate.*",
+    "v[0-9]*-*.md"
+  ],
+  "file_size_threshold_mb": 100,
+  "monitoring": {
+    "enabled": true,
+    "check_large_files": true,
+    "check_duplicate_files": true,
+    "validate_hierarchy": true,
+    "generate_reports": true
+  },
+  "notifications": {
+    "enabled": false,
+    "email": "",
+    "webhook_url": ""
+  },
+  "agent_hierarchy": {
+    "tier0_coordination": [
+      "master-orchestrator.md",
+      "ceo-strategy.md"
+    ],
+    "tier1_orchestration": [
+      "technical-cto.md",
+      "project-manager.md", 
+      "business-tech-alignment.md"
+    ],
+    "tier2_teams": {
+      "analysis": [
+        "business-analyst.md",
+        "financial-analyst.md"
+      ],
+      "design": [
+        "ui-ux-design.md",
+        "frontend-architecture.md",
+        "database-architecture.md", 
+        "security-architecture.md"
+      ],
+      "implementation": [
+        "backend-services.md",
+        "frontend-mockup.md",
+        "production-frontend.md",
+        "mobile-development.md",
+        "integration-setup.md"
+      ],
+      "operations": [
+        "devops-engineering.md",
+        "script-automation.md",
+        "performance-optimization.md"
+      ],
+      "quality": [
+        "quality-assurance.md",
+        "testing-automation.md",
+        "technical-specifications.md"
+      ]
+    },
+    "tier3_specialists": {
+      "analysis": [
+        "prompt-engineer.md"
+      ],
+      "design": [
+        "middleware-specialist.md"
+      ],
+      "implementation": [
+        "api-integration-specialist.md"
+      ],
+      "operations": [],
+      "quality": []
+    }
+  },
+  "directory_structure": {
+    "core": {
+      "agents": "Agent definitions organized by tier hierarchy",
+      "audio": "Audio processing and TTS components", 
+      "hooks": "Git hooks and integration scripts",
+      "generators": "Code generation utilities",
+      "orchestration": "Orchestration and workflow management"
+    },
+    "apps": {
+      "web": "Web application components",
+      "mobile": "Mobile application components", 
+      "backend": "Backend service implementations",
+      "pwa": "Progressive Web App components"
+    },
+    "scripts": "Automation and maintenance scripts",
+    "archive": "Archived files and old versions",
+    "backup": "Automatic backups"
+  }
+}

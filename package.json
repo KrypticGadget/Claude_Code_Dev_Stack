@@ -5,19 +5,47 @@
   "main": "index.js",
   "type": "module",
   "bin": {
-    "claude-code-setup": "./bin/claude-code-setup-simple.js",
+    "claude-code-setup": "./bin/claude-code-setup-simple.cjs",
     "claude-code-agents": "./bin/claude-code-agents.js",
-    "claude-code-hooks": "./bin/claude-code-hooks.js"
+    "claude-code-hooks": "./bin/claude-code-hooks.js",
+    "claude-code-router": "./bin/agent-router.js",
+    "claude-code-integrate": "./bin/hook-integrator.js",
+    "claude-code-test": "./bin/test-integration.js",
+    "claude-code-tunnel-start": "./bin/claude-code-tunnel-start.js",
+    "claude-code-tunnel-stop": "./bin/claude-code-tunnel-stop.js",
+    "claude-code-tunnel-status": "./bin/claude-code-tunnel-status.js",
+    "claude-code-tunnel-restart": "./bin/claude-code-tunnel-restart.js",
+    "claude-code-tunnel-config": "./bin/claude-code-tunnel-config.js"
   },
+  "workspaces": [
+    "src/apps/*",
+    "src/core/*",
+    "scripts"
+  ],
   "scripts": {
-    "setup": "node bin/claude-code-setup.js",
-    "complete-install": "node scripts/complete-install.js",
-    "test": "node scripts/test.js",
-    "validate": "node scripts/validate.js",
-    "dev": "cd ui/react-pwa && npm run dev",
-    "build": "cd ui/react-pwa && npm run build",
-    "start:ui": "cd ui/react-pwa && npm start",
-    "install:all": "npm run complete-install"
+    "setup": "npm install && npm run setup:all",
+    "setup:all": "node scripts/install/complete-install.js",
+    "start": "npm run start:services",
+    "start:services": "node scripts/services/start-all-services.js",
+    "start:web": "cd src/apps/web && npm run dev",
+    "start:backend": "cd src/apps/backend && npm start",
+    "start:terminal": "node scripts/services/start-terminal-server.js",
+    "start:tunnel": "node bin/claude-code-tunnel-start.js",
+    "test": "npm run test:all",
+    "test:all": "npm run test:unit && npm run test:integration",
+    "test:unit": "cd tests && npm run unit",
+    "test:integration": "cd tests && npm run integration",
+    "clean": "node scripts/cleanup/master-cleanup.js",
+    "validate": "node scripts/validation/final-validation.js",
+    "build": "cd src/apps/web && npm run build",
+    "dev": "cd src/apps/web && npm run dev",
+    "dev:full": "concurrently \"npm run start:terminal\" \"npm run dev\"",
+    "tunnel:start": "node bin/claude-code-tunnel-start.js",
+    "tunnel:stop": "node bin/claude-code-tunnel-stop.js",
+    "tunnel:status": "node bin/claude-code-tunnel-status.js",
+    "tunnel:restart": "node bin/claude-code-tunnel-restart.js",
+    "tunnel:config": "node bin/claude-code-tunnel-config.js",
+    "postinstall": "node scripts/cleanup/fix-permissions-cjs.js && node scripts/install/complete-integration.js"
   },
   "keywords": [
     "ai",
@@ -67,7 +95,13 @@
     "node-cron": "^3.0.3",
     "shelljs": "^0.8.5",
     "semver": "^7.5.4",
-    "validate-npm-package-name": "^5.0.0"
+    "validate-npm-package-name": "^5.0.0",
+    "ws": "^8.14.2",
+    "node-pty": "^1.0.0",
+    "concurrently": "^8.2.2",
+    "qrcode": "^1.5.3",
+    "qrcode-terminal": "^0.12.0",
+    "clipboardy": "^3.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.4",

@@ -1,0 +1,402 @@
+# Product Team Configuration
+# Product strategy, user experience, and product development
+
+team:
+  id: "product"
+  name: "Product Team"
+  icon: "🚀"
+  description: "Product strategy, user experience design, and product development coordination"
+  tier_focus: [2, 3]
+  priority: 7
+  status: "active"
+
+# Team Members and Roles
+members:
+  team_lead:
+    agent: "agent-product-manager"
+    role: "Product Manager & Strategy Lead"
+    responsibilities:
+      - "Product strategy and roadmap development"
+      - "Feature prioritization and planning"
+      - "Stakeholder management and coordination"
+      - "Product team leadership"
+    authority_level: "product_executive"
+    
+  business_analyst:
+    agent: "agent-business-analyst"
+    role: "Business Analysis & Requirements Lead"
+    responsibilities:
+      - "Requirements gathering and analysis"
+      - "Process analysis and optimization"
+      - "Stakeholder needs assessment"
+      - "Solution design coordination"
+    authority_level: "senior_analyst"
+    
+  ux_designer:
+    agent: "agent-ui-ux-designer"
+    role: "UX/UI Design Lead"
+    responsibilities:
+      - "User experience design and optimization"
+      - "Design system development"
+      - "Usability testing coordination"
+      - "Design quality assurance"
+    authority_level: "design_lead"
+    
+  user_researcher:
+    agent: "agent-user-researcher"
+    role: "User Research Specialist"
+    responsibilities:
+      - "User research planning and execution"
+      - "Behavioral analysis and insights"
+      - "Persona development and maintenance"
+      - "User feedback analysis"
+    authority_level: "research_specialist"
+    
+  documentation_specialist:
+    agent: "agent-documentation-specialist"
+    role: "Product Documentation Lead"
+    responsibilities:
+      - "Product documentation strategy"
+      - "User guide development"
+      - "Knowledge base management"
+      - "Technical writing coordination"
+    authority_level: "documentation_lead"
+    
+  mobile_specialist:
+    agent: "agent-mobile-developer"
+    role: "Mobile Product Specialist"
+    responsibilities:
+      - "Mobile product strategy"
+      - "Mobile user experience optimization"
+      - "Platform-specific feature planning"
+      - "Mobile development coordination"
+    authority_level: "mobile_lead"
+
+# Communication Protocols
+communication:
+  meeting_cadence:
+    product_standup:
+      frequency: "daily"
+      duration: "15 minutes"
+      participants: ["product_team"]
+      focus: "progress_blockers_decisions"
+      
+    feature_planning:
+      frequency: "weekly"
+      duration: "90 minutes"
+      participants: ["product_team", "development_leads"]
+      focus: "feature_specification_planning"
+      
+    user_research_review:
+      frequency: "bi_weekly"
+      duration: "60 minutes"
+      participants: ["product_team", "stakeholders"]
+      focus: "user_insights_decisions"
+      
+    product_strategy_review:
+      frequency: "monthly"
+      duration: "120 minutes"
+      participants: ["product_leadership", "executives"]
+      focus: "strategy_roadmap_alignment"
+
+  stakeholder_management:
+    internal_stakeholders:
+      - "executive_leadership"
+      - "development_teams"
+      - "sales_marketing"
+      - "customer_support"
+      
+    external_stakeholders:
+      - "customers_users"
+      - "business_partners"
+      - "regulatory_bodies"
+      - "industry_analysts"
+      
+    communication_strategy:
+      frequency: "stakeholder_specific_cadence"
+      channels: ["meetings", "reports", "dashboards", "presentations"]
+      feedback_loops: "continuous_feedback_collection"
+
+# Escalation Paths
+escalation:
+  level_1:
+    trigger: "feature_scope_conflicts"
+    handler: "agent-product-manager"
+    response_time: "4 hours"
+    
+  level_2:
+    trigger: "strategic_alignment_issues"
+    handler: "agent-ceo-strategy"
+    response_time: "2 hours"
+    
+  level_3:
+    trigger: "customer_critical_issues"
+    handler: "executive_leadership"
+    response_time: "1 hour"
+    
+  emergency:
+    trigger: "product_critical_failures"
+    handler: "crisis_management_team"
+    response_time: "immediate"
+    notify: ["all_stakeholders"]
+
+# BMAD Integration
+bmad_integration:
+  coordination_role: "product_vision_translator"
+  workflow_participation:
+    business_model_phase:
+      role: "product_strategy_contributor"
+      lead_agent: "agent-bmad-business-model"
+      contributions: ["market_requirements", "user_needs_analysis", "competitive_positioning"]
+      
+    architecture_phase:
+      role: "product_requirements_validator"
+      contributions: ["functional_requirements", "user_experience_requirements", "feature_prioritization"]
+      
+    design_phase:
+      role: "design_leadership_provider"
+      lead_agent: "agent-bmad-design"
+      contributions: ["ux_design_direction", "design_system_requirements", "usability_standards"]
+      
+  bmad_product_standards:
+    user_experience:
+      usability_standards: "wcag_aa_compliance"
+      accessibility_requirements: "inclusive_design_principles"
+      performance_standards: "sub_3_second_load_times"
+      
+    product_quality:
+      feature_completeness: "acceptance_criteria_fulfillment"
+      user_satisfaction: "nps_score_above_50"
+      defect_tolerance: "critical_bugs_zero_tolerance"
+
+# Product Development Process
+product_development:
+  product_lifecycle:
+    discovery: "user_research_market_analysis"
+    definition: "requirements_specification"
+    design: "ux_ui_design_prototyping"
+    development: "agile_development_sprints"
+    testing: "user_acceptance_testing"
+    launch: "go_to_market_execution"
+    iteration: "continuous_improvement"
+    
+  feature_development:
+    ideation: "brainstorming_user_feedback"
+    validation: "user_research_testing"
+    specification: "detailed_requirements_documentation"
+    prioritization: "value_effort_matrix"
+    planning: "sprint_planning_coordination"
+    
+  quality_assurance:
+    user_testing: "usability_testing_protocols"
+    acceptance_criteria: "measurable_success_metrics"
+    feedback_integration: "continuous_user_feedback"
+    
+  go_to_market:
+    launch_planning: "coordinated_launch_strategy"
+    marketing_alignment: "product_marketing_coordination"
+    sales_enablement: "sales_team_training"
+    customer_onboarding: "user_adoption_support"
+
+# User Experience Design
+ux_design:
+  design_process:
+    research: "user_centered_design_research"
+    ideation: "collaborative_design_thinking"
+    prototyping: "iterative_prototype_development"
+    testing: "usability_testing_validation"
+    implementation: "design_development_handoff"
+    
+  design_systems:
+    component_library: "reusable_design_components"
+    style_guide: "consistent_visual_language"
+    interaction_patterns: "standardized_user_interactions"
+    accessibility_guidelines: "inclusive_design_standards"
+    
+  design_tools:
+    design_software: ["figma", "sketch", "adobe_xd"]
+    prototyping: ["invision", "principle", "framer"]
+    user_testing: ["maze", "usertesting", "hotjar"]
+    collaboration: ["miro", "mural", "figjam"]
+    
+  design_quality:
+    usability_metrics: "task_success_rate_>90_percent"
+    accessibility_compliance: "wcag_aa_standards"
+    performance_impact: "design_performance_optimization"
+    user_satisfaction: "sus_score_>80"
+
+# User Research Framework
+user_research:
+  research_methods:
+    qualitative: ["user_interviews", "usability_testing", "ethnographic_studies"]
+    quantitative: ["surveys", "analytics_analysis", "a_b_testing"]
+    mixed_methods: ["card_sorting", "tree_testing", "first_click_testing"]
+    
+  research_planning:
+    objectives: "clear_research_questions"
+    methodology: "appropriate_research_methods"
+    participants: "representative_user_samples"
+    timeline: "research_sprint_integration"
+    
+  insights_delivery:
+    analysis: "rigorous_data_analysis"
+    presentation: "actionable_insights_delivery"
+    recommendations: "design_strategy_recommendations"
+    follow_up: "implementation_impact_tracking"
+    
+  research_repository:
+    findings_database: "centralized_research_repository"
+    persona_management: "living_persona_documentation"
+    journey_maps: "updated_user_journey_maps"
+    insights_sharing: "organization_wide_research_sharing"
+
+# Performance Metrics
+metrics:
+  product_performance:
+    user_satisfaction: "nps_score_>50"
+    feature_adoption: ">80_percent_feature_usage"
+    user_retention: ">90_percent_monthly_retention"
+    time_to_value: "<48_hours_first_value"
+    
+  development_efficiency:
+    feature_delivery_time: "average_sprint_velocity"
+    requirements_clarity: "<10_percent_scope_changes"
+    design_development_alignment: ">95_percent_design_fidelity"
+    
+  design_quality:
+    usability_score: "sus_score_>80"
+    accessibility_compliance: "100_percent_wcag_aa"
+    design_consistency: ">95_percent_design_system_usage"
+    
+  business_impact:
+    revenue_impact: "feature_revenue_attribution"
+    cost_reduction: "process_efficiency_gains"
+    market_position: "competitive_advantage_metrics"
+    
+  bmad_integration_metrics:
+    requirements_delivery: "within_bmad_timeline"
+    design_approval_rate: ">95_percent_first_approval"
+    user_validation_accuracy: ">90_percent_validation_success"
+
+# Product Strategy
+product_strategy:
+  vision_mission:
+    product_vision: "clear_long_term_product_vision"
+    mission_alignment: "business_mission_alignment"
+    value_proposition: "unique_value_proposition_definition"
+    
+  market_analysis:
+    competitive_analysis: "regular_competitive_landscape_review"
+    market_trends: "emerging_trend_identification"
+    opportunity_assessment: "market_opportunity_evaluation"
+    
+  roadmap_planning:
+    strategic_themes: "annual_strategic_theme_definition"
+    feature_roadmap: "quarterly_feature_roadmap"
+    timeline_planning: "realistic_delivery_timelines"
+    
+  success_metrics:
+    okrs: "quarterly_objective_key_results"
+    kpis: "monthly_key_performance_indicators"
+    success_criteria: "feature_success_criteria_definition"
+
+# Collaboration Patterns
+collaboration:
+  cross_functional_work:
+    with_engineering: "agile_development_collaboration"
+    with_design: "design_thinking_workshops"
+    with_marketing: "go_to_market_coordination"
+    with_sales: "customer_feedback_integration"
+    
+  customer_collaboration:
+    customer_interviews: "regular_customer_conversations"
+    beta_testing: "customer_beta_program"
+    feedback_loops: "continuous_customer_feedback"
+    advisory_boards: "customer_advisory_participation"
+    
+  stakeholder_engagement:
+    executive_alignment: "strategic_alignment_sessions"
+    team_communication: "transparent_roadmap_sharing"
+    progress_reporting: "regular_progress_updates"
+    
+  knowledge_sharing:
+    product_guild: "internal_product_community"
+    best_practices: "product_methodology_sharing"
+    industry_engagement: "external_product_community_participation"
+
+# Technology Integration
+technology_integration:
+  product_tools:
+    roadmap_planning: ["productplan", "aha", "roadmunk"]
+    user_feedback: ["intercom", "zendesk", "freshdesk"]
+    analytics: ["mixpanel", "amplitude", "google_analytics"]
+    a_b_testing: ["optimizely", "vwo", "google_optimize"]
+    
+  collaboration_tools:
+    communication: ["slack", "microsoft_teams"]
+    documentation: ["confluence", "notion", "coda"]
+    project_management: ["jira", "asana", "linear"]
+    
+  design_development_handoff:
+    design_specs: "automated_design_spec_generation"
+    asset_delivery: "optimized_asset_pipeline"
+    implementation_tracking: "design_implementation_verification"
+
+# Innovation and Experimentation
+innovation:
+  experimentation_framework:
+    hypothesis_driven: "scientific_approach_to_features"
+    a_b_testing: "statistically_significant_testing"
+    feature_flags: "gradual_feature_rollout"
+    
+  innovation_processes:
+    ideation_sessions: "regular_innovation_workshops"
+    prototype_development: "rapid_prototype_creation"
+    validation_testing: "early_concept_validation"
+    
+  emerging_technologies:
+    ai_ml_integration: "intelligent_feature_development"
+    voice_interfaces: "conversational_user_interfaces"
+    ar_vr_experiences: "immersive_user_experiences"
+    iot_integration: "connected_device_experiences"
+
+# Integration Points
+integration_points:
+  upstream_dependencies:
+    - "business_strategy"
+    - "market_requirements"
+    - "user_needs"
+    - "technical_constraints"
+    
+  downstream_deliverables:
+    - "product_requirements"
+    - "user_experience_designs"
+    - "feature_specifications"
+    - "go_to_market_plans"
+    
+  cross_team_interfaces:
+    leadership_team: "strategic_alignment_coordination"
+    development_team: "requirements_specification_handoff"
+    marketing_team: "go_to_market_collaboration"
+    customer_support: "user_feedback_integration"
+    bmad_team: "design_vision_coordination"
+
+# Customer Success Integration
+customer_success:
+  customer_journey:
+    onboarding: "user_onboarding_optimization"
+    adoption: "feature_adoption_tracking"
+    retention: "user_retention_strategies"
+    advocacy: "customer_advocacy_programs"
+    
+  feedback_management:
+    collection: "systematic_feedback_collection"
+    analysis: "feedback_trend_analysis"
+    prioritization: "feedback_driven_prioritization"
+    communication: "feedback_loop_closure"
+    
+  support_collaboration:
+    issue_tracking: "customer_issue_pattern_analysis"
+    feature_requests: "support_driven_feature_requests"
+    knowledge_base: "customer_facing_documentation"
+    training: "customer_education_programs"

@@ -1,0 +1,802 @@
+{
+  "claude_code_hooks_registry": {
+    "version": "3.6.9",
+    "last_updated": "2025-08-20",
+    "total_hooks": 44,
+    "categories": {
+      "code_analysis": {
+        "category_id": 1,
+        "priority": 1,
+        "description": "AST parsing, syntax checking, code quality",
+        "hooks": {
+          "code_linter": {
+            "file": "code_linter.py",
+            "priority": 2,
+            "dependencies": ["file_operations", "authentication"],
+            "description": "Multi-language linting and quality checks",
+            "languages": ["python", "javascript", "typescript", "go", "rust", "java"],
+            "tools": ["flake8", "eslint", "mypy", "pylint", "clippy"],
+            "execution_time_threshold": "5s",
+            "memory_limit": "500MB"
+          },
+          "auto_formatter": {
+            "file": "auto_formatter.py",
+            "priority": 3,
+            "dependencies": ["code_linter"],
+            "description": "Automated code formatting",
+            "tools": ["black", "prettier", "gofmt", "rustfmt"],
+            "execution_time_threshold": "3s",
+            "memory_limit": "200MB"
+          },
+          "v3_validator": {
+            "file": "v3_validator.py",
+            "priority": 1,
+            "dependencies": ["authentication"],
+            "description": "V3.0+ validation and compliance",
+            "execution_time_threshold": "2s",
+            "memory_limit": "100MB"
+          },
+          "dependency_checker": {
+            "file": "dependency_checker.py",
+            "priority": 1,
+            "dependencies": ["file_operations"],
+            "description": "Dependency analysis and validation",
+            "execution_time_threshold": "10s",
+            "memory_limit": "300MB"
+          },
+          "quality_gate_hook": {
+            "file": "quality_gate_hook.py",
+            "priority": 3,
+            "dependencies": ["code_linter", "security_scanner"],
+            "description": "Quality gates and standards enforcement",
+            "execution_time_threshold": "5s",
+            "memory_limit": "200MB"
+          },
+          "security_scanner": {
+            "file": "security_scanner.py",
+            "priority": 2,
+            "dependencies": ["authentication", "dependency_checker"],
+            "description": "Security analysis and vulnerability detection",
+            "execution_time_threshold": "15s",
+            "memory_limit": "400MB"
+          }
+        }
+      },
+      "file_operations": {
+        "category_id": 2,
+        "priority": 1,
+        "description": "File watching, modification, creation, deletion",
+        "hooks": {
+          "resource_monitor": {
+            "file": "resource_monitor.py",
+            "priority": 1,
+            "dependencies": ["authentication"],
+            "description": "System resource and file management",
+            "execution_time_threshold": "continuous",
+            "memory_limit": "200MB"
+          },
+          "venv_enforcer": {
+            "file": "venv_enforcer.py",
+            "priority": 1,
+            "dependencies": ["authentication"],
+            "description": "Virtual environment management",
+            "execution_time_threshold": "5s",
+            "memory_limit": "100MB"
+          },
+          "auto_documentation": {
+            "file": "auto_documentation.py",
+            "priority": 2,
+            "dependencies": ["file_operations", "code_analysis"],
+            "description": "Automated documentation generation",
+            "execution_time_threshold": "30s",
+            "memory_limit": "500MB"
+          },
+          "enhanced_bash_hook": {
+            "file": "enhanced_bash_hook.py",
+            "priority": 2,
+            "dependencies": ["authentication", "error_handling"],
+            "description": "Enhanced bash operations with file handling",
+            "execution_time_threshold": "300s",
+            "memory_limit": "300MB"
+          },
+          "migrate_to_v3_audio": {
+            "file": "migrate_to_v3_audio.py",
+            "priority": 3,
+            "dependencies": ["file_operations"],
+            "description": "Audio file migration utilities",
+            "execution_time_threshold": "60s",
+            "memory_limit": "200MB"
+          }
+        }
+      },
+      "agent_triggers": {
+        "category_id": 3,
+        "priority": 1,
+        "description": "Automatic agent activation and coordination",
+        "hooks": {
+          "agent_mention_parser": {
+            "file": "agent_mention_parser.py",
+            "priority": 1,
+            "dependencies": ["session_management"],
+            "description": "Parse and track @agent- mention invocations",
+            "execution_time_threshold": "100ms",
+            "memory_limit": "50MB"
+          },
+          "master_orchestrator": {
+            "file": "master_orchestrator.py",
+            "priority": 1,
+            "dependencies": ["agent_mention_parser", "session_management"],
+            "description": "Central orchestration and agent coordination",
+            "execution_time_threshold": "5s",
+            "memory_limit": "300MB"
+          },
+          "smart_orchestrator": {
+            "file": "smart_orchestrator.py",
+            "priority": 2,
+            "dependencies": ["master_orchestrator"],
+            "description": "Intelligent agent selection and routing",
+            "execution_time_threshold": "2s",
+            "memory_limit": "200MB"
+          },
+          "orchestration_enhancer": {
+            "file": "orchestration_enhancer.py",
+            "priority": 3,
+            "dependencies": ["smart_orchestrator"],
+            "description": "Enhanced orchestration capabilities",
+            "execution_time_threshold": "3s",
+            "memory_limit": "250MB"
+          },
+          "v3_orchestrator": {
+            "file": "v3_orchestrator.py",
+            "priority": 2,
+            "dependencies": ["master_orchestrator"],
+            "description": "V3.0+ orchestration features",
+            "execution_time_threshold": "2s",
+            "memory_limit": "200MB"
+          },
+          "parallel_execution_engine": {
+            "file": "parallel_execution_engine.py",
+            "priority": 3,
+            "dependencies": ["orchestration_enhancer"],
+            "description": "Parallel agent execution management",
+            "execution_time_threshold": "10s",
+            "memory_limit": "500MB"
+          },
+          "planning_trigger": {
+            "file": "planning_trigger.py",
+            "priority": 3,
+            "dependencies": ["agent_mention_parser"],
+            "description": "Planning and strategy triggering",
+            "execution_time_threshold": "5s",
+            "memory_limit": "200MB"
+          },
+          "orchestration_demo": {
+            "file": "orchestration_demo.py",
+            "priority": 4,
+            "dependencies": ["orchestration_enhancer"],
+            "description": "Orchestration demonstration and testing",
+            "execution_time_threshold": "10s",
+            "memory_limit": "100MB"
+          },
+          "agent_enhancer_v3": {
+            "file": "agent_enhancer_v3.py",
+            "priority": 3,
+            "dependencies": ["v3_orchestrator"],
+            "description": "V3.0+ agent enhancement capabilities",
+            "execution_time_threshold": "3s",
+            "memory_limit": "200MB"
+          }
+        }
+      },
+      "mcp_integration": {
+        "category_id": 4,
+        "priority": 4,
+        "description": "Model Context Protocol server interactions",
+        "hooks": {
+          "ultimate_claude_hook": {
+            "file": "ultimate_claude_hook.py",
+            "priority": 4,
+            "dependencies": ["session_management", "authentication"],
+            "description": "Main integration point for MCP services",
+            "execution_time_threshold": "30s",
+            "memory_limit": "500MB"
+          },
+          "context_manager": {
+            "file": "context_manager.py",
+            "priority": 6,
+            "dependencies": ["session_management"],
+            "description": "Context sharing with MCP servers",
+            "execution_time_threshold": "2s",
+            "memory_limit": "300MB"
+          },
+          "hook_registry": {
+            "file": "hook_registry.py",
+            "priority": 6,
+            "dependencies": ["authentication"],
+            "description": "MCP service registration and discovery",
+            "execution_time_threshold": "1s",
+            "memory_limit": "100MB"
+          },
+          "hook_registry_api": {
+            "file": "hook_registry_api.py",
+            "priority": 6,
+            "dependencies": ["hook_registry"],
+            "description": "API for MCP service management",
+            "execution_time_threshold": "500ms",
+            "memory_limit": "100MB"
+          }
+        }
+      },
+      "visual_documentation": {
+        "category_id": 5,
+        "priority": 7,
+        "description": "Diagram generation, documentation automation",
+        "hooks": {
+          "visual_docs_pipeline": {
+            "file": "core/visual-docs/pipeline/visual_docs_pipeline.py",
+            "priority": 7,
+            "dependencies": ["semantic_analysis", "file_operations"],
+            "description": "Main pipeline orchestration",
+            "execution_time_threshold": "120s",
+            "memory_limit": "1GB"
+          },
+          "mermaid_generator": {
+            "file": "core/visual-docs/generators/mermaid_generator.py",
+            "priority": 8,
+            "dependencies": ["visual_docs_pipeline"],
+            "description": "Mermaid diagram generation",
+            "execution_time_threshold": "30s",
+            "memory_limit": "500MB"
+          },
+          "plantuml_generator": {
+            "file": "core/visual-docs/generators/plantuml_generator.py",
+            "priority": 8,
+            "dependencies": ["visual_docs_pipeline"],
+            "description": "PlantUML diagram generation",
+            "execution_time_threshold": "45s",
+            "memory_limit": "600MB"
+          },
+          "flowchart_generator": {
+            "file": "core/visual-docs/generators/flowchart_generator.py",
+            "priority": 8,
+            "dependencies": ["visual_docs_pipeline"],
+            "description": "Flowchart creation",
+            "execution_time_threshold": "30s",
+            "memory_limit": "400MB"
+          },
+          "d3_generator": {
+            "file": "core/visual-docs/generators/d3_generator.py",
+            "priority": 9,
+            "dependencies": ["visual_docs_pipeline"],
+            "description": "D3.js interactive diagrams",
+            "execution_time_threshold": "60s",
+            "memory_limit": "800MB"
+          },
+          "screenshot_generator": {
+            "file": "core/visual-docs/automation/screenshot_generator.py",
+            "priority": 8,
+            "dependencies": ["visual_docs_pipeline"],
+            "description": "Automated screenshot capture",
+            "execution_time_threshold": "30s",
+            "memory_limit": "500MB"
+          },
+          "video_generator": {
+            "file": "core/visual-docs/automation/video_generator.py",
+            "priority": 9,
+            "dependencies": ["screenshot_generator"],
+            "description": "Video documentation creation",
+            "execution_time_threshold": "300s",
+            "memory_limit": "2GB"
+          },
+          "interactive_generator": {
+            "file": "core/visual-docs/components/interactive_generator.py",
+            "priority": 9,
+            "dependencies": ["d3_generator"],
+            "description": "Interactive diagram generation",
+            "execution_time_threshold": "60s",
+            "memory_limit": "800MB"
+          },
+          "codeboarding_integration": {
+            "file": "core/visual-docs/integration/codeboarding_integration.py",
+            "priority": 9,
+            "dependencies": ["visual_docs_pipeline"],
+            "description": "Codeboarding platform integration",
+            "execution_time_threshold": "30s",
+            "memory_limit": "300MB"
+          }
+        }
+      },
+      "semantic_analysis": {
+        "category_id": 6,
+        "priority": 4,
+        "description": "Code understanding, relationship mapping",
+        "hooks": {
+          "semantic_context": {
+            "file": "core/semantic/context.py",
+            "priority": 4,
+            "dependencies": ["code_analysis"],
+            "description": "Semantic context management",
+            "execution_time_threshold": "5s",
+            "memory_limit": "300MB"
+          },
+          "language_registry": {
+            "file": "core/semantic/language_registry.py",
+            "priority": 4,
+            "dependencies": ["semantic_context"],
+            "description": "Language-specific analysis registration",
+            "execution_time_threshold": "2s",
+            "memory_limit": "100MB"
+          },
+          "symbol_extraction": {
+            "file": "core/semantic/symbol_extraction.py",
+            "priority": 5,
+            "dependencies": ["language_registry"],
+            "description": "Code symbol extraction and analysis",
+            "execution_time_threshold": "10s",
+            "memory_limit": "500MB"
+          },
+          "resolution": {
+            "file": "core/semantic/resolution.py",
+            "priority": 5,
+            "dependencies": ["symbol_extraction"],
+            "description": "Symbol and reference resolution",
+            "execution_time_threshold": "15s",
+            "memory_limit": "600MB"
+          },
+          "parser_interface": {
+            "file": "core/semantic/parser_interface.py",
+            "priority": 5,
+            "dependencies": ["language_registry"],
+            "description": "Multi-language parsing",
+            "execution_time_threshold": "8s",
+            "memory_limit": "400MB"
+          },
+          "python_language": {
+            "file": "core/semantic/examples/python_language.py",
+            "priority": 6,
+            "dependencies": ["parser_interface"],
+            "description": "Python semantic analysis",
+            "execution_time_threshold": "12s",
+            "memory_limit": "500MB"
+          },
+          "language_behavior": {
+            "file": "core/semantic/language_behavior.py",
+            "priority": 6,
+            "dependencies": ["parser_interface"],
+            "description": "Language behavior analysis",
+            "execution_time_threshold": "10s",
+            "memory_limit": "400MB"
+          },
+          "usage_patterns": {
+            "file": "core/semantic/examples/usage_patterns.py",
+            "priority": 6,
+            "dependencies": ["symbol_extraction"],
+            "description": "Pattern recognition",
+            "execution_time_threshold": "15s",
+            "memory_limit": "600MB"
+          }
+        }
+      },
+      "error_handling": {
+        "category_id": 7,
+        "priority": 1,
+        "description": "Exception catching, error recovery, logging",
+        "hooks": {
+          "enhanced_bash_hook": {
+            "file": "enhanced_bash_hook.py",
+            "priority": 1,
+            "dependencies": ["authentication"],
+            "description": "Enhanced bash operations with comprehensive error handling",
+            "execution_time_threshold": "300s",
+            "memory_limit": "300MB"
+          },
+          "quality_gate_hook": {
+            "file": "quality_gate_hook.py",
+            "priority": 2,
+            "dependencies": ["enhanced_bash_hook"],
+            "description": "Quality gates and error prevention",
+            "execution_time_threshold": "10s",
+            "memory_limit": "200MB"
+          },
+          "resource_monitor": {
+            "file": "resource_monitor.py",
+            "priority": 1,
+            "dependencies": ["authentication"],
+            "description": "Resource monitoring with error detection",
+            "execution_time_threshold": "continuous",
+            "memory_limit": "200MB"
+          },
+          "v3_validator": {
+            "file": "v3_validator.py",
+            "priority": 2,
+            "dependencies": ["authentication"],
+            "description": "V3.0+ validation and error checking",
+            "execution_time_threshold": "5s",
+            "memory_limit": "150MB"
+          },
+          "hook_registry": {
+            "file": "hook_registry.py",
+            "priority": 3,
+            "dependencies": ["v3_validator"],
+            "description": "Hook registration error handling",
+            "execution_time_threshold": "2s",
+            "memory_limit": "100MB"
+          },
+          "session_loader": {
+            "file": "session_loader.py",
+            "priority": 3,
+            "dependencies": ["resource_monitor"],
+            "description": "Session loading error recovery",
+            "execution_time_threshold": "10s",
+            "memory_limit": "300MB"
+          },
+          "session_saver": {
+            "file": "session_saver.py",
+            "priority": 3,
+            "dependencies": ["session_loader"],
+            "description": "Session saving error handling",
+            "execution_time_threshold": "5s",
+            "memory_limit": "200MB"
+          },
+          "context_manager": {
+            "file": "context_manager.py",
+            "priority": 4,
+            "dependencies": ["session_saver"],
+            "description": "Context error handling and recovery",
+            "execution_time_threshold": "3s",
+            "memory_limit": "300MB"
+          },
+          "status_line_manager": {
+            "file": "status_line_manager.py",
+            "priority": 4,
+            "dependencies": ["context_manager"],
+            "description": "Error status reporting",
+            "execution_time_threshold": "1s",
+            "memory_limit": "50MB"
+          },
+          "notification_sender": {
+            "file": "notification_sender.py",
+            "priority": 4,
+            "dependencies": ["status_line_manager"],
+            "description": "Error notification system",
+            "execution_time_threshold": "2s",
+            "memory_limit": "100MB"
+          }
+        }
+      },
+      "performance_monitoring": {
+        "category_id": 8,
+        "priority": 2,
+        "description": "Metrics collection, performance analysis",
+        "hooks": {
+          "performance_monitor": {
+            "file": "performance_monitor.py",
+            "priority": 2,
+            "dependencies": ["session_management"],
+            "description": "Core performance monitoring and metrics collection",
+            "execution_time_threshold": "continuous",
+            "memory_limit": "300MB"
+          },
+          "resource_monitor": {
+            "file": "resource_monitor.py",
+            "priority": 2,
+            "dependencies": ["authentication"],
+            "description": "Resource monitoring and management",
+            "execution_time_threshold": "continuous",
+            "memory_limit": "200MB"
+          },
+          "model_tracker": {
+            "file": "model_tracker.py",
+            "priority": 3,
+            "dependencies": ["performance_monitor"],
+            "description": "Model performance and usage tracking",
+            "execution_time_threshold": "continuous",
+            "memory_limit": "200MB"
+          },
+          "enhanced_performance_monitor": {
+            "file": "monitoring/enhanced_performance_monitor.py",
+            "priority": 3,
+            "dependencies": ["performance_monitor"],
+            "description": "Advanced performance analysis",
+            "execution_time_threshold": "continuous",
+            "memory_limit": "400MB"
+          },
+          "claude_metrics_collector": {
+            "file": "monitoring/metrics/claude_metrics_collector.py",
+            "priority": 4,
+            "dependencies": ["enhanced_performance_monitor"],
+            "description": "Claude-specific metrics collection",
+            "execution_time_threshold": "continuous",
+            "memory_limit": "250MB"
+          },
+          "status_line_manager": {
+            "file": "status_line_manager.py",
+            "priority": 4,
+            "dependencies": ["model_tracker"],
+            "description": "Performance status reporting",
+            "execution_time_threshold": "1s",
+            "memory_limit": "50MB"
+          },
+          "parallel_execution_engine": {
+            "file": "parallel_execution_engine.py",
+            "priority": 4,
+            "dependencies": ["performance_monitor"],
+            "description": "Parallel execution performance",
+            "execution_time_threshold": "10s",
+            "memory_limit": "500MB"
+          }
+        }
+      },
+      "git_integration": {
+        "category_id": 9,
+        "priority": 5,
+        "description": "Version control hooks and automation",
+        "hooks": {
+          "git_quality_hooks": {
+            "file": "git_quality_hooks.py",
+            "priority": 5,
+            "dependencies": ["code_analysis", "authentication"],
+            "description": "Git quality integration and automation",
+            "execution_time_threshold": "300s",
+            "memory_limit": "400MB"
+          },
+          "git_pre_commit": {
+            "file": "core/hooks/git/pre-commit",
+            "priority": 5,
+            "dependencies": ["git_quality_hooks"],
+            "description": "Pre-commit validation and checks",
+            "execution_time_threshold": "180s",
+            "memory_limit": "300MB"
+          },
+          "git_post_commit": {
+            "file": "core/hooks/git/post-commit",
+            "priority": 6,
+            "dependencies": ["git_pre_commit"],
+            "description": "Post-commit automation and notifications",
+            "execution_time_threshold": "60s",
+            "memory_limit": "200MB"
+          }
+        }
+      },
+      "session_management": {
+        "category_id": 10,
+        "priority": 2,
+        "description": "Claude Code session lifecycle management",
+        "hooks": {
+          "session_loader": {
+            "file": "session_loader.py",
+            "priority": 2,
+            "dependencies": ["authentication", "error_handling"],
+            "description": "Session loading and restoration",
+            "execution_time_threshold": "10s",
+            "memory_limit": "300MB"
+          },
+          "session_saver": {
+            "file": "session_saver.py",
+            "priority": 3,
+            "dependencies": ["session_loader"],
+            "description": "Session saving and persistence",
+            "execution_time_threshold": "5s",
+            "memory_limit": "200MB"
+          },
+          "chat_manager": {
+            "file": "chat_manager.py",
+            "priority": 3,
+            "dependencies": ["session_loader"],
+            "description": "Chat session management",
+            "execution_time_threshold": "2s",
+            "memory_limit": "200MB"
+          },
+          "chat_manager_v3": {
+            "file": "chat_manager_v3.py",
+            "priority": 3,
+            "dependencies": ["chat_manager"],
+            "description": "V3.0+ enhanced chat management",
+            "execution_time_threshold": "3s",
+            "memory_limit": "300MB"
+          },
+          "context_manager": {
+            "file": "context_manager.py",
+            "priority": 2,
+            "dependencies": ["session_loader"],
+            "description": "Context management and coordination",
+            "execution_time_threshold": "2s",
+            "memory_limit": "300MB"
+          },
+          "status_line_manager": {
+            "file": "status_line_manager.py",
+            "priority": 4,
+            "dependencies": ["context_manager"],
+            "description": "Session status tracking and reporting",
+            "execution_time_threshold": "1s",
+            "memory_limit": "50MB"
+          },
+          "v3_config": {
+            "file": "v3_config.py",
+            "priority": 4,
+            "dependencies": ["session_loader"],
+            "description": "V3.0+ configuration management",
+            "execution_time_threshold": "2s",
+            "memory_limit": "100MB"
+          },
+          "hook_registry": {
+            "file": "hook_registry.py",
+            "priority": 4,
+            "dependencies": ["v3_config"],
+            "description": "Hook state and registration management",
+            "execution_time_threshold": "2s",
+            "memory_limit": "100MB"
+          }
+        }
+      },
+      "authentication": {
+        "category_id": 11,
+        "priority": 1,
+        "description": "Security and access control",
+        "hooks": {
+          "security_scanner": {
+            "file": "security_scanner.py",
+            "priority": 1,
+            "dependencies": [],
+            "description": "Security scanning and vulnerability detection",
+            "execution_time_threshold": "30s",
+            "memory_limit": "400MB"
+          },
+          "v3_validator": {
+            "file": "v3_validator.py",
+            "priority": 1,
+            "dependencies": ["security_scanner"],
+            "description": "V3.0+ security validation",
+            "execution_time_threshold": "5s",
+            "memory_limit": "150MB"
+          },
+          "enhanced_bash_hook": {
+            "file": "enhanced_bash_hook.py",
+            "priority": 2,
+            "dependencies": ["v3_validator"],
+            "description": "Secure command execution",
+            "execution_time_threshold": "300s",
+            "memory_limit": "300MB"
+          },
+          "venv_enforcer": {
+            "file": "venv_enforcer.py",
+            "priority": 3,
+            "dependencies": ["v3_validator"],
+            "description": "Environment security enforcement",
+            "execution_time_threshold": "5s",
+            "memory_limit": "100MB"
+          }
+        }
+      },
+      "notification": {
+        "category_id": 12,
+        "priority": 6,
+        "description": "User alerts and status updates",
+        "hooks": {
+          "notification_sender": {
+            "file": "notification_sender.py",
+            "priority": 6,
+            "dependencies": ["session_management"],
+            "description": "Core notification system",
+            "execution_time_threshold": "2s",
+            "memory_limit": "100MB"
+          },
+          "audio_notifier": {
+            "file": "audio_notifier.py",
+            "priority": 7,
+            "dependencies": ["notification_sender"],
+            "description": "Audio notification system",
+            "execution_time_threshold": "5s",
+            "memory_limit": "150MB"
+          },
+          "audio_controller": {
+            "file": "audio_controller.py",
+            "priority": 7,
+            "dependencies": ["audio_notifier"],
+            "description": "Audio system control and management",
+            "execution_time_threshold": "3s",
+            "memory_limit": "100MB"
+          },
+          "audio_player": {
+            "file": "audio_player.py",
+            "priority": 8,
+            "dependencies": ["audio_controller"],
+            "description": "Basic audio playback for notifications",
+            "execution_time_threshold": "10s",
+            "memory_limit": "100MB"
+          },
+          "audio_player_fixed": {
+            "file": "audio_player_fixed.py",
+            "priority": 8,
+            "dependencies": ["audio_player"],
+            "description": "Fixed audio player implementation",
+            "execution_time_threshold": "10s",
+            "memory_limit": "100MB"
+          },
+          "audio_player_v3": {
+            "file": "audio_player_v3.py",
+            "priority": 8,
+            "dependencies": ["audio_controller"],
+            "description": "V3.0+ enhanced audio player",
+            "execution_time_threshold": "10s",
+            "memory_limit": "150MB"
+          },
+          "status_line_manager": {
+            "file": "status_line_manager.py",
+            "priority": 6,
+            "dependencies": ["notification_sender"],
+            "description": "Status line notifications and updates",
+            "execution_time_threshold": "1s",
+            "memory_limit": "50MB"
+          },
+          "chat_manager": {
+            "file": "chat_manager.py",
+            "priority": 7,
+            "dependencies": ["notification_sender"],
+            "description": "Chat-based notifications",
+            "execution_time_threshold": "2s",
+            "memory_limit": "200MB"
+          },
+          "chat_manager_v3": {
+            "file": "chat_manager_v3.py",
+            "priority": 7,
+            "dependencies": ["chat_manager"],
+            "description": "V3.0+ enhanced chat notifications",
+            "execution_time_threshold": "3s",
+            "memory_limit": "300MB"
+          },
+          "slash_command_router": {
+            "file": "slash_command_router.py",
+            "priority": 8,
+            "dependencies": ["chat_manager_v3"],
+            "description": "Command-based notification triggers",
+            "execution_time_threshold": "1s",
+            "memory_limit": "100MB"
+          },
+          "migrate_to_v3_audio": {
+            "file": "migrate_to_v3_audio.py",
+            "priority": 9,
+            "dependencies": ["audio_player_v3"],
+            "description": "Audio system migration utilities",
+            "execution_time_threshold": "30s",
+            "memory_limit": "200MB"
+          }
+        }
+      }
+    },
+    "execution_order": [
+      "authentication.security_scanner",
+      "authentication.v3_validator",
+      "error_handling.enhanced_bash_hook",
+      "file_operations.resource_monitor",
+      "file_operations.venv_enforcer",
+      "session_management.session_loader",
+      "session_management.context_manager",
+      "agent_triggers.agent_mention_parser",
+      "agent_triggers.master_orchestrator",
+      "performance_monitoring.performance_monitor",
+      "code_analysis.dependency_checker",
+      "code_analysis.v3_validator",
+      "code_analysis.code_linter",
+      "code_analysis.security_scanner",
+      "semantic_analysis.semantic_context",
+      "semantic_analysis.language_registry",
+      "mcp_integration.ultimate_claude_hook",
+      "git_integration.git_quality_hooks",
+      "notification.notification_sender",
+      "visual_documentation.visual_docs_pipeline"
+    ],
+    "resource_limits": {
+      "total_memory_limit": "8GB",
+      "total_cpu_limit": "100%",
+      "concurrent_hooks_limit": 10,
+      "execution_timeout": "600s"
+    },
+    "monitoring": {
+      "health_check_interval": 30,
+      "performance_metrics_interval": 10,
+      "error_reporting_enabled": true,
+      "debug_logging_enabled": false
+    }
+  }
+}

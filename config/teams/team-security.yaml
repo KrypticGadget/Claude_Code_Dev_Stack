@@ -1,0 +1,372 @@
+# Security Team Configuration
+# Security architecture, compliance, and risk management
+
+team:
+  id: "security"
+  name: "Security Team"
+  icon: "🔒"
+  description: "Security architecture, compliance management, risk assessment, and cybersecurity"
+  tier_focus: [2, 3]
+  priority: 6
+  status: "active"
+
+# Team Members and Roles
+members:
+  team_lead:
+    agent: "agent-security-specialist"
+    role: "Chief Security Officer & Team Lead"
+    responsibilities:
+      - "Security strategy and architecture"
+      - "Vulnerability assessment and management"
+      - "Incident response coordination"
+      - "Security team leadership"
+    authority_level: "security_executive"
+    
+  compliance_officer:
+    agent: "agent-compliance-officer"
+    role: "Compliance & Governance Specialist"
+    responsibilities:
+      - "Regulatory compliance management"
+      - "Audit preparation and coordination"
+      - "Policy development and enforcement"
+      - "Risk assessment and management"
+    authority_level: "compliance_executive"
+
+# Communication Protocols
+communication:
+  meeting_cadence:
+    security_standup:
+      frequency: "daily"
+      duration: "15 minutes"
+      participants: ["security_team"]
+      focus: "threat_landscape_incidents"
+      
+    vulnerability_review:
+      frequency: "weekly"
+      duration: "60 minutes"
+      participants: ["security_team", "development_leads"]
+      focus: "vulnerability_assessment"
+      
+    compliance_review:
+      frequency: "monthly"
+      duration: "90 minutes"
+      participants: ["compliance_team", "leadership"]
+      focus: "regulatory_compliance_status"
+      
+    security_architecture_review:
+      frequency: "bi_weekly"
+      duration: "120 minutes"
+      participants: ["security_architects", "technical_leads"]
+      focus: "security_design_decisions"
+
+  incident_response:
+    severity_classification:
+      critical: "data_breach_system_compromise"
+      high: "security_vulnerability_exploitation"
+      medium: "policy_violation_minor_incident"
+      low: "awareness_training_compliance"
+      
+    response_times:
+      critical: "immediate_15_minutes"
+      high: "1_hour"
+      medium: "4_hours"
+      low: "24_hours"
+      
+    communication_channels:
+      emergency: "secure_emergency_channel"
+      incident: "dedicated_incident_channel"
+      routine: "security_team_channel"
+
+# Escalation Paths
+escalation:
+  level_1:
+    trigger: "security_policy_violations"
+    handler: "agent-security-specialist"
+    response_time: "2 hours"
+    
+  level_2:
+    trigger: "compliance_violations"
+    handler: "agent-compliance-officer"
+    response_time: "1 hour"
+    
+  level_3:
+    trigger: "data_breach_incidents"
+    handler: "incident_response_team"
+    response_time: "15 minutes"
+    
+  emergency:
+    trigger: "critical_security_incidents"
+    handler: "crisis_management_team"
+    response_time: "immediate"
+    notify: ["all_leadership", "legal", "communications"]
+
+# BMAD Integration
+bmad_integration:
+  coordination_role: "security_by_design_enforcer"
+  workflow_participation:
+    business_model_phase:
+      role: "security_requirements_advisor"
+      contributions: ["regulatory_requirements", "compliance_constraints", "risk_assessment"]
+      
+    architecture_phase:
+      role: "security_architecture_authority"
+      contributions: ["security_architecture", "threat_modeling", "security_controls"]
+      authority_level: "approval_required"
+      
+    design_phase:
+      role: "security_design_reviewer"
+      contributions: ["security_design_review", "privacy_impact_assessment", "threat_analysis"]
+      
+  bmad_security_gates:
+    business_model_approval:
+      criteria: ["regulatory_compliance_validated", "risk_assessment_completed"]
+      
+    architecture_approval:
+      criteria: ["security_architecture_approved", "threat_model_validated", "controls_identified"]
+      
+    design_approval:
+      criteria: ["security_design_reviewed", "privacy_requirements_met", "access_controls_defined"]
+
+# Security Architecture
+security_architecture:
+  security_framework:
+    approach: "zero_trust_architecture"
+    principles: ["least_privilege", "defense_in_depth", "continuous_verification"]
+    standards: ["nist_cybersecurity_framework", "iso_27001", "owasp"]
+    
+  identity_access_management:
+    authentication: "multi_factor_authentication"
+    authorization: "role_based_access_control"
+    identity_federation: "saml_oauth_integration"
+    privileged_access: "just_in_time_access"
+    
+  data_protection:
+    encryption: "end_to_end_encryption"
+    data_classification: "sensitivity_based_protection"
+    data_loss_prevention: "automated_dlp_policies"
+    backup_security: "encrypted_secure_backups"
+    
+  network_security:
+    perimeter_security: "next_generation_firewalls"
+    network_segmentation: "micro_segmentation"
+    threat_detection: "network_monitoring_ids_ips"
+    secure_communications: "vpn_encrypted_channels"
+
+# Compliance Management
+compliance:
+  regulatory_frameworks:
+    gdpr: "eu_data_protection_regulation"
+    ccpa: "california_consumer_privacy_act"
+    sox: "sarbanes_oxley_compliance"
+    hipaa: "healthcare_data_protection"
+    pci_dss: "payment_card_industry_standards"
+    
+  compliance_processes:
+    assessment: "regular_compliance_audits"
+    monitoring: "continuous_compliance_monitoring"
+    reporting: "automated_compliance_reporting"
+    remediation: "compliance_gap_remediation"
+    
+  audit_management:
+    internal_audits: "quarterly_internal_assessments"
+    external_audits: "annual_third_party_audits"
+    audit_preparation: "comprehensive_evidence_collection"
+    remediation_tracking: "audit_finding_resolution"
+    
+  policy_management:
+    policy_development: "risk_based_policy_creation"
+    policy_review: "annual_policy_updates"
+    policy_communication: "organization_wide_awareness"
+    policy_enforcement: "automated_compliance_monitoring"
+
+# Risk Management
+risk_management:
+  risk_assessment:
+    methodology: "quantitative_qualitative_risk_analysis"
+    frequency: "quarterly_risk_assessments"
+    scope: "organization_wide_risk_coverage"
+    
+  threat_modeling:
+    methodology: "stride_threat_modeling"
+    application: "application_threat_analysis"
+    infrastructure: "infrastructure_threat_assessment"
+    
+  vulnerability_management:
+    scanning: "continuous_vulnerability_scanning"
+    assessment: "risk_based_vulnerability_prioritization"
+    remediation: "automated_patch_management"
+    tracking: "vulnerability_lifecycle_management"
+    
+  business_continuity:
+    disaster_recovery: "tested_recovery_procedures"
+    incident_response: "comprehensive_response_plans"
+    business_impact: "bia_recovery_objectives"
+
+# Performance Metrics
+metrics:
+  security_posture:
+    security_score: ">85_percent"
+    vulnerability_remediation: "<30_days_critical"
+    incident_response_time: "<15_minutes_critical"
+    security_awareness: ">90_percent_training_completion"
+    
+  compliance_metrics:
+    compliance_score: ">95_percent"
+    audit_findings: "<5_critical_findings"
+    policy_compliance: ">98_percent"
+    regulatory_violations: "zero_tolerance"
+    
+  operational_metrics:
+    false_positive_rate: "<5_percent"
+    mean_time_to_detection: "<15_minutes"
+    mean_time_to_response: "<30_minutes"
+    security_tool_effectiveness: ">90_percent"
+    
+  bmad_integration_metrics:
+    security_review_completion: "within_bmad_timeline"
+    security_gate_pass_rate: ">95_percent"
+    threat_model_coverage: "100_percent"
+    compliance_validation_time: "<24_hours"
+
+# Security Operations
+security_operations:
+  security_monitoring:
+    soc_operations: "24x7_security_operations_center"
+    siem_platform: "centralized_security_monitoring"
+    threat_intelligence: "real_time_threat_feeds"
+    behavioral_analytics: "user_entity_behavior_analytics"
+    
+  incident_response:
+    response_team: "dedicated_incident_response_team"
+    playbooks: "automated_response_playbooks"
+    forensics: "digital_forensics_capability"
+    communication: "stakeholder_communication_plans"
+    
+  threat_hunting:
+    proactive_hunting: "continuous_threat_hunting"
+    threat_research: "emerging_threat_analysis"
+    indicators: "custom_ioc_development"
+    
+  security_testing:
+    penetration_testing: "quarterly_penetration_tests"
+    red_teaming: "annual_red_team_exercises"
+    vulnerability_assessments: "monthly_vulnerability_scans"
+    code_security_review: "secure_code_review_process"
+
+# Technology Stack
+technology_stack:
+  security_tools:
+    siem: ["splunk", "qradar", "sentinel"]
+    vulnerability_scanners: ["nessus", "qualys", "rapid7"]
+    penetration_testing: ["metasploit", "burp_suite", "kali_linux"]
+    code_analysis: ["sonarqube", "checkmarx", "veracode"]
+    
+  identity_management:
+    iam_platform: ["okta", "azure_ad", "ping_identity"]
+    pam_solutions: ["cyberark", "beyondtrust", "thycotic"]
+    access_governance: ["sailpoint", "oracle_iga"]
+    
+  data_protection:
+    encryption: ["aws_kms", "azure_key_vault", "hashicorp_vault"]
+    dlp_solutions: ["symantec_dlp", "forcepoint", "microsoft_purview"]
+    backup_security: ["veeam", "commvault", "rubrik"]
+    
+  network_security:
+    firewalls: ["palo_alto", "fortinet", "checkpoint"]
+    ids_ips: ["snort", "suricata", "cisco_firepower"]
+    network_monitoring: ["wireshark", "ntopng", "solarwinds"]
+
+# Collaboration Patterns
+collaboration:
+  security_integration:
+    devsecops: "security_in_development_lifecycle"
+    shift_left: "early_security_integration"
+    automation: "security_tool_integration"
+    
+  cross_functional_work:
+    with_development: "secure_coding_practices"
+    with_operations: "security_operations_integration"
+    with_compliance: "regulatory_requirement_alignment"
+    
+  training_awareness:
+    security_training: "mandatory_annual_training"
+    phishing_simulation: "quarterly_phishing_tests"
+    incident_response_training: "tabletop_exercises"
+    
+  vendor_management:
+    third_party_risk: "vendor_security_assessments"
+    contract_security: "security_requirement_inclusion"
+    ongoing_monitoring: "continuous_vendor_monitoring"
+
+# Threat Intelligence
+threat_intelligence:
+  intelligence_sources:
+    commercial: "threat_intelligence_feeds"
+    open_source: "osint_threat_intelligence"
+    government: "government_threat_sharing"
+    industry: "industry_threat_sharing"
+    
+  analysis_capabilities:
+    tactical: "ioc_analysis_blocking"
+    operational: "attack_pattern_analysis"
+    strategic: "threat_landscape_analysis"
+    
+  integration:
+    siem_integration: "automated_threat_feed_ingestion"
+    security_tools: "ioc_sharing_across_tools"
+    threat_hunting: "intelligence_driven_hunting"
+
+# Privacy Management
+privacy_management:
+  privacy_framework:
+    privacy_by_design: "proactive_privacy_protection"
+    data_minimization: "collect_only_necessary_data"
+    purpose_limitation: "data_use_restriction"
+    
+  privacy_controls:
+    consent_management: "granular_consent_tracking"
+    data_subject_rights: "automated_rights_fulfillment"
+    data_retention: "automated_data_lifecycle"
+    
+  privacy_assessment:
+    pia_process: "privacy_impact_assessments"
+    dpia_requirements: "data_protection_impact_assessments"
+    privacy_monitoring: "ongoing_privacy_compliance"
+
+# Integration Points
+integration_points:
+  upstream_dependencies:
+    - "business_requirements"
+    - "regulatory_requirements"
+    - "threat_landscape"
+    - "technology_constraints"
+    
+  downstream_deliverables:
+    - "security_architecture"
+    - "compliance_validation"
+    - "risk_assessments"
+    - "security_controls"
+    
+  cross_team_interfaces:
+    leadership_team: "security_strategy_alignment"
+    architecture_team: "security_architecture_integration"
+    development_team: "secure_development_practices"
+    operations_team: "security_operations_coordination"
+    bmad_team: "security_by_design_enforcement"
+
+# Continuous Improvement
+continuous_improvement:
+  security_maturity:
+    assessment: "annual_security_maturity_assessment"
+    roadmap: "security_improvement_roadmap"
+    metrics: "security_kpi_tracking"
+    
+  lessons_learned:
+    incident_analysis: "post_incident_analysis"
+    threat_evolution: "threat_landscape_adaptation"
+    control_effectiveness: "security_control_optimization"
+    
+  innovation:
+    emerging_threats: "new_threat_vector_analysis"
+    security_technologies: "security_technology_evaluation"
+    automation_opportunities: "security_automation_expansion"

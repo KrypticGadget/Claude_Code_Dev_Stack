@@ -1,0 +1,150 @@
+# Coverage configuration for hook testing framework
+
+[run]
+# Source directory
+source = ../
+
+# Include patterns
+include = 
+    ../hook_*.py
+    ../test_*.py
+    ../*_hook.py
+    ../hook_manager.py
+    ../hook_registry.py
+    ../hook_config.py
+
+# Exclude patterns
+omit = 
+    */tests/*
+    */test_*
+    */__pycache__/*
+    */.*
+    */venv/*
+    */env/*
+    */build/*
+    */dist/*
+    */archive/*
+    */backup/*
+    */temp/*
+    */ci/*
+    setup.py
+    conftest.py
+
+# Parallel processing
+parallel = true
+concurrency = thread,multiprocessing
+
+# Coverage data file
+data_file = .coverage
+
+# Branch coverage
+branch = true
+
+# Measurement context
+dynamic_contexts = test_function
+
+[report]
+# Reporting options
+show_missing = true
+skip_covered = false
+skip_empty = false
+sort = Cover
+precision = 2
+
+# Output format
+format = text
+
+# Exclude lines from coverage
+exclude_lines =
+    # Have to re-enable the standard pragma
+    pragma: no cover
+    
+    # Don't complain about missing debug-only code:
+    def __repr__
+    if self\.debug
+    
+    # Don't complain if tests don't hit defensive assertion code:
+    raise AssertionError
+    raise NotImplementedError
+    
+    # Don't complain if non-runnable code isn't run:
+    if 0:
+    if __name__ == .__main__.:
+    if TYPE_CHECKING:
+    
+    # Don't complain about abstract methods
+    @(abc\.)?abstractmethod
+    
+    # Don't complain about platform specific code
+    pragma: win32
+    pragma: linux
+    pragma: darwin
+    
+    # Don't complain about deprecated code
+    warnings\.warn
+    
+    # Don't complain about import fallbacks
+    except ImportError:
+    except ModuleNotFoundError:
+
+# Partial branches to exclude
+partial_branches =
+    # Have to re-enable the standard pragma
+    pragma: no branch
+    
+    # Don't complain if tests don't hit defensive assertion code:
+    raise AssertionError
+    raise NotImplementedError
+
+# Fail under percentage
+fail_under = 75
+
+[html]
+# HTML report configuration
+directory = coverage_html
+title = Hook Testing Framework Coverage Report
+show_contexts = true
+skip_covered = false
+skip_empty = false
+
+[xml]
+# XML report configuration
+output = coverage.xml
+
+[json]
+# JSON report configuration
+output = coverage.json
+show_contexts = true
+
+[paths]
+# Path mapping for different environments
+source = 
+    ../
+    /home/*/core/hooks/
+    C:\*\core\hooks\
+    /opt/*/core/hooks/
+
+[coverage:contexts]
+# Context configuration for dynamic coverage
+[coverage:run]
+# Additional run configuration
+relative_files = true
+debug = config,trace
+timid = false
+
+# Plugins
+plugins = 
+    coverage_conditional_plugin
+
+[coverage:html]
+# Additional HTML configuration
+extra_css = coverage_custom.css
+precision = 2
+
+[coverage:xml]
+# Additional XML configuration  
+package_depth = 2
+
+[coverage:report]
+# Additional report configuration
+include_namespace_packages = true

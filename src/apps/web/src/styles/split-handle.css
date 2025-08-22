@@ -1,0 +1,54 @@
+/* Split Handle Styles */
+.split-handle {
+  position: absolute;
+  background: transparent;
+  z-index: 100;
+  cursor: grab;
+  transition: var(--transition);
+  user-select: none;
+}
+
+.split-handle:hover {
+  background: rgba(0, 122, 204, 0.1);
+}
+
+.split-handle:active {
+  cursor: grabbing;
+  background: rgba(0, 122, 204, 0.2);
+}
+
+.split-handle-horizontal {
+  width: 8px;
+  cursor: col-resize;
+}
+
+.split-handle-vertical {
+  height: 8px;
+  cursor: row-resize;
+}
+
+.split-handle-bar {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--border-color);
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+
+.split-handle:hover .split-handle-bar {
+  opacity: 1;
+  color: var(--border-active);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .split-handle-horizontal {
+    width: 12px;
+  }
+  
+  .split-handle-vertical {
+    height: 12px;
+  }
+}

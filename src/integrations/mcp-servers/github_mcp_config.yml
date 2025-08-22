@@ -1,0 +1,233 @@
+# GitHub MCP Service Configuration
+# Complete configuration for GitHub MCP server with all features
+
+github_mcp:
+  # Server Configuration
+  host: "localhost"
+  port: 8081
+  log_level: "info"
+  
+  # GitHub Authentication
+  # Option 1: Personal Access Token
+  github_token: null  # Set via environment variable GITHUB_TOKEN
+  
+  # Option 2: GitHub App (for organization-wide access)
+  github_app_id: null  # Set via environment variable GITHUB_APP_ID
+  github_app_private_key: null  # Set via environment variable GITHUB_APP_PRIVATE_KEY
+  
+  # Webhook Configuration
+  github_webhook_secret: null  # Set via environment variable GITHUB_WEBHOOK_SECRET
+  
+  # Redis Cache Configuration (optional, falls back to in-memory)
+  redis_host: "localhost"
+  redis_port: 6379
+  redis_password: null  # Set via environment variable REDIS_PASSWORD
+  
+  # Rate Limiting Configuration
+  rate_limit_requests_per_hour: 5000
+  rate_limit_search_per_minute: 30
+  
+  # Cache TTL Configuration (seconds)
+  cache_ttl_default: 300        # 5 minutes
+  cache_ttl_repository: 600     # 10 minutes
+  cache_ttl_file_content: 1800  # 30 minutes
+  cache_ttl_search: 120         # 2 minutes
+  
+  # WebSocket Configuration
+  websocket_heartbeat_interval: 30
+  websocket_max_connections: 100
+  
+  # Health Monitoring
+  health_check_interval: 30     # seconds
+  health_check_timeout: 10      # seconds
+  restart_on_failure: true
+  max_restart_attempts: 3
+  restart_delay: 5              # seconds
+  
+  # Docker Configuration
+  docker_enabled: false
+  docker_image: "github-mcp-server:latest"
+  docker_network: "mcp-network"
+  docker_volumes:
+    - "/var/log/github-mcp:/app/logs"
+    - "/etc/github-mcp:/app/config"
+  docker_environment:
+    PYTHONUNBUFFERED: "1"
+    TZ: "UTC"
+
+# MCP Manager Global Configuration
+mcp_manager:
+  # Service Discovery
+  discovery_enabled: true
+  discovery_interval: 60  # seconds
+  
+  # Load Balancing
+  load_balance_algorithm: "round_robin"  # round_robin, least_connections, response_time
+  
+  # Health Monitoring
+  health_check_interval: 30
+  health_check_timeout: 10
+  
+  # Service Registry
+  registry_persistence: true
+  registry_file: "service_registry.json"
+
+# Logging Configuration
+logging:
+  version: 1
+  disable_existing_loggers: false
+  formatters:
+    standard:
+      format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    detailed:
+      format: "%(asctime)s - %(name)s - %(levelname)s - %(module)s - %(funcName)s - %(message)s"
+  handlers:
+    console:
+      class: logging.StreamHandler
+      level: INFO
+      formatter: standard
+      stream: ext://sys.stdout
+    file:
+      class: logging.handlers.RotatingFileHandler
+      level: DEBUG
+      formatter: detailed
+      filename: logs/github_mcp.log
+      maxBytes: 10485760  # 10MB
+      backupCount: 5
+  loggers:
+    github_mcp_server:
+      level: DEBUG
+      handlers: [console, file]
+      propagate: false
+    github_mcp_service:
+      level: DEBUG
+      handlers: [console, file]
+      propagate: false
+  root:
+    level: INFO
+    handlers: [console]
+
+# Security Configuration
+security:
+  # JWT Configuration
+  jwt_secret: null  # Set via environment variable JWT_SECRET
+  jwt_algorithm: "HS256"
+  jwt_expiry_hours: 24
+  
+  # CORS Configuration
+  cors_origins:
+    - "http://localhost:3000"
+    - "http://localhost:8000"
+    - "https://claude.ai"
+  cors_allow_credentials: true
+  cors_allow_methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
+  cors_allow_headers: ["*"]
+  
+  # Rate Limiting
+  rate_limit_enabled: true
+  rate_limit_storage: "memory"  # memory, redis
+  
+  # Request Validation
+  max_request_size: 10485760  # 10MB
+  request_timeout: 30  # seconds
+
+# Monitoring and Metrics
+monitoring:
+  # Prometheus Metrics
+  prometheus_enabled: false
+  prometheus_port: 9090
+  
+  # Health Check Endpoints
+  health_endpoint: "/health"
+  metrics_endpoint: "/metrics"
+  
+  # Performance Monitoring
+  track_response_times: true
+  track_memory_usage: true
+  track_cpu_usage: true
+  
+  # Alerting (when integrated with external systems)
+  alert_on_high_error_rate: true
+  error_rate_threshold: 0.05  # 5%
+  alert_on_high_latency: true
+  latency_threshold: 1000  # milliseconds
+
+# Development Configuration
+development:
+  debug: false
+  auto_reload: false
+  profiling_enabled: false
+  
+  # Test Configuration
+  test_github_token: null  # Separate token for testing
+  test_redis_db: 15  # Separate Redis DB for tests
+  
+  # Mock Services (for testing without real GitHub API)
+  mock_github_api: false
+  mock_redis: false
+
+# Production Configuration
+production:
+  # Performance Tuning
+  worker_processes: 4
+  worker_connections: 1000
+  keepalive_timeout: 65
+  
+  # Security Hardening
+  hide_server_header: true
+  disable_debug_endpoints: true
+  require_https: true
+  
+  # Logging
+  access_log_enabled: true
+  access_log_format: "combined"
+  
+  # Resource Limits
+  max_memory_mb: 512
+  max_cpu_percent: 80
+
+# Integration Configuration
+integrations:
+  # MCP Services
+  services:
+    playwright:
+      enabled: true
+      host: "localhost"
+      port: 8080
+      health_check_path: "/health"
+    
+    websearch:
+      enabled: true
+      host: "localhost"
+      port: 8082
+      health_check_path: "/health"
+  
+  # External Services
+  external:
+    # Webhook Destinations
+    webhook_endpoints:
+      - url: "https://api.example.com/webhooks/github"
+        events: ["push", "pull_request", "issues"]
+        secret: null  # Set via environment
+    
+    # Notification Services
+    notifications:
+      slack:
+        enabled: false
+        webhook_url: null  # Set via environment
+        channels:
+          - "#github-events"
+      
+      discord:
+        enabled: false
+        webhook_url: null  # Set via environment
+      
+      email:
+        enabled: false
+        smtp_host: null
+        smtp_port: 587
+        smtp_user: null
+        smtp_password: null  # Set via environment
+        from_address: "github-mcp@example.com"
+        to_addresses:
+          - "admin@example.com"

@@ -1,0 +1,258 @@
+# Architecture Team Configuration
+# System design and technical infrastructure
+
+team:
+  id: "architecture"
+  name: "Architecture Team"
+  icon: "🏗️"
+  description: "System design, technical infrastructure, and architectural decision making"
+  tier_focus: [2, 3]
+  priority: 2
+  status: "active"
+
+# Team Members and Roles
+members:
+  team_lead:
+    agent: "agent-tech-specs"
+    role: "Chief Architect & Team Lead"
+    responsibilities:
+      - "Technical specifications leadership"
+      - "System architecture coordination"
+      - "Technology stack decisions"
+      - "Cross-system integration planning"
+    authority_level: "senior_technical"
+    
+  frontend_architect:
+    agent: "agent-frontend-architecture"
+    role: "Frontend Architecture Lead"
+    responsibilities:
+      - "Frontend system design"
+      - "Component architecture planning"
+      - "UI/UX technical implementation"
+      - "Performance optimization strategies"
+    authority_level: "technical_lead"
+    
+  backend_architect:
+    agent: "agent-backend-services"
+    role: "Backend Architecture Lead"
+    responsibilities:
+      - "Backend service design"
+      - "API architecture planning"
+      - "Microservices coordination"
+      - "Service integration patterns"
+    authority_level: "technical_lead"
+    
+  data_architect:
+    agent: "agent-database-architecture"
+    role: "Data Architecture Lead"
+    responsibilities:
+      - "Database design and optimization"
+      - "Data modeling coordination"
+      - "Storage strategy planning"
+      - "Data pipeline architecture"
+    authority_level: "technical_lead"
+
+# Communication Protocols
+communication:
+  meeting_cadence:
+    architecture_review:
+      frequency: "weekly"
+      duration: "90 minutes"
+      participants: ["all_architects"]
+      focus: "design_decisions"
+      
+    technical_deep_dive:
+      frequency: "bi_weekly"
+      duration: "120 minutes"
+      participants: ["technical_leads", "senior_developers"]
+      focus: "implementation_details"
+      
+    cross_team_sync:
+      frequency: "weekly"
+      duration: "30 minutes"
+      participants: ["team_leads", "development_leads"]
+      focus: "integration_coordination"
+      
+    technology_evaluation:
+      frequency: "monthly"
+      duration: "60 minutes"
+      participants: ["all_architects", "cto"]
+      focus: "technology_assessment"
+
+  documentation_standards:
+    architecture_decisions: "ADR_format"
+    system_designs: "C4_model"
+    api_specifications: "OpenAPI_3.0"
+    database_schemas: "ERD_with_documentation"
+
+  review_process:
+    design_review:
+      required_approvers: 2
+      review_criteria: ["scalability", "maintainability", "security", "performance"]
+      turnaround_time: "48 hours"
+      
+    technology_selection:
+      evaluation_criteria: ["technical_fit", "team_expertise", "long_term_viability", "cost"]
+      decision_authority: "agent-technical-cto"
+      consultation_required: ["all_architects"]
+
+# Escalation Paths
+escalation:
+  level_1:
+    trigger: "design_disagreements"
+    handler: "agent-tech-specs"
+    response_time: "24 hours"
+    
+  level_2:
+    trigger: "cross_system_conflicts"
+    handler: "agent-technical-cto"
+    response_time: "12 hours"
+    
+  level_3:
+    trigger: "technology_strategy_decisions"
+    handler: "leadership_team"
+    response_time: "4 hours"
+    
+  emergency:
+    trigger: "architecture_blocking_issues"
+    handler: "agent-technical-cto"
+    response_time: "immediate"
+    notify: ["development_teams", "leadership"]
+
+# BMAD Integration
+bmad_integration:
+  coordination_role: "technical_authority"
+  workflow_participation:
+    business_model_phase:
+      role: "technical_feasibility_advisor"
+      deliverables: ["feasibility_assessment", "technical_constraints"]
+      
+    architecture_phase:
+      role: "primary_contributor"
+      lead: "agent-bmad-architecture-design"
+      support: ["agent-tech-specs", "all_architects"]
+      deliverables: ["system_architecture", "technology_recommendations"]
+      
+    design_phase:
+      role: "technical_consultant"
+      deliverables: ["technical_design_review", "implementation_guidance"]
+      
+  bmad_technical_standards:
+    architecture_patterns: "microservices_preferred"
+    technology_constraints: "cloud_native_stack"
+    integration_requirements: "api_first_design"
+    performance_targets: "sub_second_response"
+    scalability_requirements: "horizontal_scaling"
+
+# Collaboration Patterns
+collaboration:
+  design_thinking:
+    approach: "collaborative_design_sessions"
+    tools: ["miro", "figma", "draw_io"]
+    frequency: "weekly"
+    
+  peer_review:
+    code_architecture: "mandatory_for_major_changes"
+    design_documents: "two_architect_approval"
+    technology_decisions: "team_consensus"
+    
+  knowledge_sharing:
+    architecture_guild: "monthly_knowledge_sharing"
+    tech_talks: "bi_weekly_presentations"
+    documentation: "living_architecture_documentation"
+    
+  cross_functional:
+    with_development: "embedded_architect_model"
+    with_operations: "devops_collaboration"
+    with_security: "security_by_design"
+    with_product: "business_architecture_alignment"
+
+# Technical Standards
+technical_standards:
+  architecture_principles:
+    - "domain_driven_design"
+    - "event_driven_architecture"
+    - "api_first_approach"
+    - "cloud_native_patterns"
+    - "security_by_design"
+    
+  design_patterns:
+    frontend: ["component_composition", "state_management", "lazy_loading"]
+    backend: ["microservices", "cqrs", "event_sourcing", "circuit_breaker"]
+    data: ["polyglot_persistence", "event_streaming", "data_mesh"]
+    
+  quality_attributes:
+    performance: "response_time_under_500ms"
+    scalability: "horizontal_scaling_capability"
+    availability: "99.9_percent_uptime"
+    security: "zero_trust_architecture"
+    maintainability: "low_coupling_high_cohesion"
+
+# Performance Metrics
+metrics:
+  team_performance:
+    design_quality: ">90%"
+    review_turnaround: "<48 hours"
+    architecture_debt: "<10%"
+    cross_team_satisfaction: ">85%"
+    
+  individual_performance:
+    technical_depth: ">90%"
+    collaboration_effectiveness: ">85%"
+    innovation_contribution: ">80%"
+    mentoring_impact: ">75%"
+    
+  bmad_integration_metrics:
+    technical_feasibility_accuracy: ">95%"
+    architecture_delivery_time: "within_bmad_timeline"
+    design_review_completion: "<24_hours"
+    technical_constraint_identification: "100%"
+
+# Integration Points
+integration_points:
+  upstream_dependencies:
+    - "business_requirements"
+    - "technical_constraints"
+    - "performance_requirements"
+    - "security_requirements"
+    
+  downstream_deliverables:
+    - "system_architecture"
+    - "technical_specifications"
+    - "implementation_guidelines"
+    - "technology_recommendations"
+    
+  cross_team_interfaces:
+    leadership_team: "technical_strategy_input"
+    development_team: "implementation_guidance"
+    operations_team: "deployment_architecture"
+    security_team: "security_architecture"
+    data_team: "data_architecture_coordination"
+    bmad_team: "technical_feasibility_validation"
+
+# Technology Stack Management
+technology_stack:
+  frontend_technologies:
+    primary: ["react", "typescript", "next_js"]
+    state_management: ["redux_toolkit", "zustand"]
+    styling: ["tailwind_css", "styled_components"]
+    testing: ["jest", "cypress", "testing_library"]
+    
+  backend_technologies:
+    languages: ["nodejs", "python", "go"]
+    frameworks: ["express", "fastapi", "gin"]
+    databases: ["postgresql", "mongodb", "redis"]
+    messaging: ["kafka", "rabbitmq"]
+    
+  infrastructure:
+    cloud_providers: ["aws", "azure", "gcp"]
+    containers: ["docker", "kubernetes"]
+    monitoring: ["prometheus", "grafana", "datadog"]
+    ci_cd: ["github_actions", "jenkins", "gitlab_ci"]
+    
+  evaluation_criteria:
+    - "team_expertise_alignment"
+    - "long_term_support_availability"
+    - "community_ecosystem_strength"
+    - "performance_characteristics"
+    - "security_track_record"

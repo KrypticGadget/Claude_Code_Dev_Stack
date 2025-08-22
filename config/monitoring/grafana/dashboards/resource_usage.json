@@ -1,0 +1,230 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Claude Code Resource Usage",
+    "tags": ["claude-code", "resources", "usage"],
+    "style": "dark",
+    "timezone": "browser",
+    "refresh": "30s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Token Usage Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "claude:tokens_per_minute",
+            "legendFormat": "Tokens/min"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": 0},
+                {"color": "yellow", "value": 5000},
+                {"color": "red", "value": 10000}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Daily Token Usage",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "claude_tokens_daily_total",
+            "legendFormat": "Daily Total"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": 0},
+                {"color": "yellow", "value": 80000},
+                {"color": "red", "value": 100000}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 6, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Memory Usage by Process",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "claude_process_memory_bytes",
+            "legendFormat": "{{process}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "bytes",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": 0},
+                {"color": "yellow", "value": 536870912},
+                {"color": "red", "value": 1073741824}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 12, "y": 0}
+      },
+      {
+        "id": 4,
+        "title": "Storage Usage",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "claude_storage_used_bytes",
+            "legendFormat": "Storage Used"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "bytes",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": 0},
+                {"color": "yellow", "value": 5368709120},
+                {"color": "red", "value": 10737418240}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 18, "y": 0}
+      },
+      {
+        "id": 5,
+        "title": "Token Usage Trend",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "rate(claude_tokens_used_total[5m]) * 300",
+            "legendFormat": "Tokens/5min"
+          },
+          {
+            "expr": "claude_tokens_daily_total",
+            "legendFormat": "Daily Total"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear",
+              "fillOpacity": 10
+            }
+          }
+        },
+        "gridPos": {"h": 9, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 6,
+        "title": "Memory Usage by Component",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "claude_component_memory_bytes",
+            "legendFormat": "{{component}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "bytes",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear",
+              "fillOpacity": 10
+            }
+          }
+        },
+        "gridPos": {"h": 9, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 7,
+        "title": "Storage Breakdown",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "claude_storage_by_type_bytes",
+            "legendFormat": "{{storage_type}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "bytes",
+            "custom": {
+              "displayMode": "table",
+              "pieType": "donut"
+            }
+          }
+        },
+        "gridPos": {"h": 9, "w": 8, "x": 0, "y": 17}
+      },
+      {
+        "id": 8,
+        "title": "Resource Cleanup Events",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "rate(claude_cleanup_operations_total[5m])",
+            "legendFormat": "{{operation_type}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ops",
+            "custom": {
+              "drawStyle": "bars",
+              "barAlignment": 0
+            }
+          }
+        },
+        "gridPos": {"h": 9, "w": 8, "x": 8, "y": 17}
+      },
+      {
+        "id": 9,
+        "title": "Performance Issues",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "claude_performance_issues_total",
+            "legendFormat": "{{issue_type}}",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "displayMode": "color-background"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": 0},
+                {"color": "yellow", "value": 1},
+                {"color": "red", "value": 5}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 9, "w": 8, "x": 16, "y": 17}
+      }
+    ]
+  }
+}

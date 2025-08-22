@@ -1,0 +1,373 @@
+# Security Audit Framework Configuration
+# Claude Code V3.6.9 Security Audit Settings
+
+# Core Scanning Settings
+scan_settings:
+  # Directories to exclude from scanning
+  exclude_dirs:
+    - ".git"
+    - "node_modules"
+    - "__pycache__"
+    - ".venv"
+    - "venv"
+    - "dist"
+    - "build"
+    - "target"
+    - ".tox"
+    - ".pytest_cache"
+    - "archive"
+    - "backup"
+    - ".next"
+    - "coverage"
+    - ".nyc_output"
+    - "logs"
+    - "tmp"
+    - "temp"
+    
+  # File extensions to include in security scans
+  include_extensions:
+    - ".py"      # Python
+    - ".js"      # JavaScript
+    - ".jsx"     # React JSX
+    - ".ts"      # TypeScript
+    - ".tsx"     # TypeScript React
+    - ".php"     # PHP
+    - ".java"    # Java
+    - ".go"      # Go
+    - ".rs"      # Rust
+    - ".rb"      # Ruby
+    - ".sh"      # Shell scripts
+    - ".ps1"     # PowerShell
+    - ".html"    # HTML
+    - ".sql"     # SQL
+    - ".yaml"    # YAML configs
+    - ".yml"     # YAML configs
+    - ".json"    # JSON configs
+    - ".xml"     # XML configs
+    - ".env"     # Environment files
+    - ".config"  # Configuration files
+    
+  # Maximum file size to scan (MB)
+  max_file_size_mb: 10
+  
+  # Scan timeout per file (seconds)
+  scan_timeout_seconds: 30
+  
+  # Maximum scan duration (seconds)
+  max_scan_duration: 1800  # 30 minutes
+  
+  # Enable parallel scanning
+  parallel_scanning: true
+  max_workers: 4
+
+# Vulnerability Detection Thresholds
+vulnerability_thresholds:
+  # Block deployment on critical vulnerabilities
+  critical_block_deployment: true
+  
+  # Require manual review for high severity
+  high_require_review: true
+  
+  # Generate warnings for medium severity
+  medium_warn_only: false
+  
+  # Information only for low severity
+  low_info_only: true
+  
+  # Maximum allowed vulnerabilities by severity
+  max_critical: 0
+  max_high: 5
+  max_medium: 20
+  max_low: 50
+
+# Compliance Frameworks to Validate
+compliance_frameworks:
+  - "OWASP_TOP_10_2023"
+  - "NIST_CSF"
+  - "SOC2_TYPE_II"
+  - "ISO_27001"
+  - "PCI_DSS"
+  - "GDPR"
+  - "HIPAA"
+
+# Threat Modeling Configuration
+threat_modeling:
+  # Enable STRIDE threat modeling
+  enable_stride: true
+  
+  # Enable DREAD risk assessment
+  enable_dread: true
+  
+  # Perform attack surface analysis
+  attack_surface_analysis: true
+  
+  # Analyze data flows
+  data_flow_analysis: true
+  
+  # Trust boundary analysis
+  trust_boundary_analysis: true
+
+# Security Testing Configuration
+security_testing:
+  # Static Application Security Testing
+  sast:
+    enabled: true
+    tools:
+      - "bandit"        # Python
+      - "semgrep"       # Multi-language
+      - "eslint"        # JavaScript/TypeScript
+      - "sonarqube"     # Multi-language
+    
+    # Custom rules directory
+    custom_rules_dir: "security/rules"
+    
+    # Confidence threshold (1-5)
+    min_confidence: 3
+  
+  # Dynamic Application Security Testing
+  dast:
+    enabled: false  # Requires running application
+    tools:
+      - "zap"         # OWASP ZAP
+      - "nuclei"      # Fast scanner
+    
+    # Target URLs for DAST (if enabled)
+    target_urls: []
+    
+    # Authentication configuration
+    authentication:
+      enabled: false
+      type: "basic"  # basic, oauth, session
+      credentials: {}
+  
+  # Dependency Scanning
+  dependency_scanning:
+    enabled: true
+    tools:
+      npm: "npm audit"
+      pip: "safety check"
+      cargo: "cargo audit"
+      composer: "composer audit"
+      maven: "mvn dependency-check:check"
+      gradle: "gradle dependencyCheckAnalyze"
+    
+    # Vulnerability databases
+    databases:
+      - "NVD"         # National Vulnerability Database
+      - "GitHub"      # GitHub Advisory Database
+      - "OSV"         # Open Source Vulnerabilities
+    
+    # Update frequency (hours)
+    update_frequency: 24
+  
+  # Infrastructure Security Testing
+  infrastructure:
+    enabled: true
+    
+    # Docker security scanning
+    docker:
+      enabled: true
+      tools:
+        - "trivy"
+        - "docker-bench-security"
+      scan_images: true
+      scan_containers: true
+    
+    # Kubernetes security scanning
+    kubernetes:
+      enabled: true
+      tools:
+        - "kube-bench"
+        - "kube-hunter"
+        - "falco"
+      scan_manifests: true
+      scan_runtime: false  # Requires cluster access
+    
+    # Cloud configuration scanning
+    cloud:
+      enabled: true
+      providers:
+        - "aws"
+        - "azure"
+        - "gcp"
+      tools:
+        - "checkov"
+        - "terrascan"
+        - "tfsec"
+
+# Reporting Configuration
+reporting:
+  # Output formats
+  formats:
+    - "json"          # Machine readable
+    - "markdown"      # Human readable
+    - "html"          # Web report
+    - "pdf"           # Executive report
+    - "sarif"         # Security Analysis Results Interchange Format
+  
+  # Report templates
+  templates:
+    executive_summary: "templates/executive_summary.md"
+    technical_report: "templates/technical_report.md"
+    compliance_report: "templates/compliance_report.md"
+    developer_report: "templates/developer_report.md"
+  
+  # Include evidence in reports
+  include_evidence: true
+  
+  # Anonymize sensitive data in reports
+  anonymize_data: true
+  
+  # Report retention (days)
+  retention_days: 90
+
+# Integration Configuration
+integrations:
+  # CI/CD Integration
+  cicd:
+    enabled: true
+    
+    # Fail build on security issues
+    fail_on_critical: true
+    fail_on_high: false
+    
+    # Quality gates
+    quality_gates:
+      - "no_critical_vulnerabilities"
+      - "no_hardcoded_secrets"
+      - "compliance_score_min_80"
+  
+  # Issue Tracking Integration
+  issue_tracking:
+    enabled: false
+    system: "github"  # github, jira, azure_devops
+    auto_create_issues: false
+    
+    # Issue labels/tags
+    labels:
+      critical: ["security", "critical", "urgent"]
+      high: ["security", "high-priority"]
+      medium: ["security", "medium-priority"]
+      low: ["security", "low-priority"]
+  
+  # Notification Integration
+  notifications:
+    enabled: true
+    channels:
+      - type: "email"
+        recipients: ["security-team@company.com"]
+        severities: ["critical", "high"]
+      
+      - type: "slack"
+        webhook_url: ""
+        channel: "#security-alerts"
+        severities: ["critical", "high"]
+      
+      - type: "teams"
+        webhook_url: ""
+        severities: ["critical"]
+  
+  # Security Information and Event Management (SIEM)
+  siem:
+    enabled: false
+    platform: "splunk"  # splunk, elk, sentinel
+    endpoint: ""
+    api_key: ""
+    
+    # Event forwarding
+    forward_events:
+      - "vulnerability_discovered"
+      - "compliance_violation"
+      - "audit_completed"
+
+# Custom Security Rules
+custom_rules:
+  # Enable custom rule engine
+  enabled: true
+  
+  # Rules directory
+  rules_directory: "security/custom_rules"
+  
+  # Rule categories
+  categories:
+    - "business_logic"
+    - "api_security"
+    - "authentication"
+    - "authorization"
+    - "data_protection"
+    - "logging_monitoring"
+  
+  # Rule validation
+  validate_rules: true
+  rule_timeout: 10  # seconds
+
+# Performance Configuration
+performance:
+  # Memory limits
+  max_memory_mb: 2048
+  
+  # CPU limits
+  max_cpu_percent: 50
+  
+  # Disk space limits
+  max_disk_mb: 5120
+  
+  # Network timeouts
+  network_timeout: 30
+  
+  # Cache configuration
+  cache:
+    enabled: true
+    ttl_hours: 24
+    max_size_mb: 512
+
+# Audit Scheduling
+scheduling:
+  # Automated audit schedule
+  automated_audits:
+    enabled: false
+    
+    # Schedule using cron format
+    schedules:
+      - name: "daily_quick_scan"
+        cron: "0 2 * * *"  # 2 AM daily
+        type: "quick"
+        
+      - name: "weekly_full_scan"
+        cron: "0 1 * * 0"  # 1 AM Sunday
+        type: "comprehensive"
+        
+      - name: "monthly_compliance_check"
+        cron: "0 3 1 * *"  # 3 AM first day of month
+        type: "compliance"
+  
+  # Scan on file changes
+  watch_files: false
+  watch_directories: []
+
+# Advanced Configuration
+advanced:
+  # Enable experimental features
+  experimental_features: false
+  
+  # Debug mode
+  debug_mode: false
+  
+  # Verbose logging
+  verbose_logging: false
+  
+  # Save scan artifacts
+  save_artifacts: true
+  artifacts_retention_days: 30
+  
+  # Machine learning enhancements
+  ml_enhancements:
+    enabled: false
+    model_path: "models/security_ml.pkl"
+    confidence_threshold: 0.8
+  
+  # Baseline comparison
+  baseline_comparison:
+    enabled: true
+    baseline_file: "security/baseline.json"
+    auto_update_baseline: false

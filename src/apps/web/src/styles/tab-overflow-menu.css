@@ -1,0 +1,243 @@
+/* Tab Overflow Menu */
+.tab-overflow-menu {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.overflow-menu-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: var(--transition);
+  gap: 4px;
+  padding: 0 6px;
+}
+
+.overflow-menu-button:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.overflow-menu-button.open {
+  background: var(--bg-active);
+  color: white;
+}
+
+.overflow-count {
+  font-size: 10px;
+  font-weight: 600;
+  min-width: 14px;
+  text-align: center;
+}
+
+.overflow-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 280px;
+  max-width: 400px;
+  max-height: 400px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+  z-index: 1000;
+  animation: dropdown-enter 0.15s ease;
+  overflow: hidden;
+}
+
+@keyframes dropdown-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.overflow-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.overflow-menu-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.overflow-menu-count {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.overflow-menu-items {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.overflow-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: var(--transition);
+  gap: 8px;
+}
+
+.overflow-menu-item:hover {
+  background: var(--bg-hover);
+}
+
+.overflow-menu-item.active {
+  background: var(--bg-active);
+  color: white;
+  border-left: 3px solid white;
+}
+
+.overflow-item-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.overflow-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.overflow-item-title {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+  gap: 4px;
+}
+
+.overflow-menu-item.active .overflow-item-title {
+  color: white;
+}
+
+.overflow-item-dirty {
+  color: #ff6b6b;
+  font-size: 12px;
+}
+
+.overflow-item-pinned {
+  color: var(--border-active);
+  font-size: 11px;
+}
+
+.overflow-menu-item.active .overflow-item-dirty {
+  color: rgba(255, 107, 107, 0.9);
+}
+
+.overflow-menu-item.active .overflow-item-pinned {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.overflow-item-path {
+  font-size: 11px;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.overflow-menu-item.active .overflow-item-path {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.overflow-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.overflow-item-language {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-tertiary);
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+.overflow-menu-item.active .overflow-item-language {
+  background: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.overflow-menu-footer {
+  padding: 8px 12px;
+  background: var(--bg-tertiary);
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.overflow-menu-close {
+  padding: 4px 12px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 11px;
+  transition: var(--transition);
+}
+
+.overflow-menu-close:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .overflow-menu-dropdown {
+    right: -100px;
+    min-width: 240px;
+  }
+  
+  .overflow-menu-item {
+    padding: 12px;
+  }
+  
+  .overflow-item-title {
+    font-size: 14px;
+  }
+}
+
+/* Custom scrollbar */
+.overflow-menu-items::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-menu-items::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-menu-items::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.overflow-menu-items::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}

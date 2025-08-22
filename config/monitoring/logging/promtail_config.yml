@@ -1,0 +1,195 @@
+# Promtail Configuration for Claude Code V3.6.9
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://localhost:3100/loki/api/v1/push
+
+scrape_configs:
+  # Claude Code Application Logs
+  - job_name: claude-application
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: claude-application
+          __path__: C:/Users/*/\.claude/logs/*.log
+    pipeline_stages:
+      - regex:
+          expression: '(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \[(?P<level>\w+)\] (?P<component>\w+): (?P<message>.*)'
+      - labels:
+          level:
+          component:
+      - timestamp:
+          source: timestamp
+          format: '2006-01-02 15:04:05'
+
+  # Agent Execution Logs
+  - job_name: claude-agents
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: claude-agents
+          __path__: C:/Users/*/\.claude/logs/agents/*.log
+    pipeline_stages:
+      - regex:
+          expression: '(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \[(?P<level>\w+)\] Agent (?P<agent_name>[\w-]+): (?P<message>.*)'
+      - labels:
+          level:
+          agent_name:
+      - timestamp:
+          source: timestamp
+          format: '2006-01-02 15:04:05'
+
+  # Hook Execution Logs
+  - job_name: claude-hooks
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: claude-hooks
+          __path__: C:/Users/*/\.claude/logs/hooks/*.log
+    pipeline_stages:
+      - regex:
+          expression: '(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \[(?P<level>\w+)\] Hook (?P<hook_name>[\w-]+): (?P<message>.*)'
+      - labels:
+          level:
+          hook_name:
+      - timestamp:
+          source: timestamp
+          format: '2006-01-02 15:04:05'
+
+  # Session Management Logs
+  - job_name: claude-sessions
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: claude-sessions
+          __path__: C:/Users/*/\.claude/logs/sessions/*.log
+    pipeline_stages:
+      - regex:
+          expression: '(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \[(?P<level>\w+)\] Session (?P<session_id>[\w-]+): (?P<operation>\w+) (?P<message>.*)'
+      - labels:
+          level:
+          session_id:
+          operation:
+      - timestamp:
+          source: timestamp
+          format: '2006-01-02 15:04:05'
+
+  # Integration Service Logs
+  - job_name: claude-integrations
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: claude-integrations
+          __path__: C:/Users/*/\.claude/logs/integrations/*.log
+    pipeline_stages:
+      - regex:
+          expression: '(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \[(?P<level>\w+)\] (?P<service>[\w-]+): (?P<message>.*)'
+      - labels:
+          level:
+          service:
+      - timestamp:
+          source: timestamp
+          format: '2006-01-02 15:04:05'
+
+  # Performance Monitoring Logs
+  - job_name: claude-performance
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: claude-performance
+          __path__: C:/Users/*/\.claude/logs/performance/*.log
+    pipeline_stages:
+      - regex:
+          expression: '(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \[(?P<level>\w+)\] Performance: (?P<metric>\w+)=(?P<value>[\d.]+) (?P<message>.*)'
+      - labels:
+          level:
+          metric:
+      - timestamp:
+          source: timestamp
+          format: '2006-01-02 15:04:05'
+
+  # Error Logs (High Priority)
+  - job_name: claude-errors
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: claude-errors
+          __path__: C:/Users/*/\.claude/logs/errors/*.log
+    pipeline_stages:
+      - regex:
+          expression: '(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \[(?P<level>ERROR|CRITICAL)\] (?P<component>\w+): (?P<error_type>\w+) - (?P<message>.*)'
+      - labels:
+          level:
+          component:
+          error_type:
+      - timestamp:
+          source: timestamp
+          format: '2006-01-02 15:04:05'
+
+  # Orchestration Logs
+  - job_name: claude-orchestration
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: claude-orchestration
+          __path__: C:/Users/*/\.claude/logs/orchestration/*.log
+    pipeline_stages:
+      - regex:
+          expression: '(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \[(?P<level>\w+)\] Orchestrator: (?P<operation>\w+) (?P<agents>.*?) - (?P<message>.*)'
+      - labels:
+          level:
+          operation:
+      - timestamp:
+          source: timestamp
+          format: '2006-01-02 15:04:05'
+
+  # System Resource Logs
+  - job_name: claude-system
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: claude-system
+          __path__: C:/Users/*/\.claude/logs/system/*.log
+    pipeline_stages:
+      - regex:
+          expression: '(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \[(?P<level>\w+)\] System: (?P<resource>\w+) (?P<message>.*)'
+      - labels:
+          level:
+          resource:
+      - timestamp:
+          source: timestamp
+          format: '2006-01-02 15:04:05'
+
+  # API Gateway Logs (if applicable)
+  - job_name: claude-api
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: claude-api
+          __path__: C:/Users/*/\.claude/logs/api/*.log
+    pipeline_stages:
+      - regex:
+          expression: '(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \[(?P<level>\w+)\] API: (?P<method>\w+) (?P<endpoint>[\w/]+) (?P<status>\d+) (?P<duration>[\d.]+)ms - (?P<message>.*)'
+      - labels:
+          level:
+          method:
+          endpoint:
+          status:
+      - timestamp:
+          source: timestamp
+          format: '2006-01-02 15:04:05'

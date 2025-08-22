@@ -1,0 +1,258 @@
+/* Tab Manager Main Styles */
+.tab-manager {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  background: var(--bg-primary, #1e1e1e);
+  color: var(--text-primary, #d4d4d4);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  overflow: hidden;
+}
+
+/* Variables for theming */
+.tab-manager {
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #252526;
+  --bg-tertiary: #2d2d30;
+  --bg-hover: #2a2d2e;
+  --bg-active: #007acc;
+  --bg-tab: #2d2d30;
+  --bg-tab-active: #1e1e1e;
+  --bg-tab-hover: #2a2d2e;
+  --text-primary: #d4d4d4;
+  --text-secondary: #969696;
+  --text-muted: #6a737d;
+  --border-color: #3c3c3c;
+  --border-active: #007acc;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.32);
+  --transition: all 0.2s ease;
+}
+
+/* Light theme */
+.tab-manager.light {
+  --bg-primary: #f3f3f3;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f8f8f8;
+  --bg-hover: #e8e8e8;
+  --bg-active: #007acc;
+  --bg-tab: #ffffff;
+  --bg-tab-active: #f3f3f3;
+  --bg-tab-hover: #e8e8e8;
+  --text-primary: #383a42;
+  --text-secondary: #696c77;
+  --text-muted: #a0a1a7;
+  --border-color: #e5e5e6;
+  --border-active: #007acc;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Editor content area */
+.editor-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Tab bar container */
+.tab-bar-container {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Drag and drop states */
+.tab-manager.drag-active {
+  user-select: none;
+}
+
+.tab-manager.drag-active .tab-item:not(.dragging) {
+  pointer-events: none;
+}
+
+.drag-ghost {
+  opacity: 0.8;
+  transform: rotate(5deg) scale(1.05);
+  box-shadow: var(--shadow);
+  z-index: 10000;
+}
+
+.drop-indicator {
+  position: absolute;
+  width: 2px;
+  background: var(--bg-active);
+  z-index: 9999;
+  pointer-events: none;
+  transition: var(--transition);
+}
+
+/* Global drop zones */
+.global-drop-zones {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 8000;
+}
+
+.global-drop-zones .drop-zone {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 122, 204, 0.1);
+  border: 2px dashed var(--bg-active);
+  border-radius: 8px;
+  pointer-events: all;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.global-drop-zones .drop-zone.drag-over,
+.global-drop-zones .drop-zone:hover {
+  opacity: 1;
+  background: rgba(0, 122, 204, 0.2);
+}
+
+.global-drop-zones .drop-zone-top {
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  height: 60px;
+}
+
+.global-drop-zones .drop-zone-bottom {
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  height: 60px;
+}
+
+.global-drop-zones .drop-zone-left {
+  top: 80px;
+  bottom: 80px;
+  left: 10px;
+  width: 60px;
+}
+
+.global-drop-zones .drop-zone-right {
+  top: 80px;
+  bottom: 80px;
+  right: 10px;
+  width: 60px;
+}
+
+.global-drop-zones .drop-zone span {
+  color: var(--bg-active);
+  font-weight: 600;
+  font-size: 14px;
+  text-align: center;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 4px;
+  box-shadow: var(--shadow);
+}
+
+/* Performance optimizations */
+.tab-manager * {
+  box-sizing: border-box;
+}
+
+/* Reduce animations on low-end devices */
+@media (prefers-reduced-motion: reduce) {
+  .tab-manager,
+  .tab-manager * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .tab-manager {
+    --border-color: #ffffff;
+    --bg-active: #ffff00;
+    --text-primary: #ffffff;
+  }
+}
+
+/* Print styles */
+@media print {
+  .tab-manager .tab-bar-container,
+  .tab-manager .tab-groups {
+    display: none;
+  }
+  
+  .tab-manager .editor-content {
+    height: auto;
+    overflow: visible;
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .tab-manager {
+    font-size: 14px;
+  }
+  
+  .global-drop-zones .drop-zone {
+    opacity: 1; /* Always visible on mobile */
+  }
+  
+  .global-drop-zones .drop-zone-top,
+  .global-drop-zones .drop-zone-bottom {
+    height: 40px;
+  }
+  
+  .global-drop-zones .drop-zone-left,
+  .global-drop-zones .drop-zone-right {
+    width: 40px;
+  }
+}
+
+/* Accessibility improvements */
+.tab-manager:focus-within {
+  outline: 2px solid var(--bg-active);
+  outline-offset: -2px;
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Custom scrollbars */
+.tab-manager ::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.tab-manager ::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+.tab-manager ::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 6px;
+}
+
+.tab-manager ::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+.tab-manager ::-webkit-scrollbar-corner {
+  background: var(--bg-secondary);
+}

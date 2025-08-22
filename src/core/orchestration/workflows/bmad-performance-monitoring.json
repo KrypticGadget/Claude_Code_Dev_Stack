@@ -1,0 +1,515 @@
+{
+  "bmad_performance_monitoring": {
+    "system_info": {
+      "name": "BMAD Performance Monitoring System",
+      "version": "3.6.9",
+      "description": "Comprehensive performance tracking for BMAD team effectiveness",
+      "monitoring_framework": "real_time_adaptive",
+      "last_updated": "2025-01-20"
+    },
+
+    "performance_categories": {
+      "team_effectiveness": {
+        "category_description": "Measures overall BMAD team performance and coordination",
+        "weight": 0.30,
+        "metrics": {
+          "workflow_velocity": {
+            "metric_id": "bmad_workflow_velocity",
+            "description": "Rate of BMAD phase completion within planned timelines",
+            "measurement_unit": "percentage",
+            "target_value": 100,
+            "warning_threshold": 85,
+            "critical_threshold": 70,
+            "measurement_frequency": "weekly",
+            "responsible_agent": "bmad-pm",
+            "calculation_method": "completed_phases / planned_phases * 100",
+            "data_sources": ["workflow_tracking", "phase_completion_logs"],
+            "trending_analysis": true
+          },
+          "quality_achievement": {
+            "metric_id": "bmad_quality_achievement",
+            "description": "Rate of quality gates passed on first attempt",
+            "measurement_unit": "percentage",
+            "target_value": 95,
+            "warning_threshold": 90,
+            "critical_threshold": 85,
+            "measurement_frequency": "phase_end",
+            "responsible_agent": "bmad-qa",
+            "calculation_method": "first_time_passes / total_quality_gates * 100",
+            "data_sources": ["quality_gate_logs", "validation_results"],
+            "trending_analysis": true
+          },
+          "deliverable_completion": {
+            "metric_id": "bmad_deliverable_completion",
+            "description": "Rate of deliverables completed within specifications",
+            "measurement_unit": "percentage",
+            "target_value": 98,
+            "warning_threshold": 95,
+            "critical_threshold": 90,
+            "measurement_frequency": "phase_end",
+            "responsible_agent": "bmad-orchestrator",
+            "calculation_method": "completed_deliverables / planned_deliverables * 100",
+            "data_sources": ["deliverable_tracking", "completion_validation"],
+            "trending_analysis": true
+          }
+        }
+      },
+
+      "coordination_effectiveness": {
+        "category_description": "Measures efficiency of agent coordination and communication",
+        "weight": 0.25,
+        "metrics": {
+          "agent_coordination_success": {
+            "metric_id": "bmad_coordination_success",
+            "description": "Rate of successful inter-agent coordination activities",
+            "measurement_unit": "percentage",
+            "target_value": 95,
+            "warning_threshold": 90,
+            "critical_threshold": 85,
+            "measurement_frequency": "daily",
+            "responsible_agent": "bmad-orchestrator",
+            "calculation_method": "successful_coordinations / total_coordinations * 100",
+            "data_sources": ["coordination_logs", "agent_interaction_tracking"],
+            "trending_analysis": true
+          },
+          "communication_efficiency": {
+            "metric_id": "bmad_communication_efficiency",
+            "description": "Effectiveness of BMAD team communication channels",
+            "measurement_unit": "score",
+            "target_value": 90,
+            "warning_threshold": 80,
+            "critical_threshold": 70,
+            "measurement_frequency": "weekly",
+            "responsible_agent": "bmad-orchestrator",
+            "calculation_method": "weighted_communication_score",
+            "data_sources": ["communication_logs", "channel_effectiveness"],
+            "trending_analysis": true
+          },
+          "decision_speed": {
+            "metric_id": "bmad_decision_speed",
+            "description": "Average time to reach critical decisions",
+            "measurement_unit": "hours",
+            "target_value": 24,
+            "warning_threshold": 36,
+            "critical_threshold": 48,
+            "measurement_frequency": "decision_event",
+            "responsible_agent": "bmad-master",
+            "calculation_method": "sum_decision_times / number_decisions",
+            "data_sources": ["decision_tracking", "escalation_logs"],
+            "trending_analysis": true
+          },
+          "escalation_effectiveness": {
+            "metric_id": "bmad_escalation_effectiveness",
+            "description": "Rate of successful escalation resolutions",
+            "measurement_unit": "percentage",
+            "target_value": 95,
+            "warning_threshold": 85,
+            "critical_threshold": 75,
+            "measurement_frequency": "escalation_event",
+            "responsible_agent": "bmad-orchestrator",
+            "calculation_method": "resolved_escalations / total_escalations * 100",
+            "data_sources": ["escalation_logs", "resolution_tracking"],
+            "trending_analysis": true
+          }
+        }
+      },
+
+      "stakeholder_satisfaction": {
+        "category_description": "Measures stakeholder engagement and satisfaction levels",
+        "weight": 0.20,
+        "metrics": {
+          "stakeholder_approval_rate": {
+            "metric_id": "bmad_stakeholder_approval",
+            "description": "Rate of stakeholder approvals for BMAD deliverables",
+            "measurement_unit": "percentage",
+            "target_value": 90,
+            "warning_threshold": 80,
+            "critical_threshold": 70,
+            "measurement_frequency": "approval_event",
+            "responsible_agent": "bmad-po",
+            "calculation_method": "approved_deliverables / submitted_deliverables * 100",
+            "data_sources": ["approval_tracking", "stakeholder_feedback"],
+            "trending_analysis": true
+          },
+          "stakeholder_engagement": {
+            "metric_id": "bmad_stakeholder_engagement",
+            "description": "Level of stakeholder participation in BMAD activities",
+            "measurement_unit": "score",
+            "target_value": 85,
+            "warning_threshold": 75,
+            "critical_threshold": 65,
+            "measurement_frequency": "weekly",
+            "responsible_agent": "bmad-po",
+            "calculation_method": "weighted_engagement_score",
+            "data_sources": ["participation_logs", "engagement_tracking"],
+            "trending_analysis": true
+          },
+          "feedback_incorporation": {
+            "metric_id": "bmad_feedback_incorporation",
+            "description": "Rate of stakeholder feedback successfully incorporated",
+            "measurement_unit": "percentage",
+            "target_value": 85,
+            "warning_threshold": 75,
+            "critical_threshold": 65,
+            "measurement_frequency": "feedback_cycle",
+            "responsible_agent": "bmad-analyst",
+            "calculation_method": "incorporated_feedback / total_feedback * 100",
+            "data_sources": ["feedback_logs", "incorporation_tracking"],
+            "trending_analysis": true
+          }
+        }
+      },
+
+      "integration_success": {
+        "category_description": "Measures success of BMAD integration with core systems",
+        "weight": 0.15,
+        "metrics": {
+          "core_integration_rate": {
+            "metric_id": "bmad_core_integration",
+            "description": "Rate of successful integrations with core system",
+            "measurement_unit": "percentage",
+            "target_value": 100,
+            "warning_threshold": 95,
+            "critical_threshold": 90,
+            "measurement_frequency": "integration_event",
+            "responsible_agent": "bmad-orchestrator",
+            "calculation_method": "successful_integrations / total_integrations * 100",
+            "data_sources": ["integration_logs", "handoff_tracking"],
+            "trending_analysis": true
+          },
+          "knowledge_transfer_effectiveness": {
+            "metric_id": "bmad_knowledge_transfer",
+            "description": "Effectiveness of knowledge transfer to core teams",
+            "measurement_unit": "percentage",
+            "target_value": 95,
+            "warning_threshold": 85,
+            "critical_threshold": 75,
+            "measurement_frequency": "transfer_event",
+            "responsible_agent": "bmad-master",
+            "calculation_method": "validated_transfers / total_transfers * 100",
+            "data_sources": ["transfer_logs", "validation_results"],
+            "trending_analysis": true
+          },
+          "handoff_completeness": {
+            "metric_id": "bmad_handoff_completeness",
+            "description": "Completeness of documentation and process handoffs",
+            "measurement_unit": "percentage",
+            "target_value": 100,
+            "warning_threshold": 95,
+            "critical_threshold": 90,
+            "measurement_frequency": "handoff_event",
+            "responsible_agent": "bmad-pm",
+            "calculation_method": "complete_handoffs / total_handoffs * 100",
+            "data_sources": ["handoff_checklists", "completeness_validation"],
+            "trending_analysis": true
+          }
+        }
+      },
+
+      "innovation_impact": {
+        "category_description": "Measures innovation and continuous improvement within BMAD",
+        "weight": 0.10,
+        "metrics": {
+          "process_improvement_rate": {
+            "metric_id": "bmad_process_improvement",
+            "description": "Rate of process improvements implemented",
+            "measurement_unit": "count_per_month",
+            "target_value": 2,
+            "warning_threshold": 1,
+            "critical_threshold": 0,
+            "measurement_frequency": "monthly",
+            "responsible_agent": "bmad-orchestrator",
+            "calculation_method": "implemented_improvements / month",
+            "data_sources": ["improvement_logs", "implementation_tracking"],
+            "trending_analysis": true
+          },
+          "methodology_advancement": {
+            "metric_id": "bmad_methodology_advancement",
+            "description": "Rate of BMAD methodology enhancements",
+            "measurement_unit": "score",
+            "target_value": 80,
+            "warning_threshold": 70,
+            "critical_threshold": 60,
+            "measurement_frequency": "quarterly",
+            "responsible_agent": "bmad-master",
+            "calculation_method": "weighted_advancement_score",
+            "data_sources": ["methodology_updates", "effectiveness_analysis"],
+            "trending_analysis": true
+          },
+          "best_practice_adoption": {
+            "metric_id": "bmad_best_practice_adoption",
+            "description": "Rate of best practice identification and adoption",
+            "measurement_unit": "percentage",
+            "target_value": 90,
+            "warning_threshold": 80,
+            "critical_threshold": 70,
+            "measurement_frequency": "quarterly",
+            "responsible_agent": "bmad-qa",
+            "calculation_method": "adopted_practices / identified_practices * 100",
+            "data_sources": ["practice_logs", "adoption_tracking"],
+            "trending_analysis": true
+          }
+        }
+      }
+    },
+
+    "monitoring_infrastructure": {
+      "data_collection": {
+        "collection_methods": [
+          "real_time_agent_monitoring",
+          "workflow_phase_tracking",
+          "communication_channel_analytics",
+          "stakeholder_feedback_systems",
+          "integration_event_logging"
+        ],
+        "collection_frequency": {
+          "real_time": ["agent_interactions", "critical_events"],
+          "hourly": ["workflow_progress", "quality_gates"],
+          "daily": ["coordination_metrics", "communication_effectiveness"],
+          "weekly": ["stakeholder_satisfaction", "team_performance"],
+          "monthly": ["trend_analysis", "improvement_opportunities"]
+        },
+        "data_retention": {
+          "real_time_data": "7_days",
+          "hourly_aggregates": "30_days",
+          "daily_summaries": "90_days",
+          "weekly_reports": "1_year",
+          "historical_trends": "indefinite"
+        }
+      },
+
+      "alert_system": {
+        "alert_levels": {
+          "info": {
+            "condition": "metric_threshold_approach",
+            "notification": "dashboard_indicator",
+            "response_time": "next_review_cycle"
+          },
+          "warning": {
+            "condition": "metric_warning_threshold_breach",
+            "notification": "responsible_agent_notification",
+            "response_time": "4_hours"
+          },
+          "critical": {
+            "condition": "metric_critical_threshold_breach",
+            "notification": "immediate_escalation",
+            "response_time": "1_hour"
+          },
+          "emergency": {
+            "condition": "system_failure_or_critical_workflow_block",
+            "notification": "all_stakeholders_immediate",
+            "response_time": "immediate"
+          }
+        },
+        "escalation_matrix": {
+          "level_1": {
+            "trigger": "warning_threshold_breach",
+            "handler": "responsible_agent",
+            "timeout": "4_hours"
+          },
+          "level_2": {
+            "trigger": "critical_threshold_breach_or_level_1_timeout",
+            "handler": "bmad_team_lead",
+            "timeout": "2_hours"
+          },
+          "level_3": {
+            "trigger": "emergency_condition_or_level_2_timeout",
+            "handler": "bmad_orchestrator",
+            "timeout": "1_hour"
+          },
+          "level_4": {
+            "trigger": "system_critical_failure_or_level_3_timeout",
+            "handler": "master_orchestrator",
+            "timeout": "immediate"
+          }
+        }
+      },
+
+      "reporting_framework": {
+        "dashboard_types": {
+          "executive_dashboard": {
+            "audience": "executive_stakeholders",
+            "update_frequency": "real_time",
+            "key_metrics": [
+              "overall_bmad_health_score",
+              "workflow_velocity",
+              "stakeholder_satisfaction",
+              "integration_success_rate"
+            ],
+            "format": "high_level_summary_with_trends"
+          },
+          "operational_dashboard": {
+            "audience": "bmad_team_members",
+            "update_frequency": "real_time",
+            "key_metrics": [
+              "current_phase_progress",
+              "quality_gate_status",
+              "agent_coordination_effectiveness",
+              "immediate_blockers"
+            ],
+            "format": "detailed_operational_view"
+          },
+          "analytical_dashboard": {
+            "audience": "bmad_orchestrator_and_master",
+            "update_frequency": "hourly",
+            "key_metrics": [
+              "all_performance_metrics",
+              "trend_analysis",
+              "predictive_indicators",
+              "optimization_opportunities"
+            ],
+            "format": "comprehensive_analytical_view"
+          }
+        },
+        "report_generation": {
+          "automated_reports": {
+            "daily_summary": {
+              "recipients": ["bmad_team", "core_team_leads"],
+              "content": "progress_summary_blockers_next_actions",
+              "delivery_time": "end_of_day"
+            },
+            "weekly_performance": {
+              "recipients": ["stakeholders", "executive_team"],
+              "content": "performance_metrics_trends_recommendations",
+              "delivery_time": "monday_morning"
+            },
+            "monthly_analysis": {
+              "recipients": ["all_stakeholders"],
+              "content": "comprehensive_analysis_improvements_roadmap",
+              "delivery_time": "first_business_day_of_month"
+            },
+            "quarterly_review": {
+              "recipients": ["executive_team", "board_level"],
+              "content": "strategic_impact_methodology_evolution_roi",
+              "delivery_time": "within_first_week_of_quarter"
+            }
+          }
+        }
+      }
+    },
+
+    "performance_optimization": {
+      "continuous_improvement": {
+        "improvement_cycle": {
+          "cycle_frequency": "monthly",
+          "cycle_phases": [
+            "performance_analysis",
+            "bottleneck_identification",
+            "optimization_planning",
+            "implementation",
+            "validation",
+            "knowledge_capture"
+          ],
+          "responsible_agent": "bmad_orchestrator"
+        },
+        "optimization_areas": {
+          "workflow_efficiency": {
+            "focus": "streamline_bmad_phases_reduce_cycle_time",
+            "metrics": ["workflow_velocity", "phase_transition_time"],
+            "optimization_techniques": [
+              "parallel_processing",
+              "automation_opportunities",
+              "resource_optimization"
+            ]
+          },
+          "quality_improvement": {
+            "focus": "increase_first_time_quality_reduce_rework",
+            "metrics": ["quality_achievement", "rework_rate"],
+            "optimization_techniques": [
+              "preventive_quality_measures",
+              "enhanced_validation_processes",
+              "continuous_feedback_loops"
+            ]
+          },
+          "coordination_enhancement": {
+            "focus": "improve_agent_coordination_reduce_friction",
+            "metrics": ["coordination_effectiveness", "communication_efficiency"],
+            "optimization_techniques": [
+              "improved_coordination_protocols",
+              "enhanced_communication_tools",
+              "streamlined_decision_processes"
+            ]
+          }
+        }
+      },
+
+      "predictive_analytics": {
+        "trend_analysis": {
+          "analysis_scope": "historical_performance_data",
+          "prediction_horizon": "3_months",
+          "prediction_accuracy_target": "85_percent",
+          "update_frequency": "weekly"
+        },
+        "risk_prediction": {
+          "risk_indicators": [
+            "workflow_velocity_decline",
+            "quality_gate_failure_patterns",
+            "stakeholder_satisfaction_trends",
+            "coordination_efficiency_drops"
+          ],
+          "early_warning_threshold": "2_standard_deviations",
+          "prediction_confidence": "statistical_significance_95_percent"
+        },
+        "capacity_planning": {
+          "resource_utilization_analysis": "team_capacity_vs_demand",
+          "bottleneck_prediction": "resource_constraint_identification",
+          "scaling_recommendations": "proactive_resource_planning"
+        }
+      }
+    },
+
+    "integration_monitoring": {
+      "core_system_integration": {
+        "integration_health": {
+          "connection_status": "real_time_monitoring",
+          "data_sync_integrity": "continuous_validation",
+          "performance_impact": "latency_and_throughput_tracking"
+        },
+        "handoff_effectiveness": {
+          "handoff_completion_rate": "percentage_successful_handoffs",
+          "knowledge_transfer_quality": "post_handoff_validation_score",
+          "integration_sustainability": "long_term_success_tracking"
+        }
+      },
+
+      "stakeholder_integration": {
+        "engagement_quality": {
+          "participation_rates": "stakeholder_meeting_attendance",
+          "feedback_quality": "actionable_feedback_percentage",
+          "satisfaction_trends": "stakeholder_satisfaction_over_time"
+        },
+        "alignment_effectiveness": {
+          "requirement_stability": "change_request_frequency",
+          "expectation_management": "expectation_vs_delivery_alignment",
+          "communication_clarity": "misunderstanding_incident_rate"
+        }
+      }
+    },
+
+    "success_criteria": {
+      "bmad_performance_excellence": {
+        "overall_performance_score": {
+          "calculation": "weighted_average_all_categories",
+          "target": 90,
+          "excellence_threshold": 95
+        },
+        "consistency_requirements": {
+          "performance_stability": "low_variance_across_measurement_periods",
+          "sustained_excellence": "target_achievement_for_consecutive_periods"
+        }
+      },
+
+      "operational_effectiveness": {
+        "workflow_optimization": "continuous_improvement_in_velocity_and_quality",
+        "stakeholder_value": "demonstrable_stakeholder_satisfaction_and_business_impact",
+        "team_sustainability": "maintainable_performance_without_burnout"
+      },
+
+      "strategic_impact": {
+        "business_value_delivery": "measurable_contribution_to_business_objectives",
+        "methodology_advancement": "continuous_improvement_of_bmad_methodology",
+        "knowledge_management": "effective_knowledge_capture_and_transfer"
+      }
+    }
+  }
+}

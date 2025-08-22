@@ -1,0 +1,353 @@
+# Hook Test Framework Configuration
+# Comprehensive configuration for all testing aspects
+
+version: "3.6.9"
+framework_name: "Hook Test Framework"
+
+# Global test settings
+global:
+  timeout_seconds: 1800  # 30 minutes
+  retry_count: 2
+  parallel_execution: true
+  max_workers: 8
+  fail_fast: false
+  verbose_output: true
+  generate_reports: true
+  
+# Performance testing configuration
+performance:
+  enabled: true
+  baseline_file: "performance_baselines.json"
+  update_baselines: false
+  regression_threshold: 1.5  # 50% performance degradation threshold
+  memory_threshold_mb: 100
+  cpu_threshold_percent: 80
+  benchmark_iterations: 5
+  warmup_iterations: 2
+  
+# Quality gates configuration
+quality_gates:
+  required_pass_rate: 85.0
+  critical_test_pass_rate: 100.0
+  max_error_count: 0
+  max_critical_failures: 0
+  coverage_threshold: 75.0
+  performance_regression_allowed: false
+  
+# Test suite configuration
+test_suites:
+  individual_functionality:
+    enabled: true
+    priority: 1
+    timeout: 300  # 5 minutes per hook
+    parallel: true
+    retry_on_failure: true
+    hooks_to_test:
+      - "smart_orchestrator"
+      - "master_orchestrator"
+      - "v3_orchestrator"
+      - "orchestration_enhancer"
+      - "slash_command_router"
+      - "agent_mention_parser"
+      - "agent_enhancer_v3"
+      - "audio_player_v3"
+      - "audio_controller"
+      - "audio_notifier"
+      - "status_line_manager"
+      - "chat_manager_v3"
+      - "notification_sender"
+      - "auto_documentation"
+      - "auto_formatter"
+      - "code_linter"
+      - "quality_gate_hook"
+      - "git_quality_hooks"
+      - "security_scanner"
+      - "dependency_checker"
+      - "performance_monitor"
+      - "resource_monitor"
+      - "model_tracker"
+      - "context_manager"
+      - "session_loader"
+      - "session_saver"
+      - "v3_config"
+      - "v3_validator"
+      - "planning_trigger"
+      - "parallel_execution_engine"
+      - "enhanced_bash_hook"
+      - "venv_enforcer"
+      - "ultimate_claude_hook"
+      - "migrate_to_v3_audio"
+      
+  hook_chains:
+    enabled: true
+    priority: 2
+    timeout: 600  # 10 minutes
+    parallel: false
+    chains:
+      orchestration_chain:
+        hooks: ["smart_orchestrator", "master_orchestrator", "v3_orchestrator"]
+        triggers: ["@mention", "agent_activation"]
+      quality_chain:
+        hooks: ["code_linter", "security_scanner", "quality_gate_hook"]
+        triggers: ["commit", "save"]
+      session_chain:
+        hooks: ["session_loader", "context_manager", "session_saver"]
+        triggers: ["start", "session", "save"]
+      audio_chain:
+        hooks: ["audio_player_v3", "audio_controller", "notification_sender"]
+        triggers: ["notify", "audio"]
+        
+  error_scenarios:
+    enabled: true
+    priority: 3
+    timeout: 450  # 7.5 minutes
+    parallel: true
+    scenarios:
+      timeout_handling:
+        timeout_values: [1, 5, 10, 30]
+        expected_behavior: "graceful_handling"
+      memory_exhaustion:
+        memory_limits: [10, 50, 100]  # MB
+        expected_behavior: "resource_management"
+      dependency_failures:
+        failure_types: ["missing", "timeout", "error"]
+        expected_behavior: "fallback_handling"
+      invalid_inputs:
+        input_types: ["null", "empty", "malformed", "oversized"]
+        expected_behavior: "input_validation"
+      file_system_errors:
+        error_types: ["permission_denied", "disk_full", "file_not_found"]
+        expected_behavior: "error_recovery"
+        
+  performance:
+    enabled: true
+    priority: 4
+    timeout: 1200  # 20 minutes
+    parallel: true
+    tests:
+      execution_benchmarks:
+        measure: ["execution_time", "memory_usage", "cpu_usage"]
+        iterations: 10
+        baseline_comparison: true
+      concurrency_performance:
+        thread_counts: [1, 2, 4, 8]
+        measurement_duration: 30  # seconds
+      memory_patterns:
+        test_duration: 60  # seconds
+        memory_snapshots: 10
+      resource_cleanup:
+        cleanup_validation: true
+        resource_tracking: ["handles", "threads", "memory"]
+        
+  integration:
+    enabled: true
+    priority: 5
+    timeout: 900  # 15 minutes
+    parallel: false
+    tests:
+      lsp_bridge:
+        enabled: true
+        test_methods: ["textDocument/didChange", "workspace/didChangeConfiguration"]
+      registry_sync:
+        validate_consistency: true
+        check_file_registry_sync: true
+      api_integration:
+        endpoints: ["/hooks", "/hooks/status", "/system/health"]
+        timeout_per_request: 10
+      configuration_integration:
+        test_config_loading: true
+        test_config_validation: true
+        test_config_updates: true
+        
+  concurrency:
+    enabled: true
+    priority: 6
+    timeout: 1500  # 25 minutes
+    parallel: true
+    tests:
+      parallel_execution:
+        max_concurrent_hooks: 10
+        execution_rounds: 5
+      thread_safety:
+        thread_count: 5
+        operations_per_thread: 10
+      resource_contention:
+        shared_resources: ["file_system", "memory", "network"]
+        contention_scenarios: 3
+      deadlock_detection:
+        circular_dependencies: true
+        timeout_detection: true
+        
+  regression:
+    enabled: true
+    priority: 7
+    timeout: 1200  # 20 minutes
+    parallel: true
+    tests:
+      backward_compatibility:
+        legacy_formats: ["v1.0", "v2.0", "v2.5"]
+        compatibility_validation: true
+      api_contract:
+        validate_return_types: true
+        validate_required_fields: true
+        validate_error_handling: true
+      configuration_migration:
+        migration_scenarios: ["v2_to_v3", "config_format_changes"]
+      performance_regression:
+        baseline_comparison: true
+        regression_threshold: 1.5
+        
+# Reporting configuration
+reporting:
+  formats: ["html", "xml", "json"]
+  output_directory: "test_reports"
+  archive_reports: true
+  retention_days: 30
+  
+  html_report:
+    template: "comprehensive"
+    include_performance_charts: true
+    include_coverage_details: true
+    include_error_details: true
+    
+  junit_xml:
+    include_system_out: true
+    include_system_err: true
+    include_properties: true
+    
+  json_report:
+    include_metadata: true
+    include_performance_data: true
+    include_coverage_data: true
+    
+  performance_report:
+    include_benchmarks: true
+    include_trends: true
+    include_regression_analysis: true
+    
+# Environment configuration
+environment:
+  python_version: "3.9"
+  required_packages:
+    - "pytest>=6.0"
+    - "pytest-cov>=2.12"
+    - "pytest-xdist>=2.3"
+    - "pytest-timeout>=1.4"
+    - "pytest-html>=3.1"
+    - "pytest-json-report>=1.4"
+    - "pytest-benchmark>=3.4"
+    - "psutil>=5.8"
+    - "requests>=2.25"
+    - "pyyaml>=5.4"
+    
+  environment_variables:
+    PYTEST_RUNNING: "1"
+    TEST_ENVIRONMENT: "framework"
+    PYTHONPATH: "../"
+    
+  temp_directory: "/tmp/hook_tests"
+  log_level: "INFO"
+  
+# CI/CD integration
+ci_cd:
+  github_actions:
+    enabled: true
+    config_file: "ci/github_actions.yml"
+    on_push: ["main", "develop"]
+    on_pull_request: ["main", "develop"]
+    schedule: "0 6 * * *"  # Daily at 6 AM UTC
+    
+  jenkins:
+    enabled: true
+    config_file: "ci/jenkins_pipeline.groovy"
+    poll_scm: "H/15 6-18 * * 1-5"  # Every 15 minutes during work hours
+    nightly_build: "H 2 * * *"  # Nightly at 2 AM
+    
+  notifications:
+    slack:
+      enabled: false
+      webhook_url: ""
+      channels: ["#ci-cd", "#dev-team"]
+      on_failure: true
+      on_success: false
+      on_status_change: true
+      
+    email:
+      enabled: false
+      smtp_server: ""
+      recipients: ["dev-team@company.com"]
+      on_failure: true
+      on_main_branch_failure: true
+      
+# Mock configuration
+mocking:
+  enabled: true
+  mock_external_services: true
+  mock_file_system: false
+  mock_network_calls: true
+  mock_heavy_operations: true
+  
+  mock_data:
+    user_prompts: 100
+    claude_responses: 100
+    agent_activations: 50
+    file_changes: 75
+    system_events: 25
+    
+# Security testing
+security:
+  enabled: true
+  scan_dependencies: true
+  check_secrets: true
+  validate_permissions: true
+  test_input_sanitization: true
+  
+  tools:
+    bandit: true
+    safety: true
+    semgrep: false
+    
+# Monitoring and observability
+monitoring:
+  enabled: true
+  collect_metrics: true
+  performance_tracking: true
+  resource_monitoring: true
+  
+  metrics:
+    execution_time: true
+    memory_usage: true
+    cpu_usage: true
+    disk_io: true
+    network_io: false
+    
+  alerts:
+    slow_tests: 30  # seconds
+    memory_intensive_tests: 100  # MB
+    high_failure_rate: 10  # percent
+    
+# Advanced configuration
+advanced:
+  property_based_testing: true
+  fuzzing: false
+  mutation_testing: false
+  load_testing: true
+  stress_testing: false
+  
+  experimental_features:
+    ai_powered_test_generation: false
+    automatic_test_repair: false
+    intelligent_test_selection: false
+    
+# Debug configuration
+debug:
+  enabled: false
+  verbose_logging: false
+  trace_execution: false
+  dump_test_data: false
+  preserve_temp_files: false
+  
+  breakpoints:
+    on_failure: false
+    on_error: false
+    on_timeout: false

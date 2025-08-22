@@ -1,0 +1,208 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Claude Code Agent Performance",
+    "tags": ["claude-code", "agents", "performance"],
+    "style": "dark",
+    "timezone": "browser",
+    "refresh": "30s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Agent Execution Success Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "claude:agent_success_rate",
+            "legendFormat": "Success Rate"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percentunit",
+            "min": 0,
+            "max": 1,
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "yellow", "value": 0.8},
+                {"color": "green", "value": 0.95}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Average Agent Execution Time",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "claude:average_execution_time",
+            "legendFormat": "Avg Time"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": 0},
+                {"color": "yellow", "value": 10},
+                {"color": "red", "value": 30}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 6, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Token Usage Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "claude:tokens_per_minute",
+            "legendFormat": "Tokens/min"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": 0},
+                {"color": "yellow", "value": 5000},
+                {"color": "red", "value": 10000}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 12, "y": 0}
+      },
+      {
+        "id": 4,
+        "title": "Active Agents",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(claude_agent_active == 1)",
+            "legendFormat": "Active"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "steps": [
+                {"color": "blue", "value": 0},
+                {"color": "green", "value": 1},
+                {"color": "yellow", "value": 5}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 18, "y": 0}
+      },
+      {
+        "id": 5,
+        "title": "Agent Execution Times",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "claude_agent_execution_time_seconds",
+            "legendFormat": "{{agent_name}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear",
+              "pointSize": 5
+            }
+          }
+        },
+        "gridPos": {"h": 9, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 6,
+        "title": "Token Usage Over Time",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "rate(claude_tokens_used_total[5m]) * 300",
+            "legendFormat": "Tokens/5min"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear",
+              "fillOpacity": 10
+            }
+          }
+        },
+        "gridPos": {"h": 9, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 7,
+        "title": "Agent Execution Count by Type",
+        "type": "barchart",
+        "targets": [
+          {
+            "expr": "sum by (agent_name) (rate(claude_agent_executions_total[5m]))",
+            "legendFormat": "{{agent_name}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ops",
+            "custom": {
+              "orientation": "horizontal"
+            }
+          }
+        },
+        "gridPos": {"h": 9, "w": 12, "x": 0, "y": 17}
+      },
+      {
+        "id": 8,
+        "title": "Failed Agent Executions",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "rate(claude_agent_executions_total{status=\"failure\"}[5m])",
+            "legendFormat": "{{agent_name}} failures"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ops",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear",
+              "thresholdsStyle": {
+                "mode": "area"
+              }
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "transparent", "value": 0},
+                {"color": "red", "value": 0.001}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 9, "w": 12, "x": 12, "y": 17}
+      }
+    ]
+  }
+}

@@ -1,0 +1,304 @@
+/* Tab Bar Styles */
+.tab-bar {
+  display: flex;
+  align-items: center;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  min-height: 35px;
+  position: relative;
+  overflow: hidden;
+}
+
+.tab-bar.active {
+  border-bottom-color: var(--border-active);
+}
+
+/* Tab scroll container */
+.tab-scroll-container {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.tab-scroll-container::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+/* Tab content */
+.tab-content {
+  display: flex;
+  align-items: center;
+  min-width: min-content;
+  height: 35px;
+}
+
+/* Tab group sections */
+.tab-group-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-group-header {
+  display: flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-tertiary);
+  border-left: 3px solid transparent;
+  min-height: 20px;
+}
+
+.tab-group-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tab-group-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-left: 4px;
+}
+
+.tab-group-tabs {
+  display: flex;
+  align-items: center;
+}
+
+/* Tab item wrapper for drag and drop */
+.tab-item-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.tab-item-wrapper.drag-over::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--bg-active);
+  z-index: 10;
+}
+
+/* New tab button */
+.new-tab-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: 0 4px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.new-tab-button:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.new-tab-button:active {
+  transform: scale(0.95);
+}
+
+.new-tab-button:focus {
+  outline: 1px solid var(--bg-active);
+  outline-offset: 1px;
+}
+
+.new-tab-button svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* Tab bar states */
+.tab-bar:not(.active) {
+  opacity: 0.8;
+}
+
+.tab-bar:not(.active):hover {
+  opacity: 1;
+}
+
+/* Compact mode */
+.tab-bar.compact {
+  min-height: 28px;
+}
+
+.tab-bar.compact .tab-content {
+  height: 28px;
+}
+
+.tab-bar.compact .new-tab-button {
+  width: 24px;
+  height: 24px;
+}
+
+/* Wide mode */
+.tab-bar.wide {
+  min-height: 42px;
+}
+
+.tab-bar.wide .tab-content {
+  height: 42px;
+}
+
+.tab-bar.wide .new-tab-button {
+  width: 32px;
+  height: 32px;
+}
+
+/* Virtual scrolling support */
+.tab-bar.virtual-scrolling .tab-content {
+  transform: translateX(var(--scroll-offset, 0px));
+  transition: transform 0.1s ease;
+}
+
+/* Accessibility improvements */
+.tab-bar[role="tablist"] {
+  outline: none;
+}
+
+.tab-bar:focus-within {
+  box-shadow: inset 0 0 0 1px var(--bg-active);
+}
+
+/* Animation for tab operations */
+@keyframes tab-insert {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes tab-remove {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.8) translateY(-10px);
+  }
+}
+
+.tab-item-wrapper.inserting {
+  animation: tab-insert 0.2s ease;
+}
+
+.tab-item-wrapper.removing {
+  animation: tab-remove 0.2s ease;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .tab-bar {
+    min-height: 40px;
+  }
+  
+  .tab-content {
+    height: 40px;
+  }
+  
+  .tab-group-header {
+    padding: 3px 12px;
+    min-height: 24px;
+  }
+  
+  .new-tab-button {
+    width: 32px;
+    height: 32px;
+    margin: 0 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tab-bar {
+    min-height: 44px;
+  }
+  
+  .tab-content {
+    height: 44px;
+  }
+  
+  .new-tab-button {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* Touch-specific styles */
+@media (hover: none) and (pointer: coarse) {
+  .new-tab-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  .tab-group-header {
+    min-height: 32px;
+    padding: 4px 16px;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .tab-bar {
+    border-bottom: 2px solid var(--border-color);
+  }
+  
+  .new-tab-button:focus {
+    outline: 2px solid var(--bg-active);
+    outline-offset: 2px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .tab-bar,
+  .new-tab-button {
+    display: none;
+  }
+}
+
+/* Performance optimizations */
+.tab-bar {
+  contain: layout style;
+  will-change: transform;
+}
+
+.tab-scroll-container {
+  will-change: scroll-position;
+}
+
+/* RTL support */
+.tab-bar[dir="rtl"] .tab-content {
+  flex-direction: row-reverse;
+}
+
+.tab-bar[dir="rtl"] .tab-group-header {
+  border-left: none;
+  border-right: 3px solid transparent;
+}
+
+.tab-bar[dir="rtl"] .tab-item-wrapper.drag-over::before {
+  left: auto;
+  right: 0;
+}

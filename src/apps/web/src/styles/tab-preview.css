@@ -1,0 +1,475 @@
+/* Tab Preview Styles */
+.tab-preview {
+  position: fixed;
+  width: 320px;
+  max-height: 400px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  z-index: 9998;
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+/* Preview header */
+.preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
+  gap: 8px;
+}
+
+.preview-file-info {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  gap: 8px;
+}
+
+.preview-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.preview-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.preview-title {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+  gap: 4px;
+}
+
+.preview-dirty {
+  color: #ff6b6b;
+  font-size: 12px;
+}
+
+.preview-path {
+  font-size: 11px;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preview-language-badge {
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--bg-active);
+  border-radius: 3px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+/* Preview content */
+.preview-content {
+  max-height: 240px;
+  overflow: hidden;
+  background: var(--bg-primary);
+  position: relative;
+}
+
+.preview-code {
+  margin: 0;
+  padding: 12px;
+  font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--text-primary);
+  background: transparent;
+  overflow: hidden;
+  white-space: pre;
+  word-wrap: break-word;
+}
+
+.preview-code code {
+  font-family: inherit;
+  font-size: inherit;
+  background: transparent;
+  color: inherit;
+}
+
+.preview-truncated {
+  margin-top: 8px;
+  padding: 4px 8px;
+  font-style: italic;
+  color: var(--text-muted);
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  text-align: center;
+  border: 1px dashed var(--border-color);
+}
+
+/* Language-specific syntax highlighting hints */
+.language-javascript .preview-code,
+.language-typescript .preview-code {
+  color: #d4d4d4;
+}
+
+.language-python .preview-code {
+  color: #a8c8ec;
+}
+
+.language-html .preview-code {
+  color: #92c5f7;
+}
+
+.language-css .preview-code {
+  color: #ce9178;
+}
+
+.language-json .preview-code {
+  color: #9cdcfe;
+}
+
+.language-markdown .preview-code {
+  color: #d4d4d4;
+}
+
+/* Preview footer */
+.preview-footer {
+  padding: 8px 12px;
+  background: var(--bg-tertiary);
+  border-top: 1px solid var(--border-color);
+  font-size: 11px;
+}
+
+.preview-stats {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+  gap: 12px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.stat-label {
+  font-weight: 500;
+}
+
+.stat-value {
+  font-family: monospace;
+  color: var(--text-secondary);
+}
+
+.preview-modified {
+  color: var(--text-muted);
+  text-align: center;
+  font-size: 10px;
+}
+
+/* Preview actions */
+.preview-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: all;
+}
+
+.tab-preview:hover .preview-actions {
+  opacity: 1;
+}
+
+.preview-action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+  transition: var(--transition);
+}
+
+.preview-action-button:hover {
+  background: rgba(0, 0, 0, 0.9);
+  transform: scale(1.1);
+}
+
+.preview-action-button:active {
+  transform: scale(1);
+}
+
+/* Image preview (for future enhancement) */
+.preview-image {
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  display: block;
+  margin: 12px auto;
+  border-radius: 4px;
+}
+
+/* Binary file preview */
+.preview-binary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.preview-binary-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.preview-binary-text {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.preview-binary-size {
+  font-size: 12px;
+  font-family: monospace;
+  color: var(--text-secondary);
+}
+
+/* Loading state */
+.preview-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: var(--text-secondary);
+}
+
+.preview-loading::after {
+  content: "";
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border-color);
+  border-top: 2px solid var(--border-active);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 8px;
+}
+
+/* Error state */
+.preview-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: #ff6b6b;
+  text-align: center;
+}
+
+.preview-error-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.preview-error-text {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.preview-error-details {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .tab-preview {
+    width: 280px;
+    max-height: 320px;
+  }
+  
+  .preview-code {
+    font-size: 10px;
+    padding: 10px;
+  }
+  
+  .preview-stats {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .stat-item {
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 480px) {
+  .tab-preview {
+    width: 240px;
+    max-height: 280px;
+  }
+  
+  .preview-header {
+    padding: 10px;
+  }
+  
+  .preview-code {
+    font-size: 9px;
+    padding: 8px;
+  }
+  
+  .preview-actions {
+    opacity: 1; /* Always visible on mobile */
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .tab-preview {
+    border: 2px solid var(--border-color);
+  }
+  
+  .preview-action-button {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+  }
+  
+  .preview-action-button:hover {
+    background: var(--bg-active);
+    color: white;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .tab-preview,
+  .preview-actions,
+  .preview-action-button {
+    transition: none;
+  }
+  
+  .preview-loading::after {
+    animation: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .tab-preview {
+    display: none;
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .tab-preview {
+    backdrop-filter: blur(12px);
+    background: rgba(37, 37, 38, 0.95);
+  }
+  
+  .preview-action-button {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+  
+  .preview-action-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* Animation keyframes */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Syntax highlighting for common file types */
+.preview-code .keyword {
+  color: #569cd6;
+  font-weight: bold;
+}
+
+.preview-code .string {
+  color: #ce9178;
+}
+
+.preview-code .comment {
+  color: #6a9955;
+  font-style: italic;
+}
+
+.preview-code .number {
+  color: #b5cea8;
+}
+
+.preview-code .function {
+  color: #dcdcaa;
+}
+
+.preview-code .class {
+  color: #4ec9b0;
+}
+
+.preview-code .variable {
+  color: #9cdcfe;
+}
+
+/* Accessibility improvements */
+.tab-preview[role="tooltip"] {
+  outline: none;
+}
+
+.preview-action-button:focus {
+  outline: 2px solid var(--border-active);
+  outline-offset: 2px;
+}
+
+/* Performance optimizations */
+.tab-preview {
+  contain: layout style;
+  will-change: opacity, transform;
+}
+
+.preview-content {
+  contain: layout;
+}
+
+/* Custom scrollbar for content */
+.preview-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.preview-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.preview-content::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.preview-content::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}

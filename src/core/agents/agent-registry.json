@@ -1,0 +1,2579 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "version": "3.6.9",
+  "last_updated": "2025-01-20",
+  "description": "Comprehensive Agent Registry for Claude Code Agents V3.6.9 - Maps all 37 agents with metadata, hierarchy, teams, and capabilities",
+  
+  "registry_metadata": {
+    "total_agents": 37,
+    "core_agents": 27,
+    "bmad_agents": 10,
+    "tier_structure": {
+      "tier0": "Master coordination and orchestration",
+      "tier1": "High-level strategy and management", 
+      "tier2": "Specialized domain experts",
+      "tier3": "Technical implementation specialists"
+    },
+    "team_structure": {
+      "leadership": "Strategic coordination and business alignment",
+      "architecture": "System design and technical infrastructure", 
+      "development": "Code implementation and engineering",
+      "operations": "DevOps, deployment, and system operations",
+      "data": "Data architecture, analytics, and ML/AI",
+      "security": "Security, compliance, and risk management",
+      "product": "Product strategy and user experience",
+      "bmad": "Business Model, Architecture, Design workflow"
+    }
+  },
+
+  "agents": {
+    "agent-master-orchestrator": {
+      "id": "agent-master-orchestrator",
+      "name": "Master Orchestrator",
+      "tier": 0,
+      "team": "leadership",
+      "type": "core",
+      "priority": 1,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Primary coordination hub for all agent interactions and workflow orchestration",
+        "role": "orchestrator",
+        "specialization": "agent_coordination",
+        "complexity_level": "enterprise",
+        "execution_model": "synchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "agent_coordination",
+          "workflow_orchestration", 
+          "context_management",
+          "priority_routing",
+          "resource_allocation"
+        ],
+        "secondary": [
+          "performance_monitoring",
+          "error_recovery",
+          "load_balancing",
+          "dependency_resolution"
+        ],
+        "integrations": ["all_agents", "git", "filesystem", "monitoring"]
+      },
+      
+      "hierarchy": {
+        "reports_to": null,
+        "delegates_to": [
+          "agent-project-manager",
+          "agent-ceo-strategy", 
+          "agent-business-analyst",
+          "agent-technical-cto"
+        ],
+        "coordinates_with": ["all_agents"],
+        "escalation_path": ["human_operator"]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "system_startup",
+          "agent_failure",
+          "workflow_completion",
+          "resource_contention"
+        ],
+        "manual": [
+          "user_request",
+          "administrative_override",
+          "emergency_protocols"
+        ],
+        "conditions": {
+          "context_switches": "immediate",
+          "error_threshold": 3,
+          "timeout_handling": "graceful_degradation"
+        }
+      },
+      
+      "performance_metrics": {
+        "response_time": "<100ms",
+        "throughput": "1000 operations/minute",
+        "success_rate": ">99.9%",
+        "availability": ">99.99%",
+        "resource_usage": "<50MB RAM"
+      },
+      
+      "dependencies": {
+        "required": ["filesystem", "git", "status_line"],
+        "optional": ["monitoring_system", "logging_framework"],
+        "conflicts": []
+      }
+    },
+
+    "agent-project-manager": {
+      "id": "agent-project-manager", 
+      "name": "Project Manager",
+      "tier": 1,
+      "team": "leadership",
+      "type": "core",
+      "priority": 2,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Project coordination, timeline management, and resource planning specialist",
+        "role": "manager",
+        "specialization": "project_management",
+        "complexity_level": "enterprise",
+        "execution_model": "asynchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "project_planning",
+          "timeline_management",
+          "resource_allocation",
+          "risk_assessment",
+          "stakeholder_coordination"
+        ],
+        "secondary": [
+          "budget_tracking",
+          "quality_assurance",
+          "deliverable_management",
+          "communication_coordination"
+        ],
+        "integrations": ["gantt_charts", "resource_tracking", "reporting"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-master-orchestrator"],
+        "delegates_to": [
+          "agent-scrum-master",
+          "agent-business-analyst",
+          "agent-technical-cto"
+        ],
+        "coordinates_with": [
+          "agent-ceo-strategy",
+          "agent-business-tech-alignment",
+          "development_team_agents"
+        ],
+        "escalation_path": ["agent-master-orchestrator"]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "project_initiation",
+          "milestone_completion",
+          "resource_constraint",
+          "timeline_deviation"
+        ],
+        "manual": [
+          "planning_request",
+          "status_update_required",
+          "resource_reallocation"
+        ]
+      },
+      
+      "performance_metrics": {
+        "response_time": "<500ms",
+        "planning_accuracy": ">95%",
+        "timeline_adherence": ">90%",
+        "resource_efficiency": ">85%"
+      }
+    },
+
+    "agent-ceo-strategy": {
+      "id": "agent-ceo-strategy",
+      "name": "CEO Strategy",
+      "tier": 1,
+      "team": "leadership", 
+      "type": "core",
+      "priority": 3,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Strategic business direction, vision alignment, and high-level decision making",
+        "role": "strategist",
+        "specialization": "business_strategy",
+        "complexity_level": "executive",
+        "execution_model": "synchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "strategic_planning",
+          "vision_alignment",
+          "business_direction",
+          "competitive_analysis",
+          "market_positioning"
+        ],
+        "secondary": [
+          "risk_management",
+          "innovation_strategy",
+          "partnership_evaluation",
+          "investment_decisions"
+        ],
+        "integrations": ["market_data", "competitive_intelligence", "financial_modeling"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-master-orchestrator"],
+        "delegates_to": [
+          "agent-business-analyst",
+          "agent-product-manager",
+          "agent-business-tech-alignment"
+        ],
+        "coordinates_with": [
+          "agent-project-manager",
+          "agent-technical-cto",
+          "bmad_workflow_agents"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "strategic_review_cycle",
+          "market_change_detection",
+          "performance_threshold_breach"
+        ],
+        "manual": [
+          "strategic_planning_session",
+          "executive_decision_required",
+          "vision_realignment"
+        ]
+      }
+    },
+
+    "agent-business-analyst": {
+      "id": "agent-business-analyst",
+      "name": "Business Analyst",
+      "tier": 2,
+      "team": "product",
+      "type": "core", 
+      "priority": 4,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Requirements gathering, process analysis, and business solution design",
+        "role": "analyst",
+        "specialization": "business_analysis",
+        "complexity_level": "expert",
+        "execution_model": "hybrid"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "requirements_gathering",
+          "process_analysis", 
+          "stakeholder_analysis",
+          "solution_design",
+          "gap_analysis"
+        ],
+        "secondary": [
+          "user_story_creation",
+          "acceptance_criteria",
+          "workflow_modeling",
+          "impact_assessment"
+        ],
+        "integrations": ["documentation_tools", "modeling_software", "survey_platforms"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-project-manager", "agent-ceo-strategy"],
+        "delegates_to": [
+          "agent-tech-specs",
+          "agent-user-researcher", 
+          "agent-product-manager"
+        ],
+        "coordinates_with": [
+          "agent-business-tech-alignment",
+          "development_team"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "new_project_initiation",
+          "requirements_change",
+          "stakeholder_feedback"
+        ],
+        "manual": [
+          "analysis_request",
+          "process_review",
+          "solution_evaluation"
+        ]
+      }
+    },
+
+    "agent-tech-specs": {
+      "id": "agent-tech-specs",
+      "name": "Technical Specifications",
+      "tier": 3,
+      "team": "architecture",
+      "type": "core",
+      "priority": 5,
+      "status": "active", 
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Technical requirements analysis, system design specifications, and architecture documentation",
+        "role": "architect",
+        "specialization": "technical_specifications",
+        "complexity_level": "expert",
+        "execution_model": "synchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "requirements_engineering",
+          "system_architecture_design",
+          "technology_stack_selection",
+          "api_specification",
+          "technical_documentation"
+        ],
+        "secondary": [
+          "performance_requirements",
+          "security_specifications",
+          "integration_planning",
+          "migration_strategies"
+        ],
+        "integrations": ["openapi", "architecture_tools", "documentation_platforms"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-business-analyst", "agent-technical-cto"],
+        "delegates_to": [
+          "agent-frontend-architecture",
+          "agent-backend-services",
+          "agent-database-architecture"
+        ],
+        "coordinates_with": [
+          "agent-api-integration",
+          "development_team"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "requirements_documentation_needed",
+          "api_specs_required",
+          "architecture_review"
+        ],
+        "manual": [
+          "technical_analysis_request",
+          "specification_creation",
+          "technology_evaluation"
+        ]
+      }
+    },
+
+    "agent-frontend-architecture": {
+      "id": "agent-frontend-architecture",
+      "name": "Frontend Architecture", 
+      "tier": 3,
+      "team": "development",
+      "type": "core",
+      "priority": 6,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Frontend system design, component architecture, and UI/UX technical implementation",
+        "role": "architect",
+        "specialization": "frontend_architecture",
+        "complexity_level": "expert", 
+        "execution_model": "asynchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "component_architecture",
+          "state_management",
+          "routing_design",
+          "performance_optimization",
+          "responsive_design"
+        ],
+        "secondary": [
+          "build_optimization",
+          "testing_strategy",
+          "accessibility_compliance",
+          "browser_compatibility"
+        ],
+        "integrations": ["react", "vue", "angular", "build_tools", "testing_frameworks"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-tech-specs"],
+        "delegates_to": [
+          "agent-react-specialist",
+          "agent-ui-ux-designer"
+        ],
+        "coordinates_with": [
+          "agent-backend-services",
+          "agent-api-integration"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "frontend_specs_required",
+          "component_design_needed",
+          "performance_optimization_required"
+        ],
+        "manual": [
+          "architecture_review",
+          "technology_selection",
+          "design_system_creation"
+        ]
+      }
+    },
+
+    "agent-backend-services": {
+      "id": "agent-backend-services",
+      "name": "Backend Services",
+      "tier": 3,
+      "team": "development",
+      "type": "core",
+      "priority": 7,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Backend architecture, API design, microservices, and server-side implementation",
+        "role": "architect",
+        "specialization": "backend_architecture",
+        "complexity_level": "expert",
+        "execution_model": "asynchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "api_design",
+          "microservices_architecture", 
+          "service_communication",
+          "authentication_authorization",
+          "data_processing"
+        ],
+        "secondary": [
+          "caching_strategies",
+          "message_queuing",
+          "load_balancing",
+          "monitoring_logging"
+        ],
+        "integrations": ["rest_apis", "graphql", "grpc", "message_brokers", "databases"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-tech-specs"],
+        "delegates_to": [
+          "agent-api-integration",
+          "agent-database-architecture"
+        ],
+        "coordinates_with": [
+          "agent-frontend-architecture",
+          "agent-devops-deployment"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "api_specification_needed",
+          "service_design_required",
+          "performance_optimization"
+        ],
+        "manual": [
+          "backend_architecture_review",
+          "service_implementation",
+          "integration_planning"
+        ]
+      }
+    },
+
+    "agent-database-architecture": {
+      "id": "agent-database-architecture",
+      "name": "Database Architecture",
+      "tier": 3,
+      "team": "data",
+      "type": "core",
+      "priority": 8,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Database design, data modeling, optimization, and storage strategy",
+        "role": "architect",
+        "specialization": "database_architecture",
+        "complexity_level": "expert",
+        "execution_model": "synchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "database_design",
+          "data_modeling",
+          "query_optimization",
+          "indexing_strategy",
+          "replication_setup"
+        ],
+        "secondary": [
+          "backup_recovery",
+          "performance_tuning",
+          "security_implementation",
+          "migration_planning"
+        ],
+        "integrations": ["postgresql", "mysql", "mongodb", "redis", "elasticsearch"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-tech-specs", "agent-backend-services"],
+        "delegates_to": [
+          "agent-data-engineer",
+          "agent-ml-ai-specialist"
+        ],
+        "coordinates_with": [
+          "agent-api-integration",
+          "agent-devops-deployment"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "schema_design_needed",
+          "performance_issues",
+          "scaling_requirements"
+        ],
+        "manual": [
+          "database_review",
+          "optimization_request",
+          "migration_planning"
+        ]
+      }
+    },
+
+    "agent-react-specialist": {
+      "id": "agent-react-specialist",
+      "name": "React Specialist",
+      "tier": 3,
+      "team": "development",
+      "type": "core",
+      "priority": 9,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "React.js development, component libraries, state management, and modern React patterns",
+        "role": "developer",
+        "specialization": "react_development",
+        "complexity_level": "expert",
+        "execution_model": "asynchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "react_component_development",
+          "hooks_implementation",
+          "state_management",
+          "performance_optimization",
+          "testing_implementation"
+        ],
+        "secondary": [
+          "nextjs_development",
+          "typescript_integration",
+          "build_optimization",
+          "accessibility_implementation"
+        ],
+        "integrations": ["react", "nextjs", "typescript", "testing_library", "webpack"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-frontend-architecture"],
+        "delegates_to": [],
+        "coordinates_with": [
+          "agent-ui-ux-designer",
+          "agent-api-integration"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "react_component_needed",
+          "frontend_implementation_required",
+          "ui_interaction_development"
+        ],
+        "manual": [
+          "react_development_request",
+          "component_refactoring",
+          "performance_optimization"
+        ]
+      }
+    },
+
+    "agent-api-integration": {
+      "id": "agent-api-integration",
+      "name": "API Integration",
+      "tier": 3,
+      "team": "development",
+      "type": "core",
+      "priority": 10,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "API development, third-party integrations, webhook management, and service connectivity",
+        "role": "developer",
+        "specialization": "api_integration",
+        "complexity_level": "expert",
+        "execution_model": "asynchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "api_development",
+          "third_party_integration",
+          "webhook_implementation",
+          "authentication_flows",
+          "error_handling"
+        ],
+        "secondary": [
+          "rate_limiting",
+          "caching_implementation",
+          "monitoring_setup",
+          "documentation_generation"
+        ],
+        "integrations": ["rest_apis", "graphql", "webhooks", "oauth", "api_gateways"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-backend-services"],
+        "delegates_to": [],
+        "coordinates_with": [
+          "agent-frontend-architecture",
+          "agent-database-architecture"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "api_endpoint_needed",
+          "integration_required",
+          "webhook_setup_needed"
+        ],
+        "manual": [
+          "api_development_request",
+          "integration_implementation",
+          "api_optimization"
+        ]
+      }
+    },
+
+    "agent-devops-deployment": {
+      "id": "agent-devops-deployment",
+      "name": "DevOps Deployment",
+      "tier": 2,
+      "team": "operations",
+      "type": "core",
+      "priority": 11,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "CI/CD pipelines, infrastructure as code, deployment automation, and system operations",
+        "role": "engineer",
+        "specialization": "devops",
+        "complexity_level": "expert",
+        "execution_model": "asynchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "ci_cd_pipeline_setup",
+          "infrastructure_as_code",
+          "deployment_automation",
+          "container_orchestration",
+          "monitoring_setup"
+        ],
+        "secondary": [
+          "security_scanning",
+          "performance_monitoring",
+          "log_aggregation",
+          "disaster_recovery"
+        ],
+        "integrations": ["docker", "kubernetes", "terraform", "ansible", "jenkins"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-technical-cto"],
+        "delegates_to": [
+          "agent-security-specialist",
+          "agent-system-admin"
+        ],
+        "coordinates_with": [
+          "development_team",
+          "agent-database-architecture"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "deployment_needed",
+          "infrastructure_scaling",
+          "security_update_required"
+        ],
+        "manual": [
+          "deployment_request",
+          "infrastructure_setup",
+          "pipeline_optimization"
+        ]
+      }
+    },
+
+    "agent-security-specialist": {
+      "id": "agent-security-specialist",
+      "name": "Security Specialist",
+      "tier": 2,
+      "team": "security",
+      "type": "core",
+      "priority": 12,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Security assessment, vulnerability management, compliance, and security architecture",
+        "role": "specialist",
+        "specialization": "cybersecurity",
+        "complexity_level": "expert",
+        "execution_model": "synchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "security_assessment",
+          "vulnerability_scanning",
+          "compliance_management",
+          "security_architecture",
+          "incident_response"
+        ],
+        "secondary": [
+          "penetration_testing",
+          "security_training",
+          "policy_development",
+          "audit_preparation"
+        ],
+        "integrations": ["security_scanners", "siem_tools", "compliance_frameworks", "vulnerability_databases"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-devops-deployment"],
+        "delegates_to": [],
+        "coordinates_with": [
+          "all_development_agents",
+          "agent-technical-cto"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "security_vulnerability_detected",
+          "compliance_deadline_approaching",
+          "security_incident"
+        ],
+        "manual": [
+          "security_assessment_request",
+          "vulnerability_scan",
+          "compliance_review"
+        ]
+      }
+    },
+
+    "agent-technical-cto": {
+      "id": "agent-technical-cto",
+      "name": "Technical CTO",
+      "tier": 1,
+      "team": "leadership",
+      "type": "core",
+      "priority": 13,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Technical leadership, architecture oversight, technology strategy, and engineering management",
+        "role": "executive",
+        "specialization": "technical_leadership",
+        "complexity_level": "executive",
+        "execution_model": "synchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "technical_strategy",
+          "architecture_oversight",
+          "technology_roadmap",
+          "engineering_management",
+          "technical_decision_making"
+        ],
+        "secondary": [
+          "team_leadership",
+          "technical_mentoring",
+          "innovation_management",
+          "vendor_evaluation"
+        ],
+        "integrations": ["architecture_tools", "project_management", "team_collaboration"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-master-orchestrator"],
+        "delegates_to": [
+          "agent-tech-specs",
+          "agent-devops-deployment",
+          "all_technical_agents"
+        ],
+        "coordinates_with": [
+          "agent-ceo-strategy",
+          "agent-project-manager"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "technical_escalation",
+          "architecture_review_needed",
+          "technology_decision_required"
+        ],
+        "manual": [
+          "technical_leadership_request",
+          "strategic_planning",
+          "team_coordination"
+        ]
+      }
+    },
+
+    "agent-data-engineer": {
+      "id": "agent-data-engineer",
+      "name": "Data Engineer",
+      "tier": 3,
+      "team": "data",
+      "type": "core",
+      "priority": 14,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Data pipeline development, ETL processes, data warehousing, and big data processing",
+        "role": "engineer",
+        "specialization": "data_engineering",
+        "complexity_level": "expert",
+        "execution_model": "asynchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "data_pipeline_development",
+          "etl_process_design",
+          "data_warehouse_setup",
+          "big_data_processing",
+          "data_quality_management"
+        ],
+        "secondary": [
+          "stream_processing",
+          "data_lake_architecture",
+          "performance_optimization",
+          "data_governance"
+        ],
+        "integrations": ["apache_spark", "kafka", "airflow", "snowflake", "databricks"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-database-architecture"],
+        "delegates_to": [],
+        "coordinates_with": [
+          "agent-ml-ai-specialist",
+          "agent-backend-services"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "data_pipeline_needed",
+          "etl_process_required",
+          "data_quality_issues"
+        ],
+        "manual": [
+          "data_engineering_request",
+          "pipeline_optimization",
+          "data_migration"
+        ]
+      }
+    },
+
+    "agent-ml-ai-specialist": {
+      "id": "agent-ml-ai-specialist",
+      "name": "ML/AI Specialist",
+      "tier": 3,
+      "team": "data",
+      "type": "core",
+      "priority": 15,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Machine learning model development, AI integration, data science, and predictive analytics",
+        "role": "specialist",
+        "specialization": "machine_learning",
+        "complexity_level": "expert",
+        "execution_model": "asynchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "ml_model_development",
+          "ai_integration",
+          "data_analysis",
+          "predictive_modeling",
+          "model_deployment"
+        ],
+        "secondary": [
+          "feature_engineering",
+          "model_optimization",
+          "a_b_testing",
+          "statistical_analysis"
+        ],
+        "integrations": ["tensorflow", "pytorch", "scikit_learn", "jupyter", "mlflow"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-database-architecture"],
+        "delegates_to": [],
+        "coordinates_with": [
+          "agent-data-engineer",
+          "agent-backend-services"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "ml_model_needed",
+          "ai_feature_required",
+          "data_analysis_request"
+        ],
+        "manual": [
+          "model_development_request",
+          "ai_integration",
+          "predictive_analysis"
+        ]
+      }
+    },
+
+    "agent-ui-ux-designer": {
+      "id": "agent-ui-ux-designer",
+      "name": "UI/UX Designer",
+      "tier": 2,
+      "team": "product",
+      "type": "core",
+      "priority": 16,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "User interface design, user experience optimization, design systems, and usability testing",
+        "role": "designer",
+        "specialization": "ui_ux_design",
+        "complexity_level": "expert",
+        "execution_model": "asynchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "ui_design",
+          "ux_research",
+          "design_systems",
+          "prototyping",
+          "usability_testing"
+        ],
+        "secondary": [
+          "accessibility_design",
+          "responsive_design",
+          "interaction_design",
+          "visual_hierarchy"
+        ],
+        "integrations": ["figma", "sketch", "adobe_xd", "invision", "principle"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-product-manager"],
+        "delegates_to": [],
+        "coordinates_with": [
+          "agent-react-specialist",
+          "agent-frontend-architecture"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "ui_design_needed",
+          "ux_optimization_required",
+          "design_system_update"
+        ],
+        "manual": [
+          "design_request",
+          "usability_study",
+          "design_review"
+        ]
+      }
+    },
+
+    "agent-product-manager": {
+      "id": "agent-product-manager",
+      "name": "Product Manager",
+      "tier": 2,
+      "team": "product",
+      "type": "core",
+      "priority": 17,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Product strategy, feature prioritization, roadmap planning, and stakeholder management",
+        "role": "manager",
+        "specialization": "product_management",
+        "complexity_level": "expert",
+        "execution_model": "synchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "product_strategy",
+          "feature_prioritization",
+          "roadmap_planning",
+          "stakeholder_management",
+          "market_research"
+        ],
+        "secondary": [
+          "competitive_analysis",
+          "user_feedback_analysis",
+          "metrics_tracking",
+          "go_to_market_planning"
+        ],
+        "integrations": ["product_management_tools", "analytics_platforms", "feedback_systems"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-ceo-strategy"],
+        "delegates_to": [
+          "agent-ui-ux-designer",
+          "agent-user-researcher"
+        ],
+        "coordinates_with": [
+          "agent-business-analyst",
+          "development_team"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "feature_request",
+          "roadmap_update_needed",
+          "market_change_detected"
+        ],
+        "manual": [
+          "product_planning_session",
+          "feature_prioritization",
+          "stakeholder_review"
+        ]
+      }
+    },
+
+    "agent-user-researcher": {
+      "id": "agent-user-researcher",
+      "name": "User Researcher",
+      "tier": 3,
+      "team": "product",
+      "type": "core",
+      "priority": 18,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "User research, behavior analysis, survey design, and insights generation",
+        "role": "researcher",
+        "specialization": "user_research",
+        "complexity_level": "expert",
+        "execution_model": "asynchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "user_research",
+          "behavior_analysis",
+          "survey_design",
+          "interview_conducting",
+          "insights_generation"
+        ],
+        "secondary": [
+          "persona_development",
+          "journey_mapping",
+          "a_b_test_design",
+          "usability_studies"
+        ],
+        "integrations": ["survey_tools", "analytics_platforms", "interview_software"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-product-manager"],
+        "delegates_to": [],
+        "coordinates_with": [
+          "agent-ui-ux-designer",
+          "agent-business-analyst"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "research_needed",
+          "user_feedback_required",
+          "behavior_analysis_needed"
+        ],
+        "manual": [
+          "research_study_request",
+          "user_interview",
+          "survey_deployment"
+        ]
+      }
+    },
+
+    "agent-qa-tester": {
+      "id": "agent-qa-tester",
+      "name": "QA Tester",
+      "tier": 3,
+      "team": "development",
+      "type": "core",
+      "priority": 19,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Quality assurance, test automation, bug detection, and testing strategy",
+        "role": "tester",
+        "specialization": "quality_assurance",
+        "complexity_level": "expert",
+        "execution_model": "asynchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "test_planning",
+          "automated_testing",
+          "manual_testing",
+          "bug_detection",
+          "performance_testing"
+        ],
+        "secondary": [
+          "test_case_design",
+          "regression_testing",
+          "load_testing",
+          "security_testing"
+        ],
+        "integrations": ["selenium", "cypress", "jest", "pytest", "jmeter"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-project-manager"],
+        "delegates_to": [],
+        "coordinates_with": [
+          "all_development_agents",
+          "agent-devops-deployment"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "code_deployment",
+          "feature_completion",
+          "bug_report_received"
+        ],
+        "manual": [
+          "testing_request",
+          "quality_review",
+          "test_automation_setup"
+        ]
+      }
+    },
+
+    "agent-scrum-master": {
+      "id": "agent-scrum-master",
+      "name": "Scrum Master",
+      "tier": 2,
+      "team": "leadership",
+      "type": "core",
+      "priority": 20,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Agile methodology implementation, sprint management, team facilitation, and process optimization",
+        "role": "facilitator",
+        "specialization": "agile_methodology",
+        "complexity_level": "expert",
+        "execution_model": "synchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "sprint_planning",
+          "scrum_facilitation",
+          "impediment_removal",
+          "team_coaching",
+          "process_improvement"
+        ],
+        "secondary": [
+          "metrics_tracking",
+          "retrospective_facilitation",
+          "stakeholder_communication",
+          "agile_training"
+        ],
+        "integrations": ["jira", "azure_devops", "confluence", "slack"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-project-manager"],
+        "delegates_to": [],
+        "coordinates_with": [
+          "development_team",
+          "agent-product-manager"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "sprint_start",
+          "impediment_detected",
+          "team_velocity_change"
+        ],
+        "manual": [
+          "scrum_ceremony_needed",
+          "process_improvement",
+          "team_coaching_request"
+        ]
+      }
+    },
+
+    "agent-business-tech-alignment": {
+      "id": "agent-business-tech-alignment",
+      "name": "Business-Tech Alignment",
+      "tier": 2,
+      "team": "leadership",
+      "type": "core",
+      "priority": 21,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Bridge between business and technical teams, requirement translation, and solution alignment",
+        "role": "liaison",
+        "specialization": "business_technical_alignment",
+        "complexity_level": "expert",
+        "execution_model": "synchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "requirement_translation",
+          "solution_alignment",
+          "stakeholder_bridging",
+          "technical_communication",
+          "feasibility_assessment"
+        ],
+        "secondary": [
+          "risk_assessment",
+          "impact_analysis",
+          "change_management",
+          "documentation_coordination"
+        ],
+        "integrations": ["communication_tools", "documentation_platforms", "project_management"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-ceo-strategy", "agent-technical-cto"],
+        "delegates_to": [],
+        "coordinates_with": [
+          "agent-business-analyst",
+          "agent-tech-specs",
+          "development_team"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "requirement_clarification_needed",
+          "technical_feasibility_question",
+          "stakeholder_alignment_required"
+        ],
+        "manual": [
+          "alignment_session_request",
+          "requirement_review",
+          "solution_validation"
+        ]
+      }
+    },
+
+    "agent-system-admin": {
+      "id": "agent-system-admin",
+      "name": "System Administrator",
+      "tier": 3,
+      "team": "operations",
+      "type": "core",
+      "priority": 22,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "System maintenance, server management, infrastructure monitoring, and operational support",
+        "role": "administrator",
+        "specialization": "system_administration",
+        "complexity_level": "expert",
+        "execution_model": "asynchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "system_maintenance",
+          "server_management",
+          "infrastructure_monitoring",
+          "backup_management",
+          "performance_optimization"
+        ],
+        "secondary": [
+          "user_account_management",
+          "security_updates",
+          "log_analysis",
+          "capacity_planning"
+        ],
+        "integrations": ["monitoring_tools", "backup_systems", "configuration_management"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-devops-deployment"],
+        "delegates_to": [],
+        "coordinates_with": [
+          "agent-security-specialist",
+          "agent-database-architecture"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "system_alert",
+          "performance_degradation",
+          "security_update_available"
+        ],
+        "manual": [
+          "maintenance_request",
+          "system_optimization",
+          "backup_verification"
+        ]
+      }
+    },
+
+    "agent-documentation-specialist": {
+      "id": "agent-documentation-specialist",
+      "name": "Documentation Specialist",
+      "tier": 3,
+      "team": "product",
+      "type": "core",
+      "priority": 23,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Technical writing, API documentation, user guides, and knowledge management",
+        "role": "writer",
+        "specialization": "technical_documentation",
+        "complexity_level": "expert",
+        "execution_model": "asynchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "technical_writing",
+          "api_documentation",
+          "user_guide_creation",
+          "knowledge_management",
+          "documentation_maintenance"
+        ],
+        "secondary": [
+          "video_tutorial_creation",
+          "documentation_architecture",
+          "style_guide_development",
+          "content_review"
+        ],
+        "integrations": ["gitbook", "confluence", "swagger", "docusaurus"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-product-manager"],
+        "delegates_to": [],
+        "coordinates_with": [
+          "all_technical_agents",
+          "agent-api-integration"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "new_feature_documented",
+          "api_changes_detected",
+          "documentation_update_needed"
+        ],
+        "manual": [
+          "documentation_request",
+          "user_guide_creation",
+          "api_doc_generation"
+        ]
+      }
+    },
+
+    "agent-mobile-developer": {
+      "id": "agent-mobile-developer",
+      "name": "Mobile Developer",
+      "tier": 3,
+      "team": "development",
+      "type": "core",
+      "priority": 24,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Mobile application development, cross-platform solutions, and mobile-specific optimizations",
+        "role": "developer",
+        "specialization": "mobile_development",
+        "complexity_level": "expert",
+        "execution_model": "asynchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "mobile_app_development",
+          "cross_platform_development",
+          "mobile_ui_implementation",
+          "performance_optimization",
+          "platform_integration"
+        ],
+        "secondary": [
+          "app_store_deployment",
+          "mobile_testing",
+          "offline_functionality",
+          "push_notifications"
+        ],
+        "integrations": ["react_native", "flutter", "ionic", "xamarin", "native_ios_android"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-frontend-architecture"],
+        "delegates_to": [],
+        "coordinates_with": [
+          "agent-ui-ux-designer",
+          "agent-api-integration"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "mobile_app_needed",
+          "cross_platform_requirement",
+          "mobile_optimization_required"
+        ],
+        "manual": [
+          "mobile_development_request",
+          "app_deployment",
+          "mobile_feature_implementation"
+        ]
+      }
+    },
+
+    "agent-performance-optimizer": {
+      "id": "agent-performance-optimizer",
+      "name": "Performance Optimizer",
+      "tier": 3,
+      "team": "operations",
+      "type": "core",
+      "priority": 25,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Performance analysis, optimization strategies, load testing, and system tuning",
+        "role": "specialist",
+        "specialization": "performance_optimization",
+        "complexity_level": "expert",
+        "execution_model": "asynchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "performance_analysis",
+          "optimization_strategies",
+          "load_testing",
+          "bottleneck_identification",
+          "system_tuning"
+        ],
+        "secondary": [
+          "caching_optimization",
+          "database_optimization",
+          "cdn_configuration",
+          "monitoring_setup"
+        ],
+        "integrations": ["performance_monitoring_tools", "load_testing_frameworks", "apm_solutions"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-technical-cto"],
+        "delegates_to": [],
+        "coordinates_with": [
+          "agent-database-architecture",
+          "agent-devops-deployment"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "performance_degradation",
+          "load_threshold_exceeded",
+          "optimization_needed"
+        ],
+        "manual": [
+          "performance_review_request",
+          "optimization_analysis",
+          "load_testing_execution"
+        ]
+      }
+    },
+
+    "agent-code-reviewer": {
+      "id": "agent-code-reviewer",
+      "name": "Code Reviewer",
+      "tier": 3,
+      "team": "development",
+      "type": "core",
+      "priority": 26,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Code quality analysis, review processes, best practices enforcement, and technical debt management",
+        "role": "reviewer",
+        "specialization": "code_quality",
+        "complexity_level": "expert",
+        "execution_model": "synchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "code_quality_analysis",
+          "review_process_management",
+          "best_practices_enforcement",
+          "technical_debt_identification",
+          "security_code_review"
+        ],
+        "secondary": [
+          "refactoring_recommendations",
+          "architecture_compliance",
+          "performance_code_review",
+          "mentoring_guidance"
+        ],
+        "integrations": ["code_analysis_tools", "git", "review_platforms", "static_analysis"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-technical-cto"],
+        "delegates_to": [],
+        "coordinates_with": [
+          "all_development_agents",
+          "agent-qa-tester"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "pull_request_created",
+          "code_commit_detected",
+          "quality_gate_check"
+        ],
+        "manual": [
+          "code_review_request",
+          "quality_assessment",
+          "refactoring_analysis"
+        ]
+      }
+    },
+
+    "agent-compliance-officer": {
+      "id": "agent-compliance-officer",
+      "name": "Compliance Officer",
+      "tier": 2,
+      "team": "security",
+      "type": "core",
+      "priority": 27,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Regulatory compliance, audit preparation, policy enforcement, and risk management",
+        "role": "officer",
+        "specialization": "compliance_management",
+        "complexity_level": "expert",
+        "execution_model": "synchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "regulatory_compliance",
+          "audit_preparation",
+          "policy_enforcement",
+          "risk_assessment",
+          "compliance_monitoring"
+        ],
+        "secondary": [
+          "training_coordination",
+          "incident_reporting",
+          "vendor_assessment",
+          "documentation_review"
+        ],
+        "integrations": ["compliance_frameworks", "audit_tools", "risk_management_platforms"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-ceo-strategy"],
+        "delegates_to": [],
+        "coordinates_with": [
+          "agent-security-specialist",
+          "all_teams"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "compliance_deadline_approaching",
+          "regulatory_change_detected",
+          "audit_scheduled"
+        ],
+        "manual": [
+          "compliance_review_request",
+          "policy_update",
+          "risk_assessment"
+        ]
+      }
+    },
+
+    "agent-bmad-business-model": {
+      "id": "agent-bmad-business-model",
+      "name": "BMAD Business Model",
+      "tier": 1,
+      "team": "bmad",
+      "type": "bmad",
+      "priority": 28,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Business model design, value proposition development, and revenue strategy within BMAD workflow",
+        "role": "strategist",
+        "specialization": "business_model_design",
+        "complexity_level": "executive",
+        "execution_model": "synchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "business_model_canvas",
+          "value_proposition_design",
+          "revenue_model_development",
+          "market_analysis",
+          "competitive_positioning"
+        ],
+        "secondary": [
+          "pricing_strategy",
+          "partnership_modeling",
+          "cost_structure_analysis",
+          "customer_segmentation"
+        ],
+        "integrations": ["business_model_tools", "financial_modeling", "market_research"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-master-orchestrator"],
+        "delegates_to": ["agent-bmad-market-research"],
+        "coordinates_with": [
+          "agent-bmad-architecture-design",
+          "agent-ceo-strategy"
+        ]
+      },
+      
+      "triggers": {
+        "automatic": [
+          "bmad_workflow_initiated",
+          "business_model_validation_needed",
+          "market_opportunity_identified"
+        ],
+        "manual": [
+          "business_model_design_request",
+          "value_proposition_development",
+          "revenue_strategy_planning"
+        ]
+      },
+      
+      "bmad_integration": {
+        "workflow_phase": "business_model",
+        "next_phase": "architecture_design",
+        "deliverables": [
+          "business_model_canvas",
+          "value_proposition_canvas",
+          "revenue_model",
+          "market_analysis_report"
+        ],
+        "success_criteria": [
+          "validated_value_proposition",
+          "feasible_revenue_model",
+          "identified_target_market"
+        ]
+      }
+    },
+
+    "agent-bmad-market-research": {
+      "id": "agent-bmad-market-research",
+      "name": "BMAD Market Research",
+      "tier": 2,
+      "team": "bmad",
+      "type": "bmad",
+      "priority": 29,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Market analysis, competitive research, and customer validation within BMAD workflow",
+        "role": "researcher",
+        "specialization": "market_research",
+        "complexity_level": "expert",
+        "execution_model": "asynchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "market_size_analysis",
+          "competitive_landscape_mapping",
+          "customer_validation",
+          "trend_analysis",
+          "opportunity_assessment"
+        ],
+        "secondary": [
+          "survey_design",
+          "interview_coordination",
+          "data_collection",
+          "insight_generation"
+        ],
+        "integrations": ["market_research_tools", "survey_platforms", "analytics_tools"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-bmad-business-model"],
+        "delegates_to": [],
+        "coordinates_with": [
+          "agent-user-researcher",
+          "agent-product-manager"
+        ]
+      },
+      
+      "bmad_integration": {
+        "workflow_phase": "market_validation",
+        "supports_phases": ["business_model", "design"],
+        "deliverables": [
+          "market_research_report",
+          "competitive_analysis",
+          "customer_personas",
+          "market_opportunity_assessment"
+        ]
+      }
+    },
+
+    "agent-bmad-architecture-design": {
+      "id": "agent-bmad-architecture-design",
+      "name": "BMAD Architecture Design",
+      "tier": 1,
+      "team": "bmad",
+      "type": "bmad",
+      "priority": 30,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Technical architecture design and system planning within BMAD workflow",
+        "role": "architect",
+        "specialization": "bmad_architecture",
+        "complexity_level": "expert",
+        "execution_model": "synchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "system_architecture_design",
+          "technology_stack_selection",
+          "scalability_planning",
+          "integration_design",
+          "performance_planning"
+        ],
+        "secondary": [
+          "security_architecture",
+          "deployment_strategy",
+          "monitoring_design",
+          "disaster_recovery_planning"
+        ],
+        "integrations": ["architecture_tools", "modeling_software", "design_platforms"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-master-orchestrator"],
+        "delegates_to": ["agent-bmad-technical-planning"],
+        "coordinates_with": [
+          "agent-bmad-business-model",
+          "agent-tech-specs"
+        ]
+      },
+      
+      "bmad_integration": {
+        "workflow_phase": "architecture_design",
+        "next_phase": "design",
+        "deliverables": [
+          "system_architecture_document",
+          "technology_stack_recommendation",
+          "scalability_plan",
+          "integration_blueprint"
+        ]
+      }
+    },
+
+    "agent-bmad-technical-planning": {
+      "id": "agent-bmad-technical-planning",
+      "name": "BMAD Technical Planning",
+      "tier": 2,
+      "team": "bmad",
+      "type": "bmad",
+      "priority": 31,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Technical implementation planning and resource estimation within BMAD workflow",
+        "role": "planner",
+        "specialization": "technical_planning",
+        "complexity_level": "expert",
+        "execution_model": "synchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "implementation_planning",
+          "resource_estimation",
+          "timeline_development",
+          "risk_assessment",
+          "feasibility_analysis"
+        ],
+        "secondary": [
+          "team_planning",
+          "milestone_definition",
+          "dependency_mapping",
+          "budget_estimation"
+        ],
+        "integrations": ["project_planning_tools", "estimation_software", "resource_management"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-bmad-architecture-design"],
+        "delegates_to": [],
+        "coordinates_with": [
+          "agent-project-manager",
+          "agent-technical-cto"
+        ]
+      },
+      
+      "bmad_integration": {
+        "workflow_phase": "technical_planning",
+        "supports_phases": ["architecture_design", "design"],
+        "deliverables": [
+          "implementation_plan",
+          "resource_requirements",
+          "project_timeline",
+          "risk_assessment_report"
+        ]
+      }
+    },
+
+    "agent-bmad-design": {
+      "id": "agent-bmad-design",
+      "name": "BMAD Design",
+      "tier": 1,
+      "team": "bmad",
+      "type": "bmad",
+      "priority": 32,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "User experience and interface design within BMAD workflow",
+        "role": "designer",
+        "specialization": "bmad_design",
+        "complexity_level": "expert",
+        "execution_model": "asynchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "user_experience_design",
+          "interface_design",
+          "design_system_creation",
+          "prototype_development",
+          "user_journey_mapping"
+        ],
+        "secondary": [
+          "accessibility_design",
+          "responsive_design",
+          "interaction_design",
+          "visual_branding"
+        ],
+        "integrations": ["design_tools", "prototyping_platforms", "collaboration_tools"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-master-orchestrator"],
+        "delegates_to": [
+          "agent-bmad-user-experience",
+          "agent-bmad-visual-design"
+        ],
+        "coordinates_with": [
+          "agent-bmad-architecture-design",
+          "agent-ui-ux-designer"
+        ]
+      },
+      
+      "bmad_integration": {
+        "workflow_phase": "design",
+        "previous_phase": "architecture_design",
+        "deliverables": [
+          "user_experience_design",
+          "interface_mockups",
+          "design_system",
+          "interactive_prototypes"
+        ]
+      }
+    },
+
+    "agent-bmad-user-experience": {
+      "id": "agent-bmad-user-experience",
+      "name": "BMAD User Experience",
+      "tier": 2,
+      "team": "bmad",
+      "type": "bmad",
+      "priority": 33,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "User experience research and optimization within BMAD workflow",
+        "role": "ux_researcher",
+        "specialization": "user_experience",
+        "complexity_level": "expert",
+        "execution_model": "asynchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "user_research",
+          "journey_mapping",
+          "usability_testing",
+          "persona_development",
+          "experience_optimization"
+        ],
+        "secondary": [
+          "behavioral_analysis",
+          "accessibility_evaluation",
+          "conversion_optimization",
+          "user_feedback_analysis"
+        ],
+        "integrations": ["ux_research_tools", "analytics_platforms", "testing_software"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-bmad-design"],
+        "delegates_to": [],
+        "coordinates_with": [
+          "agent-user-researcher",
+          "agent-bmad-visual-design"
+        ]
+      },
+      
+      "bmad_integration": {
+        "workflow_phase": "ux_research",
+        "supports_phases": ["design"],
+        "deliverables": [
+          "user_research_findings",
+          "journey_maps",
+          "usability_test_results",
+          "ux_recommendations"
+        ]
+      }
+    },
+
+    "agent-bmad-visual-design": {
+      "id": "agent-bmad-visual-design",
+      "name": "BMAD Visual Design",
+      "tier": 2,
+      "team": "bmad",
+      "type": "bmad",
+      "priority": 34,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "Visual design and branding within BMAD workflow",
+        "role": "visual_designer",
+        "specialization": "visual_design",
+        "complexity_level": "expert",
+        "execution_model": "asynchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "visual_design",
+          "brand_development",
+          "graphic_design",
+          "icon_design",
+          "illustration"
+        ],
+        "secondary": [
+          "typography_selection",
+          "color_palette_development",
+          "layout_design",
+          "visual_hierarchy"
+        ],
+        "integrations": ["design_software", "asset_management", "brand_guidelines"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-bmad-design"],
+        "delegates_to": [],
+        "coordinates_with": [
+          "agent-bmad-user-experience",
+          "agent-ui-ux-designer"
+        ]
+      },
+      
+      "bmad_integration": {
+        "workflow_phase": "visual_design",
+        "supports_phases": ["design"],
+        "deliverables": [
+          "visual_design_system",
+          "brand_guidelines",
+          "graphic_assets",
+          "design_specifications"
+        ]
+      }
+    },
+
+    "agent-bmad-workflow-coordinator": {
+      "id": "agent-bmad-workflow-coordinator",
+      "name": "BMAD Workflow Coordinator",
+      "tier": 1,
+      "team": "bmad",
+      "type": "bmad",
+      "priority": 35,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "BMAD workflow orchestration and phase coordination",
+        "role": "coordinator",
+        "specialization": "bmad_coordination",
+        "complexity_level": "expert",
+        "execution_model": "synchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "workflow_orchestration",
+          "phase_coordination",
+          "deliverable_management",
+          "quality_gates",
+          "transition_management"
+        ],
+        "secondary": [
+          "progress_tracking",
+          "stakeholder_communication",
+          "documentation_coordination",
+          "timeline_management"
+        ],
+        "integrations": ["workflow_tools", "project_management", "communication_platforms"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-master-orchestrator"],
+        "delegates_to": ["all_bmad_agents"],
+        "coordinates_with": [
+          "agent-project-manager",
+          "core_team_agents"
+        ]
+      },
+      
+      "bmad_integration": {
+        "workflow_phase": "coordination",
+        "manages_phases": ["business_model", "architecture_design", "design"],
+        "deliverables": [
+          "workflow_status_reports",
+          "phase_transition_documents",
+          "quality_gate_assessments",
+          "coordination_summaries"
+        ]
+      }
+    },
+
+    "agent-bmad-validation": {
+      "id": "agent-bmad-validation",
+      "name": "BMAD Validation",
+      "tier": 2,
+      "team": "bmad",
+      "type": "bmad",
+      "priority": 36,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "BMAD deliverable validation and quality assurance",
+        "role": "validator",
+        "specialization": "bmad_validation",
+        "complexity_level": "expert",
+        "execution_model": "synchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "deliverable_validation",
+          "quality_assurance",
+          "compliance_checking",
+          "acceptance_testing",
+          "feedback_coordination"
+        ],
+        "secondary": [
+          "criteria_definition",
+          "test_planning",
+          "review_coordination",
+          "improvement_recommendations"
+        ],
+        "integrations": ["validation_tools", "testing_platforms", "review_systems"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-bmad-workflow-coordinator"],
+        "delegates_to": [],
+        "coordinates_with": [
+          "all_bmad_agents",
+          "agent-qa-tester"
+        ]
+      },
+      
+      "bmad_integration": {
+        "workflow_phase": "validation",
+        "validates_phases": ["business_model", "architecture_design", "design"],
+        "deliverables": [
+          "validation_reports",
+          "quality_assessments",
+          "compliance_confirmations",
+          "acceptance_criteria_validation"
+        ]
+      }
+    },
+
+    "agent-bmad-integration": {
+      "id": "agent-bmad-integration",
+      "name": "BMAD Integration",
+      "tier": 2,
+      "team": "bmad",
+      "type": "bmad",
+      "priority": 37,
+      "status": "active",
+      "version": "3.6.9",
+      
+      "metadata": {
+        "description": "BMAD to core system integration and handoff management",
+        "role": "integrator",
+        "specialization": "bmad_integration",
+        "complexity_level": "expert",
+        "execution_model": "synchronous"
+      },
+      
+      "capabilities": {
+        "primary": [
+          "system_integration",
+          "handoff_management",
+          "documentation_transfer",
+          "knowledge_transfer",
+          "transition_coordination"
+        ],
+        "secondary": [
+          "gap_analysis",
+          "compatibility_checking",
+          "data_migration",
+          "training_coordination"
+        ],
+        "integrations": ["integration_tools", "documentation_systems", "knowledge_management"]
+      },
+      
+      "hierarchy": {
+        "reports_to": ["agent-bmad-workflow-coordinator"],
+        "delegates_to": [],
+        "coordinates_with": [
+          "agent-master-orchestrator",
+          "core_development_team"
+        ]
+      },
+      
+      "bmad_integration": {
+        "workflow_phase": "integration",
+        "final_phase": true,
+        "deliverables": [
+          "integration_plan",
+          "handoff_documentation",
+          "knowledge_transfer_materials",
+          "transition_checklist"
+        ],
+        "success_criteria": [
+          "successful_core_integration",
+          "complete_documentation_transfer",
+          "validated_knowledge_transfer"
+        ]
+      }
+    }
+  },
+
+  "teams": {
+    "leadership": {
+      "description": "Strategic coordination and business alignment",
+      "tier_focus": [0, 1, 2],
+      "agents": [
+        "agent-master-orchestrator",
+        "agent-project-manager", 
+        "agent-ceo-strategy",
+        "agent-technical-cto",
+        "agent-scrum-master",
+        "agent-business-tech-alignment"
+      ],
+      "responsibilities": [
+        "strategic_planning",
+        "project_coordination",
+        "stakeholder_management",
+        "resource_allocation"
+      ]
+    },
+    
+    "architecture": {
+      "description": "System design and technical infrastructure",
+      "tier_focus": [2, 3],
+      "agents": [
+        "agent-tech-specs",
+        "agent-frontend-architecture",
+        "agent-backend-services",
+        "agent-database-architecture"
+      ],
+      "responsibilities": [
+        "system_architecture",
+        "technical_specifications",
+        "technology_selection",
+        "design_patterns"
+      ]
+    },
+    
+    "development": {
+      "description": "Code implementation and engineering",
+      "tier_focus": [3],
+      "agents": [
+        "agent-react-specialist",
+        "agent-api-integration",
+        "agent-qa-tester",
+        "agent-mobile-developer",
+        "agent-code-reviewer"
+      ],
+      "responsibilities": [
+        "code_implementation",
+        "feature_development",
+        "testing_execution",
+        "code_quality"
+      ]
+    },
+    
+    "operations": {
+      "description": "DevOps, deployment, and system operations",
+      "tier_focus": [2, 3],
+      "agents": [
+        "agent-devops-deployment",
+        "agent-system-admin",
+        "agent-performance-optimizer"
+      ],
+      "responsibilities": [
+        "deployment_automation",
+        "infrastructure_management",
+        "performance_optimization",
+        "system_monitoring"
+      ]
+    },
+    
+    "data": {
+      "description": "Data architecture, analytics, and ML/AI",
+      "tier_focus": [3],
+      "agents": [
+        "agent-database-architecture",
+        "agent-data-engineer",
+        "agent-ml-ai-specialist"
+      ],
+      "responsibilities": [
+        "data_modeling",
+        "data_pipeline_development",
+        "machine_learning",
+        "analytics_implementation"
+      ]
+    },
+    
+    "security": {
+      "description": "Security, compliance, and risk management",
+      "tier_focus": [2, 3],
+      "agents": [
+        "agent-security-specialist",
+        "agent-compliance-officer"
+      ],
+      "responsibilities": [
+        "security_assessment",
+        "compliance_management",
+        "risk_mitigation",
+        "security_implementation"
+      ]
+    },
+    
+    "product": {
+      "description": "Product strategy and user experience",
+      "tier_focus": [2, 3],
+      "agents": [
+        "agent-business-analyst",
+        "agent-ui-ux-designer",
+        "agent-product-manager",
+        "agent-user-researcher",
+        "agent-documentation-specialist"
+      ],
+      "responsibilities": [
+        "product_strategy",
+        "user_experience_design",
+        "requirements_gathering",
+        "user_research"
+      ]
+    },
+    
+    "bmad": {
+      "description": "Business Model, Architecture, Design workflow",
+      "tier_focus": [1, 2],
+      "agents": [
+        "agent-bmad-business-model",
+        "agent-bmad-market-research",
+        "agent-bmad-architecture-design",
+        "agent-bmad-technical-planning",
+        "agent-bmad-design",
+        "agent-bmad-user-experience",
+        "agent-bmad-visual-design",
+        "agent-bmad-workflow-coordinator",
+        "agent-bmad-validation",
+        "agent-bmad-integration"
+      ],
+      "responsibilities": [
+        "business_model_design",
+        "market_validation",
+        "architecture_planning",
+        "design_execution",
+        "workflow_coordination"
+      ]
+    }
+  },
+
+  "workflows": {
+    "standard_development": {
+      "description": "Standard software development workflow",
+      "phases": [
+        "requirements_gathering",
+        "technical_specification",
+        "architecture_design",
+        "implementation",
+        "testing",
+        "deployment"
+      ],
+      "primary_agents": [
+        "agent-business-analyst",
+        "agent-tech-specs",
+        "agent-frontend-architecture",
+        "agent-backend-services",
+        "agent-qa-tester",
+        "agent-devops-deployment"
+      ]
+    },
+    
+    "bmad_workflow": {
+      "description": "Business Model, Architecture, Design workflow",
+      "phases": [
+        "business_model_design",
+        "market_validation",
+        "architecture_planning",
+        "design_execution",
+        "validation",
+        "integration"
+      ],
+      "primary_agents": [
+        "agent-bmad-workflow-coordinator",
+        "agent-bmad-business-model",
+        "agent-bmad-architecture-design",
+        "agent-bmad-design",
+        "agent-bmad-validation",
+        "agent-bmad-integration"
+      ],
+      "integration_points": {
+        "to_core_system": "agent-bmad-integration",
+        "from_core_system": "agent-master-orchestrator",
+        "handoff_criteria": [
+          "validated_business_model",
+          "approved_architecture",
+          "completed_design_system"
+        ]
+      }
+    }
+  },
+
+  "performance_metrics": {
+    "global_metrics": {
+      "response_time": {
+        "target": "<500ms",
+        "measurement": "average_response_time_per_agent",
+        "threshold_warning": "1000ms",
+        "threshold_critical": "2000ms"
+      },
+      "success_rate": {
+        "target": ">95%",
+        "measurement": "successful_completions_per_total_requests",
+        "threshold_warning": "90%",
+        "threshold_critical": "85%"
+      },
+      "availability": {
+        "target": ">99.5%",
+        "measurement": "uptime_percentage",
+        "threshold_warning": "99%",
+        "threshold_critical": "98%"
+      },
+      "resource_efficiency": {
+        "target": "<80%",
+        "measurement": "resource_utilization_percentage",
+        "threshold_warning": "85%",
+        "threshold_critical": "90%"
+      }
+    },
+    
+    "tier_specific_metrics": {
+      "tier0": {
+        "coordination_efficiency": ">95%",
+        "context_switch_time": "<50ms",
+        "error_recovery_time": "<100ms"
+      },
+      "tier1": {
+        "decision_accuracy": ">90%",
+        "strategic_alignment": ">85%",
+        "stakeholder_satisfaction": ">90%"
+      },
+      "tier2": {
+        "expertise_depth": ">85%",
+        "collaboration_effectiveness": ">80%",
+        "deliverable_quality": ">90%"
+      },
+      "tier3": {
+        "implementation_accuracy": ">95%",
+        "technical_excellence": ">90%",
+        "code_quality": ">85%"
+      }
+    },
+    
+    "team_metrics": {
+      "velocity": "story_points_per_sprint",
+      "quality": "defect_rate",
+      "collaboration": "cross_team_interactions",
+      "efficiency": "cycle_time"
+    }
+  },
+
+  "integration_patterns": {
+    "delegation_patterns": {
+      "hierarchical": "tier-based delegation following org chart",
+      "expertise": "skill-based delegation to specialists",
+      "load_balancing": "distribute work based on current capacity",
+      "emergency": "immediate escalation for critical issues"
+    },
+    
+    "communication_patterns": {
+      "synchronous": "real-time coordination for critical decisions",
+      "asynchronous": "message-based coordination for routine tasks",
+      "broadcast": "team-wide communication for announcements",
+      "peer_to_peer": "direct communication between specialists"
+    },
+    
+    "data_flow_patterns": {
+      "context_passing": "maintain context across agent transitions",
+      "state_synchronization": "keep shared state consistent",
+      "event_driven": "trigger-based activation and coordination",
+      "pipeline": "sequential processing through agent chain"
+    }
+  },
+
+  "configuration": {
+    "default_timeouts": {
+      "tier0": 30000,
+      "tier1": 60000,
+      "tier2": 120000,
+      "tier3": 300000
+    },
+    
+    "retry_policies": {
+      "max_retries": 3,
+      "backoff_strategy": "exponential",
+      "retry_conditions": ["timeout", "temporary_failure", "resource_unavailable"]
+    },
+    
+    "load_balancing": {
+      "algorithm": "round_robin_with_capacity",
+      "health_check_interval": 30000,
+      "failure_threshold": 3
+    },
+    
+    "monitoring": {
+      "metrics_collection_interval": 10000,
+      "log_retention_days": 30,
+      "alert_thresholds": "defined_in_performance_metrics"
+    }
+  },
+
+  "validation_rules": {
+    "agent_requirements": {
+      "required_fields": ["id", "name", "tier", "team", "type", "status", "version"],
+      "valid_tiers": [0, 1, 2, 3],
+      "valid_teams": ["leadership", "architecture", "development", "operations", "data", "security", "product", "bmad"],
+      "valid_types": ["core", "bmad"],
+      "valid_statuses": ["active", "inactive", "deprecated", "development"]
+    },
+    
+    "hierarchy_rules": {
+      "no_circular_dependencies": true,
+      "tier_ordering": "higher_tier_cannot_report_to_lower_tier",
+      "delegation_constraints": "can_only_delegate_to_same_or_lower_tier"
+    },
+    
+    "bmad_integration_rules": {
+      "workflow_phase_required": true,
+      "deliverables_must_be_defined": true,
+      "integration_points_specified": true
+    }
+  }
+}

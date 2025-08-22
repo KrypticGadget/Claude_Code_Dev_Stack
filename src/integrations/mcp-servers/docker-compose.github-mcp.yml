@@ -1,0 +1,201 @@
+# GitHub MCP Server Docker Compose Configuration
+# Complete deployment setup with Redis, monitoring, and networking
+
+version: '3.8'
+
+networks:
+  mcp-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  github-mcp-logs:
+    driver: local
+  github-mcp-data:
+    driver: local
+  redis-data:
+    driver: local
+  prometheus-data:
+    driver: local
+
+services:
+  # Redis Cache Service
+  redis:
+    image: redis:7-alpine
+    container_name: github-mcp-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+      - ./redis.conf:/etc/redis/redis.conf:ro
+    command: redis-server /etc/redis/redis.conf
+    networks:
+      mcp-network:
+        ipv4_address: 172.20.0.10
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    environment:
+      - REDIS_APPENDONLY=yes
+      - REDIS_MAXMEMORY=256mb
+      - REDIS_MAXMEMORY_POLICY=allkeys-lru
+
+  # GitHub MCP Server
+  github-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.github-mcp
+      args:
+        BUILD_DATE: ${BUILD_DATE:-}
+        VERSION: ${VERSION:-2.0.0}
+        VCS_REF: ${VCS_REF:-}
+    container_name: github-mcp-server
+    restart: unless-stopped
+    ports:
+      - "${GITHUB_MCP_PORT:-8081}:8081"
+    volumes:
+      - github-mcp-logs:/app/logs
+      - github-mcp-data:/app/data
+      - ./github_mcp_config.yml:/app/config/github_mcp_config.yml:ro
+    networks:
+      mcp-network:
+        ipv4_address: 172.20.0.20
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      # Server Configuration
+      - HOST=0.0.0.0
+      - PORT=8081
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      
+      # GitHub Authentication
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GITHUB_APP_ID=${GITHUB_APP_ID}
+      - GITHUB_APP_PRIVATE_KEY=${GITHUB_APP_PRIVATE_KEY}
+      - GITHUB_WEBHOOK_SECRET=${GITHUB_WEBHOOK_SECRET}
+      
+      # Redis Configuration
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      
+      # Security
+      - JWT_SECRET=${JWT_SECRET:-github-mcp-secret-key}
+      
+      # Monitoring
+      - ENABLE_HEALTH_MONITORING=true
+      - PROMETHEUS_ENABLED=${PROMETHEUS_ENABLED:-false}
+      
+      # Performance
+      - WEBSOCKET_MAX_CONNECTIONS=${WEBSOCKET_MAX_CONNECTIONS:-100}
+      - RATE_LIMIT_REQUESTS_PER_HOUR=${RATE_LIMIT_REQUESTS_PER_HOUR:-5000}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - "com.github-mcp.service=github-mcp-server"
+      - "com.github-mcp.version=${VERSION:-2.0.0}"
+      - "traefik.enable=true"
+      - "traefik.http.routers.github-mcp.rule=Host(`github-mcp.localhost`)"
+      - "traefik.http.services.github-mcp.loadbalancer.server.port=8081"
+
+  # Prometheus Monitoring (optional)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: github-mcp-prometheus
+    restart: unless-stopped
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - prometheus-data:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      mcp-network:
+        ipv4_address: 172.20.0.30
+    profiles:
+      - monitoring
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=7d'
+      - '--web.enable-lifecycle'
+
+  # Grafana Dashboard (optional)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: github-mcp-grafana
+    restart: unless-stopped
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    volumes:
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      mcp-network:
+        ipv4_address: 172.20.0.40
+    profiles:
+      - monitoring
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    depends_on:
+      - prometheus
+
+  # Nginx Reverse Proxy (optional)
+  nginx:
+    image: nginx:alpine
+    container_name: github-mcp-nginx
+    restart: unless-stopped
+    ports:
+      - "${NGINX_HTTP_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    networks:
+      mcp-network:
+        ipv4_address: 172.20.0.50
+    profiles:
+      - proxy
+    depends_on:
+      - github-mcp
+
+  # Log Aggregator (optional)
+  fluentd:
+    image: fluent/fluentd:v1.16-debian-1
+    container_name: github-mcp-fluentd
+    restart: unless-stopped
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    volumes:
+      - ./fluentd:/fluentd/etc
+      - github-mcp-logs:/fluentd/log
+    networks:
+      mcp-network:
+        ipv4_address: 172.20.0.60
+    profiles:
+      - logging
+    environment:
+      - FLUENTD_CONF=fluent.conf
+
+# Health check script
+x-healthcheck: &healthcheck
+  test: ["CMD-SHELL", "curl -f http://localhost:8081/health || exit 1"]
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 40s

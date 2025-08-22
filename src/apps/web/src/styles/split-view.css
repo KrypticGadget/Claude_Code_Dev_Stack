@@ -1,0 +1,445 @@
+/* Split View Styles */
+.split-view-container {
+  display: flex;
+  flex: 1;
+  position: relative;
+  background: var(--bg-primary);
+  overflow: hidden;
+}
+
+/* Split panel */
+.split-panel {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.split-panel.active {
+  border-color: var(--border-active);
+  box-shadow: 0 0 0 1px var(--border-active);
+  z-index: 2;
+}
+
+.split-panel:not(.active) {
+  opacity: 0.9;
+}
+
+.split-panel:not(.active):hover {
+  opacity: 1;
+}
+
+/* Panel header */
+.panel-header {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
+  min-height: 35px;
+}
+
+/* Panel content */
+.panel-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--bg-primary);
+}
+
+/* Panel editor placeholder */
+.panel-editor-placeholder {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-placeholder {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-family: monospace;
+  font-size: 14px;
+}
+
+/* Panel empty state */
+.panel-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+}
+
+.empty-state h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.empty-state p {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.create-file-button {
+  padding: 8px 16px;
+  background: var(--bg-active);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.create-file-button:hover {
+  background: #106ebe;
+  transform: translateY(-1px);
+}
+
+.create-file-button:active {
+  transform: translateY(0);
+}
+
+/* Split handle styles are in separate file */
+
+/* Panel drop zones */
+.panel-drop-zones {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.drop-zone {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 122, 204, 0.1);
+  border: 2px dashed var(--bg-active);
+  border-radius: 8px;
+  pointer-events: all;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.drop-zone.drag-over {
+  opacity: 1;
+  background: rgba(0, 122, 204, 0.2);
+}
+
+.drop-zone-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--bg-active);
+  font-weight: 600;
+  font-size: 14px;
+  text-align: center;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(8px);
+}
+
+.drop-zone-indicator svg {
+  margin-bottom: 8px;
+  opacity: 0.8;
+}
+
+.drop-zone-indicator span {
+  white-space: nowrap;
+}
+
+/* Drop zone positions */
+.drop-zone-center {
+  top: 20%;
+  left: 20%;
+  right: 20%;
+  bottom: 20%;
+}
+
+.drop-zone-top {
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  height: 60px;
+}
+
+.drop-zone-bottom {
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  height: 60px;
+}
+
+.drop-zone-left {
+  top: 80px;
+  bottom: 80px;
+  left: 10px;
+  width: 60px;
+}
+
+.drop-zone-right {
+  top: 80px;
+  bottom: 80px;
+  right: 10px;
+  width: 60px;
+}
+
+/* Panel grid layouts */
+.split-view-container.layout-grid-2x1 .split-panel:nth-child(1) {
+  width: 50%;
+  height: 100%;
+}
+
+.split-view-container.layout-grid-2x1 .split-panel:nth-child(2) {
+  left: 50%;
+  width: 50%;
+  height: 100%;
+}
+
+.split-view-container.layout-grid-1x2 .split-panel:nth-child(1) {
+  width: 100%;
+  height: 50%;
+}
+
+.split-view-container.layout-grid-1x2 .split-panel:nth-child(2) {
+  top: 50%;
+  width: 100%;
+  height: 50%;
+}
+
+.split-view-container.layout-grid-2x2 .split-panel:nth-child(1) {
+  width: 50%;
+  height: 50%;
+}
+
+.split-view-container.layout-grid-2x2 .split-panel:nth-child(2) {
+  left: 50%;
+  width: 50%;
+  height: 50%;
+}
+
+.split-view-container.layout-grid-2x2 .split-panel:nth-child(3) {
+  top: 50%;
+  width: 50%;
+  height: 50%;
+}
+
+.split-view-container.layout-grid-2x2 .split-panel:nth-child(4) {
+  top: 50%;
+  left: 50%;
+  width: 50%;
+  height: 50%;
+}
+
+/* Panel animations */
+@keyframes panel-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes panel-exit {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+.split-panel.entering {
+  animation: panel-enter 0.3s ease;
+}
+
+.split-panel.exiting {
+  animation: panel-exit 0.3s ease;
+}
+
+/* Panel focus management */
+.split-panel:focus-within {
+  border-color: var(--border-active);
+  box-shadow: 0 0 0 1px var(--border-active);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .split-view-container {
+    flex-direction: column;
+  }
+  
+  .split-panel {
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 300px;
+    margin-bottom: 8px;
+  }
+  
+  .drop-zone-top,
+  .drop-zone-bottom {
+    height: 40px;
+  }
+  
+  .drop-zone-left,
+  .drop-zone-right {
+    width: 40px;
+  }
+  
+  .empty-state {
+    padding: 20px;
+  }
+  
+  .empty-state h3 {
+    font-size: 16px;
+  }
+  
+  .empty-state p {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .split-panel {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  
+  .drop-zone-indicator {
+    padding: 12px;
+    font-size: 12px;
+  }
+  
+  .drop-zone-top,
+  .drop-zone-bottom {
+    height: 32px;
+  }
+  
+  .drop-zone-left,
+  .drop-zone-right {
+    width: 32px;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .split-panel {
+    border: 2px solid var(--border-color);
+  }
+  
+  .split-panel.active {
+    border: 2px solid var(--border-active);
+  }
+  
+  .drop-zone {
+    border-width: 3px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .split-panel,
+  .drop-zone {
+    transition: none;
+  }
+  
+  .split-panel.entering,
+  .split-panel.exiting {
+    animation: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .split-view-container {
+    display: block;
+  }
+  
+  .split-panel {
+    position: static;
+    width: 100%;
+    height: auto;
+    border: 1px solid #000;
+    margin-bottom: 20px;
+    break-inside: avoid;
+  }
+  
+  .panel-drop-zones,
+  .drop-zone {
+    display: none;
+  }
+}
+
+/* Dark mode specific adjustments */
+@media (prefers-color-scheme: dark) {
+  .drop-zone-indicator {
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+  }
+}
+
+/* Performance optimizations */
+.split-view-container {
+  contain: layout style;
+}
+
+.split-panel {
+  contain: layout style;
+  will-change: transform, opacity;
+}
+
+/* Touch-specific enhancements */
+@media (hover: none) and (pointer: coarse) {
+  .drop-zone {
+    opacity: 0.3; /* Slightly visible on touch devices */
+  }
+  
+  .drop-zone.drag-over {
+    opacity: 1;
+  }
+  
+  .split-panel {
+    min-height: 200px; /* Larger minimum on touch */
+  }
+}
+
+/* Accessibility improvements */
+.split-panel[aria-label] {
+  outline: none;
+}
+
+.split-panel:focus {
+  outline: 2px solid var(--border-active);
+  outline-offset: 2px;
+}

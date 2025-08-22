@@ -1,0 +1,608 @@
+name: Hook Test Framework CI/CD
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+    paths:
+      - 'core/hooks/**'
+      - '.github/workflows/hook-tests.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'core/hooks/**'
+  schedule:
+    # Run tests daily at 6 AM UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      test_filter:
+        description: 'Test filter (smoke, performance, regression, all)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - smoke
+          - performance
+          - regression
+          - all
+      update_baselines:
+        description: 'Update performance baselines'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  PYTHON_VERSION: '3.9'
+  HOOKS_DIRECTORY: 'core/hooks'
+  TEST_TIMEOUT_MINUTES: 30
+  ARTIFACT_RETENTION_DAYS: 30
+
+jobs:
+  # Pre-flight checks
+  pre_flight:
+    name: Pre-flight Checks
+    runs-on: ubuntu-latest
+    outputs:
+      should_run_tests: ${{ steps.check_changes.outputs.should_run }}
+      test_filter: ${{ steps.set_filter.outputs.filter }}
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
+        
+    - name: Check for relevant changes
+      id: check_changes
+      run: |
+        if git diff --name-only HEAD~1 HEAD | grep -E "(core/hooks/|\.github/workflows/hook-tests\.yml)" > /dev/null; then
+          echo "should_run=true" >> $GITHUB_OUTPUT
+        else
+          echo "should_run=false" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Set test filter
+      id: set_filter
+      run: |
+        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          echo "filter=${{ github.event.inputs.test_filter }}" >> $GITHUB_OUTPUT
+        elif [[ "${{ github.event_name }}" == "schedule" ]]; then
+          echo "filter=all" >> $GITHUB_OUTPUT
+        elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          echo "filter=all" >> $GITHUB_OUTPUT
+        else
+          echo "filter=smoke" >> $GITHUB_OUTPUT
+        fi
+
+  # Smoke tests - quick validation
+  smoke_tests:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+    needs: pre_flight
+    if: needs.pre_flight.outputs.should_run_tests == 'true'
+    timeout-minutes: 10
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        cd ${{ env.HOOKS_DIRECTORY }}
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-xdist pytest-timeout
+        
+    - name: Run smoke tests
+      run: |
+        cd ${{ env.HOOKS_DIRECTORY }}/tests
+        python -m pytest test_pytest_integration.py -m smoke \
+          --timeout=60 \
+          --junit-xml=smoke_test_results.xml \
+          --cov=../ \
+          --cov-report=xml:smoke_coverage.xml \
+          -v
+          
+    - name: Upload smoke test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: smoke-test-results
+        path: |
+          ${{ env.HOOKS_DIRECTORY }}/tests/smoke_test_results.xml
+          ${{ env.HOOKS_DIRECTORY }}/tests/smoke_coverage.xml
+        retention-days: 7
+
+  # Unit tests
+  unit_tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: [pre_flight, smoke_tests]
+    if: needs.pre_flight.outputs.should_run_tests == 'true'
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        cd ${{ env.HOOKS_DIRECTORY }}
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-xdist pytest-timeout
+        
+    - name: Run unit tests
+      run: |
+        cd ${{ env.HOOKS_DIRECTORY }}/tests
+        python -m pytest test_pytest_integration.py -m unit \
+          --timeout=300 \
+          --junit-xml=unit_test_results_${{ matrix.python-version }}.xml \
+          --cov=../ \
+          --cov-report=xml:unit_coverage_${{ matrix.python-version }}.xml \
+          -n auto \
+          -v
+          
+    - name: Upload unit test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: unit-test-results-${{ matrix.python-version }}
+        path: |
+          ${{ env.HOOKS_DIRECTORY }}/tests/unit_test_results_${{ matrix.python-version }}.xml
+          ${{ env.HOOKS_DIRECTORY }}/tests/unit_coverage_${{ matrix.python-version }}.xml
+        retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
+
+  # Integration tests
+  integration_tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [pre_flight, smoke_tests]
+    if: needs.pre_flight.outputs.should_run_tests == 'true'
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        cd ${{ env.HOOKS_DIRECTORY }}
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-xdist pytest-timeout
+        
+    - name: Run integration tests
+      run: |
+        cd ${{ env.HOOKS_DIRECTORY }}/tests
+        python -m pytest test_pytest_integration.py -m integration \
+          --timeout=600 \
+          --junit-xml=integration_test_results.xml \
+          --cov=../ \
+          --cov-report=xml:integration_coverage.xml \
+          -v
+          
+    - name: Upload integration test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: integration-test-results
+        path: |
+          ${{ env.HOOKS_DIRECTORY }}/tests/integration_test_results.xml
+          ${{ env.HOOKS_DIRECTORY }}/tests/integration_coverage.xml
+        retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
+
+  # Performance tests
+  performance_tests:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    needs: [pre_flight, unit_tests]
+    if: |
+      needs.pre_flight.outputs.should_run_tests == 'true' && 
+      (needs.pre_flight.outputs.test_filter == 'performance' || 
+       needs.pre_flight.outputs.test_filter == 'all' ||
+       github.event_name == 'schedule')
+    timeout-minutes: 45
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        cd ${{ env.HOOKS_DIRECTORY }}
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-xdist pytest-timeout pytest-benchmark
+        
+    - name: Run performance tests
+      run: |
+        cd ${{ env.HOOKS_DIRECTORY }}/tests
+        python -m pytest test_pytest_integration.py -m performance \
+          --timeout=1800 \
+          --junit-xml=performance_test_results.xml \
+          --benchmark-json=benchmark_results.json \
+          -v
+          
+    - name: Run comprehensive hook test framework
+      run: |
+        cd ${{ env.HOOKS_DIRECTORY }}/tests
+        python test_runner.py --mode ci --filter performance \
+          --junit-xml performance_framework_results.xml \
+          --html-report performance_report.html
+          
+    - name: Upload performance test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: performance-test-results
+        path: |
+          ${{ env.HOOKS_DIRECTORY }}/tests/performance_test_results.xml
+          ${{ env.HOOKS_DIRECTORY }}/tests/benchmark_results.json
+          ${{ env.HOOKS_DIRECTORY }}/tests/performance_framework_results.xml
+          ${{ env.HOOKS_DIRECTORY }}/tests/performance_report.html
+        retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
+
+  # Concurrency tests
+  concurrency_tests:
+    name: Concurrency Tests
+    runs-on: ubuntu-latest
+    needs: [pre_flight, unit_tests]
+    if: |
+      needs.pre_flight.outputs.should_run_tests == 'true' && 
+      (needs.pre_flight.outputs.test_filter == 'all' ||
+       github.event_name == 'schedule')
+    timeout-minutes: 25
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        cd ${{ env.HOOKS_DIRECTORY }}
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-xdist pytest-timeout
+        
+    - name: Run concurrency tests
+      run: |
+        cd ${{ env.HOOKS_DIRECTORY }}/tests
+        python -m pytest test_pytest_integration.py -m concurrency \
+          --timeout=900 \
+          --junit-xml=concurrency_test_results.xml \
+          --cov=../ \
+          --cov-report=xml:concurrency_coverage.xml \
+          -v
+          
+    - name: Upload concurrency test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: concurrency-test-results
+        path: |
+          ${{ env.HOOKS_DIRECTORY }}/tests/concurrency_test_results.xml
+          ${{ env.HOOKS_DIRECTORY }}/tests/concurrency_coverage.xml
+        retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
+
+  # Regression tests
+  regression_tests:
+    name: Regression Tests
+    runs-on: ubuntu-latest
+    needs: [pre_flight, integration_tests]
+    if: |
+      needs.pre_flight.outputs.should_run_tests == 'true' && 
+      (needs.pre_flight.outputs.test_filter == 'regression' || 
+       needs.pre_flight.outputs.test_filter == 'all' ||
+       github.event_name == 'schedule' ||
+       github.ref == 'refs/heads/main')
+    timeout-minutes: 35
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        cd ${{ env.HOOKS_DIRECTORY }}
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-xdist pytest-timeout
+        
+    - name: Run regression tests
+      run: |
+        cd ${{ env.HOOKS_DIRECTORY }}/tests
+        python -m pytest test_pytest_integration.py -m regression \
+          --timeout=1200 \
+          --junit-xml=regression_test_results.xml \
+          --cov=../ \
+          --cov-report=xml:regression_coverage.xml \
+          -v
+          
+    - name: Upload regression test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: regression-test-results
+        path: |
+          ${{ env.HOOKS_DIRECTORY }}/tests/regression_test_results.xml
+          ${{ env.HOOKS_DIRECTORY }}/tests/regression_coverage.xml
+        retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
+
+  # Comprehensive test framework run
+  comprehensive_tests:
+    name: Comprehensive Test Framework
+    runs-on: ubuntu-latest
+    needs: [pre_flight, unit_tests, integration_tests]
+    if: |
+      needs.pre_flight.outputs.should_run_tests == 'true' && 
+      (needs.pre_flight.outputs.test_filter == 'all' ||
+       github.event_name == 'schedule' ||
+       github.ref == 'refs/heads/main')
+    timeout-minutes: 60
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        cd ${{ env.HOOKS_DIRECTORY }}
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-xdist pytest-timeout
+        
+    - name: Run comprehensive test framework
+      run: |
+        cd ${{ env.HOOKS_DIRECTORY }}/tests
+        python test_runner.py --mode ci \
+          --junit-xml comprehensive_test_results.xml \
+          --html-report comprehensive_test_report.html \
+          --required-pass-rate 85.0 \
+          --parallel-suites 3 \
+          --parallel-tests 8 \
+          --timeout 60
+          
+    - name: Upload comprehensive test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: comprehensive-test-results
+        path: |
+          ${{ env.HOOKS_DIRECTORY }}/tests/comprehensive_test_results.xml
+          ${{ env.HOOKS_DIRECTORY }}/tests/comprehensive_test_report.html
+          ${{ env.HOOKS_DIRECTORY }}/tests/test_reports/
+        retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
+
+  # Test results aggregation and reporting
+  test_results:
+    name: Aggregate Test Results
+    runs-on: ubuntu-latest
+    needs: [smoke_tests, unit_tests, integration_tests, performance_tests, concurrency_tests, regression_tests, comprehensive_tests]
+    if: always() && needs.pre_flight.outputs.should_run_tests == 'true'
+    
+    steps:
+    - name: Download all test artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: test-artifacts
+        
+    - name: Aggregate test results
+      run: |
+        mkdir -p aggregated-results
+        find test-artifacts -name "*.xml" -exec cp {} aggregated-results/ \;
+        find test-artifacts -name "*.html" -exec cp {} aggregated-results/ \;
+        find test-artifacts -name "*.json" -exec cp {} aggregated-results/ \;
+        
+        # Count test results
+        total_tests=0
+        passed_tests=0
+        failed_tests=0
+        
+        for xml_file in aggregated-results/*.xml; do
+          if [[ -f "$xml_file" ]]; then
+            tests=$(grep -o 'tests="[0-9]*"' "$xml_file" | grep -o '[0-9]*' | head -1)
+            failures=$(grep -o 'failures="[0-9]*"' "$xml_file" | grep -o '[0-9]*' | head -1)
+            errors=$(grep -o 'errors="[0-9]*"' "$xml_file" | grep -o '[0-9]*' | head -1)
+            
+            tests=${tests:-0}
+            failures=${failures:-0}
+            errors=${errors:-0}
+            
+            total_tests=$((total_tests + tests))
+            failed_tests=$((failed_tests + failures + errors))
+          fi
+        done
+        
+        passed_tests=$((total_tests - failed_tests))
+        pass_rate=$(echo "scale=2; $passed_tests * 100 / $total_tests" | bc -l)
+        
+        echo "# Test Results Summary" > test_summary.md
+        echo "" >> test_summary.md
+        echo "| Metric | Value |" >> test_summary.md
+        echo "|--------|-------|" >> test_summary.md
+        echo "| Total Tests | $total_tests |" >> test_summary.md
+        echo "| Passed Tests | $passed_tests |" >> test_summary.md
+        echo "| Failed Tests | $failed_tests |" >> test_summary.md
+        echo "| Pass Rate | ${pass_rate}% |" >> test_summary.md
+        echo "" >> test_summary.md
+        
+        # Set outputs for other jobs
+        echo "total_tests=$total_tests" >> $GITHUB_OUTPUT
+        echo "passed_tests=$passed_tests" >> $GITHUB_OUTPUT
+        echo "failed_tests=$failed_tests" >> $GITHUB_OUTPUT
+        echo "pass_rate=$pass_rate" >> $GITHUB_OUTPUT
+        
+    - name: Upload aggregated results
+      uses: actions/upload-artifact@v3
+      with:
+        name: aggregated-test-results
+        path: |
+          aggregated-results/
+          test_summary.md
+        retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
+        
+    - name: Comment PR with test results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const summary = fs.readFileSync('test_summary.md', 'utf8');
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `## 🧪 Hook Test Results\n\n${summary}`
+          });
+
+  # Update performance baselines (if requested)
+  update_baselines:
+    name: Update Performance Baselines
+    runs-on: ubuntu-latest
+    needs: [performance_tests, comprehensive_tests]
+    if: |
+      github.event.inputs.update_baselines == 'true' ||
+      (github.event_name == 'schedule' && github.ref == 'refs/heads/main')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        cd ${{ env.HOOKS_DIRECTORY }}
+        pip install -r requirements.txt
+        
+    - name: Update performance baselines
+      run: |
+        cd ${{ env.HOOKS_DIRECTORY }}/tests
+        python test_runner.py --mode ci \
+          --filter performance \
+          --update-baselines
+          
+    - name: Commit updated baselines
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add ${{ env.HOOKS_DIRECTORY }}/tests/performance_baselines.json
+        if git diff --staged --quiet; then
+          echo "No baseline changes to commit"
+        else
+          git commit -m "Update performance baselines [automated]"
+          git push
+        fi
+
+  # Notification and status reporting
+  notify:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+    needs: [test_results]
+    if: always() && (github.event_name == 'push' || github.event_name == 'schedule')
+    
+    steps:
+    - name: Send Slack notification
+      if: env.SLACK_WEBHOOK_URL != ''
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      run: |
+        if [[ "${{ needs.test_results.result }}" == "success" ]]; then
+          color="good"
+          emoji="✅"
+          status="SUCCESS"
+        else
+          color="danger"  
+          emoji="❌"
+          status="FAILED"
+        fi
+        
+        curl -X POST -H 'Content-type: application/json' \
+          --data "{
+            \"attachments\": [{
+              \"color\": \"$color\",
+              \"title\": \"$emoji Hook Test Framework - $status\",
+              \"fields\": [
+                {\"title\": \"Branch\", \"value\": \"${{ github.ref_name }}\", \"short\": true},
+                {\"title\": \"Commit\", \"value\": \"${{ github.sha }}\", \"short\": true},
+                {\"title\": \"Total Tests\", \"value\": \"${{ needs.test_results.outputs.total_tests }}\", \"short\": true},
+                {\"title\": \"Pass Rate\", \"value\": \"${{ needs.test_results.outputs.pass_rate }}%\", \"short\": true}
+              ],
+              \"actions\": [{
+                \"type\": \"button\",
+                \"text\": \"View Results\",
+                \"url\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+              }]
+            }]
+          }" \
+          $SLACK_WEBHOOK_URL
+
+  # Final status check
+  status_check:
+    name: Final Status Check
+    runs-on: ubuntu-latest
+    needs: [test_results]
+    if: always()
+    
+    steps:
+    - name: Check overall status
+      run: |
+        if [[ "${{ needs.test_results.result }}" == "success" ]]; then
+          echo "✅ All hook tests completed successfully"
+          exit 0
+        else
+          echo "❌ Hook tests failed or were cancelled"
+          exit 1
+        fi

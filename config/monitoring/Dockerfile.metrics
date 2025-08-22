@@ -1,0 +1,43 @@
+# Dockerfile for Claude Code Metrics Collector
+FROM python:3.11-slim
+
+LABEL maintainer="Claude Code Team"
+LABEL description="Prometheus metrics collector for Claude Code V3.6.9"
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements
+COPY requirements-monitoring.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements-monitoring.txt
+
+# Copy application code
+COPY metrics/ ./metrics/
+COPY enhanced_performance_monitor.py .
+
+# Create non-root user
+RUN useradd -m -u 1001 claude-metrics
+USER claude-metrics
+
+# Expose metrics port
+EXPOSE 8001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8001/metrics || exit 1
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV METRICS_PORT=8001
+ENV CLAUDE_HOME=/Users/.claude
+
+# Start metrics collector
+CMD ["python", "enhanced_performance_monitor.py", "start", "8001"]

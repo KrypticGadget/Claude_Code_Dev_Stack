@@ -1,0 +1,78 @@
+version: '3.8'
+
+# Development overrides for Claude Code Dev Stack
+services:
+  # Development overrides for main application
+  claude-dev-stack:
+    build:
+      target: development
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - claude_dev_tools:/tools
+    environment:
+      - NODE_ENV=development
+      - DEBUG=claude:*
+      - ENABLE_HOT_RELOAD=true
+      - ENABLE_SOURCE_MAPS=true
+    command: ["npm", "run", "dev"]
+
+  # Development overrides for semantic API
+  semantic-api:
+    build:
+      target: development
+    environment:
+      - NODE_ENV=development
+      - DEBUG=semantic:*
+    command: ["npm", "run", "dev"]
+
+  # Development overrides for React UI
+  claude-ui:
+    build:
+      target: development
+    environment:
+      - NODE_ENV=development
+      - VITE_DEBUG=true
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+
+  # Add development tools container
+  node-exporter:
+    image: prom/node-exporter:latest
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - claude-network
+    profiles:
+      - monitoring
+
+  # Add cAdvisor for container monitoring
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    devices:
+      - /dev/kmsg
+    networks:
+      - claude-network
+    profiles:
+      - monitoring
+
+volumes:
+  claude_dev_tools:
+    driver: local

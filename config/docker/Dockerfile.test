@@ -1,0 +1,118 @@
+# Claude Code Dev Stack V3.6.9 - Testing Environment Dockerfile
+FROM node:18-alpine AS test-base
+
+# Install testing dependencies and system tools
+RUN apk add --no-cache \
+    python3 \
+    py3-pip \
+    make \
+    g++ \
+    git \
+    bash \
+    curl \
+    jq \
+    chromium \
+    chromium-chromedriver \
+    firefox \
+    xvfb \
+    dbus
+
+# Install Python testing dependencies
+RUN pip3 install --no-cache-dir \
+    pytest \
+    pytest-cov \
+    pytest-xdist \
+    pytest-html \
+    requests \
+    selenium \
+    beautifulsoup4
+
+# Set up Chrome for Puppeteer/Playwright
+ENV CHROME_BIN=/usr/bin/chromium-browser \
+    CHROME_PATH=/usr/bin/chromium-browser \
+    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY tsconfig.json ./
+
+# Install all dependencies including dev dependencies
+RUN npm ci
+
+# Install additional testing tools
+RUN npm install -g \
+    jest \
+    playwright \
+    puppeteer \
+    cypress \
+    @testing-library/jest-dom \
+    @testing-library/react \
+    @testing-library/user-event \
+    nyc \
+    c8
+
+# Install Playwright browsers
+RUN npx playwright install --with-deps chromium firefox webkit
+
+# Copy source code
+COPY . .
+
+# Create test directories
+RUN mkdir -p \
+    /app/test-results \
+    /app/coverage \
+    /app/screenshots \
+    /app/videos \
+    /app/reports
+
+# Set up permissions
+RUN chmod +x scripts/*.sh && \
+    find . -name "*.test.*" -type f -exec chmod +x {} \; && \
+    find . -name "*.spec.*" -type f -exec chmod +x {} \;
+
+# Environment variables for testing
+ENV NODE_ENV=test \
+    CI=true \
+    JEST_WORKERS=4 \
+    TEST_TIMEOUT=30000 \
+    COVERAGE_THRESHOLD=80 \
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+
+# Health check for test environment
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD node -e "console.log('Test environment ready')" || exit 1
+
+# Default command runs all tests
+CMD ["npm", "run", "test:all"]
+
+# Testing stage with specific test types
+FROM test-base AS unit-tests
+CMD ["npm", "run", "test:unit"]
+
+FROM test-base AS integration-tests
+CMD ["npm", "run", "test:integration"]
+
+FROM test-base AS e2e-tests
+CMD ["npm", "run", "test:e2e"]
+
+FROM test-base AS performance-tests
+RUN npm install -g artillery k6 autocannon
+CMD ["npm", "run", "test:performance"]
+
+FROM test-base AS security-tests
+RUN npm install -g snyk audit-ci safety
+CMD ["npm", "run", "test:security"]
+
+# Coverage reporting stage
+FROM test-base AS coverage-report
+CMD ["npm", "run", "test:coverage"]
+
+# Labels for metadata
+LABEL maintainer="Claude Code Dev Stack Team" \
+      version="3.6.9" \
+      description="Testing environment for Claude Code Dev Stack" \
+      test.type="comprehensive" \
+      test.frameworks="jest,playwright,cypress,pytest"
