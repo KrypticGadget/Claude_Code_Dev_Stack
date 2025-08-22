@@ -17,9 +17,12 @@ const packageRoot = path.resolve(__dirname, '..');
 
 console.log(chalk.cyan.bold(`
 ╔═══════════════════════════════════════════════════════════════╗
+║  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·    ║
 ║                                                               ║
-║   🚀 CLAUDE CODE DEV STACK - STARTING                       ║
+║              🚀 CCDS - STARTING SERVICES                      ║
+║            CLAUDE CODE DEV STACK V3.6.9                      ║
 ║                                                               ║
+║  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·    ║
 ╚═══════════════════════════════════════════════════════════════╝
 `));
 

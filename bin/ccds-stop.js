@@ -16,9 +16,12 @@ const __dirname = dirname(__filename);
 
 console.log(chalk.red.bold(`
 ╔═══════════════════════════════════════════════════════════════╗
+║  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·    ║
 ║                                                               ║
-║   🛑 CLAUDE CODE DEV STACK - STOPPING                       ║
+║              🛑 CCDS - STOPPING SERVICES                      ║
+║            CLAUDE CODE DEV STACK V3.6.9                      ║
 ║                                                               ║
+║  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·    ║
 ╚═══════════════════════════════════════════════════════════════╝
 `));
 
