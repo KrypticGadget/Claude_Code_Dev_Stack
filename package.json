@@ -96,11 +96,13 @@
     "semver": "^7.5.4",
     "validate-npm-package-name": "^5.0.0",
     "ws": "^8.14.2",
-    "node-pty": "^1.0.0",
     "concurrently": "^8.2.2",
     "qrcode": "^1.5.3",
     "qrcode-terminal": "^0.12.0",
     "clipboardy": "^3.0.0"
+  },
+  "optionalDependencies": {
+    "node-pty": "^1.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.4",
