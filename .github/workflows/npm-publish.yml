@@ -27,7 +27,7 @@ jobs:
       - name: Set version if provided
         if: ${{ github.event.inputs.version }}
         run: |
-          npm version ${{ github.event.inputs.version }} --no-git-tag-version
+          npm version ${{ github.event.inputs.version }} --no-git-tag-version || echo "Version already set"
           
       - name: Publish to npm
         run: |
