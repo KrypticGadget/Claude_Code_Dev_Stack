@@ -1,0 +1,60 @@
+name: Publish to NPM
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., 3.6.9)'
+        required: false
+        type: string
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+          
+      - name: Install dependencies
+        run: |
+          npm ci --omit=optional --omit=dev
+          
+      - name: Set version if provided
+        if: ${{ github.event.inputs.version }}
+        run: |
+          npm version ${{ github.event.inputs.version }} --no-git-tag-version
+          
+      - name: Publish to npm
+        run: |
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          
+      - name: Create success comment
+        if: success() && github.event_name == 'release'
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ github.event.release.id }}
+          body: |
+            ✅ Successfully published to npm!
+            
+            Install with:
+            ```bash
+            npm install -g @claude-code/dev-stack
+            ```
+            
+            Available commands:
+            - `ccds-setup` - Setup with galaxy-themed ASCII art
+            - `ccds-start` - Start services
+            - `ccds-stop` - Stop all services
+            - `ccds-tunnel-start` - Start tunnel
+            - `ccds-tunnel-stop` - Stop tunnel
