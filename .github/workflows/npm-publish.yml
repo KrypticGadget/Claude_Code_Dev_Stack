@@ -45,7 +45,7 @@ jobs:
             
             Install with:
             ```bash
-            npm install -g @claude-code/dev-stack
+            npm install -g claude-code-dev-stack
             ```
             
             Available commands:
