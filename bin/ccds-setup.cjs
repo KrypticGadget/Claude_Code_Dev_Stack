@@ -255,6 +255,28 @@ if (fs.existsSync(claudeConfigPath)) {
       env: {}
     };
     
+    // Configure cross-platform statusLine
+    const isWindows = process.platform === 'win32';
+    const pythonCmd = isWindows ? 'python' : 'python3';
+    const statuslineScript = path.join(claudeDir, 'hooks', 'claude_statusline.py');
+    
+    // Format the command based on OS
+    let statuslineCommand;
+    if (isWindows) {
+      // Windows: Use double quotes and escaped backslashes for settings.json
+      const escapedPath = statuslineScript.replace(/\\/g, '\\\\');
+      statuslineCommand = `${pythonCmd} "${escapedPath}"`;
+    } else {
+      // Linux/macOS: Use the path directly
+      statuslineCommand = `${pythonCmd} ${statuslineScript}`;
+    }
+    
+    config.statusLine = {
+      type: "command",
+      command: statuslineCommand,
+      padding: 0
+    };
+    
     // Add dev stack metadata
     config.devStack = {
       version: '3.0.0',
@@ -265,6 +287,7 @@ if (fs.existsSync(claudeConfigPath)) {
     
     fs.writeFileSync(claudeConfigPath, JSON.stringify(config, null, 2));
     console.log('\x1b[32m✅ Claude Code configuration updated with ' + ourHooks.length + ' hooks\x1b[0m');
+    console.log('\x1b[32m✅ Statusline configured for ' + process.platform + ' platform\x1b[0m');
   } catch (e) {
     console.log('\x1b[33m⚠️  Could not update Claude config: ' + e.message + '\x1b[0m');
   }
