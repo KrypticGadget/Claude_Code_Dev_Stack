@@ -88,7 +88,7 @@ const banner = `
 ║    ██        ██        ██   ██        ██                     ║
 ║    ████████  ████████  ██████   ████████                     ║
 ║                                                               ║
-║           CLAUDE CODE DEV STACK V3.7.6                        ║
+║           CLAUDE CODE DEV STACK V3.7.7                        ║
 ║       ∘  ·  Complete One-Command Installation  ·  ∘          ║
 ║                                                               ║
 ║  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·    ║
@@ -401,7 +401,7 @@ if (fs.existsSync(claudeConfigPath)) {
       version: '3.0.0',
       enabled: true,
       installed: new Date().toISOString(),
-      hooksPath: coreHooksDir
+      hooksPath: hooksDir
     };
     
     fs.writeFileSync(claudeConfigPath, JSON.stringify(config, null, 2));
