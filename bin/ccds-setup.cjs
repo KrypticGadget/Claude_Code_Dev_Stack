@@ -88,7 +88,7 @@ const banner = `
 ║    ██        ██        ██   ██        ██                     ║
 ║    ████████  ████████  ██████   ████████                     ║
 ║                                                               ║
-║           CLAUDE CODE DEV STACK V3.7.7                        ║
+║           CLAUDE CODE DEV STACK V3.7.8                        ║
 ║       ∘  ·  Complete One-Command Installation  ·  ∘          ║
 ║                                                               ║
 ║  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·    ║
@@ -255,38 +255,50 @@ if (fs.existsSync(claudeConfigPath)) {
       console.log(`\x1b[32m✅ Installed ${installedCount} hooks to ${hooksDir}\x1b[0m`);
     }
     
-    // Configure hooks with platform-aware commands
-    const ourHooks = [
+    // Configure hooks with platform-aware commands - CORRECT FORMAT per Claude docs
+    config.hooks = config.hooks || {};
+    
+    // UserPromptSubmit hook for smart orchestrator
+    config.hooks.UserPromptSubmit = [
       {
-        pattern: "*",
-        command: detector.formatCommand(path.join(hooksDir, 'status_line_manager.py')),
-        description: "Status line updates and context tracking"
-      },
-      {
-        pattern: "@*",
-        command: detector.formatCommand(path.join(hooksDir, 'smart_orchestrator.py')),
-        description: "Smart agent routing with @mentions"
-      },
-      {
-        pattern: "*",
-        command: detector.formatCommand(path.join(hooksDir, 'audio_controller.py')),
-        description: "Audio feedback system"
-      },
-      {
-        pattern: "*",
-        command: detector.formatCommand(path.join(hooksDir, 'performance_monitor.py')),
-        description: "Performance monitoring"
+        hooks: [
+          {
+            type: "command",
+            command: detector.formatCommand(path.join(hooksDir, 'smart_orchestrator.py'))
+          }
+        ]
       }
     ];
     
-    // Remove duplicate hooks and add new ones
-    const existingCommands = new Set((config.hooks || []).map(h => h.command));
-    ourHooks.forEach(hook => {
-      if (!existingCommands.has(hook.command)) {
-        config.hooks.push(hook);
-        existingCommands.add(hook.command);
+    // PreToolUse hooks for monitoring
+    config.hooks.PreToolUse = [
+      {
+        matcher: "*",
+        hooks: [
+          {
+            type: "command",
+            command: detector.formatCommand(path.join(hooksDir, 'status_line_manager.py'))
+          },
+          {
+            type: "command",
+            command: detector.formatCommand(path.join(hooksDir, 'performance_monitor.py'))
+          }
+        ]
       }
-    });
+    ];
+    
+    // PostToolUse hooks for audio feedback
+    config.hooks.PostToolUse = [
+      {
+        matcher: "*",
+        hooks: [
+          {
+            type: "command",
+            command: detector.formatCommand(path.join(hooksDir, 'audio_controller.py'))
+          }
+        ]
+      }
+    ];
     
     // Add MCP servers
     config.mcpServers = config.mcpServers || {};
@@ -405,7 +417,7 @@ if (fs.existsSync(claudeConfigPath)) {
     };
     
     fs.writeFileSync(claudeConfigPath, JSON.stringify(config, null, 2));
-    console.log('\x1b[32m✅ Claude Code configuration updated with ' + ourHooks.length + ' hooks\x1b[0m');
+    console.log('\x1b[32m✅ Claude Code configuration updated with hooks\x1b[0m');
     console.log('\x1b[32m✅ Statusline configured for ' + process.platform + ' platform\x1b[0m');
   } catch (e) {
     console.log('\x1b[33m⚠️  Could not update Claude config: ' + e.message + '\x1b[0m');
@@ -413,38 +425,10 @@ if (fs.existsSync(claudeConfigPath)) {
 } else {
   // Create basic Claude config if it doesn't exist
   try {
-    // Cross-platform Python command detection
-    let pythonCmd = 'python3';
-    try {
-      execSync('python3 --version', { stdio: 'pipe' });
-    } catch {
-      try {
-        execSync('python --version', { stdio: 'pipe' });
-        pythonCmd = 'python';
-      } catch {
-        console.log('\x1b[33m⚠️  Python not found, hooks may not work\x1b[0m');
-        pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
-      }
-    }
-    
-    // Dynamic path resolution for global npm installs
-    let coreHooksDir;
-    if (packageRoot.includes('node_modules')) {
-      // Global npm install - try different possible locations
-      const possiblePaths = [
-        // Standard global npm location
-        path.join(packageRoot, 'core', 'hooks', 'hooks'),
-        // Alternative npm global structure
-        path.join(path.dirname(packageRoot), '@claude-code', 'dev-stack', 'core', 'hooks', 'hooks'),
-        // Direct package name in global modules
-        path.join(path.dirname(packageRoot), 'claude-code-dev-stack', 'core', 'hooks', 'hooks')
-      ];
-      
-      // Find the first path that exists
-      coreHooksDir = possiblePaths.find(p => fs.existsSync(p)) || path.join(packageRoot, 'core', 'hooks', 'hooks');
-    } else {
-      // Local development or direct install
-      coreHooksDir = path.join(packageRoot, 'core', 'hooks', 'hooks');
+    // Create hooks directory if it doesn't exist
+    const hooksDir = path.join(claudeDir, 'hooks');
+    if (!fs.existsSync(hooksDir)) {
+      fs.mkdirSync(hooksDir, { recursive: true });
     }
     
     const basicConfig = {
@@ -452,25 +436,46 @@ if (fs.existsSync(claudeConfigPath)) {
         version: '3.0.0',
         enabled: true,
         installed: new Date().toISOString(),
-        hooksPath: coreHooksDir
+        hooksPath: hooksDir
       },
-      hooks: [
-        {
-          pattern: "*",
-          command: `${pythonCmd} "${path.join(coreHooksDir, 'status_line_manager.py')}"`,
-          description: "Status line updates and context tracking"
-        },
-        {
-          pattern: "@*",
-          command: `${pythonCmd} "${path.join(coreHooksDir, 'smart_orchestrator.py')}"`,
-          description: "Smart agent routing with @mentions"
-        },
-        {
-          pattern: "*",
-          command: `${pythonCmd} "${path.join(coreHooksDir, 'audio_controller.py')}"`,
-          description: "Audio feedback system"
-        }
-      ],
+      hooks: {
+        UserPromptSubmit: [
+          {
+            hooks: [
+              {
+                type: "command",
+                command: detector.formatCommand(path.join(hooksDir, 'smart_orchestrator.py'))
+              }
+            ]
+          }
+        ],
+        PreToolUse: [
+          {
+            matcher: "*",
+            hooks: [
+              {
+                type: "command",
+                command: detector.formatCommand(path.join(hooksDir, 'status_line_manager.py'))
+              },
+              {
+                type: "command",
+                command: detector.formatCommand(path.join(hooksDir, 'performance_monitor.py'))
+              }
+            ]
+          }
+        ],
+        PostToolUse: [
+          {
+            matcher: "*",
+            hooks: [
+              {
+                type: "command",
+                command: detector.formatCommand(path.join(hooksDir, 'audio_controller.py'))
+              }
+            ]
+          }
+        ]
+      },
       mcpServers: {
         github: {
           type: "stdio",
