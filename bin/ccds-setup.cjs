@@ -257,7 +257,7 @@ if (fs.existsSync(claudeConfigPath)) {
     
     // Configure cross-platform statusLine
     const isWindows = process.platform === 'win32';
-    const pythonCmd = isWindows ? 'python' : 'python3';
+    const pythonCmdForStatusline = isWindows ? 'python' : 'python3';
     const statuslineScript = path.join(claudeDir, 'hooks', 'claude_statusline.py');
     
     // Format the command based on OS
@@ -265,10 +265,10 @@ if (fs.existsSync(claudeConfigPath)) {
     if (isWindows) {
       // Windows: Use double quotes and escaped backslashes for settings.json
       const escapedPath = statuslineScript.replace(/\\/g, '\\\\');
-      statuslineCommand = `${pythonCmd} "${escapedPath}"`;
+      statuslineCommand = `${pythonCmdForStatusline} "${escapedPath}"`;
     } else {
       // Linux/macOS: Use the path directly
-      statuslineCommand = `${pythonCmd} ${statuslineScript}`;
+      statuslineCommand = `${pythonCmdForStatusline} ${statuslineScript}`;
     }
     
     config.statusLine = {
