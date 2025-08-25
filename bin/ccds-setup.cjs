@@ -263,11 +263,12 @@ if (fs.existsSync(claudeConfigPath)) {
     // Format the command based on OS
     let statuslineCommand;
     if (isWindows) {
-      // Windows: Use double quotes and escaped backslashes for settings.json
-      const escapedPath = statuslineScript.replace(/\\/g, '\\\\');
+      // Windows: Normalize path to use backslashes and escape for JSON
+      const normalizedPath = statuslineScript.replace(/\//g, '\\');
+      const escapedPath = normalizedPath.replace(/\\/g, '\\\\');
       statuslineCommand = `${pythonCmdForStatusline} "${escapedPath}"`;
     } else {
-      // Linux/macOS: Use the path directly
+      // Linux/macOS: Use the path directly without quotes
       statuslineCommand = `${pythonCmdForStatusline} ${statuslineScript}`;
     }
     
@@ -275,6 +276,30 @@ if (fs.existsSync(claudeConfigPath)) {
       type: "command",
       command: statuslineCommand,
       padding: 0
+    };
+    
+    // Add v3Features for statusline and other features
+    if (!config.v3Features) {
+      config.v3Features = {};
+    }
+    
+    // Configure statusline v3 features
+    config.v3Features.statusLine = {
+      enabled: true,
+      updateInterval: 100,
+      showInPrompt: true,
+      components: [
+        "model",
+        "git",
+        "phase",
+        "agents",
+        "tokens",
+        "health"
+      ],
+      themes: {
+        default: "cyberpunk",
+        available: ["cyberpunk", "minimal", "matrix", "neon"]
+      }
     };
     
     // Add dev stack metadata
