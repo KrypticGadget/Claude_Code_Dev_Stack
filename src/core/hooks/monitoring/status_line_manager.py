@@ -336,6 +336,58 @@ class StatusLineManager:
 
 def main():
     """Main entry point for status line display"""
+    
+    # Check if called in statusline mode by Claude Code
+    if "--statusline" in sys.argv:
+        # Read JSON from stdin and output formatted statusline
+        try:
+            import json
+            input_data = json.load(sys.stdin)
+            
+            # Create manager but don't start background thread
+            manager = StatusLineManager()
+            manager.running = False  # Prevent background thread
+            
+            # Build statusline based on current state
+            statusline_parts = []
+            
+            # Model from input or status
+            model = input_data.get('model', {}).get('display_name', manager.status['model'].split('-')[-1])
+            statusline_parts.append(f"[{model}]")
+            
+            # Directory
+            current_dir = os.path.basename(input_data.get('workspace', {}).get('current_dir', os.getcwd()))
+            statusline_parts.append(f"📁 {current_dir}")
+            
+            # Git info
+            git = manager.status['git']
+            if git['branch'] != 'no-repo':
+                statusline_parts.append(f"git:{git['branch']}({git['status']})")
+            
+            # Phase
+            statusline_parts.append(manager.status['phase'])
+            
+            # Agents
+            if manager.status['agents']:
+                statusline_parts.append(f"{len(manager.status['agents'])} agents")
+            
+            # Tokens
+            tokens = manager.status['tokens']
+            if tokens['percentage'] > 50:
+                statusline_parts.append(f"{tokens['percentage']:.0f}% tokens")
+            
+            # Health
+            health = manager.status['chat_health']
+            if health['status'] != 'healthy':
+                statusline_parts.append(health['status'])
+            
+            print(" | ".join(statusline_parts))
+        except Exception:
+            # Fallback statusline
+            print(f"[Claude] 📁 {os.path.basename(os.getcwd())}")
+        return
+    
+    # Normal operation mode
     manager = StatusLineManager()
     
     try:
