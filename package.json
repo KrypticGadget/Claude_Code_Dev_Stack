@@ -1,6 +1,6 @@
 {
   "name": "claude-code-dev-stack",
-  "version": "3.6.9",
+  "version": "3.7.0",
   "description": "AI-powered development environment with 37 specialized agents, intelligent hooks, and unified tooling",
   "main": "index.js",
   "type": "module",

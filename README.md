@@ -1,12 +1,17 @@
-# Claude Code Dev Stack V3
+# Claude Code Dev Stack V3.7.0
 
-AI-powered development environment with 28 specialized agents, intelligent hooks, and unified tooling.
+AI-powered development environment with 28 specialized agents, intelligent hooks, unified tooling, and real-time statusline.
 
 ## 🚀 Quick Install
 
-### From GitHub (Recommended)
+### From npm (Latest v3.7.0)
 ```bash
-npm install -g github:KrypticGadget/Claude_Code_Dev_Stack#feature/v3-dev
+npm install -g claude-code-dev-stack@latest
+```
+
+### From GitHub (Development)
+```bash
+npm install -g github:KrypticGadget/Claude_Code_Dev_Stack#main
 ```
 
 ### One-line Installers
@@ -25,6 +30,7 @@ irm https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/featur
 - ✅ **28 Specialized AI Agents** - Architecture, development, DevOps, QA, and more
 - ✅ **37 Intelligent Hooks** - Automated workflows and orchestration
 - ✅ **90+ Audio Files** - Rich audio feedback system
+- ✅ **Real-time Statusline** - Live context awareness (v3.7.0)
 - ✅ **Unified React PWA** - Beautiful dashboard interface
 - ✅ **MCP Servers** - code-sandbox, GitHub, Playwright integration
 - ✅ **Claude Code Integration** - Seamless hooks and agent routing
@@ -34,16 +40,17 @@ irm https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/featur
 After installation, you'll have access to:
 
 ```bash
+# Main setup command (includes statusline configuration)
+ccds-setup
+
 # List and manage agents
-claude-code-agents list
-claude-code-agents install --all
+ccds-agents list
 
 # List and manage hooks  
-claude-code-hooks list
-claude-code-hooks install --all
+ccds-hooks list
 
-# Setup and configuration
-claude-code-setup
+# Test statusline
+python ~/.claude/hooks/test_statusline.py
 
 # Start the PWA dashboard
 cd ~/.claude/ui && npm run dev
@@ -53,24 +60,26 @@ cd ~/.claude/ui && npm run dev
 
 1. **Install the stack:**
    ```bash
-   npm install -g github:KrypticGadget/Claude_Code_Dev_Stack#feature/v3-dev
+   npm install -g claude-code-dev-stack@latest
    ```
 
-2. **Test agent routing:**
+2. **Run setup (configures statusline and hooks):**
    ```bash
-   claude "@master-orchestrator help"
+   ccds-setup
    ```
 
-3. **Start the dashboard:**
+3. **Test the statusline:**
    ```bash
-   cd ~/.claude/ui && npm run dev
+   python ~/.claude/hooks/test_statusline.py
    ```
 
 4. **View your setup:**
    ```bash
-   claude-code-agents list
-   claude-code-hooks list
+   ccds-agents list
+   ccds-hooks list
    ```
+
+5. **The statusline will appear automatically when you launch Claude Code!**
 
 ## 🏗️ Architecture
 
@@ -86,6 +95,7 @@ Claude Code Dev Stack V3/
 
 ## 📊 Features
 
+- **Real-time Statusline** (v3.7.0) - Live display of model, git, phase, agents, tokens
 - **Agent Orchestration** - Smart routing and task delegation
 - **Audio Feedback** - Rich audio notifications for all actions
 - **Performance Monitoring** - Real-time metrics and optimization
