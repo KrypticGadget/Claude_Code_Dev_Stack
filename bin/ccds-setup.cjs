@@ -88,7 +88,7 @@ const banner = `
 ║    ██        ██        ██   ██        ██                     ║
 ║    ████████  ████████  ██████   ████████                     ║
 ║                                                               ║
-║           CLAUDE CODE DEV STACK V3.7.8                        ║
+║           CLAUDE CODE DEV STACK V3.7.9                        ║
 ║       ∘  ·  Complete One-Command Installation  ·  ∘          ║
 ║                                                               ║
 ║  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·    ║
@@ -199,7 +199,7 @@ if (fs.existsSync(claudeConfigPath)) {
     let config = JSON.parse(fs.readFileSync(claudeConfigPath, 'utf8'));
     
     // Platform-aware hooks configuration - ALL handled automatically
-    config.hooks = config.hooks || [];
+    config.hooks = config.hooks || {};
     
     // Hooks directory in user's home - works EVERYWHERE
     const hooksDir = path.join(claudeDir, 'hooks');
