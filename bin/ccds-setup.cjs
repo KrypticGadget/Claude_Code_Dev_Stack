@@ -88,7 +88,7 @@ const banner = `
 ║    ██        ██        ██   ██        ██                     ║
 ║    ████████  ████████  ██████   ████████                     ║
 ║                                                               ║
-║           CLAUDE CODE DEV STACK V3.7.9                        ║
+║           CLAUDE CODE DEV STACK V3.7.10                       ║
 ║       ∘  ·  Complete One-Command Installation  ·  ∘          ║
 ║                                                               ║
 ║  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·    ║
@@ -208,45 +208,84 @@ if (fs.existsSync(claudeConfigPath)) {
     }
     
     // Auto-install hooks to ~/.claude/hooks/ for cross-platform support
-    const hookFiles = [
-      'claude_statusline.py',
-      'master_orchestrator.py', 
-      'smart_orchestrator.py',
-      'agent_mention_parser.py',
-      'status_line_manager.py',
-      'audio_controller.py',
-      'performance_monitor.py'
-    ];
+    // Hook registry mapping to find files in subdirectories
+    const hookMappings = {
+      'claude_statusline.py': 'bin/statusline.py',
+      'master_orchestrator.py': 'agent/master_orchestrator.py',
+      'smart_orchestrator.py': 'agent/smart_orchestrator.py',
+      'agent_mention_parser.py': 'agent/agent_mention_parser.py',
+      'agent_enhancer_v3.py': 'agent/agent_enhancer_v3.py',
+      'status_line_manager.py': 'monitoring/status_line_manager.py',
+      'performance_monitor.py': 'monitoring/performance_monitor.py',
+      'model_tracker.py': 'monitoring/model_tracker.py',
+      'resource_monitor.py': 'monitoring/resource_monitor.py',
+      'audio_controller.py': 'audio/audio_controller.py',
+      'audio_player.py': 'audio/audio_player.py',
+      'audio_player_v3.py': 'audio/audio_player_v3.py',
+      'audio_notifier.py': 'audio/audio_notifier.py',
+      'venv_enforcer.py': 'system/venv_enforcer.py',
+      'slash_command_router.py': 'system/slash_command_router.py',
+      'security_scanner.py': 'system/security_scanner.py',
+      'enhanced_bash_hook.py': 'system/enhanced_bash_hook.py',
+      'session_loader.py': 'session/session_loader.py',
+      'session_saver.py': 'session/session_saver.py',
+      'context_manager.py': 'session/context_manager.py',
+      'chat_manager_v3.py': 'session/chat_manager_v3.py',
+      'parallel_execution_engine.py': 'orchestration/parallel_execution_engine.py',
+      'planning_trigger.py': 'orchestration/planning_trigger.py',
+      'quality_gate_hook.py': 'quality/quality_gate_hook.py',
+      'git_quality_hooks.py': 'git/git_quality_hooks.py',
+      'code_linter.py': 'quality/code_linter.py',
+      'auto_formatter.py': 'quality/auto_formatter.py',
+      'v3_orchestrator.py': 'config/v3_orchestrator.py',
+      'v3_validator.py': 'validation/v3_validator.py'
+    };
     
     // Try to copy hooks from package
     let installedCount = 0;
     const possibleSourceDirs = [
       path.join(packageRoot, 'src', 'core', 'hooks'),
-      path.join(packageRoot, 'core', 'hooks', 'hooks'),
+      path.join(packageRoot, 'core', 'hooks'),
       path.join(packageRoot, 'hooks')
     ];
     
-    for (const hookFile of hookFiles) {
-      const destPath = path.join(hooksDir, hookFile);
+    // Copy all mapped hooks to flat structure in ~/.claude/hooks/
+    for (const [destFileName, sourcePath] of Object.entries(hookMappings)) {
+      const destPath = path.join(hooksDir, destFileName);
       if (!fs.existsSync(destPath)) {
         // Try to find and copy the hook
         let copied = false;
-        for (const sourceDir of possibleSourceDirs) {
-          const sourcePath = path.join(sourceDir, hookFile);
-          if (fs.existsSync(sourcePath)) {
+        
+        // Special handling for claude_statusline.py
+        if (destFileName === 'claude_statusline.py') {
+          const statuslineSource = path.join(packageRoot, sourcePath);
+          if (fs.existsSync(statuslineSource)) {
             try {
-              fs.copyFileSync(sourcePath, destPath);
+              fs.copyFileSync(statuslineSource, destPath);
               if (!detector.isWindows) fs.chmodSync(destPath, '755');
               installedCount++;
               copied = true;
-              break;
             } catch {}
+          }
+        } else {
+          // Regular hook files from src/core/hooks subdirectories
+          for (const sourceDir of possibleSourceDirs) {
+            const fullSourcePath = path.join(sourceDir, sourcePath);
+            if (fs.existsSync(fullSourcePath)) {
+              try {
+                fs.copyFileSync(fullSourcePath, destPath);
+                if (!detector.isWindows) fs.chmodSync(destPath, '755');
+                installedCount++;
+                copied = true;
+                break;
+              } catch {}
+            }
           }
         }
         
-        // Create placeholder if not found
-        if (!copied) {
-          fs.writeFileSync(destPath, `#!/usr/bin/env python3\n# Placeholder for ${hookFile}\nimport sys\nsys.stdin.read()\n`);
+        // Create minimal placeholder for critical hooks if not found
+        if (!copied && ['smart_orchestrator.py', 'status_line_manager.py', 'claude_statusline.py'].includes(destFileName)) {
+          fs.writeFileSync(destPath, `#!/usr/bin/env python3\n# Placeholder for ${destFileName}\nimport sys\nsys.stdin.read()\n`);
         }
       }
     }
@@ -256,45 +295,141 @@ if (fs.existsSync(claudeConfigPath)) {
     }
     
     // Configure hooks with platform-aware commands - CORRECT FORMAT per Claude docs
-    config.hooks = config.hooks || {};
+    // ALWAYS replace old hooks to ensure correct format
+    config.hooks = {};
     
-    // UserPromptSubmit hook for smart orchestrator
+    // UserPromptSubmit hook for smart orchestrator and parallel execution
     config.hooks.UserPromptSubmit = [
       {
         hooks: [
           {
             type: "command",
-            command: detector.formatCommand(path.join(hooksDir, 'smart_orchestrator.py'))
+            command: detector.formatCommand(path.join(hooksDir, 'smart_orchestrator.py')),
+            timeout: 5
+          },
+          {
+            type: "command",
+            command: detector.formatCommand(path.join(hooksDir, 'parallel_execution_engine.py')),
+            timeout: 5
           }
         ]
       }
     ];
     
-    // PreToolUse hooks for monitoring
+    // PreToolUse hooks for monitoring and validation
     config.hooks.PreToolUse = [
+      {
+        matcher: "Bash",
+        hooks: [
+          {
+            type: "command",
+            command: detector.formatCommand(path.join(hooksDir, 'venv_enforcer.py')),
+            timeout: 3
+          },
+          {
+            type: "command",
+            command: detector.formatCommand(path.join(hooksDir, 'enhanced_bash_hook.py')),
+            timeout: 3
+          }
+        ]
+      },
+      {
+        matcher: "Write|Edit|MultiEdit",
+        hooks: [
+          {
+            type: "command",
+            command: detector.formatCommand(path.join(hooksDir, 'code_linter.py')),
+            timeout: 5
+          },
+          {
+            type: "command",
+            command: detector.formatCommand(path.join(hooksDir, 'auto_formatter.py')),
+            timeout: 5
+          }
+        ]
+      },
+      {
+        matcher: "Task",
+        hooks: [
+          {
+            type: "command",
+            command: detector.formatCommand(path.join(hooksDir, 'audio_player.py')),
+            timeout: 3
+          }
+        ]
+      },
       {
         matcher: "*",
         hooks: [
           {
             type: "command",
-            command: detector.formatCommand(path.join(hooksDir, 'status_line_manager.py'))
+            command: detector.formatCommand(path.join(hooksDir, 'status_line_manager.py')),
+            timeout: 2
           },
           {
             type: "command",
-            command: detector.formatCommand(path.join(hooksDir, 'performance_monitor.py'))
+            command: detector.formatCommand(path.join(hooksDir, 'performance_monitor.py')),
+            timeout: 2
           }
         ]
       }
     ];
     
-    // PostToolUse hooks for audio feedback
+    // PostToolUse hooks for audio feedback and session management
     config.hooks.PostToolUse = [
       {
         matcher: "*",
         hooks: [
           {
             type: "command",
-            command: detector.formatCommand(path.join(hooksDir, 'audio_controller.py'))
+            command: detector.formatCommand(path.join(hooksDir, 'audio_controller.py')),
+            timeout: 3
+          },
+          {
+            type: "command",
+            command: detector.formatCommand(path.join(hooksDir, 'session_saver.py')),
+            timeout: 3
+          }
+        ]
+      },
+      {
+        matcher: "Write|Edit|MultiEdit",
+        hooks: [
+          {
+            type: "command",
+            command: detector.formatCommand(path.join(hooksDir, 'git_quality_hooks.py')),
+            timeout: 5
+          }
+        ]
+      }
+    ];
+    
+    // SessionStart hook for loading context
+    config.hooks.SessionStart = [
+      {
+        hooks: [
+          {
+            type: "command",
+            command: detector.formatCommand(path.join(hooksDir, 'session_loader.py')),
+            timeout: 5
+          },
+          {
+            type: "command",
+            command: detector.formatCommand(path.join(hooksDir, 'context_manager.py')),
+            timeout: 5
+          }
+        ]
+      }
+    ];
+    
+    // Stop hook for session management
+    config.hooks.Stop = [
+      {
+        hooks: [
+          {
+            type: "command",
+            command: detector.formatCommand(path.join(hooksDir, 'model_tracker.py')),
+            timeout: 3
           }
         ]
       }
