@@ -88,7 +88,7 @@ const banner = `
 ║    ██        ██        ██   ██        ██                     ║
 ║    ████████  ████████  ██████   ████████                     ║
 ║                                                               ║
-║           CLAUDE CODE DEV STACK V3.7.10                       ║
+║           CLAUDE CODE DEV STACK V3.7.12                       ║
 ║       ∘  ·  Complete One-Command Installation  ·  ∘          ║
 ║                                                               ║
 ║  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·    ║
@@ -263,13 +263,30 @@ if (fs.existsSync(claudeConfigPath)) {
       'migrate_to_v3_audio.py': 'audio/migrate_to_v3_audio.py'
     };
     
-    // Try to copy hooks from package
+    // Try to copy hooks from package - check multiple possible locations
     let installedCount = 0;
+    let missingCritical = [];
     const possibleSourceDirs = [
+      // NPM global install locations
       path.join(packageRoot, 'src', 'core', 'hooks'),
       path.join(packageRoot, 'core', 'hooks'),
-      path.join(packageRoot, 'hooks')
+      path.join(packageRoot, 'hooks'),
+      // Local development locations
+      path.join(__dirname, '..', 'src', 'core', 'hooks'),
+      path.join(__dirname, '..', '..', 'src', 'core', 'hooks'),
+      // Running from repo root
+      path.join(process.cwd(), 'src', 'core', 'hooks'),
+      // Fallback for different install methods
+      path.resolve(__dirname, '..', 'src', 'core', 'hooks'),
+      path.resolve(packageRoot, 'src', 'core', 'hooks')
     ];
+    
+    console.log('\x1b[90m🔍 Searching for hooks in:\x1b[0m');
+    possibleSourceDirs.forEach(dir => {
+      if (fs.existsSync(dir)) {
+        console.log(`\x1b[90m  ✓ ${dir}\x1b[0m`);
+      }
+    });
     
     // Copy all mapped hooks to flat structure in ~/.claude/hooks/
     for (const [destFileName, sourcePath] of Object.entries(hookMappings)) {
@@ -305,15 +322,91 @@ if (fs.existsSync(claudeConfigPath)) {
           }
         }
         
-        // Create minimal placeholder for critical hooks if not found
-        if (!copied && ['smart_orchestrator.py', 'status_line_manager.py', 'claude_statusline.py'].includes(destFileName)) {
-          fs.writeFileSync(destPath, `#!/usr/bin/env python3\n# Placeholder for ${destFileName}\nimport sys\nsys.stdin.read()\n`);
+        // Track missing critical hooks
+        if (!copied) {
+          const criticalHooks = ['smart_orchestrator.py', 'status_line_manager.py', 'claude_statusline.py', 'master_orchestrator.py', 'audio_player.py'];
+          if (criticalHooks.includes(destFileName)) {
+            missingCritical.push({ name: destFileName, path: sourcePath });
+          }
         }
       }
     }
     
     if (installedCount > 0) {
       console.log(`\x1b[32m✅ Installed ${installedCount} hooks to ${hooksDir}\x1b[0m`);
+    }
+    
+    // Verify critical hooks installation
+    console.log('\x1b[36m🔍 Verifying critical hooks installation...\x1b[0m');
+    const criticalHooks = {
+      'smart_orchestrator.py': 500,  // Minimum expected file size in bytes
+      'status_line_manager.py': 500,
+      'claude_statusline.py': 500,
+      'master_orchestrator.py': 500,
+      'audio_player.py': 1000
+    };
+    
+    for (const [hookName, minSize] of Object.entries(criticalHooks)) {
+      const hookPath = path.join(hooksDir, hookName);
+      if (fs.existsSync(hookPath)) {
+        const stats = fs.statSync(hookPath);
+        if (stats.size < minSize) {
+          console.log(`  \x1b[33m⚠️ ${hookName}: Too small (${stats.size} bytes, expected > ${minSize})\x1b[0m`);
+        } else {
+          console.log(`  \x1b[32m✅ ${hookName}: Verified (${stats.size} bytes)\x1b[0m`);
+        }
+      } else {
+        console.log(`  \x1b[31m❌ ${hookName}: Not found\x1b[0m`);
+      }
+    }
+    
+    // Report missing critical hooks
+    if (missingCritical.length > 0) {
+      console.log('\x1b[33m⚠️ Some critical hooks are missing or invalid.\x1b[0m');
+      console.log('\x1b[33m   Core functionality may be limited.\x1b[0m');
+      console.log('\x1b[36m   To fix: Run from the repository root or reinstall the package\x1b[0m');
+      missingCritical.forEach(hook => {
+        console.log(`\x1b[90m   Missing: ${hook.name} (expected in ${hook.path})\x1b[0m`);
+      });
+    }
+    
+    // Try to copy audio files if available
+    const audioDir = path.join(claudeDir, 'audio');
+    if (!fs.existsSync(audioDir)) {
+      fs.mkdirSync(audioDir, { recursive: true });
+    }
+    
+    const possibleAudioDirs = [
+      path.join(packageRoot, 'src', 'core', 'audio'),
+      path.join(packageRoot, 'core', 'audio'),
+      path.join(__dirname, '..', 'src', 'core', 'audio'),
+      path.join(process.cwd(), 'src', 'core', 'audio')
+    ];
+    
+    let audioInstalled = 0;
+    for (const sourceDir of possibleAudioDirs) {
+      if (fs.existsSync(sourceDir)) {
+        const audioFiles = fs.readdirSync(sourceDir).filter(f => f.endsWith('.wav'));
+        if (audioFiles.length > 0) {
+          console.log(`\x1b[36m🔊 Installing ${audioFiles.length} audio files...\x1b[0m`);
+          audioFiles.forEach(file => {
+            const sourcePath = path.join(sourceDir, file);
+            const destPath = path.join(audioDir, file);
+            if (!fs.existsSync(destPath)) {
+              try {
+                fs.copyFileSync(sourcePath, destPath);
+                audioInstalled++;
+              } catch (e) {
+                console.log(`\x1b[90m  Failed to copy: ${file}\x1b[0m`);
+              }
+            }
+          });
+          if (audioInstalled > 0) {
+            console.log(`\x1b[32m✅ Installed ${audioInstalled} audio files\x1b[0m`);
+          }
+          break; // Found and copied audio files, stop looking
+        }
+      }
     }
     
     // Detect and fix corrupted configurations
