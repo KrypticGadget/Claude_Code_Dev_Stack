@@ -88,7 +88,7 @@ const banner = `
 ║    ██        ██        ██   ██        ██                     ║
 ║    ████████  ████████  ██████   ████████                     ║
 ║                                                               ║
-║           CLAUDE CODE DEV STACK V3.7.13                       ║
+║           CLAUDE CODE DEV STACK V3.7.14                       ║
 ║       ∘  ·  Complete One-Command Installation  ·  ∘          ║
 ║                                                               ║
 ║  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·    ║
@@ -639,39 +639,7 @@ if (fs.existsSync(claudeConfigPath)) {
       env: {}
     };
     
-    // Verify critical hooks were installed
-    console.log('\x1b[36m🔍 Verifying critical hooks installation...\x1b[0m');
-    const criticalHooks = [
-      'smart_orchestrator.py',
-      'status_line_manager.py',
-      'claude_statusline.py',
-      'master_orchestrator.py',
-      'audio_player.py'
-    ];
-    
-    let verificationPassed = true;
-    for (const hook of criticalHooks) {
-      const hookPath = path.join(hooksDir, hook);
-      if (fs.existsSync(hookPath)) {
-        const stats = fs.statSync(hookPath);
-        if (stats.size > 100) {
-          console.log(`  \x1b[32m✅ ${hook}: Verified (${stats.size} bytes)\x1b[0m`);
-        } else {
-          console.log(`  \x1b[33m⚠️ ${hook}: Too small (likely placeholder)\x1b[0m`);
-          verificationPassed = false;
-        }
-      } else {
-        console.log(`  \x1b[31m❌ ${hook}: Not found\x1b[0m`);
-        verificationPassed = false;
-      }
-    }
-    
-    if (!verificationPassed) {
-      console.log('\x1b[33m⚠️ Some critical hooks are missing or invalid.\x1b[0m');
-      console.log('   Core functionality may be limited.\x1b[0m');
-    } else {
-      console.log('\x1b[32m✅ All critical hooks verified successfully!\x1b[0m');
-    }
+    // Old verification code removed - already handled above
     
     // Configure statusLine with automatic platform detection
     const statuslineScript = path.join(claudeDir, 'hooks', 'claude_statusline.py');
