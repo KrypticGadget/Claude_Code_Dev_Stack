@@ -238,7 +238,29 @@ if (fs.existsSync(claudeConfigPath)) {
       'code_linter.py': 'quality/code_linter.py',
       'auto_formatter.py': 'quality/auto_formatter.py',
       'v3_orchestrator.py': 'config/v3_orchestrator.py',
-      'v3_validator.py': 'validation/v3_validator.py'
+      'v3_validator.py': 'validation/v3_validator.py',
+      // Critical missing mappings for backward compatibility
+      'quality_gate.py': 'quality/quality_gate_hook.py',
+      'pre_command.py': 'system/enhanced_bash_hook.py',
+      'agent_orchestrator_integrated.py': 'agent/master_orchestrator.py',
+      'post_project.py': 'session/session_saver.py',
+      'pre_project.py': 'session/session_loader.py',
+      'mcp_initializer.py': 'config/v3_config.py',
+      'test_hook.py': 'tests/test_runner.py',
+      // Additional hook mappings
+      'handoff_protocols.py': 'handoff/handoff_protocols.py',
+      'handoff_integration.py': 'handoff/handoff_integration.py',
+      'hook_config.py': 'config/hook_config.py',
+      'hook_manager.py': 'config/hook_manager.py',
+      'hook_priority_system.py': 'config/hook_priority_system.py',
+      'dependency_checker.py': 'quality/dependency_checker.py',
+      'auto_documentation.py': 'quality/auto_documentation.py',
+      'notification_sender.py': 'system/notification_sender.py',
+      'ultimate_claude_hook.py': 'system/ultimate_claude_hook.py',
+      'orchestration_enhancer.py': 'orchestration/orchestration_enhancer.py',
+      'chat_manager.py': 'session/chat_manager.py',
+      'audio_player_fixed.py': 'audio/audio_player_fixed.py',
+      'migrate_to_v3_audio.py': 'audio/migrate_to_v3_audio.py'
     };
     
     // Try to copy hooks from package
@@ -292,6 +314,41 @@ if (fs.existsSync(claudeConfigPath)) {
     
     if (installedCount > 0) {
       console.log(`\x1b[32m✅ Installed ${installedCount} hooks to ${hooksDir}\x1b[0m`);
+    }
+    
+    // Detect and fix corrupted configurations
+    const corruptedHooks = ['quality_gate.py', 'pre_command.py', 'test_hook.py', 'agent_orchestrator_integrated.py'];
+    let needsCleanup = false;
+    
+    if (config.hooks && typeof config.hooks === 'object') {
+      for (const [hookType, hookConfigs] of Object.entries(config.hooks)) {
+        if (Array.isArray(hookConfigs)) {
+          for (const hookConfig of hookConfigs) {
+            if (hookConfig.hooks) {
+              for (const hook of hookConfig.hooks) {
+                if (hook.command) {
+                  for (const corrupt of corruptedHooks) {
+                    if (hook.command.includes(corrupt) && !fs.existsSync(path.join(hooksDir, corrupt))) {
+                      needsCleanup = true;
+                      console.log(`\x1b[33m⚠️  Detected reference to non-existent hook: ${corrupt}\x1b[0m`);
+                      break;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    if (needsCleanup) {
+      console.log('\x1b[33m🔧 Resetting hook configuration to clean state...\x1b[0m');
+      // Backup current config
+      const backupPath = claudeConfigPath + '.backup.' + Date.now();
+      fs.copyFileSync(claudeConfigPath, backupPath);
+      console.log(`\x1b[32m📦 Configuration backed up to: ${backupPath}\x1b[0m`);
+      config.hooks = {}; // Reset hooks for clean reconfiguration
     }
     
     // Configure hooks with platform-aware commands - CORRECT FORMAT per Claude docs
@@ -488,6 +545,40 @@ if (fs.existsSync(claudeConfigPath)) {
       args: codeSandboxArgs,
       env: {}
     };
+    
+    // Verify critical hooks were installed
+    console.log('\x1b[36m🔍 Verifying critical hooks installation...\x1b[0m');
+    const criticalHooks = [
+      'smart_orchestrator.py',
+      'status_line_manager.py',
+      'claude_statusline.py',
+      'master_orchestrator.py',
+      'audio_player.py'
+    ];
+    
+    let verificationPassed = true;
+    for (const hook of criticalHooks) {
+      const hookPath = path.join(hooksDir, hook);
+      if (fs.existsSync(hookPath)) {
+        const stats = fs.statSync(hookPath);
+        if (stats.size > 100) {
+          console.log(`  \x1b[32m✅ ${hook}: Verified (${stats.size} bytes)\x1b[0m`);
+        } else {
+          console.log(`  \x1b[33m⚠️ ${hook}: Too small (likely placeholder)\x1b[0m`);
+          verificationPassed = false;
+        }
+      } else {
+        console.log(`  \x1b[31m❌ ${hook}: Not found\x1b[0m`);
+        verificationPassed = false;
+      }
+    }
+    
+    if (!verificationPassed) {
+      console.log('\x1b[33m⚠️ Some critical hooks are missing or invalid.\x1b[0m');
+      console.log('   Core functionality may be limited.\x1b[0m');
+    } else {
+      console.log('\x1b[32m✅ All critical hooks verified successfully!\x1b[0m');
+    }
     
     // Configure statusLine with automatic platform detection
     const statuslineScript = path.join(claudeDir, 'hooks', 'claude_statusline.py');
