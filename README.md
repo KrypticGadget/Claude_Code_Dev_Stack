@@ -1,10 +1,10 @@
-# Claude Code Dev Stack V3.7.0
+# Claude Code Dev Stack V3.7.12
 
 AI-powered development environment with 28 specialized agents, intelligent hooks, unified tooling, and real-time statusline.
 
 ## 🚀 Quick Install
 
-### From npm (Latest v3.7.0)
+### From npm (Latest v3.7.12)
 ```bash
 npm install -g claude-code-dev-stack@latest
 ```
@@ -30,7 +30,7 @@ irm https://raw.githubusercontent.com/KrypticGadget/Claude_Code_Dev_Stack/featur
 - ✅ **28 Specialized AI Agents** - Architecture, development, DevOps, QA, and more
 - ✅ **37 Intelligent Hooks** - Automated workflows and orchestration
 - ✅ **90+ Audio Files** - Rich audio feedback system
-- ✅ **Real-time Statusline** - Live context awareness (v3.7.0)
+- ✅ **Real-time Statusline** - Live context awareness (v3.7.12)
 - ✅ **Unified React PWA** - Beautiful dashboard interface
 - ✅ **MCP Servers** - code-sandbox, GitHub, Playwright integration
 - ✅ **Claude Code Integration** - Seamless hooks and agent routing
@@ -95,7 +95,7 @@ Claude Code Dev Stack V3/
 
 ## 📊 Features
 
-- **Real-time Statusline** (v3.7.0) - Live display of model, git, phase, agents, tokens
+- **Real-time Statusline** (v3.7.12) - Live display of model, git, phase, agents, tokens
 - **Agent Orchestration** - Smart routing and task delegation
 - **Audio Feedback** - Rich audio notifications for all actions
 - **Performance Monitoring** - Real-time metrics and optimization
