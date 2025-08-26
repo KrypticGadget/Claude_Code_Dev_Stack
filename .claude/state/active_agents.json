@@ -1,3 +1,5 @@
 {
-  "prompt-engineer": "default"
+  "prompt-engineer": "default",
+  "master-orchestrator": "default",
+  "assigned": "default"
 }
