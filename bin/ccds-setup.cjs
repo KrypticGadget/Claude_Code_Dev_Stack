@@ -88,7 +88,7 @@ const banner = `
 ║    ██        ██        ██   ██        ██                     ║
 ║    ████████  ████████  ██████   ████████                     ║
 ║                                                               ║
-║           CLAUDE CODE DEV STACK V3.7.14                       ║
+║           CLAUDE CODE DEV STACK V3.7.15                       ║
 ║       ∘  ·  Complete One-Command Installation  ·  ∘          ║
 ║                                                               ║
 ║  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·  *  ·  ∘  ·    ║
@@ -207,6 +207,21 @@ if (fs.existsSync(claudeConfigPath)) {
       fs.mkdirSync(hooksDir, { recursive: true });
     }
     
+    // Clean install option - remove old placeholders
+    const cleanInstall = process.argv.includes('--clean') || process.env.CCDS_CLEAN_INSTALL === 'true';
+    if (cleanInstall) {
+      console.log('\x1b[33m🧹 Clean install mode - removing old hook files...\x1b[0m');
+      const oldFiles = fs.readdirSync(hooksDir).filter(f => f.endsWith('.py'));
+      oldFiles.forEach(file => {
+        const filePath = path.join(hooksDir, file);
+        const stats = fs.statSync(filePath);
+        if (stats.size < 200) { // Remove suspiciously small files
+          fs.unlinkSync(filePath);
+          console.log(`  Removed placeholder: ${file} (${stats.size} bytes)`);
+        }
+      });
+    }
+    
     // Auto-install hooks to ~/.claude/hooks/ for cross-platform support
     // Hook registry mapping to find files in subdirectories
     const hookMappings = {
@@ -291,43 +306,58 @@ if (fs.existsSync(claudeConfigPath)) {
     // Copy all mapped hooks to flat structure in ~/.claude/hooks/
     for (const [destFileName, sourcePath] of Object.entries(hookMappings)) {
       const destPath = path.join(hooksDir, destFileName);
-      if (!fs.existsSync(destPath)) {
-        // Try to find and copy the hook
-        let copied = false;
-        
-        // Special handling for claude_statusline.py
-        if (destFileName === 'claude_statusline.py') {
-          const statuslineSource = path.join(packageRoot, sourcePath);
-          if (fs.existsSync(statuslineSource)) {
+      // ALWAYS overwrite to ensure we get the latest version
+      let copied = false;
+      
+      // Special handling for claude_statusline.py
+      if (destFileName === 'claude_statusline.py') {
+        const statuslineSource = path.join(packageRoot, sourcePath);
+        if (fs.existsSync(statuslineSource)) {
+          try {
+            fs.copyFileSync(statuslineSource, destPath);
+            if (!detector.isWindows) fs.chmodSync(destPath, '755');
+            const stats = fs.statSync(destPath);
+            console.log(`  ✅ ${destFileName}: Copied (${stats.size} bytes)`);
+            installedCount++;
+            copied = true;
+          } catch (e) {
+            console.error(`  ❌ Failed to copy ${destFileName}: ${e.message}`);
+          }
+        }
+      } else {
+        // Regular hook files from src/core/hooks subdirectories
+        for (const sourceDir of possibleSourceDirs) {
+          const fullSourcePath = path.join(sourceDir, sourcePath);
+          if (fs.existsSync(fullSourcePath)) {
             try {
-              fs.copyFileSync(statuslineSource, destPath);
+              fs.copyFileSync(fullSourcePath, destPath);
               if (!detector.isWindows) fs.chmodSync(destPath, '755');
+              const stats = fs.statSync(destPath);
+              console.log(`  ✅ ${destFileName}: Copied (${stats.size} bytes) from ${sourceDir}`);
               installedCount++;
               copied = true;
-            } catch {}
-          }
-        } else {
-          // Regular hook files from src/core/hooks subdirectories
-          for (const sourceDir of possibleSourceDirs) {
-            const fullSourcePath = path.join(sourceDir, sourcePath);
-            if (fs.existsSync(fullSourcePath)) {
-              try {
-                fs.copyFileSync(fullSourcePath, destPath);
-                if (!detector.isWindows) fs.chmodSync(destPath, '755');
-                installedCount++;
-                copied = true;
-                break;
-              } catch {}
+              break;
+            } catch (e) {
+              console.error(`  ❌ Failed to copy ${destFileName} from ${fullSourcePath}: ${e.message}`);
             }
           }
         }
+      }
         
-        // Track missing critical hooks
-        if (!copied) {
-          const criticalHooks = ['smart_orchestrator.py', 'status_line_manager.py', 'claude_statusline.py', 'master_orchestrator.py', 'audio_player.py'];
-          if (criticalHooks.includes(destFileName)) {
-            missingCritical.push({ name: destFileName, path: sourcePath });
-          }
+      
+      // Track missing critical hooks
+      if (!copied) {
+        const criticalHooks = ['smart_orchestrator.py', 'status_line_manager.py', 'claude_statusline.py', 'master_orchestrator.py', 'audio_player.py'];
+        if (criticalHooks.includes(destFileName)) {
+          missingCritical.push({ name: destFileName, path: sourcePath });
+          console.log(`  ⚠️ ${destFileName}: NOT FOUND in any source directory`);
+          console.log(`     Expected path: ${sourcePath}`);
+          // Log all directories we searched
+          console.log(`     Searched in:`);
+          possibleSourceDirs.forEach(dir => {
+            const fullPath = path.join(dir, sourcePath);
+            console.log(`       - ${fullPath}: ${fs.existsSync(fullPath) ? 'EXISTS' : 'NOT FOUND'}`);
+          });
         }
       }
     }
